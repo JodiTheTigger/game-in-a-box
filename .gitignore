@@ -1,6 +1,12 @@
 # ignore temp files.
 *~
 
+# Ignore build directories
+build/
+
+# Project files
+*.kdev4
+
 # Compiled Object files
 *.slo
 *.lo
