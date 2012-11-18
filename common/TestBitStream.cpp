@@ -16,6 +16,38 @@ TEST_F(TestBitStream, ZeroSize)
   
   dude = testStream.TakeBuffer();
   
-  // havent added any data - so expect the size of the array to be 0.
+  // haven't added any data - so expect the size of the array to be 0.
   EXPECT_EQ(0, dude->size());
+}
+
+TEST_F(TestBitStream, AddOneBit)
+{
+  BitStream source(22);
+  
+  // TODO!
+  EXPECT_EQ(0, 1);
+}
+
+TEST_F(TestBitStream, AddU8)
+{
+  // TODO!
+  EXPECT_EQ(0, 1);
+}
+
+TEST_F(TestBitStream, AddU16)
+{
+  // TODO!
+  EXPECT_EQ(0, 1);
+}
+
+TEST_F(TestBitStream, AddU32)
+{
+  // TODO!
+  EXPECT_EQ(0, 1);
+}
+
+TEST_F(TestBitStream, AddLotsOfStuff)
+{
+  // TODO!
+  EXPECT_EQ(0, 1);
 }
