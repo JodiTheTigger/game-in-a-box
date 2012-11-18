@@ -13,13 +13,18 @@ public:
     BitStream(uint32_t maximumSizeOfBitStreamInBytes);
     BitStream(unique_ptr<vector<uint8_t>> sourceBuffer);
 
+    bool Push(bool value);
     bool Push(uint8_t value, uint8_t bitsToPush);
     bool Push(uint16_t value, uint8_t bitsToPush);
     bool Push(uint32_t value, uint8_t bitsToPush);
 
+    bool Pull1Bit();
     uint8_t PullU8(uint8_t bitsToPull);
     uint16_t PullU16(uint8_t bitsToPull);
     uint32_t PullU32(uint8_t bitsToPull);
+    
+    uint32_t SizeInBits() const { return myCurrentBitCount; }
+    uint32_t Position() const { return myBitIndex; }
 
     unique_ptr<vector<uint8_t>> TakeBuffer();
 

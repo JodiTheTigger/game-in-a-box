@@ -1,11 +1,12 @@
 #include "BitStream.h"
 
 BitStream::BitStream(uint32_t maximumSizeOfBitStreamInBytes)
-    : myBuffer(new vector<uint8_t>(maximumSizeOfBitStreamInBytes))
+    : myBuffer(new vector<uint8_t>())
     , myBitIndex(0)
     , myMaxBitCount(maximumSizeOfBitStreamInBytes * 8)
     , myCurrentBitCount(0)
 {
+  myBuffer->reserve(maximumSizeOfBitStreamInBytes);
 }
 
 BitStream::BitStream(unique_ptr<vector<uint8_t>> sourceBuffer)
@@ -58,7 +59,12 @@ uint32_t BitStream::PullU32(uint8_t bitsToPull)
 
 unique_ptr<vector<uint8_t>> BitStream::TakeBuffer()
 {
-    return move(myBuffer);
+  // class is pretty much dead after this point.
+  myBitIndex = 0;
+  myMaxBitCount = 0;
+  myCurrentBitCount = 0;
+  
+  return move(myBuffer);
 }
 
 
