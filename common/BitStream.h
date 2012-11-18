@@ -29,6 +29,11 @@ public:
     unique_ptr<vector<uint8_t>> TakeBuffer();
 
 private:
+    // Don't allow copying, I want the compiler to tell me if I'm accidentally doing a copy.
+    // If they want to copy, make it explicit by creating a new class using TakeBuffer.
+    BitStream(const BitStream&);
+    BitStream& operator=(const BitStream&);
+    
     unique_ptr<vector<uint8_t>> myBuffer;
     uint64_t myBitIndex;
     uint64_t myMaxBitCount;
