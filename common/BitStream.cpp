@@ -51,7 +51,7 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
     byteIndex = myBitIndex / 8;
     
     myBuffer->push_back(0);
-    (*myBuffer)[byteIndex] = value;
+    (*myBuffer)[byteIndex] = value & ((1 << bitsToPush) - 1);
     
     myBitIndex += bitsToPush;    
   }
