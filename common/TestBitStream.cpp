@@ -57,8 +57,13 @@ TEST_F(TestBitStream, AddOneBit)
 
 TEST_F(TestBitStream, AddU8)
 {
-  // TODO!
-  EXPECT_EQ(0, 1);
+  BitStream source(22);
+  
+  source.Push((uint8_t) 69, 8);
+  
+  BitStream result(move(source.TakeBuffer()));  
+  
+  EXPECT_EQ(69, result.PullU8(8)); 
 }
 
 TEST_F(TestBitStream, AddU16)
