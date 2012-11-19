@@ -10,13 +10,13 @@ using namespace std;
 class BitStream
 {
 public:
-    BitStream(uint32_t maximumSizeOfBitStreamInBytes);
+    BitStream(uint32_t initialCapacityInBytes);
     BitStream(unique_ptr<vector<uint8_t>> sourceBuffer);
 
-    bool Push(bool value);
-    bool Push(uint8_t value, uint8_t bitsToPush);
-    bool Push(uint16_t value, uint8_t bitsToPush);
-    bool Push(uint32_t value, uint8_t bitsToPush);
+    void Push(bool value);
+    void Push(uint8_t value, uint8_t bitsToPush);
+    void Push(uint16_t value, uint8_t bitsToPush);
+    void Push(uint32_t value, uint8_t bitsToPush);
 
     bool Pull1Bit();
     uint8_t PullU8(uint8_t bitsToPull);
@@ -36,7 +36,6 @@ private:
     
     unique_ptr<vector<uint8_t>> myBuffer;
     uint64_t myBitIndex;
-    uint64_t myMaxBitCount;
     uint64_t myCurrentBitCount;
 
 };
