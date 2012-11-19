@@ -39,7 +39,12 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
     bitsToPush = 8;
   }
   
-  if (myBitIndex & 0x07)
+  if (bitsToPush == 0)
+  {
+      return;
+  }
+  
+  if ((myBitIndex & 0x07) == 0)
   {   
     uint32_t byteIndex;
     
@@ -68,7 +73,12 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
 
 
 void BitStream::Push(uint16_t value, uint8_t bitsToPush)
-{
+{  
+  if (bitsToPush == 0)
+  {
+      return;
+  }
+  
   Push((uint8_t) (value & 0xff), bitsToPush);
   
   if (bitsToPush > 8)
@@ -79,9 +89,14 @@ void BitStream::Push(uint16_t value, uint8_t bitsToPush)
 
 void BitStream::Push(uint32_t value, uint8_t bitsToPush)
 {
+  if (bitsToPush == 0)
+  {
+      return;
+  }
+  
   Push((uint16_t) (value & 0xffff), bitsToPush);
   
-  if (bitsToPush > 8)
+  if (bitsToPush > 16)
   {
     Push((uint16_t) ((value >> 16) & 0xffff), bitsToPush - 16);
   }
@@ -112,29 +127,91 @@ bool BitStream::Pull1Bit()
 
 uint8_t BitStream::PullU8(uint8_t bitsToPull)
 {
-    // stub TODO
-    return 0;
+    uint32_t byteIndex;
+    uint8_t bitIndex;
+    uint8_t result;
+ 
+    if (bitsToPull > 8)
+    {
+        bitsToPull = 8;
+    }
+    
+    if (bitsToPull == 0)
+    {
+        return 0;
+    }
+    
+    byteIndex = myBitIndex / 8;
+    bitIndex = (uint8_t) myBitIndex & 0x07;
+    result = (*myBuffer)[byteIndex];
+
+    if (bitIndex == 0)
+    {
+        result = result & ((1 << bitsToPull) - 1);
+    }
+    else
+    {
+        uint16_t asU16;
+        asU16 = result + (((uint16_t) (*myBuffer)[byteIndex + 1]) << 8);
+        asU16 = asU16 >> bitIndex;    
+        result = (uint8_t) (asU16 & ((1 << bitsToPull) - 1));
+    }
+    
+    myBitIndex += bitsToPull;
+  
+    return result;
 }
 
 uint16_t BitStream::PullU16(uint8_t bitsToPull)
 {
-    // stub TODO
-    return 0;
+    uint16_t result;
+    
+    if (bitsToPull == 0)
+    {
+        return 0;
+    }
+    
+    result = PullU8(bitsToPull);
+    
+    if (bitsToPull > 8)
+    {
+        result |= ((uint16_t) PullU8(bitsToPull - 8)) << 8;
+    }
+    
+    return result;
 }
 
 uint32_t BitStream::PullU32(uint8_t bitsToPull)
 {
-    // stub TODO
-    return 0;
+    uint32_t result;
+    
+    if (bitsToPull == 0)
+    {
+        return 0;
+    }
+    
+    result = PullU16(bitsToPull);
+    
+    if (bitsToPull > 16)
+    {
+        result |= ((uint32_t) PullU16(bitsToPull - 16)) << 16;
+    }
+    
+    return result;
 }
 
 unique_ptr<vector<uint8_t>> BitStream::TakeBuffer()
 {
+  unique_ptr<vector<uint8_t>> result;
+  
+  result = move(myBuffer);
+  
   // class is pretty much dead after this point.
   myBitIndex = 0;
   myCurrentBitCount = 0;
+  myBuffer.reset(new vector<uint8_t>());
   
-  return move(myBuffer);
+  return move(result);
 }
 
 
