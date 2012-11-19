@@ -23,8 +23,8 @@ public:
     uint16_t PullU16(uint8_t bitsToPull);
     uint32_t PullU32(uint8_t bitsToPull);
     
-    uint32_t SizeInBits() const { return myCurrentBitCount; }
-    uint32_t Position() const { return myBitIndex; }
+    uint64_t SizeInBits() const { return myCurrentBitCount; }
+    uint64_t Position() const { return myBitIndex; }
 
     unique_ptr<vector<uint8_t>> TakeBuffer();
 
