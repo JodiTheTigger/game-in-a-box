@@ -64,22 +64,71 @@ TEST_F(TestBitStream, AddU8)
   BitStream result(move(source.TakeBuffer()));  
   
   EXPECT_EQ(69, result.PullU8(8)); 
+  
+  BitStream source2(22);
+  
+  source2.Push((uint8_t) 69, 8);
+  
+  BitStream result2(move(source.TakeBuffer()));  
+  
+  EXPECT_EQ(5, result.PullU8(4));
+}
+
+TEST_F(TestBitStream, AddMoreBitsThanNeeded)
+{
+  BitStream source(22);
+  
+  source.Push((uint8_t) 0xFF, 4);
+  source.Push(false);
+  source.Push(true);
+  source.Push(false);
+  
+  BitStream result(move(source.TakeBuffer()));  
+  
+  EXPECT_EQ(95, result.PullU8(8));
 }
 
 TEST_F(TestBitStream, AddU16)
 {
-  // TODO!
-  EXPECT_EQ(0, 1);
+  BitStream source(69);
+  
+  source.Push((uint16_t) 0x1234, 16);
+  
+  BitStream result(move(source.TakeBuffer()));  
+  
+  EXPECT_EQ(0x1234, result.PullU16(16));
 }
 
 TEST_F(TestBitStream, AddU32)
 {
-  // TODO!
-  EXPECT_EQ(0, 1);
+  BitStream source(69);
+  
+  source.Push((uint32_t) 0x12345678, 32);
+  
+  BitStream result(move(source.TakeBuffer()));  
+  
+  EXPECT_EQ(0x12345678, result.PullU32(32));
 }
 
 TEST_F(TestBitStream, AddLotsOfStuff)
 {
-  // TODO!
-  EXPECT_EQ(0, 1);
+    BitStream source(16);
+
+    source.Push(true);  
+    source.Push(false);
+    source.Push((uint8_t) 0x12, 8);
+    source.Push((uint16_t) 0x3456, 16);
+    source.Push(true);  
+    source.Push(false);
+    source.Push((uint32_t) 0x789abcde, 32);
+    
+    BitStream result(move(source.TakeBuffer()));  
+  
+    EXPECT_TRUE(result.Pull1Bit());
+    EXPECT_FALSE(result.Pull1Bit());
+    EXPECT_EQ(0x12, result.PullU8(8));
+    EXPECT_EQ(0x3456, result.PullU16(16));
+    EXPECT_TRUE(result.Pull1Bit());
+    EXPECT_FALSE(result.Pull1Bit());
+    EXPECT_EQ(0x789abcde, result.PullU32(32));
 }
