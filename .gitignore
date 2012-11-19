@@ -7,6 +7,7 @@ build/
 # Project files
 *.kdev4
 *.kate-swp
+*.user
 
 # Compiled Object files
 *.slo
