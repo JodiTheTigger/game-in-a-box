@@ -14,11 +14,17 @@ public:
     BitStream(unique_ptr<vector<uint8_t>> sourceBuffer);
 
     void Push(bool value);
+    
+    // These will only push as many bits as the input data size.
+    // e.g. for a uint8_t it will push no more than 8 bits.
     void Push(uint8_t value, uint8_t bitsToPush);
     void Push(uint16_t value, uint8_t bitsToPush);
     void Push(uint32_t value, uint8_t bitsToPush);
 
     bool Pull1Bit();
+    
+    // These will only pull as many bits as the output data size.
+    // e.g. for a uint8_t it will pull no more than 8 bits.
     uint8_t PullU8(uint8_t bitsToPull);
     uint16_t PullU16(uint8_t bitsToPull);
     uint32_t PullU32(uint8_t bitsToPull);
