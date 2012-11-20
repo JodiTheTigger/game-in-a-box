@@ -11,7 +11,7 @@ BitStream::BitStream(uint32_t initialCapacityInBytes)
 BitStream::BitStream(unique_ptr<vector<uint8_t>> sourceBuffer)
     : myBuffer(move(sourceBuffer))
     , myBitIndex(0)
-    , myCurrentBitCount(myBuffer->size())
+    , myCurrentBitCount(myBuffer->size() * 8)
 {
 }
 
@@ -21,14 +21,18 @@ void BitStream::Push(bool value)
   uint8_t bitIndex;
   
   // new byte needed?
-  if (myBitIndex & 0x07)
+  if (0 == (myBitIndex & 0x07))
   {
     myBuffer->push_back(0);
   }
-    
-  byteIndex = myBitIndex / 8;
-  bitIndex = (uint8_t) myBitIndex & 0x07;
-  (*myBuffer)[byteIndex] |= 1 << bitIndex;
+  
+  if (value)
+  {    
+    byteIndex = myBitIndex / 8;
+    bitIndex = (uint8_t) myBitIndex & 0x07;
+    (*myBuffer)[byteIndex] |= 1 << bitIndex;
+  }
+  
   ++myBitIndex;
 }
 
