@@ -12,11 +12,11 @@ TEST_F(TestBitStream, FromPointer)
   
   dude->push_back(1);
   
-  BitStream testStream(move(dude));
+  BitStream result(move(dude));
   
-  EXPECT_EQ(8, testStream.SizeInBits());
-  EXPECT_EQ(1, testStream.PullU8(4));
-  EXPECT_EQ(4, testStream.Position());  
+  EXPECT_EQ(8, result.SizeInBits());
+  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(4, result.Position());  
 }
 
 TEST_F(TestBitStream, ZeroSize) 
@@ -40,16 +40,18 @@ TEST_F(TestBitStream, AddOneBit)
   
   source.Push(true);
   
+  BitStream result(move(source.TakeBuffer())); 
+  
+  EXPECT_EQ(1, result.SizeInBits());
+  EXPECT_TRUE(result.Pull1Bit());   
+  
   source2.Push(false);
   source2.Push(true);
   source2.Push(true);
   
-  BitStream result(move(source.TakeBuffer()));  
-  
-  EXPECT_TRUE(result.Pull1Bit());   
-  
   BitStream result2(source2.TakeBuffer()); 
   
+  EXPECT_EQ(3, result2.SizeInBits());
   EXPECT_FALSE(result2.Pull1Bit());
   EXPECT_TRUE(result2.Pull1Bit());
   EXPECT_TRUE(result2.Pull1Bit());
@@ -63,6 +65,7 @@ TEST_F(TestBitStream, AddU8)
   
   BitStream result(move(source.TakeBuffer()));  
   
+  EXPECT_EQ(8, result.SizeInBits());
   EXPECT_EQ(69, result.PullU8(8)); 
   
   BitStream source2(22);
@@ -71,6 +74,7 @@ TEST_F(TestBitStream, AddU8)
   
   BitStream result2(move(source2.TakeBuffer()));  
   
+  EXPECT_EQ(8, result2.SizeInBits());
   EXPECT_EQ(5, result2.PullU8(4));
 }
 
@@ -85,6 +89,7 @@ TEST_F(TestBitStream, AddMoreBitsThanNeeded)
   
   BitStream result(move(source.TakeBuffer()));  
   
+  EXPECT_EQ(7, result.SizeInBits());
   EXPECT_EQ(47, result.PullU8(8));
 }
 
@@ -96,6 +101,7 @@ TEST_F(TestBitStream, AddU16)
   
   BitStream result(move(source.TakeBuffer()));  
   
+  EXPECT_EQ(16, result.SizeInBits());
   EXPECT_EQ(0x1234, result.PullU16(16));
 }
 
@@ -107,6 +113,7 @@ TEST_F(TestBitStream, AddU32)
   
   BitStream result(move(source.TakeBuffer()));  
   
+  EXPECT_EQ(32, result.SizeInBits());
   EXPECT_EQ(0x12345678, result.PullU32(32));
 }
 
@@ -119,6 +126,7 @@ TEST_F(TestBitStream, AddUnalignedU8)
   
   BitStream result(move(source.TakeBuffer()));  
   
+  EXPECT_EQ(9, result.SizeInBits());
   EXPECT_TRUE(result.Pull1Bit());
   EXPECT_EQ(133, result.PullU8(8));
 }
@@ -137,6 +145,7 @@ TEST_F(TestBitStream, AddLotsOfStuff)
     
     BitStream result(move(source.TakeBuffer()));  
   
+    EXPECT_EQ(60, result.SizeInBits());
     EXPECT_TRUE(result.Pull1Bit());
     EXPECT_FALSE(result.Pull1Bit());
     EXPECT_EQ(0x12, result.PullU8(8));
