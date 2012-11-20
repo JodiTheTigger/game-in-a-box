@@ -34,6 +34,7 @@ void BitStream::Push(bool value)
   }
   
   ++myBitIndex;
+  ++myCurrentBitCount;
 }
 
 void BitStream::Push(uint8_t value, uint8_t bitsToPush)
@@ -58,6 +59,7 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
     (*myBuffer)[byteIndex] = value & ((1 << bitsToPush) - 1);
     
     myBitIndex += bitsToPush;    
+    myCurrentBitCount += bitsToPush;
   }
   else
   {
