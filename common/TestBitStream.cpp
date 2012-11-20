@@ -69,9 +69,9 @@ TEST_F(TestBitStream, AddU8)
   
   source2.Push((uint8_t) 69, 8);
   
-  BitStream result2(move(source.TakeBuffer()));  
+  BitStream result2(move(source2.TakeBuffer()));  
   
-  EXPECT_EQ(5, result.PullU8(4));
+  EXPECT_EQ(5, result2.PullU8(4));
 }
 
 TEST_F(TestBitStream, AddMoreBitsThanNeeded)
@@ -85,7 +85,7 @@ TEST_F(TestBitStream, AddMoreBitsThanNeeded)
   
   BitStream result(move(source.TakeBuffer()));  
   
-  EXPECT_EQ(95, result.PullU8(8));
+  EXPECT_EQ(47, result.PullU8(8));
 }
 
 TEST_F(TestBitStream, AddU16)
@@ -108,6 +108,19 @@ TEST_F(TestBitStream, AddU32)
   BitStream result(move(source.TakeBuffer()));  
   
   EXPECT_EQ(0x12345678, result.PullU32(32));
+}
+
+TEST_F(TestBitStream, AddUnalignedU8)
+{
+  BitStream source(69);
+  
+  source.Push(true);
+  source.Push((uint8_t) 133, 8);
+  
+  BitStream result(move(source.TakeBuffer()));  
+  
+  EXPECT_TRUE(result.Pull1Bit());
+  EXPECT_EQ(133, result.PullU8(8));
 }
 
 TEST_F(TestBitStream, AddLotsOfStuff)
