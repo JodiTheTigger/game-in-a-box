@@ -14,7 +14,7 @@ endif()
 # Server 
 ###############    
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_executable(game-in-a-box-server common/BitStream.cpp server/main.cpp)
+add_executable(game-in-a-box-server common/RollingStatistics.cpp common/BitStream.cpp server/main.cpp)
 target_link_libraries(game-in-a-box-server) 
 add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
     
