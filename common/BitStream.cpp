@@ -1,5 +1,7 @@
 #include "BitStream.h"
 
+using namespace std;
+
 BitStream::BitStream(uint32_t initialCapacityInBytes)
     : myBuffer(new vector<uint8_t>())
     , myBitIndex(0)
