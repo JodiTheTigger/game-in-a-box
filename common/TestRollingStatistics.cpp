@@ -91,7 +91,7 @@ TEST_F(TestRollingStatistics, ZeroSize)
     EXPECT_EQ(0, zero.GetStandardDeviation());    
 }
 
-TEST_F(TestBitStream, EntryOne) 
+TEST_F(TestRollingStatistics, EntryOne) 
 {
     RollingStatistics zero();    
     
@@ -111,31 +111,31 @@ TEST_F(TestBitStream, EntryOne)
     EXPECT_EQ(0, zero.GetStandardDeviation());
 }
 
-TEST_F(TestBitStream, EntryTwo)
+TEST_F(TestRollingStatistics, EntryTwo)
 {
     // TODO!
   EXPECT_EQ(0, 1);
 }
 
-TEST_F(TestBitStream, EntryThree)
+TEST_F(TestRollingStatistics, EntryThree)
 {
     // TODO!
   EXPECT_EQ(0, 1);
 }
 
-TEST_F(TestBitStream, Entry100)
+TEST_F(TestRollingStatistics, Entry100)
 {
     // TODO!
   EXPECT_EQ(0, 1);
 }
 
-TEST_F(TestBitStream, EntryPastMax)
+TEST_F(TestRollingStatistics, EntryPastMax)
 {
     // TODO!
   EXPECT_EQ(0, 1);
 }
 
-TEST_F(TestBitStream, MaxUint32)
+TEST_F(TestRollingStatistics, MaxUint32)
 {
     // TODO!
   EXPECT_EQ(0, 1);
