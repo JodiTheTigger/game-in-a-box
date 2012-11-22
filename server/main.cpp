@@ -18,12 +18,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstdint>
+#include "GameInABoxServer.h"
+
+// For the Scratch code
 #include <iostream>
 #include <chrono>
 #include "common/BitStream.h"
 #include <thread>
 
-int main(int argc, char **argv) 
+void Scratch();
+
+int main(int argc, char** argv)
+{
+    // call testing scratch code
+    Scratch();
+    
+    GameInABoxServer theGame(argc, (uint8_t**)argv);
+    
+    // runs until theGame.Stop() is called.
+    theGame.Run();
+    
+    return 0;
+}
+
+void Scratch() 
 {
   // ///////////////////////////
   // The Ugly
@@ -78,6 +97,4 @@ int main(int argc, char **argv)
       std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(ttt2-ttt1).count() << std::endl;
       
     }
-    
-    return 0;
 }
