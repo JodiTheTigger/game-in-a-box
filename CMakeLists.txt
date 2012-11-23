@@ -74,6 +74,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests 
+  ${PROJECT_SOURCE_DIR}/common/RollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/BitStream.cpp
   ${PROJECT_SOURCE_DIR}/common/TestBitStream.cpp)
