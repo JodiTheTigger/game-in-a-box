@@ -25,6 +25,26 @@ project(game-in-a-box CXX)
 
 # set gcc to use c++0x11
 if(CMAKE_COMPILER_IS_GNUCXX)
+
+  # Make sure we have g++ 4.7 or higher for c++11 features
+  # annoyingly in cmake 2.8.8 this is much easier, but I don't have
+  # that in ubuntu 12.04
+  exec_program(
+      ${CMAKE_CXX_COMPILER}
+      ARGS                    --version
+      OUTPUT_VARIABLE _compiler_output)
+  string(REGEX REPLACE ".* ([0-9]\\.[0-9]\\.[0-9]).*" "\\1"
+         gcc_compiler_version ${_compiler_output})
+  message(STATUS "C++ compiler version: '${gcc_compiler_version}' [${CMAKE_CXX_COMPILER}]")
+
+  if(NOT gcc_compiler_version MATCHES "[0-9]\\.[0-9]\\.[0-9]")
+    message(FATAL_ERROR "Cannot deduce C++ version information.")
+  endif()
+
+  if(NOT gcc_compiler_version VERSION_GREATER "4.6.99")
+    message(FATAL_ERROR "Requires GCC version 4.7 or greater for C++11 functionality. Got ${gcc_compiler_version}.")
+  endif()
+
   set(CMAKE_CXX_FLAGS "-std=c++0x")                                                                                                                                                                                                                         
 endif()
 
