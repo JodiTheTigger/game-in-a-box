@@ -22,8 +22,8 @@
 
 using namespace std;
 
-RollingStatistics::RollingStatistics(uint32_t rollingBufferSizeInSamples) 
-    : mySamples(new deque<float>()>)
+RollingStatistics::RollingStatistics(uint32_t rollingBufferSizeInSamples)
+    : mySamples(new deque<float>())
     , mySampleSizeMaximum(rollingBufferSizeInSamples)
     , mySum(0)
     , myAverage(0)

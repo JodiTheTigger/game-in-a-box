@@ -25,8 +25,12 @@
 #include <memory>
 #include <deque>
 
+#include "BuildMacros.h"
+
 class RollingStatistics
 {
+    CLASS_NOCOPY_NOASSIGN(RollingStatistics)
+    
 public:
     RollingStatistics() : RollingStatistics(256) {}
     RollingStatistics(uint32_t rollingBufferSizeInSamples);
@@ -50,10 +54,6 @@ public:
     float GetStandardDeviation() const { return myStandardDeviation; }
     
 private:
-    // Don't allow copying, I want the compiler to tell me if I'm accidentally doing a copy.
-    RollingStatistics(const RollingStatistics&);
-    RollingStatistics& operator=(const RollingStatistics&);
-
     std::unique_ptr<std::deque<float>> mySamples;
     
     float mySampleSizeMaximum;
