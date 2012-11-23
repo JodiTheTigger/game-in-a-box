@@ -21,6 +21,8 @@
 #include "RollingStatistics.h"
 #include "gtest/gtest.h"
 
+#include <cmath>
+
 using namespace std;
 
 // Class definition!
@@ -93,50 +95,138 @@ TEST_F(TestRollingStatistics, ZeroSize)
 
 TEST_F(TestRollingStatistics, EntryOne) 
 {
-    RollingStatistics zero();    
+    RollingStatistics stats;    
     
-    zero.AddSample(12); 
-    zero.Calculate();
+    stats.AddSample(12); 
+    stats.Calculate();
     
-    EXPECT_EQ(1, zero.SampleCount());
-    EXPECT_EQ(256, zero.SampleCountMax());
-    EXPECT_EQ(12, zero.GetSum());
-    EXPECT_EQ(12, zero.GetAverage());
-    EXPECT_EQ(12, zero.GetMedian());
-    EXPECT_EQ(12, zero.GetQuartile25());
-    EXPECT_EQ(12, zero.GetQuartile75());
-    EXPECT_EQ(12, zero.GetMin());
-    EXPECT_EQ(12, zero.GetMax());
-    EXPECT_EQ(0, zero.GetVariance());
-    EXPECT_EQ(0, zero.GetStandardDeviation());
+    EXPECT_EQ(1, stats.SampleCount());
+    EXPECT_EQ(256, stats.SampleCountMax());
+    EXPECT_EQ(12, stats.GetSum());
+    EXPECT_EQ(12, stats.GetAverage());
+    EXPECT_EQ(12, stats.GetMedian());
+    EXPECT_EQ(12, stats.GetQuartile25());
+    EXPECT_EQ(12, stats.GetQuartile75());
+    EXPECT_EQ(12, stats.GetMin());
+    EXPECT_EQ(12, stats.GetMax());
+    EXPECT_EQ(6, stats.GetVariance());
+    EXPECT_EQ(sqrt(6.0f), stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, EntryTwo)
-{
-    // TODO!
-  EXPECT_EQ(0, 1);
+{    
+    RollingStatistics stats;    
+    
+    stats.AddSample(12); 
+    stats.AddSample(24); 
+    stats.Calculate();
+    
+    EXPECT_EQ(2, stats.SampleCount());
+    EXPECT_EQ(256, stats.SampleCountMax());
+    EXPECT_EQ(36, stats.GetSum());
+    EXPECT_EQ(18, stats.GetAverage());
+    EXPECT_EQ(18, stats.GetMedian());
+    EXPECT_EQ(12, stats.GetQuartile25());
+    EXPECT_EQ(24, stats.GetQuartile75());
+    EXPECT_EQ(12, stats.GetMin());
+    EXPECT_EQ(24, stats.GetMax());
+    EXPECT_EQ(6, stats.GetVariance());
+    EXPECT_EQ(0, stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, EntryThree)
 {
-    // TODO!
-  EXPECT_EQ(0, 1);
+    RollingStatistics stats;    
+    
+    stats.AddSample(12); 
+    stats.AddSample(24); 
+    stats.AddSample(18); 
+    stats.Calculate();
+    
+    EXPECT_EQ(2, stats.SampleCount());
+    EXPECT_EQ(256, stats.SampleCountMax());
+    EXPECT_EQ(54, stats.GetSum());
+    EXPECT_EQ(18, stats.GetAverage());
+    EXPECT_EQ(18, stats.GetMedian());
+    EXPECT_EQ(12, stats.GetQuartile25());
+    EXPECT_EQ(24, stats.GetQuartile75());
+    EXPECT_EQ(12, stats.GetMin());
+    EXPECT_EQ(24, stats.GetMax());
+    EXPECT_EQ(4, stats.GetVariance());
+    EXPECT_EQ(2, stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, Entry100)
-{
-    // TODO!
-  EXPECT_EQ(0, 1);
+{ 
+    RollingStatistics stats;    
+
+    for (uint8_t i = 0; i < 100; i++)
+    {
+        stats.AddSample(i);
+    }
+
+    stats.Calculate();
+
+    // calculated from excel
+    EXPECT_EQ(100, stats.SampleCount());
+    EXPECT_EQ(256, stats.SampleCountMax());
+    EXPECT_EQ(4950, stats.GetSum());
+    EXPECT_EQ(49.5, stats.GetAverage());
+    EXPECT_EQ(49.5, stats.GetMedian());
+    EXPECT_EQ(24, stats.GetQuartile25());
+    EXPECT_EQ(74, stats.GetQuartile75());
+    EXPECT_EQ(0, stats.GetMin());
+    EXPECT_EQ(99, stats.GetMax());
+    EXPECT_EQ(833.25, stats.GetVariance());
+    EXPECT_EQ(29.01149, stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, EntryPastMax)
 {
-    // TODO!
-  EXPECT_EQ(0, 1);
+    RollingStatistics stats(4);  
+
+    stats.AddSample(2);
+    stats.AddSample(2);
+    stats.AddSample(2);
+    stats.AddSample(2);
+    stats.AddSample(4);
+    stats.AddSample(4);
+
+    stats.Calculate();
+
+    EXPECT_EQ(4, stats.SampleCount());
+    EXPECT_EQ(4, stats.SampleCountMax());
+    EXPECT_EQ(12, stats.GetSum());
+    EXPECT_EQ(4, stats.GetAverage());
+    EXPECT_EQ(3, stats.GetMedian());
+    EXPECT_EQ(2, stats.GetQuartile25());
+    EXPECT_EQ(4, stats.GetQuartile75());
+    EXPECT_EQ(2, stats.GetMin());
+    EXPECT_EQ(4, stats.GetMax());
+    EXPECT_EQ(4, stats.GetVariance());
+    EXPECT_EQ(2, stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, MaxUint32)
 {
-    // TODO!
-  EXPECT_EQ(0, 1);
+    RollingStatistics stats(0xffffffff);   
+
+    stats.AddSample(1);
+
+    for (uint64_t i = 0; i < 0xffffffff; i++)
+    {
+        stats.AddSample(4);
+    }
+  
+    EXPECT_EQ(4, stats.SampleCount());
+    EXPECT_EQ(4, stats.SampleCountMax());
+    EXPECT_EQ(4.0*0xffffffff, stats.GetSum());
+    EXPECT_EQ(4, stats.GetAverage());
+    EXPECT_EQ(4, stats.GetMedian());
+    EXPECT_EQ(4, stats.GetQuartile25());
+    EXPECT_EQ(4, stats.GetQuartile75());
+    EXPECT_EQ(4, stats.GetMin());
+    EXPECT_EQ(4, stats.GetMax());
+    EXPECT_EQ(0, stats.GetVariance());
+    EXPECT_EQ(0, stats.GetStandardDeviation());
 }
