@@ -148,7 +148,7 @@ TEST_F(TestRollingStatistics, EntryThree)
     EXPECT_EQ(54, stats.GetSum());
     EXPECT_EQ(18, stats.GetAverage());
     EXPECT_EQ(18, stats.GetMedian());
-    EXPECT_EQ(12, stats.GetQuartile25());
+    EXPECT_EQ(18, stats.GetQuartile25());
     EXPECT_EQ(24, stats.GetQuartile75());
     EXPECT_EQ(12, stats.GetMin());
     EXPECT_EQ(24, stats.GetMax());
@@ -173,12 +173,12 @@ TEST_F(TestRollingStatistics, Entry100)
     EXPECT_EQ(4950, stats.GetSum());
     EXPECT_EQ(49.5, stats.GetAverage());
     EXPECT_EQ(49.5, stats.GetMedian());
-    EXPECT_EQ(24, stats.GetQuartile25());
+    EXPECT_EQ(25, stats.GetQuartile25());
     EXPECT_EQ(74, stats.GetQuartile75());
     EXPECT_EQ(0, stats.GetMin());
     EXPECT_EQ(99, stats.GetMax());
     EXPECT_EQ(833.25, stats.GetVariance());
-    EXPECT_EQ(29.01149, stats.GetStandardDeviation());
+    EXPECT_EQ(28.86607005f, stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, EntryPastMax)
@@ -197,38 +197,12 @@ TEST_F(TestRollingStatistics, EntryPastMax)
     EXPECT_EQ(4, stats.SampleCount());
     EXPECT_EQ(4, stats.SampleCountMax());
     EXPECT_EQ(12, stats.GetSum());
-    EXPECT_EQ(4, stats.GetAverage());
+    EXPECT_EQ(3, stats.GetAverage());
     EXPECT_EQ(3, stats.GetMedian());
     EXPECT_EQ(2, stats.GetQuartile25());
     EXPECT_EQ(4, stats.GetQuartile75());
     EXPECT_EQ(2, stats.GetMin());
     EXPECT_EQ(4, stats.GetMax());
-    EXPECT_EQ(4, stats.GetVariance());
-    EXPECT_EQ(2, stats.GetStandardDeviation());
-}
-
-TEST_F(TestRollingStatistics, MaxUint32)
-{
-    /*
-    RollingStatistics stats(0xffffffff);   
-
-    stats.AddSample(1);
-
-    for (uint64_t i = 0; i < 0xffffffff; i++)
-    {
-        stats.AddSample(4);
-    }
-  
-    EXPECT_EQ(4, stats.SampleCount());
-    EXPECT_EQ(4, stats.SampleCountMax());
-    EXPECT_EQ(4.0*0xffffffff, stats.GetSum());
-    EXPECT_EQ(4, stats.GetAverage());
-    EXPECT_EQ(4, stats.GetMedian());
-    EXPECT_EQ(4, stats.GetQuartile25());
-    EXPECT_EQ(4, stats.GetQuartile75());
-    EXPECT_EQ(4, stats.GetMin());
-    EXPECT_EQ(4, stats.GetMax());
-    EXPECT_EQ(0, stats.GetVariance());
-    EXPECT_EQ(0, stats.GetStandardDeviation());*/
-    EXPECT_EQ(0,1); // can't test on my system as it doesn't have enough memory.
+    EXPECT_EQ(1, stats.GetVariance());
+    EXPECT_EQ(1, stats.GetStandardDeviation());
 }
