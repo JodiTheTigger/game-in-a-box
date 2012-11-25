@@ -94,8 +94,8 @@ void RollingStatistics::Calculate()
     myMin = sorted.front();
     myMax = sorted.back();
     
-    myQuartile25 = sorted[((uint32_t) sorted.size() - 1) * 0.25];
-    myQuartile75 = sorted[((uint32_t) sorted.size() - 1) * 0.75];
+    myQuartile25 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.25)];
+    myQuartile75 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.75)];
     
     if (sorted.size() == 1)
     {
@@ -103,14 +103,14 @@ void RollingStatistics::Calculate()
     }
     else
     {
-        if (sorted.size() & 0x01 == 0)
+        if ((sorted.size() % 2) == 0)
         {
-            myMedian = sorted[sorted.size() >> 1] * 0.5;
-            myMedian += sorted[(sorted.size() >> 1) - 1] * 0.5;
+            myMedian = sorted[sorted.size() / 2] * 0.5;
+            myMedian += sorted[(sorted.size() / 2) - 1] * 0.5;
         }
         else
         {
-            myMedian = sorted[sorted.size() >> 1];
+            myMedian = sorted[sorted.size() / 2];
         }    
     }
 }
