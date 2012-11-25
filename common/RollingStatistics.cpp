@@ -19,6 +19,9 @@
 */
 
 #include "RollingStatistics.h"
+#include <vector>
+#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -49,6 +52,66 @@ void RollingStatistics::AddSample(float value)
 
 void RollingStatistics::Calculate()
 {
-    // TODO!
+    vector<float> sorted;
+    double bigSum;
+    double bigVariance;
+    
+    // If you can optimise this for speed (with timings proof), please do!
+    
+    if (1 > mySamples->size())
+    {
+        return;
+    }
+    
+    // Three copies:
+    // 1. Copy deque to a vector, sum, average.
+    // 2. Std Deviation
+    // 3. Sort.
+    
+    // 1.
+    sorted.reserve(mySamples->size());
+    bigSum = 0;
+    for (float toCopy : *mySamples)
+    {
+        bigSum += toCopy;
+        sorted.push_back(toCopy);
+    }
+    
+    myAverage = bigSum / sorted.size();
+    mySum = (float) bigSum;
+    
+    // 2.
+    bigVariance = 0;
+    for (float toVariance : sorted)
+    {
+        bigVariance += (toVariance - myAverage) * (toVariance - myAverage);
+    }
+    myVariance = bigVariance / mySamples->size();
+    myStandardDeviation = sqrt(bigVariance / mySamples->size());
+    
+    // 3.
+    sort(sorted.begin(), sorted.end());
+    myMin = sorted.front();
+    myMax = sorted.back();
+    
+    myQuartile25 = sorted[((uint32_t) sorted.size() - 1) * 0.25];
+    myQuartile75 = sorted[((uint32_t) sorted.size() - 1) * 0.75];
+    
+    if (sorted.size() == 1)
+    {
+        myMedian = sorted[0];
+    }
+    else
+    {
+        if (sorted.size() & 0x01 == 0)
+        {
+            myMedian = sorted[sorted.size() >> 1] * 0.5;
+            myMedian += sorted[(sorted.size() >> 1) - 1] * 0.5;
+        }
+        else
+        {
+            myMedian = sorted[sorted.size() >> 1];
+        }    
+    }
 }
 
