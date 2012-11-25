@@ -109,8 +109,8 @@ TEST_F(TestRollingStatistics, EntryOne)
     EXPECT_EQ(12, stats.GetQuartile75());
     EXPECT_EQ(12, stats.GetMin());
     EXPECT_EQ(12, stats.GetMax());
-    EXPECT_EQ(6, stats.GetVariance());
-    EXPECT_EQ(sqrt(6.0f), stats.GetStandardDeviation());
+    EXPECT_EQ(0, stats.GetVariance());
+    EXPECT_EQ(0, stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, EntryTwo)
@@ -130,8 +130,8 @@ TEST_F(TestRollingStatistics, EntryTwo)
     EXPECT_EQ(24, stats.GetQuartile75());
     EXPECT_EQ(12, stats.GetMin());
     EXPECT_EQ(24, stats.GetMax());
-    EXPECT_EQ(6, stats.GetVariance());
-    EXPECT_EQ(0, stats.GetStandardDeviation());
+    EXPECT_EQ(36, stats.GetVariance());
+    EXPECT_EQ(6, stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, EntryThree)
@@ -143,7 +143,7 @@ TEST_F(TestRollingStatistics, EntryThree)
     stats.AddSample(18); 
     stats.Calculate();
     
-    EXPECT_EQ(2, stats.SampleCount());
+    EXPECT_EQ(3, stats.SampleCount());
     EXPECT_EQ(256, stats.SampleCountMax());
     EXPECT_EQ(54, stats.GetSum());
     EXPECT_EQ(18, stats.GetAverage());
@@ -152,8 +152,8 @@ TEST_F(TestRollingStatistics, EntryThree)
     EXPECT_EQ(24, stats.GetQuartile75());
     EXPECT_EQ(12, stats.GetMin());
     EXPECT_EQ(24, stats.GetMax());
-    EXPECT_EQ(4, stats.GetVariance());
-    EXPECT_EQ(2, stats.GetStandardDeviation());
+    EXPECT_EQ((72.0f/3.0f), stats.GetVariance());
+    EXPECT_EQ(sqrt(72.0f/3.0f), stats.GetStandardDeviation());
 }
 
 TEST_F(TestRollingStatistics, Entry100)
@@ -209,6 +209,7 @@ TEST_F(TestRollingStatistics, EntryPastMax)
 
 TEST_F(TestRollingStatistics, MaxUint32)
 {
+    /*
     RollingStatistics stats(0xffffffff);   
 
     stats.AddSample(1);
@@ -228,5 +229,6 @@ TEST_F(TestRollingStatistics, MaxUint32)
     EXPECT_EQ(4, stats.GetMin());
     EXPECT_EQ(4, stats.GetMax());
     EXPECT_EQ(0, stats.GetVariance());
-    EXPECT_EQ(0, stats.GetStandardDeviation());
+    EXPECT_EQ(0, stats.GetStandardDeviation());*/
+    EXPECT_EQ(0,1); // can't test on my system as it doesn't have enough memory.
 }
