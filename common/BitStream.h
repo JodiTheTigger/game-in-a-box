@@ -27,15 +27,13 @@
 
 #include "BuildMacros.h"
 
-using namespace std;
-
 class BitStream
 {
     CLASS_NOCOPY_NOASSIGN(BitStream)
     
 public:
     BitStream(uint32_t initialCapacityInBytes);
-    BitStream(unique_ptr<vector<uint8_t>> sourceBuffer);
+    BitStream(std::unique_ptr<std::vector<uint8_t>> sourceBuffer);
 
     void Push(bool value);
     
@@ -56,10 +54,10 @@ public:
     uint64_t SizeInBits() const { return myCurrentBitCount; }
     uint64_t Position() const { return myBitIndex; }
 
-    unique_ptr<vector<uint8_t>> TakeBuffer();
+    std::unique_ptr<std::vector<uint8_t>> TakeBuffer();
 
-private:    
-    unique_ptr<vector<uint8_t>> myBuffer;
+private:
+    std::unique_ptr<std::vector<uint8_t>> myBuffer;
     uint64_t myBitIndex;
     uint64_t myCurrentBitCount;
 

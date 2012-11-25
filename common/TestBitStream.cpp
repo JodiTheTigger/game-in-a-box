@@ -21,6 +21,8 @@
 #include "BitStream.h"
 #include "gtest/gtest.h"
 
+using namespace std;
+
 // Class definition!
 class TestBitStream : public ::testing::Test 
 {
