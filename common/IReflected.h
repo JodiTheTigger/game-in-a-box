@@ -24,6 +24,9 @@
 #include <vector>
 #include <string>
 
+// RAM: TODO! Make set/get/run indexes typesafe somehow, maybe make the varible list a key/index thing
+// to typesafe it all. DOn't like it atm when you just return an int. yuk.
+
 class IReflected
 {
 public:
