@@ -33,7 +33,7 @@
 
 class ScratchClass;
 
-
+// RAM: TODO! Read http://www.gotw.ca/publications/mill18.htm change interface to base class with private virtual methods.
 class ScratchClass : public IReflected
 {
     REFLECTION_BOILERPLATE(ScratchClass)
