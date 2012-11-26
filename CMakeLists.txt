@@ -52,7 +52,6 @@ endif()
 # Server 
 ###############    
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-<<<<<<< HEAD
 
 add_executable(
 game-in-a-box-server 
