@@ -27,6 +27,59 @@
 #include "common/BitStream.h"
 #include <thread>
 
+class ScratchClass;
+
+typedef void (ScratchClass::*Setter)(float);
+typedef float (ScratchClass::*Getter)(void) const;
+typedef void (ScratchClass::*Runner)(void);
+
+class ScratchClass
+{
+public:
+    float getAAA() const {return a;}
+    void setAAA(float toSet) {a = toSet;}
+    float getBBB() const {return b;}
+    void setBBB(float toSet) {b = toSet;}
+    
+    void InitReflection()
+    {
+        setters.push_back(&ScratchClass::setAAA);
+        setters.push_back(&ScratchClass::setBBB);
+        
+        getters.push_back(&ScratchClass::getAAA);
+        getters.push_back(&ScratchClass::getBBB); 
+        
+        names.push_back("AAA");
+        names.push_back("BBB");
+    }   
+    
+    float Get(uint8_t index)
+    {
+        return (*this.*getters[index])();
+    }
+    
+    void Set(uint8_t index, float newValue)
+    {
+        (*this.*setters[index])(newValue);
+    }
+    
+    void Run(uint8_t index)
+    {
+        (*this.*runners[index])();        
+    }
+    
+    
+private:
+    float a = 0;
+    float b = 0;
+    
+    std::vector<Setter> setters;
+    std::vector<Getter> getters; 
+    std::vector<Runner> runners; 
+    std::vector<std::string> names;
+};
+
+
 void Scratch();
 
 int main(int argc, char** argv)
@@ -47,6 +100,21 @@ void Scratch()
   // ///////////////////////////
   // The Ugly
   // ///////////////////////////
+  
+  
+  // quasi reflection play
+  ScratchClass fred;
+  
+  fred.InitReflection();
+  fred.Get(0);
+  fred.Set(1, 69);
+  std::cout << fred.Get(1) << std::endl;
+  
+  
+  
+  
+  
+  
   // This is scratch code at the moment. Testing ideas and the C++11 std libraries.
     std::cout << "Hello, world!" << std::endl;
     
