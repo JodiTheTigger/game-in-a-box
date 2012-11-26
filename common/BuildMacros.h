@@ -26,9 +26,4 @@
     CLASSNAME(const CLASSNAME &); \
     CLASSNAME &operator=(const CLASSNAME &);
 
-// ///////////////////
-// Reflection Macros
-// ///////////////////
-
-
 #endif // BUILDMACROS_H
