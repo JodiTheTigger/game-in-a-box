@@ -29,32 +29,15 @@
 
 #include "common/BuildMacros.h"
 
+#include "common/IReflected.h"
+
 class ScratchClass;
-
-typedef void (ScratchClass::*Setter)(float);
-typedef float (ScratchClass::*Getter)(void) const;
-typedef void (ScratchClass::*Runner)(void);
-
-class IReflected
-{
-    //CLASS_VIRTUAL_COPYASSIGN(IReflected);
- 
-public:   
-    virtual ~IReflected() {};
-    
-    virtual void InitReflection() = 0;
-    virtual std::string ReflectionClassName() const = 0;
-    virtual std::vector<std::string> ReflectionListVariables() const = 0;
-    virtual std::vector<std::string> ReflectionListMethods() const = 0;
-    
-    virtual void ReflectionSet(uint8_t index, float newValue) = 0;
-    virtual float ReflectionGet(uint8_t index) const = 0;
-    virtual void ReflectionRun(uint8_t index) = 0;
-};
 
 
 class ScratchClass : public IReflected
 {
+    REFLECTION_BOILERPLATE(ScratchClass)
+    
 public:
     float getAAA() const {return a;}
     void setAAA(float toSet) {a = toSet;}
@@ -71,76 +54,17 @@ public:
     {
     }
     
-    void InitReflection()
-    {
-        reflectionSetters.push_back(&ScratchClass::setAAA);
-        reflectionGetters.push_back(&ScratchClass::getAAA);
-        reflectionNamesVariable.push_back("AAA");
-        
-        reflectionSetters.push_back(&ScratchClass::setBBB);        
-        reflectionGetters.push_back(&ScratchClass::getBBB);         
-        reflectionNamesVariable.push_back("BBB");
-        
-        reflectionRunners.push_back(&ScratchClass::anyOldMethod);          
-        reflectionNamesMethods.push_back("anyOldMethod");          
-    }   
-    
-    std::string ReflectionClassName() const
-    {
-        return std::string("ScratchClass");
-    }
-    
-    float ReflectionGet(uint8_t index) const
-    {
-        if (index < reflectionGetters.size())
-        {
-            return (*this.*reflectionGetters[index])();
-        }
-        else
-        {
-            // don't bother with exceptions. Just return zero.
-            return 0.0;
-        }
-    }
-    
-    void ReflectionSet(uint8_t index, float newValue)
-    {
-        if (index < reflectionSetters.size())
-        {
-            (*this.*reflectionSetters[index])(newValue);
-        }
-    }
-    
-    void ReflectionRun(uint8_t index)
-    {
-        if (index < reflectionRunners.size())
-        {
-            (*this.*reflectionRunners[index])();    
-        }
-    }
-    
-    std::vector<std::string> ReflectionListVariables() const
-    {
-        // I assume it does a copy here.
-        return reflectionNamesVariable;
-    }
-    
-    std::vector<std::string> ReflectionListMethods() const
-    {
-        // I assume it does a copy here.
-        return reflectionNamesMethods;
-    }
-    
     
 private:
     float a = 0;
-    float b = 0;
+    float b = 0;        
     
-    std::vector<Setter> reflectionSetters;
-    std::vector<Getter> reflectionGetters; 
-    std::vector<Runner> reflectionRunners; 
-    std::vector<std::string> reflectionNamesVariable;
-    std::vector<std::string> reflectionNamesMethods;    
+    void InitReflection() override
+    {
+        REFLECTION_VARIABLE(ScratchClass, AAA);
+        REFLECTION_VARIABLE(ScratchClass, BBB);
+        REFLECTION_METHOD(ScratchClass, anyOldMethod);  
+    }   
 };
 
 
