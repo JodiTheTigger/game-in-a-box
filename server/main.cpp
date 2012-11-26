@@ -27,45 +27,108 @@
 #include "common/BitStream.h"
 #include <thread>
 
+#include "common/BuildMacros.h"
+
 class ScratchClass;
 
 typedef void (ScratchClass::*Setter)(float);
 typedef float (ScratchClass::*Getter)(void) const;
 typedef void (ScratchClass::*Runner)(void);
 
-class ScratchClass
+class IReflected
+{
+    //CLASS_VIRTUAL_COPYASSIGN(IReflected);
+ 
+public:   
+    virtual ~IReflected() {};
+    
+    virtual void InitReflection() = 0;
+    virtual std::string ReflectionClassName() const = 0;
+    virtual std::vector<std::string> ReflectionListVariables() const = 0;
+    virtual std::vector<std::string> ReflectionListMethods() const = 0;
+    
+    virtual void ReflectionSet(uint8_t index, float newValue) = 0;
+    virtual float ReflectionGet(uint8_t index) const = 0;
+    virtual void ReflectionRun(uint8_t index) = 0;
+};
+
+
+class ScratchClass : public IReflected
 {
 public:
     float getAAA() const {return a;}
     void setAAA(float toSet) {a = toSet;}
     float getBBB() const {return b;}
     void setBBB(float toSet) {b = toSet;}
+    void anyOldMethod() {/*nada*/}
+    
+    ScratchClass()
+    {
+        InitReflection();
+    }
+    
+    ~ScratchClass()
+    {
+    }
     
     void InitReflection()
     {
-        setters.push_back(&ScratchClass::setAAA);
-        setters.push_back(&ScratchClass::setBBB);
+        reflectionSetters.push_back(&ScratchClass::setAAA);
+        reflectionGetters.push_back(&ScratchClass::getAAA);
+        reflectionNamesVariable.push_back("AAA");
         
-        getters.push_back(&ScratchClass::getAAA);
-        getters.push_back(&ScratchClass::getBBB); 
+        reflectionSetters.push_back(&ScratchClass::setBBB);        
+        reflectionGetters.push_back(&ScratchClass::getBBB);         
+        reflectionNamesVariable.push_back("BBB");
         
-        names.push_back("AAA");
-        names.push_back("BBB");
+        reflectionRunners.push_back(&ScratchClass::anyOldMethod);          
+        reflectionNamesMethods.push_back("anyOldMethod");          
     }   
     
-    float Get(uint8_t index)
+    std::string ReflectionClassName() const
     {
-        return (*this.*getters[index])();
+        return std::string("ScratchClass");
     }
     
-    void Set(uint8_t index, float newValue)
+    float ReflectionGet(uint8_t index) const
     {
-        (*this.*setters[index])(newValue);
+        if (index < reflectionGetters.size())
+        {
+            return (*this.*reflectionGetters[index])();
+        }
+        else
+        {
+            // don't bother with exceptions. Just return zero.
+            return 0.0;
+        }
     }
     
-    void Run(uint8_t index)
+    void ReflectionSet(uint8_t index, float newValue)
     {
-        (*this.*runners[index])();        
+        if (index < reflectionSetters.size())
+        {
+            (*this.*reflectionSetters[index])(newValue);
+        }
+    }
+    
+    void ReflectionRun(uint8_t index)
+    {
+        if (index < reflectionRunners.size())
+        {
+            (*this.*reflectionRunners[index])();    
+        }
+    }
+    
+    std::vector<std::string> ReflectionListVariables() const
+    {
+        // I assume it does a copy here.
+        return reflectionNamesVariable;
+    }
+    
+    std::vector<std::string> ReflectionListMethods() const
+    {
+        // I assume it does a copy here.
+        return reflectionNamesMethods;
     }
     
     
@@ -73,10 +136,11 @@ private:
     float a = 0;
     float b = 0;
     
-    std::vector<Setter> setters;
-    std::vector<Getter> getters; 
-    std::vector<Runner> runners; 
-    std::vector<std::string> names;
+    std::vector<Setter> reflectionSetters;
+    std::vector<Getter> reflectionGetters; 
+    std::vector<Runner> reflectionRunners; 
+    std::vector<std::string> reflectionNamesVariable;
+    std::vector<std::string> reflectionNamesMethods;    
 };
 
 
@@ -105,10 +169,10 @@ void Scratch()
   // quasi reflection play
   ScratchClass fred;
   
-  fred.InitReflection();
-  fred.Get(0);
-  fred.Set(1, 69);
-  std::cout << fred.Get(1) << std::endl;
+  //fred.InitReflection();
+  fred.ReflectionGet(0);
+  fred.ReflectionSet(1, 69);
+  std::cout << fred.ReflectionGet(1) << std::endl;
   
   
   
