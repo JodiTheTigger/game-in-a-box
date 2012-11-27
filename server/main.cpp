@@ -39,30 +39,20 @@ class ScratchClass : public IReflected
     REFLECTION_BOILERPLATE(ScratchClass)
     
 public:
-    float getAAA() const {return a;}
-    void setAAA(float toSet) {a = toSet;}
-    float getBBB() const {return b;}
-    void setBBB(float toSet) {b = toSet;}
-    void anyOldMethod() {/*nada*/}
-    
-    ScratchClass()
-    {
-        InitReflection();
-    }
-    
-    ~ScratchClass()
-    {
-    }
-    
+    float FirstPropertyGet() const {return myFirst;}
+    void FirstPropertySet(float toSet) {myFirst = toSet;}
+    float SecondPropertyGet() const {return mySecond;}
+    void SecondPropertySet(float toSet) {mySecond = toSet;}
+    void anyOldMethod() {/*nada*/}    
     
 private:
-    float a = 0;
-    float b = 0;        
+    float myFirst = 0;
+    float mySecond = 0;        
     
     void InitReflection() override
     {
-        REFLECTION_VARIABLE(ScratchClass, AAA);
-        REFLECTION_VARIABLE(ScratchClass, BBB);
+        REFLECTION_VARIABLE(ScratchClass, FirstProperty);
+        REFLECTION_VARIABLE(ScratchClass, SecondProperty);
         REFLECTION_METHOD(ScratchClass, anyOldMethod);  
     }   
 };
