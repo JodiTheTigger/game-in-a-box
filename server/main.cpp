@@ -31,9 +31,6 @@
 
 #include "common/IReflected.h"
 
-class ScratchClass;
-
-
 class ScratchClass : public IReflected
 {
     REFLECTION_BOILERPLATE(ScratchClass)
