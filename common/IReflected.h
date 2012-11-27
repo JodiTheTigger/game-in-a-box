@@ -24,24 +24,30 @@
 #include <vector>
 #include <string>
 
-// RAM: TODO! Make set/get/run indexes typesafe somehow, maybe make the varible list a key/index thing
-// to typesafe it all. DOn't like it atm when you just return an int. yuk.
+// c++11 doesn't have reflection. You can emulate it a couple of ways: templates, macros (as here)
+// parsing the object files directly to make a reflection database, or write your own VM (like id engine games).
+// I chose macros and classes as it was the simplest for me. Yes I know macros are bad, but boilerplate
+// code writing is worse, so that's the choice I made.
 
 class IReflected
 {
 public:
     std::string ReflectionClassName() const;
-    std::vector<std::string> ReflectionListVariables() const;
-    std::vector<std::string> ReflectionListMethods() const;
+    std::vector<std::string> ReflectionListVariables();
+    std::vector<std::string> ReflectionListMethods();
     
     void ReflectionSet(uint8_t index, float newValue);
     float ReflectionGet(uint8_t index) const;
     void ReflectionRun(uint8_t index);
     
-    // TODO: deal with this!
+    // I could be using reference counted pointers to keep track
+    // of IReflected classes, therefore it means the class could be
+    // deleted via it's base class pointer (IReflected). So following that
+    // I need a public virtual destructor.
     virtual ~IReflected() {};
     
 private:
+    bool myPrivateReflectionHasDoneInit = false;
     
     virtual void InitReflection() = 0;
     virtual std::string PrivateReflectionClassName() const = 0;
@@ -57,17 +63,29 @@ private:
 // Reflection Functions
 // ///////////////////
 std::string IReflected::ReflectionClassName() const 
-{ 
+{          
     return PrivateReflectionClassName();     
 }
 
-std::vector<std::string> IReflected::ReflectionListVariables() const
+std::vector<std::string> IReflected::ReflectionListVariables()
 { 
+    if (!myPrivateReflectionHasDoneInit) 
+    { 
+        InitReflection(); 
+        myPrivateReflectionHasDoneInit = true; 
+    } 
+    
     return PrivateReflectionListVariables();     
 }
 
-std::vector<std::string> IReflected::ReflectionListMethods() const 
+std::vector<std::string> IReflected::ReflectionListMethods() 
 { 
+    if (!myPrivateReflectionHasDoneInit) 
+    { 
+        InitReflection(); 
+        myPrivateReflectionHasDoneInit = true; 
+    } 
+    
     return PrivateReflectionListMethods();     
 }
 
@@ -90,8 +108,8 @@ void IReflected::ReflectionRun(uint8_t index)
 // Reflection Macros
 // ///////////////////
 #define REFLECTION_VARIABLE(CLASS, NAME_VAR)          \
-reflectionSetters.push_back(&CLASS::set##NAME_VAR);     \
-reflectionGetters.push_back(&CLASS::get##NAME_VAR);     \
+reflectionSetters.push_back(&CLASS::NAME_VAR##Set);     \
+reflectionGetters.push_back(&CLASS::NAME_VAR##Get);     \
 reflectionNamesVariable.push_back(#NAME_VAR);
 
 #define REFLECTION_METHOD(CLASS, NAME_METHOD)          \
@@ -100,6 +118,7 @@ reflectionNamesMethods.push_back(#NAME_METHOD);
 
 #define REFLECTION_BOILERPLATE(CLASS)   \
 private:\
+    bool myPrivateReflectionHasDoneInit = false; \
     \
     typedef void (CLASS::*ReflectionSetter)(float);\
     typedef float (CLASS::*ReflectionGetter)(void) const;\
@@ -153,6 +172,31 @@ private:\
     {\
         return reflectionNamesMethods;\
     }
-
+    
+// ///////////////////
+// Example Code
+// ///////////////////
+//class ScratchClass : public IReflected
+//{
+//    REFLECTION_BOILERPLATE(ScratchClass)
+//    
+//public:
+//    float FirstPropertyGet() const {return myFirst;}
+//    void FirstPropertySet(float toSet) {myFirst = toSet;}
+//    float SecondPropertyGet() const {return mySecond;}
+//    void SecondPropertySet(float toSet) {mySecond = toSet;}
+//    void anyOldMethod() {/*nada*/}    
+//    
+//private:
+//    float myFirst = 0;
+//    float mySecond = 0;        
+//    
+//    void InitReflection() override
+//    {
+//        REFLECTION_VARIABLE(ScratchClass, FirstProperty);
+//        REFLECTION_VARIABLE(ScratchClass, SecondProperty);
+//        REFLECTION_METHOD(ScratchClass, anyOldMethod);  
+//    }   
+//};
 
 #endif // IREFLECTED_H
