@@ -58,51 +58,6 @@ private:
     virtual float PrivateReflectionGet(uint8_t index) const = 0;
     virtual void PrivateReflectionRun(uint8_t index) = 0; 
 };
-
-// ///////////////////
-// Reflection Functions
-// ///////////////////
-std::string IReflected::ReflectionClassName() const 
-{          
-    return PrivateReflectionClassName();     
-}
-
-std::vector<std::string> IReflected::ReflectionListVariables()
-{ 
-    if (!myPrivateReflectionHasDoneInit) 
-    { 
-        InitReflection(); 
-        myPrivateReflectionHasDoneInit = true; 
-    } 
-    
-    return PrivateReflectionListVariables();     
-}
-
-std::vector<std::string> IReflected::ReflectionListMethods() 
-{ 
-    if (!myPrivateReflectionHasDoneInit) 
-    { 
-        InitReflection(); 
-        myPrivateReflectionHasDoneInit = true; 
-    } 
-    
-    return PrivateReflectionListMethods();     
-}
-
-void IReflected::ReflectionSet(uint8_t index, float newValue) 
-{ 
-    PrivateReflectionSet(index, newValue);     
-}
-
-float IReflected::ReflectionGet(uint8_t index) const 
-{ 
-    return PrivateReflectionGet(index);     
-}
-
-void IReflected::ReflectionRun(uint8_t index) 
-{ 
-    PrivateReflectionRun(index);     
-} 
     
 // ///////////////////
 // Reflection Macros
@@ -176,6 +131,8 @@ private:\
 // ///////////////////
 // Example Code
 // ///////////////////
+//
+//#include "IReflected.h"
 //class ScratchClass : public IReflected
 //{
 //    REFLECTION_BOILERPLATE(ScratchClass)
