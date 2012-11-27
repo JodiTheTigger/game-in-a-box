@@ -44,6 +44,7 @@ public:
     // of IReflected classes, therefore it means the class could be
     // deleted via it's base class pointer (IReflected). So following that
     // I need a public virtual destructor.
+    // http://www.gotw.ca/publications/mill18.htm
     virtual ~IReflected() {};
     
 private:
