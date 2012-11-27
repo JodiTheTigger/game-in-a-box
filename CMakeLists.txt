@@ -55,6 +55,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server 
+common/IReflected.cpp 
+common/ReflectionManager.cpp 
 common/StateManager.cpp 
 common/NetworkManager.cpp 
 common/NetworkProvider.cpp 
@@ -84,6 +86,8 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests 
+  ${PROJECT_SOURCE_DIR}/common/TestReflectionManager.cpp 
+  ${PROJECT_SOURCE_DIR}/common/TestIReflected.cpp 
   ${PROJECT_SOURCE_DIR}/common/RollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/BitStream.cpp
