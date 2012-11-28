@@ -23,9 +23,8 @@
 
 using namespace std;
 
-ReflectionManager::ReflectionManager(map<string, float> defaultValues)
-: myUnusedDefaultSettings(defaultValues)
-, myStringToClassAndIndex(map<string, tuple<shared_ptr<IReflected>, uint8_t>>())
+ReflectionManager::ReflectionManager()
+: myStringToClassAndIndex(map<string, tuple<shared_ptr<IReflected>, uint8_t>>())
 {
     // TODO!
     

@@ -177,11 +177,6 @@ TEST_F(TestReflectionManager, TestAddSameClassTwiceDifferentInstances)
   EXPECT_EQ(0, 1);
 }
 
-TEST_F(TestReflectionManager, TestSetupDefaultsThenRegister) 
-{
-  EXPECT_EQ(0, 1);
-}
-
 TEST_F(TestReflectionManager, TestAddTwoClasses) 
 {
   EXPECT_EQ(0, 1);
