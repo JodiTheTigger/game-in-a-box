@@ -40,8 +40,8 @@ public:
     virtual ~ReflectedTester() {}; 
     
 private:
-    float myFirst = 0;
-    float mySecond = 0;        
+    float myFirst = 1;
+    float mySecond = 2;        
     
     void InitReflection() override
     {
@@ -77,32 +77,84 @@ TEST_F(TestIReflected, TestMethodList)
   EXPECT_EQ(string("ResetToZero"), theList[0]);
 }
 
-TEST_F(TestIReflected, TestArgumentList) 
+TEST_F(TestIReflected, TestVariableList) 
 {
-  // TODO!
-  EXPECT_EQ(1, 0);
+  ReflectedTester toTest;
+  vector<string> theList;
+  
+  theList = toTest.ReflectionListVariables(); 
+  
+  EXPECT_EQ(2, theList.size());
+  EXPECT_EQ(string("FirstProperty"), theList[0]);
+  EXPECT_EQ(string("SecondProperty"), theList[1]);
 }
 
 TEST_F(TestIReflected, TestGet) 
 {
-  // TODO!
-  EXPECT_EQ(1, 0);
+    ReflectedTester toTest;
+    
+    // init by side effect.
+    toTest.ReflectionListVariables();
+    
+    EXPECT_EQ(toTest.ReflectionGet(0), 1.0f);
+    EXPECT_EQ(toTest.ReflectionGet(1), 2.0f);    
 }
 
 TEST_F(TestIReflected, TestSetThenGet) 
 {
-  // TODO!
-  EXPECT_EQ(1, 0);
+    ReflectedTester toTest;
+    
+    // init by side effect.
+    toTest.ReflectionListVariables();
+    
+    toTest.ReflectionSet(0, 5);
+    toTest.ReflectionSet(1, 10);
+    
+    EXPECT_EQ(toTest.ReflectionGet(0), 5.0f);
+    EXPECT_EQ(toTest.ReflectionGet(1), 10.0f); 
 }
 
 TEST_F(TestIReflected, TestSetMethodGet) 
 {
-  // TODO!
-  EXPECT_EQ(1, 0);
+    ReflectedTester toTest;
+    
+    // init by side effect.
+    toTest.ReflectionListVariables();
+    
+    toTest.ReflectionSet(0, 5);
+    toTest.ReflectionSet(1, 10);
+    toTest.ReflectionRun(0);
+    
+    EXPECT_EQ(toTest.ReflectionGet(0), 0.0f);
+    EXPECT_EQ(toTest.ReflectionGet(1), 0.0f); 
 }
 
 TEST_F(TestIReflected, TestOutOfBounds) 
 {
-  // TODO!
-  EXPECT_EQ(1, 0);
+    ReflectedTester toTest;
+    
+    // init by side effect.
+    toTest.ReflectionListVariables();
+    
+    toTest.ReflectionSet(2, 5);
+    toTest.ReflectionSet(55, 10);
+    toTest.ReflectionRun(4);
+    
+    EXPECT_EQ(toTest.ReflectionGet(0), 1.0f);
+    EXPECT_EQ(toTest.ReflectionGet(1), 2.0f); 
+}
+
+TEST_F(TestIReflected, TestNoInit) 
+{
+    ReflectedTester toTest;
+    
+    // by not calling get arguments or get methods
+    // nothing is initilised, so all calls are out of bounds.
+    
+    toTest.ReflectionSet(2, 5);
+    toTest.ReflectionSet(55, 10);
+    toTest.ReflectionRun(4);
+    
+    EXPECT_EQ(toTest.ReflectionGet(0), 0.0f);
+    EXPECT_EQ(toTest.ReflectionGet(1), 0.0f); 
 }
