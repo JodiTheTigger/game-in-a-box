@@ -28,6 +28,7 @@ ReflectionManager::ReflectionManager(map<string, float> defaultValues)
 , myStringToClassAndIndex(map<string, tuple<shared_ptr<IReflected>, uint8_t>>())
 {
     // TODO!
+    
 }
 
 // Registers the class, and sets any default values already set by

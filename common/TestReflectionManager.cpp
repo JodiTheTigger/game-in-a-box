@@ -82,9 +82,9 @@ TEST_F(TestReflectionManager, TestEmptyManager)
 {
     ReflectionManager toTest;
     
-    std::vector<std::string> arguments;
-    std::vector<std::string> methods;
-    std::map<std::string, float> values;
+    vector<string> arguments;
+    vector<string> methods;
+    map<string, float> values;
     
     float testValue;
     
@@ -106,7 +106,59 @@ TEST_F(TestReflectionManager, TestEmptyManager)
 
 TEST_F(TestReflectionManager, TestAddOneClass) 
 {
-  EXPECT_EQ(0, 1);
+    ReflectionManager toTest;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> arguments;
+    vector<string> methods;
+    map<string, float> values;
+    
+    float testValue;
+    float testValue2;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+
+    toTest.RegisterClass(firstClass);
+
+    // call non-existing functions, not expecting any exceptions
+    testValue = toTest.ValueGet("Nothing");
+    toTest.ValueSet("nothing", 44.2f);
+    toTest.CallMethod("44");
+    
+    EXPECT_EQ(2, arguments.size());
+    EXPECT_EQ(1, methods.size());
+    EXPECT_EQ(2, values.size());
+    EXPECT_EQ(0, testValue);
+
+    EXPECT_EQ(string("ReflectedTester.FirstProperty"), arguments[0]);
+    EXPECT_EQ(string("ReflectedTester.SecondProperty"), arguments[1]);
+    EXPECT_EQ(string("ReflectedTester.ResetToZero"), methods[0]);
+
+    EXPECT_EQ(values[string("ReflectedTester.FirstProperty")], 1.0);
+    EXPECT_EQ(values[string("ReflectedTester.SecondProperty")], 2.0);
+
+    testValue = toTest.ValueGet("FirstProperty");
+    testValue2 = toTest.ValueGet("SecondProperty");
+
+    EXPECT_EQ(1, testValue);
+    EXPECT_EQ(2, testValue2);
+
+    toTest.ValueSet("SecondProperty", 44.2f);
+
+    testValue = toTest.ValueGet("FirstProperty");
+    testValue2 = toTest.ValueGet("SecondProperty");
+
+    EXPECT_EQ(1, testValue);
+    EXPECT_EQ(44.2, testValue2);
+
+    toTest.CallMethod("ResetToZero");
+
+    testValue = toTest.ValueGet("FirstProperty");
+    testValue2 = toTest.ValueGet("SecondProperty");
+
+    EXPECT_EQ(0, testValue);
+    EXPECT_EQ(0, testValue2);
 }
 
 TEST_F(TestReflectionManager, TestRegisterNullClass) 
