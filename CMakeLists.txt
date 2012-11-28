@@ -86,6 +86,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/common/ReflectionManager.cpp
   ${PROJECT_SOURCE_DIR}/common/IReflected.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestReflectionManager.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestIReflected.cpp 
