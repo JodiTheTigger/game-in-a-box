@@ -25,11 +25,14 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <tuple>
 
 #include "BuildMacros.h"
 
 // forward declarations
 class IReflected;
+
+// TODO! Don't support duplicate classes. Too much hassle.
 
 class ReflectionManager
 {
@@ -60,6 +63,7 @@ public:
     
 private:
     std::map<std::string, float> myUnusedDefaultSettings;
+    std::map<std::string, std::tuple<std::shared_ptr<IReflected>, uint8_t>> myStringToClassAndIndex;
 };
 
 #endif // REFLECTIONMANAGER_H

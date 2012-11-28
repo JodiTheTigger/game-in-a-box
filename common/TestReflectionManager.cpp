@@ -80,11 +80,38 @@ class TestReflectionManager : public ::testing::Test
 
 TEST_F(TestReflectionManager, TestEmptyManager) 
 {
-  EXPECT_EQ(0, 1);
+    ReflectionManager toTest;
+    
+    std::vector<std::string> arguments;
+    std::vector<std::string> methods;
+    std::map<std::string, float> values;
+    
+    float testValue;
+    
+    // get all the stuff
+    arguments = toTest.GetListArguments(string(""));
+    methods = toTest.GetListMethods(string(""));
+    values = toTest.GetListValues(string(""));
+    
+    // call functions, not expecting any exceptions
+    testValue = toTest.ValueGet("Nothing");
+    toTest.ValueSet("nothing", 44.2f);
+    toTest.CallMethod("44");
+    
+    EXPECT_EQ(0, arguments.size());
+    EXPECT_EQ(0, methods.size());
+    EXPECT_EQ(0, values.size());
+    EXPECT_EQ(0, testValue);
 }
 
 TEST_F(TestReflectionManager, TestAddOneClass) 
 {
+  EXPECT_EQ(0, 1);
+}
+
+TEST_F(TestReflectionManager, TestRegisterNullClass) 
+{
+    // is that even possible with shared pointers?
   EXPECT_EQ(0, 1);
 }
 

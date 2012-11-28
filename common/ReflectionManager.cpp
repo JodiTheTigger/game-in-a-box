@@ -21,37 +21,60 @@
 #include "ReflectionManager.h"
 #include "IReflected.h"
 
-ReflectionManager::ReflectionManager(std::map<std::string, float> defaultValues)
+using namespace std;
+
+ReflectionManager::ReflectionManager(map<string, float> defaultValues)
 : myUnusedDefaultSettings(defaultValues)
+, myStringToClassAndIndex(map<string, tuple<shared_ptr<IReflected>, uint8_t>>())
 {
     // TODO!
 }
 
 // Registers the class, and sets any default values already set by
 // either the constructor's std::map.
-void ReflectionManager::RegisterClass(std::shared_ptr<IReflected> reflectedClass)
+void ReflectionManager::RegisterClass(shared_ptr<IReflected> reflectedClass)
 {
     // TODO!
 }
 
-std::vector<std::string> ReflectionManager::GetListArguments(std::string containing) const
+vector<string> ReflectionManager::GetListArguments(string containing) const
 {
     // TODO!
+    return vector<string>();
 }
-std::vector<std::string> ReflectionManager::GetListMethods(std::string containing) const
+vector<string> ReflectionManager::GetListMethods(string containing) const
 {
     // TODO!
+    return vector<string>();
 }
-std::map<std::string, float> ReflectionManager::GetListValues(std::string containing)
+map<std::string, float> ReflectionManager::GetListValues(string containing)
 {
     // TODO!
+    return map<string, float>();
 }
 
 // Gets the value for the argument passed in. Returns 0.0 if the argument does
 // not match anything registered.
-float ReflectionManager::ValueGet(std::string argument) const
+float ReflectionManager::ValueGet(string argument) const
 {
-    // TODO!
+    map<string, std::tuple<shared_ptr<IReflected>, uint8_t>>::const_iterator findIterator;
+    
+    // using find instead of the [], as find can be const.
+    findIterator = myStringToClassAndIndex.find(argument);
+        
+    if (findIterator != myStringToClassAndIndex.end())
+    {        
+        shared_ptr<IReflected> target;
+        uint8_t targetIndex;
+        
+        tie(target, targetIndex) = (*findIterator).second;
+        
+        return target->ReflectionGet(targetIndex);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 // Sets the value of the argument passed in. Silently ignores arguments that
