@@ -21,6 +21,88 @@
 #include "IReflected.h"
 #include "gtest/gtest.h"
 
+#include "IReflected.h"
+
 using namespace std;
 
-//TODO!
+// I really should just use google mock.
+class ReflectedTester : public IReflected
+{
+    REFLECTION_BOILERPLATE(ReflectedTester)
+    
+public:
+    float FirstPropertyGet() const {return myFirst;}
+    void FirstPropertySet(float toSet) {myFirst = toSet;}
+    float SecondPropertyGet() const {return mySecond;}
+    void SecondPropertySet(float toSet) {mySecond = toSet;}
+    void ResetToZero() { myFirst = 0; mySecond = 0;}   
+    
+    virtual ~ReflectedTester() {}; 
+    
+private:
+    float myFirst = 0;
+    float mySecond = 0;        
+    
+    void InitReflection() override
+    {
+        REFLECTION_VARIABLE(ReflectedTester, FirstProperty);
+        REFLECTION_VARIABLE(ReflectedTester, SecondProperty);
+        REFLECTION_METHOD(ReflectedTester, ResetToZero);  
+    }   
+};
+
+class TestIReflected : public ::testing::Test 
+{
+};
+
+
+TEST_F(TestIReflected, TestClassName) 
+{
+  ReflectedTester toTest;
+  string theName;
+  
+  theName = toTest.ReflectionClassName(); 
+  
+  EXPECT_EQ(string("ReflectedTester"), theName);
+}
+
+TEST_F(TestIReflected, TestMethodList) 
+{
+  ReflectedTester toTest;
+  vector<string> theList;
+  
+  theList = toTest.ReflectionListMethods(); 
+  
+  EXPECT_EQ(1, theList.size());
+  EXPECT_EQ(string("ResetToZero"), theList[0]);
+}
+
+TEST_F(TestIReflected, TestArgumentList) 
+{
+  // TODO!
+  EXPECT_EQ(1, 0);
+}
+
+TEST_F(TestIReflected, TestGet) 
+{
+  // TODO!
+  EXPECT_EQ(1, 0);
+}
+
+TEST_F(TestIReflected, TestSetThenGet) 
+{
+  // TODO!
+  EXPECT_EQ(1, 0);
+}
+
+TEST_F(TestIReflected, TestSetMethodGet) 
+{
+  // TODO!
+  EXPECT_EQ(1, 0);
+}
+
+TEST_F(TestIReflected, TestOutOfBounds) 
+{
+  // TODO!
+  EXPECT_EQ(1, 0);
+}
