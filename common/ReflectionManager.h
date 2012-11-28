@@ -36,11 +36,11 @@ class ReflectionManager
     CLASS_NOCOPY_NOASSIGN(ReflectionManager)
     
 public:
-    //ReflectionManager() : ReflectionManager(std::map<std::string, float> empty) {}
+    ReflectionManager() : ReflectionManager(std::map<std::string, float>()) {}
     ReflectionManager(std::map<std::string, float> defaultValues);
     
     // Registers the class, and sets any default values already set by
-    // either the constructor's std::map.
+    // the constructor's std::map.
     void RegisterClass(std::shared_ptr<IReflected> reflectedClass);
     
     std::vector<std::string> GetListArguments(std::string containing) const;
