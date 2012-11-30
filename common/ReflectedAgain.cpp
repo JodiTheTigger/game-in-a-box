@@ -28,24 +28,6 @@ enum class ReflectionTypes
     Float, 
     String     
 };
-/*
-class ReflectionKey : std::pair<ReflectionTypes,uint8_t>
-{
-public:
-    ReflectionKey(ReflectionTypes theType ,uint8_t index) : std::pair<ReflectionTypes,uint8_t>(theType, index)
-    {
-    }
-    
-    const ReflectionTypes Type() const
-    {
-        return first;
-    }
-    
-    const uint8_t Index() const
-    {
-        return second;
-    }
-};*/
 
 class ReflectionKey
 {
