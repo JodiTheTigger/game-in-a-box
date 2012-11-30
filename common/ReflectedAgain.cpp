@@ -20,12 +20,32 @@
 
 #include "ReflectedAgain.h"
 
+#include <utility>
+
 enum class ReflectionTypes 
 { 
     Method, 
     Float, 
     String     
 };
+/*
+class ReflectionKey : std::pair<ReflectionTypes,uint8_t>
+{
+public:
+    ReflectionKey(ReflectionTypes theType ,uint8_t index) : std::pair<ReflectionTypes,uint8_t>(theType, index)
+    {
+    }
+    
+    const ReflectionTypes Type() const
+    {
+        return first;
+    }
+    
+    const uint8_t Index() const
+    {
+        return second;
+    }
+};*/
 
 class ReflectionKey
 {
@@ -44,6 +64,19 @@ public:
     const uint8_t Index() const
     {
         return myIndexIntoType;
+    }
+    
+    // for std::map
+    bool operator<(const ReflectionKey& other) const 
+    {
+        if (this->myIndexIntoType == other.myIndexIntoType)
+        {
+            return (this->myType < other.myType);
+        }
+        else
+        {
+            return (this->myIndexIntoType < other.myIndexIntoType);
+        }
     }
     
 private:
@@ -66,9 +99,9 @@ const std::map<ReflectionKey, std::string> ReflectedAgain::ReflectionList()
         // build my map
         reflections = PrivateReflectionListFloatVariables();
         indexCount = 0;
-        for (std::string &name : reflections)
+        for (std::string name : reflections)
         {
-            myReflectionMap[ReflectionKey(ReflectionTypes::Float, indexCount++)] = name;
+           myReflectionMap[ReflectionKey(ReflectionTypes::Float, indexCount++)] = name;
         }
         
         reflections = PrivateReflectionListStringVariables();
@@ -95,7 +128,7 @@ const std::map<ReflectionKey, std::string> ReflectedAgain::ReflectionList()
 bool ReflectedAgain::ReflectionSet(const ReflectionKey key, const float newValue)
 {
     // sanity checks
-    if (key.Type() != ReflectionTypes::Float)
+    if (key.Type() == ReflectionTypes::Float)
     {
         return false;
     }    
