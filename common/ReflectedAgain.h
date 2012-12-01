@@ -32,7 +32,7 @@ class ReflectedAgain
 {
 public:
     const std::string ReflectionClassName() const;
-    const std::map<ReflectionKey, std::string> ReflectionList();
+    const std::map<const ReflectionKey, std::string> ReflectionList();
     
     // Returns true if successful, false if the key doesn't match a known functions
     // with the correct data type.
@@ -51,7 +51,7 @@ public:
     
 private:
     bool myPrivateReflectionHasDoneInit = false;
-    std::map<ReflectionKey, std::string> myReflectionMap;
+    std::map<const ReflectionKey, std::string> myReflectionMap;
     
     virtual void InitReflection() = 0;
     virtual const std::string PrivateReflectionClassName() const = 0;

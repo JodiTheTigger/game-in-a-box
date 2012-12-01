@@ -29,6 +29,8 @@ enum class ReflectionTypes
     String     
 };
 
+// I could have used std::pair, but I wated the Type() and Index() accessors
+// as opposed to first and second from std::pair.
 class ReflectionKey
 {
 public:
@@ -71,7 +73,7 @@ const std::string ReflectedAgain::ReflectionClassName() const
     return PrivateReflectionClassName();     
 }
 
-const std::map<ReflectionKey, std::string> ReflectedAgain::ReflectionList()
+const std::map<const ReflectionKey, std::string> ReflectedAgain::ReflectionList()
 { 
     if (!myPrivateReflectionHasDoneInit) 
     { 
@@ -150,7 +152,8 @@ bool ReflectedAgain::ReflectionGet(const ReflectionKey key, std::string& updateV
     
     return PrivateReflectionGet(key.Index(), updateValue);
 }
-    bool ReflectedAgain::ReflectionRun(const ReflectionKey key)
+
+bool ReflectedAgain::ReflectionRun(const ReflectionKey key)
 {
     // sanity checks
     if (key.Type() != ReflectionTypes::Method)
