@@ -56,8 +56,8 @@ private:
     virtual void InitReflection() = 0;
     virtual const std::string PrivateReflectionClassName() const = 0;
     virtual const std::vector<std::string> PrivateReflectionListFloatVariables() const = 0;
-    virtual const std::vector<std::string> PrivateReflectionListStringVariables() const = 0;
-    virtual const std::vector<std::string> PrivateReflectionListMethods() const = 0;
+    virtual const std::vector<const std::string> PrivateReflectionListStringVariables() const = 0;
+    virtual const std::vector<const std::string> PrivateReflectionListMethods() const = 0;
     
     virtual bool PrivateReflectionSet(const uint8_t index, const float newValue) = 0;
     virtual bool PrivateReflectionSet(const uint8_t index, const std::string newValue) = 0;

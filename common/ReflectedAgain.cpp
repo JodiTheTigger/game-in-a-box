@@ -78,15 +78,17 @@ const std::map<const ReflectionKey, std::string> ReflectedAgain::ReflectionList(
     if (!myPrivateReflectionHasDoneInit) 
     { 
         uint8_t indexCount;
-        std::vector<std::string> reflections;
+                
+        // build my map (using auto to deal with the constant correctness)
+        auto reflectionsFloat = PrivateReflectionListFloatVariables();
+        //auto reflectionsString = PrivateReflectionListStringVariables();
+        //auto reflectionsMethod = PrivateReflectionListMethods();
         
-        // build my map
-        reflections = PrivateReflectionListFloatVariables();
         indexCount = 0;
-        for (std::string name : reflections)
+        for (auto name : reflectionsFloat)
         {
            myReflectionMap[ReflectionKey(ReflectionTypes::Float, indexCount++)] = name;
-        }
+        }/*
         
         reflections = PrivateReflectionListStringVariables();
         indexCount = 0;
@@ -100,7 +102,7 @@ const std::map<const ReflectionKey, std::string> ReflectedAgain::ReflectionList(
         for (std::string name : reflections)
         {
             myReflectionMap[ReflectionKey(ReflectionTypes::Method, indexCount++)] = name;
-        }
+        }*/
         
         InitReflection(); 
         myPrivateReflectionHasDoneInit = true; 

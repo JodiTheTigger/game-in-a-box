@@ -30,6 +30,7 @@
 #include "common/BuildMacros.h"
 
 #include "common/IReflected.h"
+#include "common/ReflectedAgain.h"
 
 class ScratchClass : public IReflected
 {
@@ -54,6 +55,133 @@ private:
     }   
 };
 
+class ScratchClass2 : public ReflectedAgain
+{
+    REFLECTION_BOILERPLATE(ScratchClass)
+    
+public:
+    float FirstPropertyGet() const {return myFirst;}
+    void FirstPropertySet(float toSet) {myFirst = toSet;}
+    float SecondPropertyGet() const {return mySecond;}
+    void SecondPropertySet(float toSet) {mySecond = toSet;}
+    void ResetToZero() {myFirst = 0; mySecond=0;}
+    std::string BahGet() const {return argh;}
+    void BahSet(std::string &newy){argh = newy;}
+    
+private:
+    float myFirst = 1;
+    float mySecond = 2;   
+    std::string argh("argh");
+    
+    void InitReflection() override
+    {
+          
+    }   
+
+private:
+    bool myPrivateReflectionHasDoneInit = false; 
+    
+    typedef void (ScratchClass2::*ReflectionFloatSetter)(float);
+    typedef float (ScratchClass2::*ReflectionFloatGetter)(void);
+    typedef void (ScratchClass2::*ReflectionStringSetter)(std::string);
+    typedef std::string (ScratchClass2::*ReflectionStringGetter)(void);
+    typedef void (ScratchClass2::*ReflectionRunner)(void);
+    
+    std::vector<ReflectionFloatSetter> reflectionFloatSetters;
+    std::vector<ReflectionFloatGetter> reflectionFloatGetters; 
+    std::vector<ReflectionStringSetter> reflectionStringSetters;
+    std::vector<ReflectionStringGetter> reflectionStringGetters; 
+    std::vector<ReflectionRunner> reflectionRunners; 
+
+    std::vector<const std::string> reflectionNamesFloatVariable;
+    std::vector<const std::string> reflectionNamesStringVariable;
+    std::vector<const std::string> reflectionNamesMethods;       
+    
+    std::string PrivateReflectionClassName() const override
+    {
+        return std::string("ScratchClass2");
+    }
+    
+    const std::vector<std::string> PrivateReflectionListFloatVariables() const override
+    {
+        return reflectionNamesFloatVariable;
+    }
+    
+    const std::vector<std::string> PrivateReflectionListStringVariables() const override
+    {
+        return reflectionNamesStringVariable;
+    }
+    
+    std::vector<std::string> PrivateReflectionListMethods() const override
+    {
+        return reflectionNamesMethods;
+    }
+    
+    bool PrivateReflectionSet(const uint8_t index, const float newValue) override 
+    {
+        if (index < reflectionFloatSetters.size())
+        {
+            (*this.*reflectionFloatSetters[index])(newValue);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    bool PrivateReflectionSet(const uint8_t index, const std::string newValue) override 
+    {
+        if (index < reflectionStringSetters.size())
+        {
+            (*this.*reflectionStringSetters[index])(newValue);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    bool PrivateReflectionGet(const uint8_t index, float& updateValue) const override
+    {
+        if (index < reflectionFloatGetters.size())
+        {
+            updateValue = (*this.*reflectionFloatGetters[index])();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    bool PrivateReflectionGet(const uint8_t index, std::string& updateValue) const override
+    {
+        if (index < reflectionStringGetters.size())
+        {
+            updateValue = (*this.*reflectionStringGetters[index])();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    bool PrivateReflectionRun(uint8_t index) override
+    {
+        if (index < reflectionRunners.size())
+        {
+            (*this.*reflectionRunners[index])();
+            return true;    
+        }
+        else
+        {
+            return false;
+        }
+    }
+};
 
 void Scratch();
 
