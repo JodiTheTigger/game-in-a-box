@@ -24,29 +24,47 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 
+class ReflectionKey;
 // Reflection notes:
 // =================
-// ReflectionKey:
-//		Use the pimpl idiom for the reflection key. It's basically a handle that contains data useful for the reflection class.
+// class ReflectionKey;
+//    Use the pimpl idiom for the reflection key. It's basically a handle that contains data useful for the reflection class.
 //
 // virtual ~ReflectedAgain() {};
-// 		I could be using reference counted pointers to keep track
-// 		of IReflected classes, therefore it means the class could be
-// 		deleted via it's base class pointer (IReflected). So following that
-// 		I need a public virtual destructor.
-// 		http://www.gotw.ca/publications/mill18.htm
+//    I could be using reference counted pointers to keep track
+//    of IReflected classes, therefore it means the class could be
+//    deleted via it's base class pointer (IReflected). So following that
+//    I need a public virtual destructor.
+//    http://www.gotw.ca/publications/mill18.htm
 //
 // bool ReflectionSet(const ReflectionKey key, const float newValue);
-//		When passing in values that are going to be copied, don't pass in
-//		const, or const references. C++11's move semantic makes stuff fast
-//		again.
-//		http://cpptruths.blogspot.co.nz/2012/03/rvalue-references-in-constructor-when.html
-//		http://stackoverflow.com/questions/10231349/are-the-days-of-passing-const-stdstring-as-a-parameter-over (first two answers)
-
+//    When passing in values that are going to be copied, don't pass in
+//    const, or const references. C++11's move semantic makes stuff fast
+//    again.
+//    http://cpptruths.blogspot.co.nz/2012/03/rvalue-references-in-constructor-when.html
+//    http://stackoverflow.com/questions/10231349/are-the-days-of-passing-const-stdstring-as-a-parameter-over (first two answers)
 
 // forward declarations:
-class ReflectionKey;
+class ReflectionKeyPrivate;
+
+class ReflectionKey
+{
+public:
+    ReflectionKey(ReflectionKeyPrivate* data) : myPimpl(std::make_shared<ReflectionKeyPrivate>(data)) {}
+    const ReflectionKeyPrivate& Pimpl() const { return *myPimpl; }
+    
+    // for std::map
+    bool operator<(const ReflectionKey& other) const 
+    {
+        return (this->myPimpl < other.myPimpl);
+    }
+    
+    ~ReflectionKey() {}
+private:
+    std::shared_ptr<ReflectionKeyPrivate> myPimpl;
+};
 
 class ReflectedAgain
 {
@@ -57,10 +75,10 @@ public:
     // Returns true if successful, false if the key doesn't have a match for that data type.
     bool ReflectionSet(const ReflectionKey key, float newValue);
     bool ReflectionSet(const ReflectionKey key, std::string newValue);
-    bool ReflectionGet(const ReflectionKey key, const float& updateValue) const;
-    bool ReflectionGet(const ReflectionKey key, const std::string& updateValue) const;
+    bool ReflectionGet(const ReflectionKey key, float& updateValue) const;
+    bool ReflectionGet(const ReflectionKey key, std::string& updateValue) const;
     bool ReflectionRun(const ReflectionKey key);
-	
+
     virtual ~ReflectedAgain() {};
     
 private:

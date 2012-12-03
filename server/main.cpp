@@ -56,13 +56,11 @@ private:
 };
 
 class ScratchClass2 : public ReflectedAgain
-{
-    REFLECTION_BOILERPLATE(ScratchClass)
-    
+{    
 public:
-    float FirstPropertyGet() const {return myFirst;}
+    float FirstPropertyGet() const {return myFirst;} 
     void FirstPropertySet(float toSet) {myFirst = toSet;}
-    float SecondPropertyGet() const {return mySecond;}
+    float SecondPropertyGet() const {return mySecond;} 
     void SecondPropertySet(float toSet) {mySecond = toSet;}
     void ResetToZero() {myFirst = 0; mySecond=0;}
     std::string BahGet() const {return argh;}
@@ -71,7 +69,7 @@ public:
 private:
     float myFirst = 1;
     float mySecond = 2;   
-    std::string argh("argh");
+    std::string argh = "argh";
     
     void InitReflection() override
     {
@@ -82,9 +80,9 @@ private:
     bool myPrivateReflectionHasDoneInit = false; 
     
     typedef void (ScratchClass2::*ReflectionFloatSetter)(float);
-    typedef float (ScratchClass2::*ReflectionFloatGetter)(void);
+    typedef float (ScratchClass2::*ReflectionFloatGetter)(void) const;
     typedef void (ScratchClass2::*ReflectionStringSetter)(std::string);
-    typedef std::string (ScratchClass2::*ReflectionStringGetter)(void);
+    typedef std::string (ScratchClass2::*ReflectionStringGetter)(void) const;
     typedef void (ScratchClass2::*ReflectionRunner)(void);
     
     std::vector<ReflectionFloatSetter> reflectionFloatSetters;
@@ -93,26 +91,26 @@ private:
     std::vector<ReflectionStringGetter> reflectionStringGetters; 
     std::vector<ReflectionRunner> reflectionRunners; 
 
-    std::vector<const std::string> reflectionNamesFloatVariable;
-    std::vector<const std::string> reflectionNamesStringVariable;
-    std::vector<const std::string> reflectionNamesMethods;       
+    std::vector<std::string> reflectionNamesFloatVariable;
+    std::vector<std::string> reflectionNamesStringVariable;
+    std::vector<std::string> reflectionNamesMethods;       
     
-    std::string PrivateReflectionClassName() const override
+    const std::string PrivateReflectionClassName() const override
     {
         return std::string("ScratchClass2");
     }
     
-    const std::vector<std::string> PrivateReflectionListFloatVariables() const override
+    const std::vector<std::string>& PrivateReflectionListFloatVariables() const override
     {
         return reflectionNamesFloatVariable;
     }
     
-    const std::vector<std::string> PrivateReflectionListStringVariables() const override
+    const std::vector<std::string>& PrivateReflectionListStringVariables() const override
     {
         return reflectionNamesStringVariable;
     }
     
-    std::vector<std::string> PrivateReflectionListMethods() const override
+    const std::vector<std::string>& PrivateReflectionListMethods() const override
     {
         return reflectionNamesMethods;
     }

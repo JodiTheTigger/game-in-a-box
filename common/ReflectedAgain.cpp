@@ -29,15 +29,21 @@ enum class ReflectionTypes
     String     
 };
 
-// I could have used std::pair, but I wated the Type() and Index() accessors
+// I could have used std::pair, but I wanted the Type() and Index() accessors
 // as opposed to first and second from std::pair.
-class ReflectionKey
+class ReflectionKeyPrivate
 {
 public:
-    ReflectionKey(ReflectionTypes type, uint8_t index)
+    ReflectionKeyPrivate(ReflectionTypes type, uint8_t index)
     : myType(type)
     , myIndexIntoType(index)
     {
+    }
+    
+    ReflectionKeyPrivate(const ReflectionKeyPrivate& otherGuy)
+    : myType(otherGuy.myType)
+    , myIndexIntoType(otherGuy.myIndexIntoType)
+    {        
     }
     
     const ReflectionTypes Type() const
@@ -51,7 +57,7 @@ public:
     }
     
     // for std::map
-    bool operator<(const ReflectionKey& other) const 
+    bool operator<(const ReflectionKeyPrivate& other) const 
     {
         if (this->myIndexIntoType == other.myIndexIntoType)
         {
@@ -81,28 +87,26 @@ const std::map<const ReflectionKey, std::string> ReflectedAgain::ReflectionList(
                 
         // build my map (using auto to deal with the constant correctness)
         auto reflectionsFloat = PrivateReflectionListFloatVariables();
-        //auto reflectionsString = PrivateReflectionListStringVariables();
-        //auto reflectionsMethod = PrivateReflectionListMethods();
+        auto reflectionsString = PrivateReflectionListStringVariables();
+        auto reflectionsMethod = PrivateReflectionListMethods();
         
         indexCount = 0;
         for (auto name : reflectionsFloat)
         {
-           myReflectionMap[ReflectionKey(ReflectionTypes::Float, indexCount++)] = name;
-        }/*
-        
-        reflections = PrivateReflectionListStringVariables();
-        indexCount = 0;
-        for (std::string name : reflections)
-        {
-            myReflectionMap[ReflectionKey(ReflectionTypes::String, indexCount++)] = name;
+           myReflectionMap[ReflectionKey(new ReflectionKeyPrivate(ReflectionTypes::Float, indexCount++))] = name;
         }
         
-        reflections = PrivateReflectionListMethods();
         indexCount = 0;
-        for (std::string name : reflections)
+        for (auto name : reflectionsString)
         {
-            myReflectionMap[ReflectionKey(ReflectionTypes::Method, indexCount++)] = name;
-        }*/
+            myReflectionMap[ReflectionKey(new ReflectionKeyPrivate(ReflectionTypes::String, indexCount++))] = name;
+        }
+        
+        indexCount = 0;
+        for (auto name : reflectionsMethod)
+        {
+            myReflectionMap[ReflectionKey(new ReflectionKeyPrivate(ReflectionTypes::Method, indexCount++))] = name;
+        }
         
         InitReflection(); 
         myPrivateReflectionHasDoneInit = true; 
@@ -111,57 +115,57 @@ const std::map<const ReflectionKey, std::string> ReflectedAgain::ReflectionList(
     return myReflectionMap;     
 }
 
-bool ReflectedAgain::ReflectionSet(const ReflectionKey key, const float newValue)
-{
+bool ReflectedAgain::ReflectionSet(const ReflectionKey key, float newValue)
+{    
     // sanity checks
-    if (key.Type() == ReflectionTypes::Float)
+    if (key.Pimpl().Type() == ReflectionTypes::Float)
     {
         return false;
     }    
     
-    return PrivateReflectionSet(key.Index(), newValue);
+    return PrivateReflectionSet(key.Pimpl().Index(), newValue);
 }
 
-bool ReflectedAgain::ReflectionSet(const ReflectionKey key, const std::string newValue)
+bool ReflectedAgain::ReflectionSet(const ReflectionKey key, std::string newValue)
 {
     // sanity checks
-    if (key.Type() != ReflectionTypes::String)
+    if (key.Pimpl().Type() != ReflectionTypes::String)
     {
         return false;
     }    
     
-    return PrivateReflectionSet(key.Index(), newValue);
+    return PrivateReflectionSet(key.Pimpl().Index(), newValue);
 }
 
 bool ReflectedAgain::ReflectionGet(const ReflectionKey key, float& updateValue) const
 {
     // sanity checks
-    if (key.Type() != ReflectionTypes::Float)
+    if (key.Pimpl().Type() != ReflectionTypes::Float)
     {
         return false;
     }    
     
-    return PrivateReflectionGet(key.Index(), updateValue);
+    return PrivateReflectionGet(key.Pimpl().Index(), updateValue);
 }
 
 bool ReflectedAgain::ReflectionGet(const ReflectionKey key, std::string& updateValue) const
 {
     // sanity checks
-    if (key.Type() != ReflectionTypes::String)
+    if (key.Pimpl().Type() != ReflectionTypes::String)
     {
         return false;
     }    
     
-    return PrivateReflectionGet(key.Index(), updateValue);
+    return PrivateReflectionGet(key.Pimpl().Index(), updateValue);
 }
 
 bool ReflectedAgain::ReflectionRun(const ReflectionKey key)
 {
     // sanity checks
-    if (key.Type() != ReflectionTypes::Method)
+    if (key.Pimpl().Type() != ReflectionTypes::Method)
     {
         return false;
     }    
     
-    return PrivateReflectionRun(key.Index());
+    return PrivateReflectionRun(key.Pimpl().Index());
 }
