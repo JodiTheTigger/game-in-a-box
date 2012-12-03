@@ -26,7 +26,8 @@
 #include <vector>
 #include <memory>
 
-class ReflectionKey;
+#include "ReflectionKey.h"
+
 // Reflection notes:
 // =================
 // class ReflectionKey;
@@ -45,26 +46,6 @@ class ReflectionKey;
 //    again.
 //    http://cpptruths.blogspot.co.nz/2012/03/rvalue-references-in-constructor-when.html
 //    http://stackoverflow.com/questions/10231349/are-the-days-of-passing-const-stdstring-as-a-parameter-over (first two answers)
-
-// forward declarations:
-class ReflectionKeyPrivate;
-
-class ReflectionKey
-{
-public:
-    ReflectionKey(ReflectionKeyPrivate* data) : myPimpl(std::make_shared<ReflectionKeyPrivate>(data)) {}
-    const ReflectionKeyPrivate& Pimpl() const { return *myPimpl; }
-    
-    // for std::map
-    bool operator<(const ReflectionKey& other) const 
-    {
-        return (this->myPimpl < other.myPimpl);
-    }
-    
-    ~ReflectionKey() {}
-private:
-    std::shared_ptr<ReflectionKeyPrivate> myPimpl;
-};
 
 class ReflectedAgain
 {
