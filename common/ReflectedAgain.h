@@ -26,6 +26,8 @@
 #include <vector>
 #include <memory>
 
+// I want ReflectionKey values for my interface,
+// therefore I cannot use a forward reference.
 #include "ReflectionKey.h"
 
 // Reflection notes:
@@ -34,13 +36,15 @@
 //    Use the pimpl idiom for the reflection key. It's basically a handle that contains data useful for the reflection class.
 //
 // virtual ~ReflectedAgain() {};
-//    I could be using reference counted pointers to keep track
-//    of IReflected classes, therefore it means the class could be
-//    deleted via it's base class pointer (IReflected). So following that
-//    I need a public virtual destructor.
+//    I was going to make this private, as making a smart pointer
+//    of the derived class (but as IReflected) will still delete
+//    everything properly. However since I cannot enforce that here
+//    I have to be safe and allow it to be a virtual destructor
+//    so that the base class can be deleted.
 //    http://www.gotw.ca/publications/mill18.htm
+//    http://www.cs.brown.edu/~jwicks/boost/libs/smart_ptr/sp_techniques.html#abstract
 //
-// bool ReflectionSet(const ReflectionKey key, const float newValue);
+// bool ReflectionSet(const ReflectionKey key, float newValue);
 //    When passing in values that are going to be copied, don't pass in
 //    const, or const references. C++11's move semantic makes stuff fast
 //    again.
