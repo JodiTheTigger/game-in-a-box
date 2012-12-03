@@ -62,9 +62,9 @@ public:
     void FirstPropertySet(float toSet) {myFirst = toSet;}
     float SecondPropertyGet() const {return mySecond;} 
     void SecondPropertySet(float toSet) {mySecond = toSet;}
-    void ResetToZero() {myFirst = 0; mySecond=0;}
+    void ResetToZero() {myFirst = 0; mySecond=0; argh="Bother";}
     std::string BahGet() const {return argh;}
-    void BahSet(std::string &newy){argh = newy;}
+    void BahSet(std::string newy){argh = newy;}
     
 private:
     float myFirst = 1;
@@ -73,7 +73,16 @@ private:
     
     void InitReflection() override
     {
-          
+        reflectionFloatSetters.push_back(&ScratchClass2::FirstPropertySet);
+        reflectionFloatGetters.push_back(&ScratchClass2::FirstPropertyGet);
+        
+        reflectionFloatSetters.push_back(&ScratchClass2::SecondPropertySet);
+        reflectionFloatGetters.push_back(&ScratchClass2::SecondPropertyGet);
+        
+        reflectionStringGetters.push_back(&ScratchClass2::BahGet);
+        reflectionStringSetters.push_back(&ScratchClass2::BahSet);
+        
+        reflectionRunners.push_back(&ScratchClass2::ResetToZero);
     }   
 
 private:
@@ -201,6 +210,15 @@ void Scratch()
   // ///////////////////////////
   // The Ugly
   // ///////////////////////////
+  
+  // new reflection play.
+  ScratchClass2 fred2;
+  ReflectedAgain& dude = fred2;
+  
+  for (auto thing : dude.ReflectionList())
+  {
+    std::cout << thing << std::endl;   
+  } 
   
   
   // quasi reflection play
