@@ -40,12 +40,6 @@ public:
     {
     }
     
-    ReflectionKeyPrivate(const ReflectionKeyPrivate& otherGuy)
-    : myType(otherGuy.myType)
-    , myIndexIntoType(otherGuy.myIndexIntoType)
-    {        
-    }
-    
     const ReflectionTypes Type() const
     {
         return myType;
@@ -73,6 +67,21 @@ private:
     const ReflectionTypes myType;
     const uint8_t myIndexIntoType;
 };
+
+ReflectionKey::ReflectionKey() : ReflectionKey(nullptr)
+{
+    
+}
+
+ReflectionKey::ReflectionKey(ReflectionKeyPrivate* data) : myPimpl(std::shared_ptr<ReflectionKeyPrivate>(data))
+{
+    
+}
+
+ReflectionKey::~ReflectionKey()
+{
+    
+}
 
 const std::string ReflectedAgain::ReflectionClassName() const 
 {          
@@ -118,54 +127,54 @@ const std::map<const ReflectionKey, std::string> ReflectedAgain::ReflectionList(
 bool ReflectedAgain::ReflectionSet(const ReflectionKey key, float newValue)
 {    
     // sanity checks
-    if (key.Pimpl().Type() == ReflectionTypes::Float)
+    if (key->Type() == ReflectionTypes::Float)
     {
         return false;
     }    
     
-    return PrivateReflectionSet(key.Pimpl().Index(), newValue);
+    return PrivateReflectionSet(key->Index(), newValue);
 }
 
 bool ReflectedAgain::ReflectionSet(const ReflectionKey key, std::string newValue)
 {
     // sanity checks
-    if (key.Pimpl().Type() != ReflectionTypes::String)
+    if (key->Type() != ReflectionTypes::String)
     {
         return false;
     }    
     
-    return PrivateReflectionSet(key.Pimpl().Index(), newValue);
+    return PrivateReflectionSet(key->Index(), newValue);
 }
 
 bool ReflectedAgain::ReflectionGet(const ReflectionKey key, float& updateValue) const
 {
     // sanity checks
-    if (key.Pimpl().Type() != ReflectionTypes::Float)
+    if (key->Type() != ReflectionTypes::Float)
     {
         return false;
     }    
     
-    return PrivateReflectionGet(key.Pimpl().Index(), updateValue);
+    return PrivateReflectionGet(key->Index(), updateValue);
 }
 
 bool ReflectedAgain::ReflectionGet(const ReflectionKey key, std::string& updateValue) const
 {
     // sanity checks
-    if (key.Pimpl().Type() != ReflectionTypes::String)
+    if (key->Type() != ReflectionTypes::String)
     {
         return false;
     }    
     
-    return PrivateReflectionGet(key.Pimpl().Index(), updateValue);
+    return PrivateReflectionGet(key->Index(), updateValue);
 }
 
 bool ReflectedAgain::ReflectionRun(const ReflectionKey key)
 {
     // sanity checks
-    if (key.Pimpl().Type() != ReflectionTypes::Method)
+    if (key->Type() != ReflectionTypes::Method)
     {
         return false;
     }    
     
-    return PrivateReflectionRun(key.Pimpl().Index());
+    return PrivateReflectionRun(key->Index());
 }
