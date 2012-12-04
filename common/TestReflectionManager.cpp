@@ -45,8 +45,8 @@ private:
     
     void InitReflection() override
     {
-        REFLECTION_VARIABLE(ReflectedTester, FirstProperty);
-        REFLECTION_VARIABLE(ReflectedTester, SecondProperty);
+        REFLECTION_VARIABLE_FLOAT(ReflectedTester, FirstProperty);
+        REFLECTION_VARIABLE_FLOAT(ReflectedTester, SecondProperty);
         REFLECTION_METHOD(ReflectedTester, ResetToZero);  
     }   
 };
@@ -105,7 +105,7 @@ TEST_F(TestReflectionManager, TestEmptyManager)
 }
 
 TEST_F(TestReflectionManager, TestAddOneClass) 
-{
+{/* TODO!
     ReflectionManager toTest;
     shared_ptr<IReflected> firstClass;
 
@@ -158,7 +158,8 @@ TEST_F(TestReflectionManager, TestAddOneClass)
     testValue2 = toTest.ValueGet("SecondProperty");
 
     EXPECT_EQ(0, testValue);
-    EXPECT_EQ(0, testValue2);
+    EXPECT_EQ(0, testValue2);*/
+  EXPECT_EQ(0, 1);
 }
 
 TEST_F(TestReflectionManager, TestRegisterNullClass) 

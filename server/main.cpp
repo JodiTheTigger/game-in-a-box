@@ -31,34 +31,10 @@
 #include "common/BuildMacros.h"
 
 #include "common/IReflected.h"
-#include "common/ReflectedAgain.h"
 
 class ScratchClass : public IReflected
-{
-    REFLECTION_BOILERPLATE(ScratchClass)
-    
-public:
-    float FirstPropertyGet() const {return myFirst;}
-    void FirstPropertySet(float toSet) {myFirst = toSet;}
-    float SecondPropertyGet() const {return mySecond;}
-    void SecondPropertySet(float toSet) {mySecond = toSet;}
-    void anyOldMethod() {/*nada*/}    
-    
-private:
-    float myFirst = 0;
-    float mySecond = 0;        
-    
-    void InitReflection() override
-    {
-        REFLECTION_VARIABLE(ScratchClass, FirstProperty);
-        REFLECTION_VARIABLE(ScratchClass, SecondProperty);
-        REFLECTION_METHOD(ScratchClass, anyOldMethod);  
-    }   
-};
-
-class ScratchClass2 : public ReflectedAgain
 {    
-    REFLECTION2_BOILERPLATE(ScratchClass2)
+    REFLECTION_BOILERPLATE(ScratchClass)
     
 public:
     float FirstPropertyGet() const {return myFirst;} 
@@ -76,12 +52,12 @@ private:
     
     void InitReflection() override
     {
-        REFLECTION2_VARIABLE_FLOAT(ScratchClass2, FirstProperty)
-        REFLECTION2_VARIABLE_FLOAT(ScratchClass2, SecondProperty)
+        REFLECTION_VARIABLE_FLOAT(ScratchClass, FirstProperty)
+        REFLECTION_VARIABLE_FLOAT(ScratchClass, SecondProperty)
         
-        REFLECTION2_VARIABLE_STRING(ScratchClass2, Bah)
+        REFLECTION_VARIABLE_STRING(ScratchClass, Bah)
         
-        REFLECTION2_METHOD(ScratchClass2, ResetToZero)
+        REFLECTION_METHOD(ScratchClass, ResetToZero)
     } 
 };
 
@@ -107,8 +83,8 @@ void Scratch()
   // ///////////////////////////
   
   // new reflection play.
-  ScratchClass2 fred2;
-  ReflectedAgain& dude = fred2;
+  ScratchClass fred2;
+  IReflected& dude = fred2;
   auto things = dude.ReflectionList();
   
   auto what = things.begin();
@@ -119,25 +95,11 @@ void Scratch()
       std::string asString("");
       bool ok1, ok2;
       
-      ok1 = dude.ReflectionGet(arghgh.first, asFloat);
-      ok2 = dude.ReflectionGet(arghgh.first, asString);
-    std::cout << arghgh.second << ": " << asFloat << "(" << ok1 << "), " << asString << "(" << ok2 << ")" << std::endl;   
+      ok1 = dude.ReflectionGet(arghgh.second, asFloat);
+      ok2 = dude.ReflectionGet(arghgh.second, asString);
+    std::cout << arghgh.first << ": " << asFloat << "(" << ok1 << "), " << asString << "(" << ok2 << ")" << std::endl;   
   } 
-  
-  
-  // quasi reflection play
-  ScratchClass fred;
-  
-  //fred.InitReflection();
-  fred.ReflectionGet(0);
-  fred.ReflectionSet(1, 69);
-  std::cout << fred.ReflectionGet(1) << std::endl;
-  
-  
-  
-  
-  
-  
+      
   // This is scratch code at the moment. Testing ideas and the C++11 std libraries.
     std::cout << "Hello, world!" << std::endl;
     

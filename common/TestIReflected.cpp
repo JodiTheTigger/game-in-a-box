@@ -21,6 +21,7 @@
 #include "gtest/gtest.h"
 
 #include "IReflected.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -30,22 +31,37 @@ class ReflectedTester : public IReflected
     REFLECTION_BOILERPLATE(ReflectedTester)
     
 public:
+    // floats
     float FirstPropertyGet() const {return myFirst;}
     void FirstPropertySet(float toSet) {myFirst = toSet;}
+    
     float SecondPropertyGet() const {return mySecond;}
     void SecondPropertySet(float toSet) {mySecond = toSet;}
-    void ResetToZero() { myFirst = 0; mySecond = 0;}   
+    
+    // string
+    std::string String1Get() const {return myString1;}
+    void String1Set(std::string toSet) {myString1 = toSet;}
+    
+    std::string String2Get() const {return myString2;}
+    void String2Set(std::string toSet) {myString2 = toSet;}
+    
+    // methods
+    void ResetToZero() { myFirst = 0; mySecond = 0; myString1 = "No"; myString2 = "Way"; }     
     
     virtual ~ReflectedTester() {}; 
     
 private:
     float myFirst = 1;
-    float mySecond = 2;        
+    float mySecond = 2;  
+    std::string myString1 = "Meh";
+    std::string myString2 = "Bah";
     
     void InitReflection() override
     {
-        REFLECTION_VARIABLE(ReflectedTester, FirstProperty);
-        REFLECTION_VARIABLE(ReflectedTester, SecondProperty);
+        REFLECTION_VARIABLE_FLOAT(ReflectedTester, FirstProperty);
+        REFLECTION_VARIABLE_FLOAT(ReflectedTester, SecondProperty);
+        REFLECTION_VARIABLE_STRING(ReflectedTester, String1);
+        REFLECTION_VARIABLE_STRING(ReflectedTester, String2);
         REFLECTION_METHOD(ReflectedTester, ResetToZero);  
     }   
 };
@@ -53,7 +69,6 @@ private:
 class TestIReflected : public ::testing::Test 
 {
 };
-
 
 TEST_F(TestIReflected, TestClassName) 
 {
@@ -65,95 +80,129 @@ TEST_F(TestIReflected, TestClassName)
   EXPECT_EQ(string("ReflectedTester"), theName);
 }
 
-TEST_F(TestIReflected, TestMethodList) 
+TEST_F(TestIReflected, TestList) 
 {
   ReflectedTester toTest;
-  vector<string> theList;
+  auto relfectionMap = toTest.ReflectionList();
   
-  theList = toTest.ReflectionListMethods(); 
-  
-  EXPECT_EQ(1, theList.size());
-  EXPECT_EQ(string("ResetToZero"), theList[0]);
-}
-
-TEST_F(TestIReflected, TestVariableList) 
-{
-  ReflectedTester toTest;
-  vector<string> theList;
-  
-  theList = toTest.ReflectionListVariables(); 
-  
-  EXPECT_EQ(2, theList.size());
-  EXPECT_EQ(string("FirstProperty"), theList[0]);
-  EXPECT_EQ(string("SecondProperty"), theList[1]);
+  EXPECT_EQ(5, relfectionMap.size());
+  EXPECT_NE(relfectionMap.end(), relfectionMap.find("FirstProperty"));
+  EXPECT_NE(relfectionMap.end(), relfectionMap.find("SecondProperty"));
+  EXPECT_NE(relfectionMap.end(), relfectionMap.find("String1"));
+  EXPECT_NE(relfectionMap.end(), relfectionMap.find("String2"));
+  EXPECT_NE(relfectionMap.end(), relfectionMap.find("ResetToZero"));
 }
 
 TEST_F(TestIReflected, TestGet) 
 {
     ReflectedTester toTest;
+    float result1;
+    float result2;
+    std::string string1;
+    std::string string2;
     
-    // init by side effect.
-    toTest.ReflectionListVariables();
+    auto relfectionMap = toTest.ReflectionList();
     
-    EXPECT_EQ(toTest.ReflectionGet(0), 1.0f);
-    EXPECT_EQ(toTest.ReflectionGet(1), 2.0f);    
+    toTest.ReflectionGet(relfectionMap["FirstProperty"], result1);
+    toTest.ReflectionGet(relfectionMap["SecondProperty"], result2);
+    toTest.ReflectionGet(relfectionMap["String1"], string1);
+    toTest.ReflectionGet(relfectionMap["String2"], string2);
+    
+    EXPECT_EQ(result1, 1.0f);
+    EXPECT_EQ(result2, 2.0f);  
+    EXPECT_EQ(string1, "Meh");  
+    EXPECT_EQ(string2, "Bah");    
 }
 
 TEST_F(TestIReflected, TestSetThenGet) 
 {
-    ReflectedTester toTest;
+    ReflectedTester toTest;  
+    float result1;
+    float result2;  
+    std::string string1;
+    std::string string2;
     
-    // init by side effect.
-    toTest.ReflectionListVariables();
+    auto relfectionMap = toTest.ReflectionList();
     
-    toTest.ReflectionSet(0, 5);
-    toTest.ReflectionSet(1, 10);
+    toTest.ReflectionSet(relfectionMap["FirstProperty"], 5);
+    toTest.ReflectionSet(relfectionMap["SecondProperty"], 10);
+    toTest.ReflectionSet(relfectionMap["String1"], "yea!");
+    toTest.ReflectionSet(relfectionMap["String2"], "dude!");
     
-    EXPECT_EQ(toTest.ReflectionGet(0), 5.0f);
-    EXPECT_EQ(toTest.ReflectionGet(1), 10.0f); 
+    toTest.ReflectionGet(relfectionMap["FirstProperty"], result1);
+    toTest.ReflectionGet(relfectionMap["SecondProperty"], result2);
+    toTest.ReflectionGet(relfectionMap["String1"], string1);
+    toTest.ReflectionGet(relfectionMap["String2"], string2);
+    
+    EXPECT_EQ(result1, 5.0f);
+    EXPECT_EQ(result2, 10.0f);
+    EXPECT_EQ(string1, "yea!");  
+    EXPECT_EQ(string2, "dude!");  
 }
 
 TEST_F(TestIReflected, TestSetMethodGet) 
 {
-    ReflectedTester toTest;
+    ReflectedTester toTest;  
+    float result1;
+    float result2;  
+    std::string string1;
+    std::string string2;
     
-    // init by side effect.
-    toTest.ReflectionListVariables();
+    auto relfectionMap = toTest.ReflectionList();
     
-    toTest.ReflectionSet(0, 5);
-    toTest.ReflectionSet(1, 10);
-    toTest.ReflectionRun(0);
+    toTest.ReflectionSet(relfectionMap["FirstProperty"], 5);
+    toTest.ReflectionSet(relfectionMap["SecondProperty"], 10);
+    toTest.ReflectionSet(relfectionMap["String1"], "yea!");
     
-    EXPECT_EQ(toTest.ReflectionGet(0), 0.0f);
-    EXPECT_EQ(toTest.ReflectionGet(1), 0.0f); 
+    toTest.ReflectionSet(relfectionMap["String2"], "dude!");
+    toTest.ReflectionRun(relfectionMap["ResetToZero"]);
+    
+    toTest.ReflectionGet(relfectionMap["String1"], string1);
+    toTest.ReflectionGet(relfectionMap["String2"], string2);
+    
+    toTest.ReflectionGet(relfectionMap["FirstProperty"], result1);
+    toTest.ReflectionGet(relfectionMap["SecondProperty"], result2);
+    
+    EXPECT_EQ(result1, 0.0f);
+    EXPECT_EQ(result2, 0.0f); 
+    EXPECT_EQ(string1, "No");  
+    EXPECT_EQ(string2, "Way");  
 }
 
 TEST_F(TestIReflected, TestOutOfBounds) 
 {
     ReflectedTester toTest;
+    float result1;
+    float result2;
+    std::string string1;
+    std::string string2;
+        
+    auto relfectionMap = toTest.ReflectionList(); 
     
-    // init by side effect.
-    toTest.ReflectionListVariables();
+    // we don't handle nullptr for the ReflectionKey reference, and I'm not going to test for them either.
     
-    toTest.ReflectionSet(2, 5);
-    toTest.ReflectionSet(55, 10);
-    toTest.ReflectionRun(4);
+    // getting the wrong data types
+    EXPECT_EQ(toTest.ReflectionGet(relfectionMap["FirstProperty"], string1), false);
+    EXPECT_EQ(toTest.ReflectionGet(relfectionMap["SecondProperty"], string2), false);
+    EXPECT_EQ(toTest.ReflectionGet(relfectionMap["String1"], result1), false);
+    EXPECT_EQ(toTest.ReflectionGet(relfectionMap["String2"], result2), false);
     
-    EXPECT_EQ(toTest.ReflectionGet(0), 1.0f);
-    EXPECT_EQ(toTest.ReflectionGet(1), 2.0f); 
-}
-
-TEST_F(TestIReflected, TestNoInit) 
-{
-    ReflectedTester toTest;
+    EXPECT_EQ(toTest.ReflectionSet(relfectionMap["FirstProperty"], string1), false);
+    EXPECT_EQ(toTest.ReflectionSet(relfectionMap["SecondProperty"], string2), false);
+    EXPECT_EQ(toTest.ReflectionSet(relfectionMap["String1"], result1), false);
+    EXPECT_EQ(toTest.ReflectionSet(relfectionMap["String2"], result2), false);
+    EXPECT_EQ(toTest.ReflectionRun(relfectionMap["String2"]), false);
+    EXPECT_EQ(toTest.ReflectionRun(relfectionMap["FirstProperty"]), false);    
     
-    // by not calling get arguments or get methods
-    // nothing is initilised, so all calls are out of bounds.
     
-    toTest.ReflectionSet(2, 5);
-    toTest.ReflectionSet(55, 10);
-    toTest.ReflectionRun(4);
+    toTest.ReflectionGet(relfectionMap["FirstProperty"], result1);
+    toTest.ReflectionGet(relfectionMap["SecondProperty"], result2);
+    toTest.ReflectionGet(relfectionMap["String1"], string1);
+    toTest.ReflectionGet(relfectionMap["String2"], string2);
     
-    EXPECT_EQ(toTest.ReflectionGet(0), 0.0f);
-    EXPECT_EQ(toTest.ReflectionGet(1), 0.0f); 
+    
+    EXPECT_EQ(result1, 1.0f);
+    EXPECT_EQ(result2, 2.0f);  
+    EXPECT_EQ(string1, "Meh");  
+    EXPECT_EQ(string2, "Bah"); 
 }

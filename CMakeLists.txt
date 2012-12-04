@@ -55,7 +55,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server 
-common/ReflectedAgain.cpp 
 common/IReflected.cpp 
 common/ReflectionManager.cpp 
 common/StateManager.cpp 
