@@ -32,9 +32,6 @@
 
 // Reflection notes:
 // =================
-// class ReflectionKey;
-//    Use the pimpl idiom for the reflection key. It's basically a handle that contains data useful for the reflection class.
-//
 // virtual ~ReflectedAgain() {};
 //    I was going to make this private, as making a smart pointer
 //    of the derived class (but as IReflected) will still delete
