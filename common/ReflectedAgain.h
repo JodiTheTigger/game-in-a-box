@@ -88,14 +88,17 @@ private:
 // ///////////////////
 #define REFLECTION2_VARIABLE_FLOAT(CLASS, NAME_VAR)          \
 reflectionFloatSetters.push_back(&CLASS::NAME_VAR##Set);     \
-reflectionFloatGetters.push_back(&CLASS::NAME_VAR##Get);     
+reflectionFloatGetters.push_back(&CLASS::NAME_VAR##Get);     \
+reflectionNamesFloatVariable.push_back(#NAME_VAR);
 
 #define REFLECTION2_VARIABLE_STRING(CLASS, NAME_VAR)          \
 reflectionStringSetters.push_back(&CLASS::NAME_VAR##Set);     \
-reflectionStringGetters.push_back(&CLASS::NAME_VAR##Get);     
+reflectionStringGetters.push_back(&CLASS::NAME_VAR##Get);     \
+reflectionNamesStringVariable.push_back(#NAME_VAR);
 
 #define REFLECTION2_METHOD(CLASS, NAME_METHOD)          \
-reflectionRunners.push_back(&CLASS::NAME_METHOD);      
+reflectionRunners.push_back(&CLASS::NAME_METHOD);     \
+reflectionNamesMethods.push_back(#NAME_METHOD);      
 
 #define REFLECTION2_BOILERPLATE(CLASS)   \
 private:   \
