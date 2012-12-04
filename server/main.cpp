@@ -57,6 +57,8 @@ private:
 
 class ScratchClass2 : public ReflectedAgain
 {    
+    REFLECTION2_BOILERPLATE(ScratchClass2)
+    
 public:
     float FirstPropertyGet() const {return myFirst;} 
     void FirstPropertySet(float toSet) {myFirst = toSet;}
@@ -73,121 +75,13 @@ private:
     
     void InitReflection() override
     {
-        reflectionFloatSetters.push_back(&ScratchClass2::FirstPropertySet);
-        reflectionFloatGetters.push_back(&ScratchClass2::FirstPropertyGet);
+        REFLECTION2_VARIABLE_FLOAT(ScratchClass2, FirstProperty)
+        REFLECTION2_VARIABLE_FLOAT(ScratchClass2, SecondProperty)
         
-        reflectionFloatSetters.push_back(&ScratchClass2::SecondPropertySet);
-        reflectionFloatGetters.push_back(&ScratchClass2::SecondPropertyGet);
+        REFLECTION2_VARIABLE_STRING(ScratchClass2, Bah)
         
-        reflectionStringGetters.push_back(&ScratchClass2::BahGet);
-        reflectionStringSetters.push_back(&ScratchClass2::BahSet);
-        
-        reflectionRunners.push_back(&ScratchClass2::ResetToZero);
-    }   
-
-private:
-    bool myPrivateReflectionHasDoneInit = false; 
-    
-    typedef void (ScratchClass2::*ReflectionFloatSetter)(float);
-    typedef float (ScratchClass2::*ReflectionFloatGetter)(void) const;
-    typedef void (ScratchClass2::*ReflectionStringSetter)(std::string);
-    typedef std::string (ScratchClass2::*ReflectionStringGetter)(void) const;
-    typedef void (ScratchClass2::*ReflectionRunner)(void);
-    
-    std::vector<ReflectionFloatSetter> reflectionFloatSetters;
-    std::vector<ReflectionFloatGetter> reflectionFloatGetters; 
-    std::vector<ReflectionStringSetter> reflectionStringSetters;
-    std::vector<ReflectionStringGetter> reflectionStringGetters; 
-    std::vector<ReflectionRunner> reflectionRunners; 
-
-    std::vector<std::string> reflectionNamesFloatVariable;
-    std::vector<std::string> reflectionNamesStringVariable;
-    std::vector<std::string> reflectionNamesMethods;       
-    
-    const std::string PrivateReflectionClassName() const override
-    {
-        return std::string("ScratchClass2");
-    }
-    
-    const std::vector<std::string>& PrivateReflectionListFloatVariables() const override
-    {
-        return reflectionNamesFloatVariable;
-    }
-    
-    const std::vector<std::string>& PrivateReflectionListStringVariables() const override
-    {
-        return reflectionNamesStringVariable;
-    }
-    
-    const std::vector<std::string>& PrivateReflectionListMethods() const override
-    {
-        return reflectionNamesMethods;
-    }
-    
-    bool PrivateReflectionSet(const uint8_t index, const float newValue) override 
-    {
-        if (index < reflectionFloatSetters.size())
-        {
-            (*this.*reflectionFloatSetters[index])(newValue);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    bool PrivateReflectionSet(const uint8_t index, const std::string newValue) override 
-    {
-        if (index < reflectionStringSetters.size())
-        {
-            (*this.*reflectionStringSetters[index])(newValue);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    bool PrivateReflectionGet(const uint8_t index, float& updateValue) const override
-    {
-        if (index < reflectionFloatGetters.size())
-        {
-            updateValue = (*this.*reflectionFloatGetters[index])();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    bool PrivateReflectionGet(const uint8_t index, std::string& updateValue) const override
-    {
-        if (index < reflectionStringGetters.size())
-        {
-            updateValue = (*this.*reflectionStringGetters[index])();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    bool PrivateReflectionRun(uint8_t index) override
-    {
-        if (index < reflectionRunners.size())
-        {
-            (*this.*reflectionRunners[index])();
-            return true;    
-        }
-        else
-        {
-            return false;
-        }
-    }
+        REFLECTION2_METHOD(ScratchClass2, ResetToZero)
+    } 
 };
 
 void Scratch();
@@ -214,10 +108,13 @@ void Scratch()
   // new reflection play.
   ScratchClass2 fred2;
   ReflectedAgain& dude = fred2;
+  auto things = dude.ReflectionList();
   
-  for (auto thing : dude.ReflectionList())
+  auto what = things.begin();
+  
+  for (auto& arghgh : things)
   {
-    std::cout << thing << std::endl;   
+    std::cout << arghgh.second << std::endl;   
   } 
   
   
