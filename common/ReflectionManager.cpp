@@ -57,6 +57,7 @@ map<std::string, float> ReflectionManager::GetListValues(string containing)
 // not match anything registered.
 float ReflectionManager::ValueGet(string argument) const
 {
+    /* new reflection class: rewrite!
     map<string, std::tuple<shared_ptr<IReflected>, uint8_t>>::const_iterator findIterator;
     
     // using find instead of the [], as find can be const.
@@ -71,7 +72,7 @@ float ReflectionManager::ValueGet(string argument) const
         
         return target->ReflectionGet(targetIndex);
     }
-    else
+    else*/
     {
         return 0;
     }

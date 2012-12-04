@@ -15,146 +15,194 @@
     GNU Affero General Public License for more details.
 
     You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
 #ifndef IREFLECTED_H
 #define IREFLECTED_H
 
-#include <vector>
 #include <string>
+#include <map>
+#include <vector>
+#include <memory>
 
-// c++11 doesn't have reflection. You can emulate it a couple of ways: templates, macros (as here)
-// parsing the object files directly to make a reflection database, or write your own VM (like id engine games).
-// I chose macros and classes as it was the simplest for me. Yes I know macros are bad, but boilerplate
-// code writing is worse, so that's the choice I made.
+// I want ReflectionKey values for my interface,
+// therefore I cannot use a forward reference.
+#include "ReflectionKey.h"
+
+// Reflection notes:
+// =================
+// class ReflectionKey;
+//    Use the pimpl idiom for the reflection key. It's basically a handle that contains data useful for the reflection class.
+//
+// virtual ~IReflected() {};
+//    I was going to make this private, as making a smart pointer
+//    of the derived class (but as IReflected) will still delete
+//    everything properly. However since I cannot enforce that here
+//    I have to be safe and allow it to be a virtual destructor
+//    so that the base class can be deleted.
+//    http://www.gotw.ca/publications/mill18.htm
+//    http://www.cs.brown.edu/~jwicks/boost/libs/smart_ptr/sp_techniques.html#abstract
+//
+// bool ReflectionSet(const ReflectionKey key, float newValue);
+//    When passing in values that are going to be copied, don't pass in
+//    const, or const references. C++11's move semantic makes stuff fast
+//    again.
+//    http://cpptruths.blogspot.co.nz/2012/03/rvalue-references-in-constructor-when.html
+//    http://stackoverflow.com/questions/10231349/are-the-days-of-passing-const-stdstring-as-a-parameter-over (first two answers)
 
 class IReflected
 {
 public:
-    std::string ReflectionClassName() const;
-    std::vector<std::string> ReflectionListVariables();
-    std::vector<std::string> ReflectionListMethods();
+    const std::string ReflectionClassName() const;
+    const std::map<std::string, ReflectionKey> ReflectionList();
     
-    void ReflectionSet(uint8_t index, float newValue);
-    float ReflectionGet(uint8_t index) const;
-    void ReflectionRun(uint8_t index);
-    
-    // I could be using reference counted pointers to keep track
-    // of IReflected classes, therefore it means the class could be
-    // deleted via it's base class pointer (IReflected). So following that
-    // I need a public virtual destructor.
-    // http://www.gotw.ca/publications/mill18.htm
+    // Returns true if successful, false if the key doesn't have a match for that data type.
+    bool ReflectionSet(const ReflectionKey key, float newValue);
+    bool ReflectionSet(const ReflectionKey key, std::string newValue);
+    bool ReflectionGet(const ReflectionKey key, float& updateValue) const;
+    bool ReflectionGet(const ReflectionKey key, std::string& updateValue) const;
+    bool ReflectionRun(const ReflectionKey key);
+
     virtual ~IReflected() {};
     
 private:
     bool myPrivateReflectionHasDoneInit = false;
+    std::map<std::string, ReflectionKey> myReflectionMap;
     
     virtual void InitReflection() = 0;
-    virtual std::string PrivateReflectionClassName() const = 0;
-    virtual std::vector<std::string> PrivateReflectionListVariables() const = 0;
-    virtual std::vector<std::string> PrivateReflectionListMethods() const = 0;
+    virtual const std::string PrivateReflectionClassName() const = 0;
+    virtual const std::vector<std::string>& PrivateReflectionListFloatVariables() const = 0;
+    virtual const std::vector<std::string>& PrivateReflectionListStringVariables() const = 0;
+    virtual const std::vector<std::string>& PrivateReflectionListMethods() const = 0;
     
-    virtual void PrivateReflectionSet(uint8_t index, float newValue) = 0;
-    virtual float PrivateReflectionGet(uint8_t index) const = 0;
-    virtual void PrivateReflectionRun(uint8_t index) = 0; 
+    virtual bool PrivateReflectionSet(const uint8_t index, float newValue) = 0;
+    virtual bool PrivateReflectionSet(const uint8_t index, std::string newValue) = 0;
+    virtual bool PrivateReflectionGet(const uint8_t index, float& updateValue) const = 0;
+    virtual bool PrivateReflectionGet(const uint8_t index, std::string& updateValue) const = 0;
+    virtual bool PrivateReflectionRun(const uint8_t index) = 0; 
 };
-    
+
 // ///////////////////
 // Reflection Macros
 // ///////////////////
-#define REFLECTION_VARIABLE(CLASS, NAME_VAR)          \
-reflectionSetters.push_back(&CLASS::NAME_VAR##Set);     \
-reflectionGetters.push_back(&CLASS::NAME_VAR##Get);     \
-reflectionNamesVariable.push_back(#NAME_VAR);
+#define REFLECTION_VARIABLE_FLOAT(CLASS, NAME_VAR)          \
+reflectionFloatSetters.push_back(&CLASS::NAME_VAR##Set);     \
+reflectionFloatGetters.push_back(&CLASS::NAME_VAR##Get);     \
+reflectionNamesFloatVariable.push_back(#NAME_VAR);
+
+#define REFLECTION_VARIABLE_STRING(CLASS, NAME_VAR)          \
+reflectionStringSetters.push_back(&CLASS::NAME_VAR##Set);     \
+reflectionStringGetters.push_back(&CLASS::NAME_VAR##Get);     \
+reflectionNamesStringVariable.push_back(#NAME_VAR);
 
 #define REFLECTION_METHOD(CLASS, NAME_METHOD)          \
-reflectionRunners.push_back(&CLASS::NAME_METHOD);      \
-reflectionNamesMethods.push_back(#NAME_METHOD);
+reflectionRunners.push_back(&CLASS::NAME_METHOD);     \
+reflectionNamesMethods.push_back(#NAME_METHOD);      
 
 #define REFLECTION_BOILERPLATE(CLASS)   \
-private:\
-    bool myPrivateReflectionHasDoneInit = false; \
-    \
-    typedef void (CLASS::*ReflectionSetter)(float);\
-    typedef float (CLASS::*ReflectionGetter)(void) const;\
-    typedef void (CLASS::*ReflectionRunner)(void);\
-    \
-    std::vector<ReflectionSetter> reflectionSetters;\
-    std::vector<ReflectionGetter> reflectionGetters; \
-    std::vector<ReflectionRunner> reflectionRunners; \
-    std::vector<std::string> reflectionNamesVariable;\
-    std::vector<std::string> reflectionNamesMethods;         \
-    \
-    std::string PrivateReflectionClassName() const override\
-    {\
-        return std::string(#CLASS);\
-    }\
-    \
-    float PrivateReflectionGet(uint8_t index) const override\
-    {\
-        if (index < reflectionGetters.size())\
-        {\
-            return (*this.*reflectionGetters[index])();\
-        }\
-        else\
-        {\
-            return 0.0;\
-        }\
-    }\
-    \
-    void PrivateReflectionSet(uint8_t index, float newValue) override \
-    {\
-        if (index < reflectionSetters.size())\
-        {\
-            (*this.*reflectionSetters[index])(newValue);\
-        }\
-    }\
-    \
-    void PrivateReflectionRun(uint8_t index) override\
-    {\
-        if (index < reflectionRunners.size())\
-        {\
-            (*this.*reflectionRunners[index])();    \
-        }\
-    }\
-    \
-    std::vector<std::string> PrivateReflectionListVariables() const override\
-    {\
-        return reflectionNamesVariable;\
-    }\
-    \
-    std::vector<std::string> PrivateReflectionListMethods() const override\
-    {\
-        return reflectionNamesMethods;\
+private:   \
+    bool myPrivateReflectionHasDoneInit = false;    \
+       \
+    typedef void (CLASS::*ReflectionFloatSetter)(float);   \
+    typedef float (CLASS::*ReflectionFloatGetter)(void) const;   \
+    typedef void (CLASS::*ReflectionStringSetter)(std::string);   \
+    typedef std::string (CLASS::*ReflectionStringGetter)(void) const;   \
+    typedef void (CLASS::*ReflectionRunner)(void);   \
+       \
+    std::vector<ReflectionFloatSetter> reflectionFloatSetters;   \
+    std::vector<ReflectionFloatGetter> reflectionFloatGetters;    \
+    std::vector<ReflectionStringSetter> reflectionStringSetters;   \
+    std::vector<ReflectionStringGetter> reflectionStringGetters;    \
+    std::vector<ReflectionRunner> reflectionRunners;    \
+   \
+    std::vector<std::string> reflectionNamesFloatVariable;   \
+    std::vector<std::string> reflectionNamesStringVariable;   \
+    std::vector<std::string> reflectionNamesMethods;          \
+       \
+    const std::string PrivateReflectionClassName() const override   \
+    {   \
+        return std::string(#CLASS);   \
+    }   \
+       \
+    const std::vector<std::string>& PrivateReflectionListFloatVariables() const override   \
+    {   \
+        return reflectionNamesFloatVariable;   \
+    }   \
+       \
+    const std::vector<std::string>& PrivateReflectionListStringVariables() const override   \
+    {   \
+        return reflectionNamesStringVariable;   \
+    }   \
+       \
+    const std::vector<std::string>& PrivateReflectionListMethods() const override   \
+    {   \
+        return reflectionNamesMethods;   \
+    }   \
+       \
+    bool PrivateReflectionSet(const uint8_t index, const float newValue) override    \
+    {   \
+        if (index < reflectionFloatSetters.size())   \
+        {   \
+            (*this.*reflectionFloatSetters[index])(newValue);   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionSet(const uint8_t index, const std::string newValue) override    \
+    {   \
+        if (index < reflectionStringSetters.size())   \
+        {   \
+            (*this.*reflectionStringSetters[index])(newValue);   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionGet(const uint8_t index, float& updateValue) const override   \
+    {   \
+        if (index < reflectionFloatGetters.size())   \
+        {   \
+            updateValue = (*this.*reflectionFloatGetters[index])();   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionGet(const uint8_t index, std::string& updateValue) const override   \
+    {   \
+        if (index < reflectionStringGetters.size())   \
+        {   \
+            updateValue = (*this.*reflectionStringGetters[index])();   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionRun(uint8_t index) override   \
+    {   \
+        if (index < reflectionRunners.size())   \
+        {   \
+            (*this.*reflectionRunners[index])();   \
+            return true;       \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
     }
-    
-// ///////////////////
-// Example Code
-// ///////////////////
-//
-//#include "IReflected.h"
-//class ScratchClass : public IReflected
-//{
-//    REFLECTION_BOILERPLATE(ScratchClass)
-//    
-//public:
-//    float FirstPropertyGet() const {return myFirst;}
-//    void FirstPropertySet(float toSet) {myFirst = toSet;}
-//    float SecondPropertyGet() const {return mySecond;}
-//    void SecondPropertySet(float toSet) {mySecond = toSet;}
-//    void anyOldMethod() {/*nada*/}    
-//    
-//private:
-//    float myFirst = 0;
-//    float mySecond = 0;        
-//    
-//    void InitReflection() override
-//    {
-//        REFLECTION_VARIABLE(ScratchClass, FirstProperty);
-//        REFLECTION_VARIABLE(ScratchClass, SecondProperty);
-//        REFLECTION_METHOD(ScratchClass, anyOldMethod);  
-//    }   
-//};
 
 #endif // IREFLECTED_H
