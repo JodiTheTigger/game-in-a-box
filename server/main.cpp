@@ -26,6 +26,7 @@
 #include <chrono>
 #include "common/BitStream.h"
 #include <thread>
+#include <string>
 
 #include "common/BuildMacros.h"
 
@@ -114,7 +115,13 @@ void Scratch()
   
   for (auto& arghgh : things)
   {
-    std::cout << arghgh.second << std::endl;   
+      float asFloat = 0;
+      std::string asString("");
+      bool ok1, ok2;
+      
+      ok1 = dude.ReflectionGet(arghgh.first, asFloat);
+      ok2 = dude.ReflectionGet(arghgh.first, asString);
+    std::cout << arghgh.second << ": " << asFloat << "(" << ok1 << "), " << asString << "(" << ok2 << ")" << std::endl;   
   } 
   
   
