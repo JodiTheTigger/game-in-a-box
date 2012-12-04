@@ -83,4 +83,123 @@ private:
     virtual bool PrivateReflectionRun(const uint8_t index) = 0; 
 };
 
+// ///////////////////
+// Reflection Macros
+// ///////////////////
+#define REFLECTION2_VARIABLE_FLOAT(CLASS, NAME_VAR)          \
+reflectionFloatSetters.push_back(&CLASS::NAME_VAR##Set);     \
+reflectionFloatGetters.push_back(&CLASS::NAME_VAR##Get);     
+
+#define REFLECTION2_VARIABLE_STRING(CLASS, NAME_VAR)          \
+reflectionStringSetters.push_back(&CLASS::NAME_VAR##Set);     \
+reflectionStringGetters.push_back(&CLASS::NAME_VAR##Get);     
+
+#define REFLECTION2_METHOD(CLASS, NAME_METHOD)          \
+reflectionRunners.push_back(&CLASS::NAME_METHOD);      
+
+#define REFLECTION2_BOILERPLATE(CLASS)   \
+private:   \
+    bool myPrivateReflectionHasDoneInit = false;    \
+       \
+    typedef void (ScratchClass2::*ReflectionFloatSetter)(float);   \
+    typedef float (ScratchClass2::*ReflectionFloatGetter)(void) const;   \
+    typedef void (ScratchClass2::*ReflectionStringSetter)(std::string);   \
+    typedef std::string (ScratchClass2::*ReflectionStringGetter)(void) const;   \
+    typedef void (ScratchClass2::*ReflectionRunner)(void);   \
+       \
+    std::vector<ReflectionFloatSetter> reflectionFloatSetters;   \
+    std::vector<ReflectionFloatGetter> reflectionFloatGetters;    \
+    std::vector<ReflectionStringSetter> reflectionStringSetters;   \
+    std::vector<ReflectionStringGetter> reflectionStringGetters;    \
+    std::vector<ReflectionRunner> reflectionRunners;    \
+   \
+    std::vector<std::string> reflectionNamesFloatVariable;   \
+    std::vector<std::string> reflectionNamesStringVariable;   \
+    std::vector<std::string> reflectionNamesMethods;          \
+       \
+    const std::string PrivateReflectionClassName() const override   \
+    {   \
+        return std::string(#CLASS);   \
+    }   \
+       \
+    const std::vector<std::string>& PrivateReflectionListFloatVariables() const override   \
+    {   \
+        return reflectionNamesFloatVariable;   \
+    }   \
+       \
+    const std::vector<std::string>& PrivateReflectionListStringVariables() const override   \
+    {   \
+        return reflectionNamesStringVariable;   \
+    }   \
+       \
+    const std::vector<std::string>& PrivateReflectionListMethods() const override   \
+    {   \
+        return reflectionNamesMethods;   \
+    }   \
+       \
+    bool PrivateReflectionSet(const uint8_t index, const float newValue) override    \
+    {   \
+        if (index < reflectionFloatSetters.size())   \
+        {   \
+            (*this.*reflectionFloatSetters[index])(newValue);   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionSet(const uint8_t index, const std::string newValue) override    \
+    {   \
+        if (index < reflectionStringSetters.size())   \
+        {   \
+            (*this.*reflectionStringSetters[index])(newValue);   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionGet(const uint8_t index, float& updateValue) const override   \
+    {   \
+        if (index < reflectionFloatGetters.size())   \
+        {   \
+            updateValue = (*this.*reflectionFloatGetters[index])();   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionGet(const uint8_t index, std::string& updateValue) const override   \
+    {   \
+        if (index < reflectionStringGetters.size())   \
+        {   \
+            updateValue = (*this.*reflectionStringGetters[index])();   \
+            return true;   \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }   \
+       \
+    bool PrivateReflectionRun(uint8_t index) override   \
+    {   \
+        if (index < reflectionRunners.size())   \
+        {   \
+            (*this.*reflectionRunners[index])();   \
+            return true;       \
+        }   \
+        else   \
+        {   \
+            return false;   \
+        }   \
+    }
+
 #endif // REFLECTEDAGAIN_H
