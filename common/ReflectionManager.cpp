@@ -53,9 +53,7 @@ map<std::string, float> ReflectionManager::GetListValues(string containing)
     return map<string, float>();
 }
 
-// Gets the value for the argument passed in. Returns 0.0 if the argument does
-// not match anything registered.
-float ReflectionManager::ValueGet(string argument) const
+bool ReflectionManager::ValueGet(const std::string& argument, float& value) const
 {
     /* new reflection class: rewrite!
     map<string, std::tuple<shared_ptr<IReflected>, uint8_t>>::const_iterator findIterator;
@@ -74,20 +72,32 @@ float ReflectionManager::ValueGet(string argument) const
     }
     else*/
     {
-        return 0;
+        return false;
     }
 }
 
-// Sets the value of the argument passed in. Silently ignores arguments that
-// do not match anything registered.
-void ReflectionManager::ValueSet(std::string argument, float newValue)
+bool ReflectionManager::ValueGet(const std::string& argument, std::string& value) const
+{    
+    // RAM: TODO!
+    return false;
+}
+
+bool ReflectionManager::ValueSet(const std::string& argument, float newValue)
 {
     // TODO!
+    return false;
+}
+
+bool ReflectionManager::ValueSet(const std::string& argument, std::string newValue)
+{
+    // TODO!
+    return false;
 }
 
 // Calls the method passed in. If it doesn't exist, then it is silently ignored.
-void ReflectionManager::CallMethod(std::string method)
+bool ReflectionManager::CallMethod(const std::string& method)
 {
     // TODO!
+    return false;
 }
 

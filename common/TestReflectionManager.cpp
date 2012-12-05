@@ -31,22 +31,47 @@ class ReflectedTester : public IReflected
     REFLECTION_BOILERPLATE(ReflectedTester)
     
 public:
+    ReflectedTester()
+        : myFirst(1)
+        , mySecond(2)
+        , myString1("Meh")
+        , myString2("Bah")
+    {
+    }
+    
+    // floats
     float FirstPropertyGet() const {return myFirst;}
     void FirstPropertySet(float toSet) {myFirst = toSet;}
+    
     float SecondPropertyGet() const {return mySecond;}
     void SecondPropertySet(float toSet) {mySecond = toSet;}
-    void ResetToZero() { myFirst = 0; mySecond = 0;}   
+    
+    // string
+    std::string String1Get() const {return myString1;}
+    void String1Set(std::string toSet) {myString1 = toSet;}
+    
+    std::string String2Get() const {return myString2;}
+    void String2Set(std::string toSet) {myString2 = toSet;}
+    
+    // methods
+    void ResetToZero() { myFirst = 0; mySecond = 0; myString1 = "No"; myString2 = "Way"; }     
     
     virtual ~ReflectedTester() {}; 
     
 private:
-    float myFirst = 1;
-    float mySecond = 2;        
+    float myFirst;
+    float mySecond;  
+    std::string myString1;
+    std::string myString2;
     
     void InitReflection() override
     {
         REFLECTION_VARIABLE_FLOAT(ReflectedTester, FirstProperty);
         REFLECTION_VARIABLE_FLOAT(ReflectedTester, SecondProperty);
+        
+        REFLECTION_VARIABLE_STRING(ReflectedTester, String1);
+        REFLECTION_VARIABLE_STRING(ReflectedTester, String2);
+        
         REFLECTION_METHOD(ReflectedTester, ResetToZero);  
     }   
 };
@@ -56,6 +81,12 @@ class ReflectedTesterMethodsOnly : public IReflected
     REFLECTION_BOILERPLATE(ReflectedTesterMethodsOnly)
     
 public:
+    ReflectedTesterMethodsOnly()
+        : myFirst(1)
+        , mySecond(2)
+    {
+    }
+    
     void ResetToZero() { myFirst = 0; mySecond = 0;} 
     void ResetToOne() { myFirst = 1; mySecond = 1;}
     void UpdateValues(float& first, float& second) {first = myFirst; second = mySecond;}    
@@ -63,8 +94,8 @@ public:
     virtual ~ReflectedTesterMethodsOnly() {}; 
     
 private:
-    float myFirst = 1;
-    float mySecond = 2;        
+    float myFirst;
+    float mySecond;        
     
     void InitReflection() override
     {
@@ -94,14 +125,15 @@ TEST_F(TestReflectionManager, TestEmptyManager)
     values = toTest.GetListValues(string(""));
     
     // call functions, not expecting any exceptions
-    testValue = toTest.ValueGet("Nothing");
-    toTest.ValueSet("nothing", 44.2f);
-    toTest.CallMethod("44");
+    testValue = 22;
+    EXPECT_FALSE(toTest.ValueGet("Nothing", testValue));
+    EXPECT_FALSE(toTest.ValueSet("nothing", 44.2f));
+    EXPECT_FALSE(toTest.CallMethod("44"));
     
     EXPECT_EQ(0, arguments.size());
     EXPECT_EQ(0, methods.size());
     EXPECT_EQ(0, values.size());
-    EXPECT_EQ(0, testValue);
+    EXPECT_EQ(22, testValue);
 }
 
 TEST_F(TestReflectionManager, TestAddOneClass) 

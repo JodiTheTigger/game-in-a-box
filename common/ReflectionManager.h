@@ -41,24 +41,24 @@ class ReflectionManager
 public:
     ReflectionManager();
     
-    // Registers the class, and sets any default values already set by
-    // the constructor's std::map.
     void RegisterClass(std::shared_ptr<IReflected> reflectedClass);
     
     std::vector<std::string> GetListArguments(std::string containing) const;
     std::vector<std::string> GetListMethods(std::string containing) const;
     std::map<std::string, float> GetListValues(std::string containing);
     
-    // Gets the value for the argument passed in. Returns 0.0 if the argument does
-    // not match anything registered.
-    float ValueGet(std::string argument) const;
+    // Gets the value for the argument passed in. Returns false if nothing matches
+    // (and leaves value untouched).
+    bool ValueGet(const std::string& argument, float& value) const;
+    bool ValueGet(const std::string& argument, std::string& value) const;
     
-    // Sets the value of the argument passed in. Silently ignores arguments that
-    // do not match anything registered.
-    void ValueSet(std::string argument, float newValue);
+    // Sets the value of the argument passed in. Returns true if set
+    // false if the argument doesn't match.
+    bool ValueSet(const std::string& argument, float newValue);
+    bool ValueSet(const std::string& argument, std::string newValue);
     
-    // Calls the method passed in. If it doesn't exist, then it is silently ignored.
-    void CallMethod(std::string method);
+    // Calls the method passed in. If it doesn't exist, then returns false, otherwise true.
+    bool CallMethod(const std::string& method);
     
 private:
     std::map<std::string, float> myUnusedDefaultSettings;
