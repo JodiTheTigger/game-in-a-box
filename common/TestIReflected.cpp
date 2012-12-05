@@ -60,8 +60,10 @@ private:
     {
         REFLECTION_VARIABLE_FLOAT(ReflectedTester, FirstProperty);
         REFLECTION_VARIABLE_FLOAT(ReflectedTester, SecondProperty);
+        
         REFLECTION_VARIABLE_STRING(ReflectedTester, String1);
         REFLECTION_VARIABLE_STRING(ReflectedTester, String2);
+        
         REFLECTION_METHOD(ReflectedTester, ResetToZero);  
     }   
 };
@@ -89,7 +91,7 @@ TEST_F(TestIReflected, TestList)
   EXPECT_NE(relfectionMap.end(), relfectionMap.find("FirstProperty"));
   EXPECT_NE(relfectionMap.end(), relfectionMap.find("SecondProperty"));
   EXPECT_NE(relfectionMap.end(), relfectionMap.find("String1"));
-  EXPECT_NE(relfectionMap.end(), relfectionMap.find("String2"));
+  EXPECT_NE(relfectionMap.end(), relfectionMap.find("String2"));  
   EXPECT_NE(relfectionMap.end(), relfectionMap.find("ResetToZero"));
 }
 
@@ -111,14 +113,14 @@ TEST_F(TestIReflected, TestGet)
     EXPECT_EQ(result1, 1.0f);
     EXPECT_EQ(result2, 2.0f);  
     EXPECT_EQ(string1, "Meh");  
-    EXPECT_EQ(string2, "Bah");    
+    EXPECT_EQ(string2, "Bah");  
 }
 
 TEST_F(TestIReflected, TestSetThenGet) 
 {
     ReflectedTester toTest;  
     float result1;
-    float result2;  
+    float result2; 
     std::string string1;
     std::string string2;
     
@@ -152,9 +154,9 @@ TEST_F(TestIReflected, TestSetMethodGet)
     
     toTest.ReflectionSet(relfectionMap["FirstProperty"], 5);
     toTest.ReflectionSet(relfectionMap["SecondProperty"], 10);
-    toTest.ReflectionSet(relfectionMap["String1"], "yea!");
-    
+    toTest.ReflectionSet(relfectionMap["String1"], "yea!");    
     toTest.ReflectionSet(relfectionMap["String2"], "dude!");
+    
     toTest.ReflectionRun(relfectionMap["ResetToZero"]);
     
     toTest.ReflectionGet(relfectionMap["String1"], string1);
