@@ -22,25 +22,18 @@
 
 #include <utility>
 
-enum class ReflectionTypes 
-{ 
-    Method, 
-    Float, 
-    String     
-};
-
 // I could have used std::pair, but I wanted the Type() and Index() accessors
 // as opposed to first and second from std::pair.
 class ReflectionKeyPrivate
 {
 public:
-    ReflectionKeyPrivate(ReflectionTypes type, uint8_t index)
+    ReflectionKeyPrivate(IReflected::ReflectionTypes type, uint8_t index)
     : myType(type)
     , myIndexIntoType(index)
     {
     }
     
-    const ReflectionTypes Type() const
+    const IReflected::ReflectionTypes Type() const
     {
         return myType;
     }
@@ -64,7 +57,7 @@ public:
     }
     
 private:
-    const ReflectionTypes myType;
+    const IReflected::ReflectionTypes myType;
     const uint8_t myIndexIntoType;
 };
 
@@ -84,6 +77,11 @@ ReflectionKey::~ReflectionKey()
 }
 IReflected::IReflected() : myPrivateReflectionHasDoneInit(false)
 {
+}
+
+IReflected::ReflectionTypes IReflected::ReflectionType(const ReflectionKey& key) const
+{
+    return  key->Type();
 }
 
 const std::string IReflected::ReflectionClassName() const 

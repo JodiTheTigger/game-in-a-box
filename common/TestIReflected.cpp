@@ -31,6 +31,13 @@ class ReflectedTester : public IReflected
     REFLECTION_BOILERPLATE(ReflectedTester)
     
 public:
+    ReflectedTester()
+        : myFirst(1)
+        , mySecond(2)
+        , myString1("Meh")
+        , myString2("Bah")
+    {
+    }
     // floats
     float FirstPropertyGet() const {return myFirst;}
     void FirstPropertySet(float toSet) {myFirst = toSet;}
@@ -51,10 +58,10 @@ public:
     virtual ~ReflectedTester() {}; 
     
 private:
-    float myFirst = 1;
-    float mySecond = 2;  
-    std::string myString1 = "Meh";
-    std::string myString2 = "Bah";
+    float myFirst;
+    float mySecond;  
+    std::string myString1;
+    std::string myString2;
     
     void InitReflection() override
     {
@@ -93,6 +100,18 @@ TEST_F(TestIReflected, TestList)
   EXPECT_NE(relfectionMap.end(), relfectionMap.find("String1"));
   EXPECT_NE(relfectionMap.end(), relfectionMap.find("String2"));  
   EXPECT_NE(relfectionMap.end(), relfectionMap.find("ResetToZero"));
+}
+
+TEST_F(TestIReflected, TestTypes) 
+{
+  ReflectedTester toTest;
+  auto relfectionMap = toTest.ReflectionList();
+  
+  EXPECT_EQ(IReflected::ReflectionTypes::Float, toTest.ReflectionType(relfectionMap["FirstProperty"]));
+  EXPECT_EQ(IReflected::ReflectionTypes::Float, toTest.ReflectionType(relfectionMap["SecondProperty"]));
+  EXPECT_EQ(IReflected::ReflectionTypes::String, toTest.ReflectionType(relfectionMap["String1"]));
+  EXPECT_EQ(IReflected::ReflectionTypes::String, toTest.ReflectionType(relfectionMap["String2"]));
+  EXPECT_EQ(IReflected::ReflectionTypes::Method, toTest.ReflectionType(relfectionMap["ResetToZero"]));
 }
 
 TEST_F(TestIReflected, TestGet) 

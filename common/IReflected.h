@@ -54,7 +54,16 @@
 class IReflected
 {
 public:
-	IReflected();
+
+    enum class ReflectionTypes 
+    { 
+        Method, 
+        Float, 
+        String     
+    };
+
+    IReflected();
+
     const std::string ReflectionClassName() const;
     const std::map<std::string, ReflectionKey> ReflectionList();
     
@@ -64,6 +73,8 @@ public:
     bool ReflectionGet(const ReflectionKey& key, float& updateValue) const;
     bool ReflectionGet(const ReflectionKey& key, std::string& updateValue) const;
     bool ReflectionRun(const ReflectionKey& key);
+
+    IReflected::ReflectionTypes ReflectionType(const ReflectionKey& key) const;
 
     virtual ~IReflected() {};
     
