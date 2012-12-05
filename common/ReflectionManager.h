@@ -41,8 +41,10 @@ class ReflectionManager
 public:
     ReflectionManager();
     
-    void RegisterClass(std::shared_ptr<IReflected> reflectedClass);
+    void RegisterClass(std::shared_ptr<IReflected> reflectedClass);    
     
+    // RAM: TODO! Fix these, they don't make sense, and GetListValues can return
+    // Strings now!
     std::vector<std::string> GetListArguments(std::string containing) const;
     std::vector<std::string> GetListMethods(std::string containing) const;
     std::map<std::string, float> GetListValues(std::string containing);
