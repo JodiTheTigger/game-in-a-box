@@ -89,6 +89,8 @@ void Scratch()
   
   auto what = things.begin();
   
+  dude.ReflectionSet(things["FirstProperty"], 4.0);
+  
   for (auto& arghgh : things)
   {
       float asFloat = 0;
