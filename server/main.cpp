@@ -37,6 +37,13 @@ class ScratchClass : public IReflected
     REFLECTION_BOILERPLATE(ScratchClass)
     
 public:
+	ScratchClass()
+		: myFirst(1)
+		, mySecond(2)
+		, argh("argh")
+	{
+	}
+
     float FirstPropertyGet() const {return myFirst;} 
     void FirstPropertySet(float toSet) {myFirst = toSet;}
     float SecondPropertyGet() const {return mySecond;} 
@@ -46,9 +53,9 @@ public:
     void BahSet(std::string newy){argh = newy;}
     
 private:
-    float myFirst = 1;
-    float mySecond = 2;   
-    std::string argh = "argh";
+    float myFirst;
+    float mySecond;   
+    std::string argh;
     
     void InitReflection() override
     {

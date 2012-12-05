@@ -82,6 +82,9 @@ ReflectionKey::~ReflectionKey()
 {
     
 }
+IReflected::IReflected() : myPrivateReflectionHasDoneInit(false)
+{
+}
 
 const std::string IReflected::ReflectionClassName() const 
 {          

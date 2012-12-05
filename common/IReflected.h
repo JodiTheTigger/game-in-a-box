@@ -54,6 +54,7 @@
 class IReflected
 {
 public:
+	IReflected();
     const std::string ReflectionClassName() const;
     const std::map<std::string, ReflectionKey> ReflectionList();
     
@@ -67,7 +68,7 @@ public:
     virtual ~IReflected() {};
     
 private:
-    bool myPrivateReflectionHasDoneInit = false;
+    bool myPrivateReflectionHasDoneInit;
     std::map<std::string, ReflectionKey> myReflectionMap;
     
     virtual void InitReflection() = 0;
@@ -102,8 +103,6 @@ reflectionNamesMethods.push_back(#NAME_METHOD);
 
 #define REFLECTION_BOILERPLATE(CLASS)   \
 private:   \
-    bool myPrivateReflectionHasDoneInit = false;    \
-       \
     typedef void (CLASS::*ReflectionFloatSetter)(float);   \
     typedef float (CLASS::*ReflectionFloatGetter)(void) const;   \
     typedef void (CLASS::*ReflectionStringSetter)(std::string);   \

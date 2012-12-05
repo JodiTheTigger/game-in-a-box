@@ -77,7 +77,7 @@ void RollingStatistics::Calculate()
         sorted.push_back(toCopy);
     }
     
-    myAverage = bigSum / sorted.size();
+    myAverage = (float) (bigSum / sorted.size());
     mySum = (float) bigSum;
     
     // 2.
@@ -86,16 +86,16 @@ void RollingStatistics::Calculate()
     {
         bigVariance += (toVariance - myAverage) * (toVariance - myAverage);
     }
-    myVariance = bigVariance / mySamples->size();
-    myStandardDeviation = sqrt(bigVariance / mySamples->size());
+    myVariance = (float) (bigVariance / mySamples->size());
+    myStandardDeviation = (float) (sqrt(bigVariance / mySamples->size()));
     
     // 3.
     sort(sorted.begin(), sorted.end());
     myMin = sorted.front();
     myMax = sorted.back();
     
-    myQuartile25 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.25)];
-    myQuartile75 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.75)];
+    myQuartile25 = sorted[(uint32_t) round((sorted.size() - 1) * 0.25f)];
+    myQuartile75 = sorted[(uint32_t) round((sorted.size() - 1) * 0.75f)];
     
     if (sorted.size() == 1)
     {
@@ -105,8 +105,8 @@ void RollingStatistics::Calculate()
     {
         if ((sorted.size() % 2) == 0)
         {
-            myMedian = sorted[sorted.size() / 2] * 0.5;
-            myMedian += sorted[(sorted.size() / 2) - 1] * 0.5;
+            myMedian = sorted[sorted.size() / 2] * 0.5f;
+            myMedian += sorted[(sorted.size() / 2) - 1] * 0.5f;
         }
         else
         {
