@@ -137,7 +137,7 @@ TEST_F(TestReflectionManager, TestEmptyManager)
 }
 
 TEST_F(TestReflectionManager, TestAddOneClass) 
-{/* TODO!
+{
     ReflectionManager toTest;
     shared_ptr<IReflected> firstClass;
 
@@ -147,6 +147,8 @@ TEST_F(TestReflectionManager, TestAddOneClass)
     
     float testValue;
     float testValue2;
+    string testValue3;
+    string testValue4;
 
     // Let's do it.
     firstClass = shared_ptr<IReflected>(new ReflectedTester());
@@ -154,43 +156,63 @@ TEST_F(TestReflectionManager, TestAddOneClass)
     toTest.RegisterClass(firstClass);
 
     // call non-existing functions, not expecting any exceptions
-    testValue = toTest.ValueGet("Nothing");
-    toTest.ValueSet("nothing", 44.2f);
-    toTest.CallMethod("44");
+    testValue = 22;
+    EXPECT_FALSE(toTest.ValueGet("Nothing", testValue));
+    EXPECT_FALSE(toTest.ValueSet("nothing", 44.2f));
+    EXPECT_FALSE(toTest.CallMethod("44"));
     
     EXPECT_EQ(2, arguments.size());
     EXPECT_EQ(1, methods.size());
     EXPECT_EQ(2, values.size());
-    EXPECT_EQ(0, testValue);
+    EXPECT_EQ(22, testValue);
+    
+    // WTF? This function doesn't make sense anymore! It returns floats and strings.
+    values = toTest.GetListValues("");
+    
+    EXPECT_EQ(4, values.size());
+    EXPECT_NE(values.end(), values.find("ReflectedTester.FirstProperty"));
+    EXPECT_NE(values.end(), values.find("ReflectedTester.SecondProperty"));
+    //EXPECT_NE(values.end(), values.find("ReflectedTester.String1"));
+    //EXPECT_NE(values.end(), values.find("ReflectedTester.String2"));     
+     /*   
+    values = toTest.GetListMethods("");    
 
-    EXPECT_EQ(string("ReflectedTester.FirstProperty"), arguments[0]);
-    EXPECT_EQ(string("ReflectedTester.SecondProperty"), arguments[1]);
-    EXPECT_EQ(string("ReflectedTester.ResetToZero"), methods[0]);
-
+    EXPECT_EQ(1, values);
+    EXPECT_NE(values.end(), values.find("ReflectedTester.ResetToZero"));
+  *//*
     EXPECT_EQ(values[string("ReflectedTester.FirstProperty")], 1.0);
     EXPECT_EQ(values[string("ReflectedTester.SecondProperty")], 2.0);
+    EXPECT_EQ(values[string("ReflectedTester.String1")], "Meh");
+    EXPECT_EQ(values[string("ReflectedTester.String2")], "Bah");
 
-    testValue = toTest.ValueGet("FirstProperty");
-    testValue2 = toTest.ValueGet("SecondProperty");
+    /*
+    EXPECT_TRUE(toTest.ValueGet("FirstProperty", testValue));
+    EXPECT_TRUE(toTest.ValueGet("SecondProperty", testValue2));
+    EXPECT_TRUE(toTest.ValueGet("String1", testValue3));
+    EXPECT_TRUE(toTest.ValueGet("String2", testValue4));
 
     EXPECT_EQ(1, testValue);
     EXPECT_EQ(2, testValue2);
+    EXPECT_EQ("Meh", testValue3);
+    EXPECT_EQ("Bah", testValue4);
 
     toTest.ValueSet("SecondProperty", 44.2f);
 
-    testValue = toTest.ValueGet("FirstProperty");
-    testValue2 = toTest.ValueGet("SecondProperty");
+    EXPECT_TRUE(toTest.ValueGet("FirstProperty", testValue));
+    EXPECT_TRUE(toTest.ValueGet("SecondProperty", testValue2));
 
     EXPECT_EQ(1, testValue);
     EXPECT_EQ(44.2, testValue2);
 
     toTest.CallMethod("ResetToZero");
 
-    testValue = toTest.ValueGet("FirstProperty");
-    testValue2 = toTest.ValueGet("SecondProperty");
+    EXPECT_TRUE(toTest.ValueGet("FirstProperty", testValue));
+    EXPECT_TRUE(toTest.ValueGet("SecondProperty", testValue2));
 
     EXPECT_EQ(0, testValue);
-    EXPECT_EQ(0, testValue2);*/
+    EXPECT_EQ(0, testValue2);
+    */
+    // TODO! test the strings, and split this to its component test cases.
   EXPECT_EQ(0, 1);
 }
 
