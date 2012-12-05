@@ -51,17 +51,17 @@
 //    http://cpptruths.blogspot.co.nz/2012/03/rvalue-references-in-constructor-when.html
 //    http://stackoverflow.com/questions/10231349/are-the-days-of-passing-const-stdstring-as-a-parameter-over (first two answers)
 
+enum class ReflectedType 
+{ 
+    Method, 
+    Float, 
+    String     
+};
+
 class IReflected
 {
 public:
-
-    enum class ReflectionTypes 
-    { 
-        Method, 
-        Float, 
-        String     
-    };
-
+    
     IReflected();
 
     const std::string ReflectionClassName() const;
@@ -74,7 +74,7 @@ public:
     bool ReflectionGet(const ReflectionKey& key, std::string& updateValue) const;
     bool ReflectionRun(const ReflectionKey& key);
 
-    IReflected::ReflectionTypes ReflectionType(const ReflectionKey& key) const;
+    ReflectedType ReflectionType(const ReflectionKey& key) const;
 
     virtual ~IReflected() {};
     

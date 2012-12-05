@@ -107,11 +107,11 @@ TEST_F(TestIReflected, TestTypes)
   ReflectedTester toTest;
   auto relfectionMap = toTest.ReflectionList();
   
-  EXPECT_EQ(IReflected::ReflectionTypes::Float, toTest.ReflectionType(relfectionMap["FirstProperty"]));
-  EXPECT_EQ(IReflected::ReflectionTypes::Float, toTest.ReflectionType(relfectionMap["SecondProperty"]));
-  EXPECT_EQ(IReflected::ReflectionTypes::String, toTest.ReflectionType(relfectionMap["String1"]));
-  EXPECT_EQ(IReflected::ReflectionTypes::String, toTest.ReflectionType(relfectionMap["String2"]));
-  EXPECT_EQ(IReflected::ReflectionTypes::Method, toTest.ReflectionType(relfectionMap["ResetToZero"]));
+  EXPECT_EQ(ReflectedType::Float, toTest.ReflectionType(relfectionMap["FirstProperty"]));
+  EXPECT_EQ(ReflectedType::Float, toTest.ReflectionType(relfectionMap["SecondProperty"]));
+  EXPECT_EQ(ReflectedType::String, toTest.ReflectionType(relfectionMap["String1"]));
+  EXPECT_EQ(ReflectedType::String, toTest.ReflectionType(relfectionMap["String2"]));
+  EXPECT_EQ(ReflectedType::Method, toTest.ReflectionType(relfectionMap["ResetToZero"]));
 }
 
 TEST_F(TestIReflected, TestGet) 

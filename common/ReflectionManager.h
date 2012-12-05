@@ -31,6 +31,7 @@
 
 // forward declarations
 class IReflected;
+enum class ReflectionType;
 
 // TODO! Don't support duplicate classes. Too much hassle.
 

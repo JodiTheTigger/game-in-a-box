@@ -27,13 +27,13 @@
 class ReflectionKeyPrivate
 {
 public:
-    ReflectionKeyPrivate(IReflected::ReflectionTypes type, uint8_t index)
+    ReflectionKeyPrivate(ReflectedType type, uint8_t index)
     : myType(type)
     , myIndexIntoType(index)
     {
     }
     
-    const IReflected::ReflectionTypes Type() const
+    const ReflectedType Type() const
     {
         return myType;
     }
@@ -57,7 +57,7 @@ public:
     }
     
 private:
-    const IReflected::ReflectionTypes myType;
+    const ReflectedType myType;
     const uint8_t myIndexIntoType;
 };
 
@@ -79,7 +79,7 @@ IReflected::IReflected() : myPrivateReflectionHasDoneInit(false)
 {
 }
 
-IReflected::ReflectionTypes IReflected::ReflectionType(const ReflectionKey& key) const
+ReflectedType IReflected::ReflectionType(const ReflectionKey& key) const
 {
     return  key->Type();
 }
@@ -105,19 +105,19 @@ const std::map<std::string, ReflectionKey> IReflected::ReflectionList()
         indexCount = 0;
         for (auto name : reflectionsFloat)
         {
-           myReflectionMap[name] = ReflectionKey(new ReflectionKeyPrivate(ReflectionTypes::Float, indexCount++));
+           myReflectionMap[name] = ReflectionKey(new ReflectionKeyPrivate(ReflectedType::Float, indexCount++));
         }
         
         indexCount = 0;
         for (auto name : reflectionsString)
         {
-            myReflectionMap[name] = ReflectionKey(new ReflectionKeyPrivate(ReflectionTypes::String, indexCount++));
+            myReflectionMap[name] = ReflectionKey(new ReflectionKeyPrivate(ReflectedType::String, indexCount++));
         }
         
         indexCount = 0;
         for (auto name : reflectionsMethod)
         {
-            myReflectionMap[name] = ReflectionKey(new ReflectionKeyPrivate(ReflectionTypes::Method, indexCount++));
+            myReflectionMap[name] = ReflectionKey(new ReflectionKeyPrivate(ReflectedType::Method, indexCount++));
         }
         
         myPrivateReflectionHasDoneInit = true; 
@@ -129,7 +129,7 @@ const std::map<std::string, ReflectionKey> IReflected::ReflectionList()
 bool IReflected::ReflectionSet(const ReflectionKey& key, float newValue)
 {    
     // sanity checks
-    if (key->Type() != ReflectionTypes::Float)
+    if (key->Type() != ReflectedType::Float)
     {
         return false;
     }    
@@ -140,7 +140,7 @@ bool IReflected::ReflectionSet(const ReflectionKey& key, float newValue)
 bool IReflected::ReflectionSet(const ReflectionKey& key, std::string newValue)
 {
     // sanity checks
-    if (key->Type() != ReflectionTypes::String)
+    if (key->Type() != ReflectedType::String)
     {
         return false;
     }    
@@ -151,7 +151,7 @@ bool IReflected::ReflectionSet(const ReflectionKey& key, std::string newValue)
 bool IReflected::ReflectionGet(const ReflectionKey& key, float& updateValue) const
 {
     // sanity checks
-    if (key->Type() != ReflectionTypes::Float)
+    if (key->Type() != ReflectedType::Float)
     {
         return false;
     }    
@@ -162,7 +162,7 @@ bool IReflected::ReflectionGet(const ReflectionKey& key, float& updateValue) con
 bool IReflected::ReflectionGet(const ReflectionKey& key, std::string& updateValue) const
 {
     // sanity checks
-    if (key->Type() != ReflectionTypes::String)
+    if (key->Type() != ReflectedType::String)
     {
         return false;
     }    
@@ -173,7 +173,7 @@ bool IReflected::ReflectionGet(const ReflectionKey& key, std::string& updateValu
 bool IReflected::ReflectionRun(const ReflectionKey& key)
 {
     // sanity checks
-    if (key->Type() != ReflectionTypes::Method)
+    if (key->Type() != ReflectedType::Method)
     {
         return false;
     }    
