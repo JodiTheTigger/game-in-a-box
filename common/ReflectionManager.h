@@ -31,7 +31,7 @@
 
 // forward declarations
 class IReflected;
-enum class ReflectionType;
+enum class ReflectedType;
 
 // TODO! Don't support duplicate classes. Too much hassle.
 
@@ -44,16 +44,13 @@ public:
     
     void RegisterClass(std::shared_ptr<IReflected> reflectedClass);    
     
-    // RAM: TODO! Fix these, they don't make sense, and GetListValues can return
-    // Strings now!
-    std::vector<std::string> GetListArguments(std::string containing) const;
-    std::vector<std::string> GetListMethods(std::string containing) const;
-    std::map<std::string, float> GetListValues(std::string containing);
-    
+    std::vector<std::string> GetList() const;
+        
     // Gets the value for the argument passed in. Returns false if nothing matches
     // (and leaves value untouched).
     bool ValueGet(const std::string& argument, float& value) const;
     bool ValueGet(const std::string& argument, std::string& value) const;
+    bool ValueGet(const std::string& argument, ReflectedType& argumentType) const;
     
     // Sets the value of the argument passed in. Returns true if set
     // false if the argument doesn't match.

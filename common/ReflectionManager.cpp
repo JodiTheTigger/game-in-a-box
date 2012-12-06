@@ -37,20 +37,10 @@ void ReflectionManager::RegisterClass(shared_ptr<IReflected> reflectedClass)
     // TODO!
 }
 
-vector<string> ReflectionManager::GetListArguments(string containing) const
+std::vector<std::string> ReflectionManager::GetList() const
 {
     // TODO!
     return vector<string>();
-}
-vector<string> ReflectionManager::GetListMethods(string containing) const
-{
-    // TODO!
-    return vector<string>();
-}
-map<std::string, float> ReflectionManager::GetListValues(string containing)
-{
-    // TODO!
-    return map<string, float>();
 }
 
 bool ReflectionManager::ValueGet(const std::string& argument, float& value) const
@@ -77,6 +67,12 @@ bool ReflectionManager::ValueGet(const std::string& argument, float& value) cons
 }
 
 bool ReflectionManager::ValueGet(const std::string& argument, std::string& value) const
+{    
+    // RAM: TODO!
+    return false;
+}
+
+bool ReflectionManager::ValueGet(const std::string& argument, ReflectedType& argumentType) const
 {    
     // RAM: TODO!
     return false;
