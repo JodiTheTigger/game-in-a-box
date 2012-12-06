@@ -42,6 +42,7 @@ class ReflectionManager
 public:
     ReflectionManager();
     
+    // If the same type of class gets registered twice the last one wins.
     void RegisterClass(std::shared_ptr<IReflected> reflectedClass);    
     
     std::vector<std::string> GetList() const;

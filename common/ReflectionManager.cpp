@@ -31,7 +31,7 @@ ReflectionManager::ReflectionManager()
 }
 
 // Registers the class, and sets any default values already set by
-// either the constructor's std::map.
+// either the constructor's std::map. Pointers to null are ignored.
 void ReflectionManager::RegisterClass(shared_ptr<IReflected> reflectedClass)
 {
     // TODO!
