@@ -50,6 +50,9 @@
 //    again.
 //    http://cpptruths.blogspot.co.nz/2012/03/rvalue-references-in-constructor-when.html
 //    http://stackoverflow.com/questions/10231349/are-the-days-of-passing-const-stdstring-as-a-parameter-over (first two answers)
+// 
+// ReflectedType ReflectionType(const ReflectionKey& key) const;
+//    Really should be static, but that's forcing implementation details.
 
 enum class ReflectedType 
 { 
@@ -65,7 +68,7 @@ public:
     IReflected();
 
     const std::string ReflectionClassName() const;
-    const std::map<std::string, ReflectionKey> ReflectionList();
+    const std::map<std::string, ReflectionKey>& ReflectionList();
     
     // Returns true if successful, false if the key doesn't have a match for that data type.
     bool ReflectionSet(const ReflectionKey& key, float newValue);

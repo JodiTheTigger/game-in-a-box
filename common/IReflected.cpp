@@ -89,7 +89,7 @@ const std::string IReflected::ReflectionClassName() const
     return PrivateReflectionClassName();     
 }
 
-const std::map<std::string, ReflectionKey> IReflected::ReflectionList()
+const std::map<std::string, ReflectionKey>& IReflected::ReflectionList()
 { 
     if (!myPrivateReflectionHasDoneInit) 
     { 
