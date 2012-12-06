@@ -341,11 +341,6 @@ TEST_F(TestReflectionManager, TestAddOneClassSetInvalid)
 
     toTest.RegisterClass(firstClass);
     
-    value1 = 0;
-    value2 = 0;
-    string1 = "No";
-    string2 = "Way";
-    
     // shouldn't do anything
     EXPECT_FALSE(toTest.CallMethod("ReflectedTester.FirstProperty")); 
     
@@ -354,6 +349,11 @@ TEST_F(TestReflectionManager, TestAddOneClassSetInvalid)
     EXPECT_FALSE(toTest.ValueSet("ReflectedTester.SecondProperty", "me"));
     EXPECT_FALSE(toTest.ValueSet("ReflectedTester.String1", 1));
     EXPECT_FALSE(toTest.ValueSet("ReflectedTester.String2", 2));
+        
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", string2));
     
     // values shouldn't have been changed.
     EXPECT_EQ(1, value1);
