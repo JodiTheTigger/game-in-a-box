@@ -308,7 +308,7 @@ TEST_F(TestReflectionManager, TestAddOneClassGetInvalid)
     string2 = "Way";
     
     // shouldn't do anything
-    EXPECT_FALSE(toTest.CallMethod("ReflectedTester.FirstProperty")); 
+    EXPECT_FALSE(toTest.CallMethod("ReflectedTester.FirstProperty"));   
     
     // now get the values again
     EXPECT_FALSE(toTest.ValueGet("ReflectedTester.FirstProperty", string1));    
@@ -419,7 +419,7 @@ TEST_F(TestReflectionManager, TestAddSameClassTwice)
     EXPECT_EQ(22, value1);
     EXPECT_EQ(44, value2);
     EXPECT_EQ("Yum", string1);
-    EXPECT_EQ("Fun", string2);     
+    EXPECT_EQ("Fun", string2); 
 }
 
 TEST_F(TestReflectionManager, TestAddSameClassTwiceDifferentInstances) 
