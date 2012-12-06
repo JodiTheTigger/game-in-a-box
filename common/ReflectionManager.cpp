@@ -24,76 +24,147 @@
 using namespace std;
 
 ReflectionManager::ReflectionManager()
-: myStringToClassAndIndex(map<string, tuple<shared_ptr<IReflected>, uint8_t>>())
+: myStringToClassAndKey(map<string, tuple<shared_ptr<IReflected>, ReflectionKey>>())
 {
     // TODO!
     
 }
 
-// Registers the class, and sets any default values already set by
-// either the constructor's std::map. Pointers to null are ignored.
+// Registers the class, Pointers to null are ignored.
 void ReflectionManager::RegisterClass(shared_ptr<IReflected> reflectedClass)
 {
-    // TODO!
+    std::map<std::string, ReflectionKey> reflectedData;
+    
+    if (reflectedClass.get() == nullptr)
+    {
+        return;
+    }
+    
+    reflectedData = reflectedClass->ReflectionList();
+    
+    for (auto reflectedItem : reflectedData)
+    {
+        string nameToUse = reflectedClass->ReflectionClassName() + "." + reflectedItem.first;
+        myStringToClassAndKey[nameToUse] = make_tuple(reflectedClass, reflectedItem.second);
+    }
 }
 
 std::vector<std::string> ReflectionManager::GetList() const
 {
-    // TODO!
-    return vector<string>();
+    vector<string> result;
+    
+    for (auto data : myStringToClassAndKey)
+    {
+        result.push_back(data.first);
+    }
+    
+    return result;
 }
 
 bool ReflectionManager::ValueGet(const std::string& argument, float& value) const
 {
-    /* new reflection class: rewrite!
-    map<string, std::tuple<shared_ptr<IReflected>, uint8_t>>::const_iterator findIterator;
-    
-    // using find instead of the [], as find can be const.
-    findIterator = myStringToClassAndIndex.find(argument);
+    ReflectionKey theKey;
+    shared_ptr<IReflected> theReflected;
         
-    if (findIterator != myStringToClassAndIndex.end())
-    {        
-        shared_ptr<IReflected> target;
-        uint8_t targetIndex;
-        
-        tie(target, targetIndex) = (*findIterator).second;
-        
-        return target->ReflectionGet(targetIndex);
-    }
-    else*/
+    if (myStringToClassAndKey.find(argument) == myStringToClassAndKey.end())
     {
+        // no key
         return false;
     }
+    
+    // Argh, map[index] isn't const as it creates new items if the key isn't found!
+    tie(theReflected, theKey) = myStringToClassAndKey.find(argument)->second;
+    
+    return theReflected->ReflectionGet(theKey, value);
 }
 
+// TODO! This is duplicate code, I'm sure c++ has a way with dealing with this! varidacs or something?
 bool ReflectionManager::ValueGet(const std::string& argument, std::string& value) const
-{    
-    // RAM: TODO!
-    return false;
+{ 
+    ReflectionKey theKey;
+    shared_ptr<IReflected> theReflected;
+        
+    if (myStringToClassAndKey.find(argument) == myStringToClassAndKey.end())
+    {
+        // no key
+        return false;
+    }
+    
+    // Argh, map[index] isn't const as it creates new items if the key isn't found!
+    tie(theReflected, theKey) = myStringToClassAndKey.find(argument)->second;
+    
+    return theReflected->ReflectionGet(theKey, value);
 }
 
 bool ReflectionManager::ValueGet(const std::string& argument, ReflectedType& argumentType) const
 {    
-    // RAM: TODO!
-    return false;
+    ReflectionKey theKey;
+    shared_ptr<IReflected> theReflected;
+        
+    if (myStringToClassAndKey.find(argument) == myStringToClassAndKey.end())
+    {
+        // no key
+        return false;
+    }
+    
+    // Argh, map[index] isn't const as it creates new items if the key isn't found!
+    tie(theReflected, theKey) = myStringToClassAndKey.find(argument)->second;
+    
+    argumentType = theReflected->ReflectionType(theKey);
+    
+    return true;
 }
 
+// RAM: TODO! This is silly, this is all copy/paste code - bad!
 bool ReflectionManager::ValueSet(const std::string& argument, float newValue)
 {
-    // TODO!
-    return false;
+    ReflectionKey theKey;
+    shared_ptr<IReflected> theReflected;
+        
+    if (myStringToClassAndKey.find(argument) == myStringToClassAndKey.end())
+    {
+        // no key
+        return false;
+    }
+    
+    // Argh, map[index] isn't const as it creates new items if the key isn't found!
+    tie(theReflected, theKey) = myStringToClassAndKey.find(argument)->second;
+    
+    return theReflected->ReflectionSet(theKey, newValue);
 }
 
 bool ReflectionManager::ValueSet(const std::string& argument, std::string newValue)
 {
-    // TODO!
-    return false;
+    ReflectionKey theKey;
+    shared_ptr<IReflected> theReflected;
+        
+    if (myStringToClassAndKey.find(argument) == myStringToClassAndKey.end())
+    {
+        // no key
+        return false;
+    }
+    
+    // Argh, map[index] isn't const as it creates new items if the key isn't found!
+    tie(theReflected, theKey) = myStringToClassAndKey.find(argument)->second;
+    
+    return theReflected->ReflectionSet(theKey, newValue);
 }
 
-// Calls the method passed in. If it doesn't exist, then it is silently ignored.
+// RAM: TODO! Argh! More duplicate code!
 bool ReflectionManager::CallMethod(const std::string& method)
 {
-    // TODO!
-    return false;
+    ReflectionKey theKey;
+    shared_ptr<IReflected> theReflected;
+        
+    if (myStringToClassAndKey.find(method) == myStringToClassAndKey.end())
+    {
+        // no key
+        return false;
+    }
+    
+    // Argh, map[index] isn't const as it creates new items if the key isn't found!
+    tie(theReflected, theKey) = myStringToClassAndKey.find(method)->second;
+    
+    return theReflected->ReflectionRun(theKey);
 }
 

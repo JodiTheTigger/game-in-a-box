@@ -31,6 +31,7 @@
 
 // forward declarations
 class IReflected;
+class ReflectionKey;
 enum class ReflectedType;
 
 // TODO! Don't support duplicate classes. Too much hassle.
@@ -48,7 +49,7 @@ public:
     std::vector<std::string> GetList() const;
         
     // Gets the value for the argument passed in. Returns false if nothing matches
-    // (and leaves value untouched).
+    // the argument + data type (and leaves value untouched).
     bool ValueGet(const std::string& argument, float& value) const;
     bool ValueGet(const std::string& argument, std::string& value) const;
     bool ValueGet(const std::string& argument, ReflectedType& argumentType) const;
@@ -63,7 +64,7 @@ public:
     
 private:
     std::map<std::string, float> myUnusedDefaultSettings;
-    std::map<std::string, std::tuple<std::shared_ptr<IReflected>, uint8_t>> myStringToClassAndIndex;
+    std::map<std::string, std::tuple<std::shared_ptr<IReflected>, ReflectionKey>> myStringToClassAndKey;
 };
 
 #endif // REFLECTIONMANAGER_H
