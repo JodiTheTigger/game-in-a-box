@@ -20,6 +20,8 @@
 
 #include "gtest/gtest.h"
 
+#include <algorithm>
+
 #include "IReflected.h"
 #include "ReflectionManager.h"
 
@@ -113,16 +115,12 @@ TEST_F(TestReflectionManager, TestEmptyManager)
 {
     ReflectionManager toTest;
     
-    vector<string> arguments;
-    vector<string> methods;
-    map<string, float> values;
+    vector<string> things;
     
     float testValue;
     
     // get all the stuff
-    arguments = toTest.GetListArguments(string(""));
-    methods = toTest.GetListMethods(string(""));
-    values = toTest.GetListValues(string(""));
+    things = toTest.GetList();
     
     // call functions, not expecting any exceptions
     testValue = 22;
@@ -130,139 +128,404 @@ TEST_F(TestReflectionManager, TestEmptyManager)
     EXPECT_FALSE(toTest.ValueSet("nothing", 44.2f));
     EXPECT_FALSE(toTest.CallMethod("44"));
     
-    EXPECT_EQ(0, arguments.size());
-    EXPECT_EQ(0, methods.size());
-    EXPECT_EQ(0, values.size());
+    EXPECT_EQ(0, things.size());
     EXPECT_EQ(22, testValue);
 }
 
-TEST_F(TestReflectionManager, TestAddOneClass) 
+TEST_F(TestReflectionManager, TestAddOneClassList) 
 {
     ReflectionManager toTest;
     shared_ptr<IReflected> firstClass;
 
-    vector<string> arguments;
-    vector<string> methods;
-    map<string, float> values;
-    
-    float testValue;
-    float testValue2;
-    string testValue3;
-    string testValue4;
+    vector<string> things;
 
     // Let's do it.
     firstClass = shared_ptr<IReflected>(new ReflectedTester());
 
     toTest.RegisterClass(firstClass);
-
-    // call non-existing functions, not expecting any exceptions
-    testValue = 22;
-    EXPECT_FALSE(toTest.ValueGet("Nothing", testValue));
-    EXPECT_FALSE(toTest.ValueSet("nothing", 44.2f));
-    EXPECT_FALSE(toTest.CallMethod("44"));
     
-    EXPECT_EQ(2, arguments.size());
-    EXPECT_EQ(1, methods.size());
-    EXPECT_EQ(2, values.size());
-    EXPECT_EQ(22, testValue);
+    things = toTest.GetList();
+
+    // call non-existing functions, not expecting any exceptions    
+    EXPECT_EQ(5, things.size());
+    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.FirstProperty"));
+    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.SecondProperty"));
+    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.String1"));
+    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.String2"));
+    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.ResetToZero"));
+}
+
+TEST_F(TestReflectionManager, TestAddOneClassTypes) 
+{
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+
+    toTest.RegisterClass(firstClass);
     
-    // WTF? This function doesn't make sense anymore! It returns floats and strings.
-    values = toTest.GetListValues("");
+    things = toTest.GetList();
+
+    // call non-existing functions, not expecting any exceptions    
+    EXPECT_EQ(5, things.size());
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", itemType));
+    EXPECT_EQ(itemType, ReflectedType::Float);
     
-    EXPECT_EQ(4, values.size());
-    EXPECT_NE(values.end(), values.find("ReflectedTester.FirstProperty"));
-    EXPECT_NE(values.end(), values.find("ReflectedTester.SecondProperty"));
-    //EXPECT_NE(values.end(), values.find("ReflectedTester.String1"));
-    //EXPECT_NE(values.end(), values.find("ReflectedTester.String2"));     
-     /*   
-    values = toTest.GetListMethods("");    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", itemType));
+    EXPECT_EQ(itemType, ReflectedType::Float);
+    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", itemType));
+    EXPECT_EQ(itemType, ReflectedType::String);
+    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", itemType));
+    EXPECT_EQ(itemType, ReflectedType::String);
+    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.ResetToZero", itemType));
+    EXPECT_EQ(itemType, ReflectedType::Method);
+}
 
-    EXPECT_EQ(1, values);
-    EXPECT_NE(values.end(), values.find("ReflectedTester.ResetToZero"));
-  *//*
-    EXPECT_EQ(values[string("ReflectedTester.FirstProperty")], 1.0);
-    EXPECT_EQ(values[string("ReflectedTester.SecondProperty")], 2.0);
-    EXPECT_EQ(values[string("ReflectedTester.String1")], "Meh");
-    EXPECT_EQ(values[string("ReflectedTester.String2")], "Bah");
+TEST_F(TestReflectionManager, TestAddOneClassAllValues) 
+{
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
 
-    /*
-    EXPECT_TRUE(toTest.ValueGet("FirstProperty", testValue));
-    EXPECT_TRUE(toTest.ValueGet("SecondProperty", testValue2));
-    EXPECT_TRUE(toTest.ValueGet("String1", testValue3));
-    EXPECT_TRUE(toTest.ValueGet("String2", testValue4));
+    vector<string> things;
 
-    EXPECT_EQ(1, testValue);
-    EXPECT_EQ(2, testValue2);
-    EXPECT_EQ("Meh", testValue3);
-    EXPECT_EQ("Bah", testValue4);
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
 
-    toTest.ValueSet("SecondProperty", 44.2f);
+    toTest.RegisterClass(firstClass);
+    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", string2));
+    
+    EXPECT_EQ(1, value1);
+    EXPECT_EQ(2, value2);
+    EXPECT_EQ("Meh", string1);
+    EXPECT_EQ("Bah", string2);    
+}
 
-    EXPECT_TRUE(toTest.ValueGet("FirstProperty", testValue));
-    EXPECT_TRUE(toTest.ValueGet("SecondProperty", testValue2));
+TEST_F(TestReflectionManager, TestAddOneClassSet) 
+{
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
 
-    EXPECT_EQ(1, testValue);
-    EXPECT_EQ(44.2, testValue2);
+    vector<string> things;
 
-    toTest.CallMethod("ResetToZero");
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
 
-    EXPECT_TRUE(toTest.ValueGet("FirstProperty", testValue));
-    EXPECT_TRUE(toTest.ValueGet("SecondProperty", testValue2));
+    toTest.RegisterClass(firstClass);
+    
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.FirstProperty", 22));    
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.SecondProperty", 44));
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.String1", "Yum"));
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.String2", "Fun"));
+    
+    // now get the values again
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", string2));
+    
+    EXPECT_EQ(22, value1);
+    EXPECT_EQ(44, value2);
+    EXPECT_EQ("Yum", string1);
+    EXPECT_EQ("Fun", string2); 
+}
 
-    EXPECT_EQ(0, testValue);
-    EXPECT_EQ(0, testValue2);
-    */
-    // TODO! test the strings, and split this to its component test cases.
-  EXPECT_EQ(0, 1);
+TEST_F(TestReflectionManager, TestAddOneClassSetMethodGet) 
+{
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+
+    toTest.RegisterClass(firstClass);
+    
+    EXPECT_TRUE(toTest.CallMethod("ReflectedTester.ResetToZero")); 
+    
+    // now get the values again
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", string2));
+    
+    EXPECT_EQ(0, value1);
+    EXPECT_EQ(0, value2);
+    EXPECT_EQ("No", string1);
+    EXPECT_EQ("Way", string2); 
+}
+
+TEST_F(TestReflectionManager, TestAddOneClassGetInvalid) 
+{
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+
+    toTest.RegisterClass(firstClass);
+    
+    value1 = -8;
+    value2 = 4;
+    string1 = "No";
+    string2 = "Way";
+    
+    // shouldn't do anything
+    EXPECT_FALSE(toTest.CallMethod("ReflectedTester.FirstProperty")); 
+    
+    // now get the values again
+    EXPECT_FALSE(toTest.ValueGet("ReflectedTester.FirstProperty", string1));    
+    EXPECT_FALSE(toTest.ValueGet("ReflectedTester.SecondProperty", string2));
+    EXPECT_FALSE(toTest.ValueGet("ReflectedTester.String1", value1));
+    EXPECT_FALSE(toTest.ValueGet("ReflectedTester.String2", value2));
+    
+    // values shouldn't have been changed.
+    EXPECT_EQ(-8, value1);
+    EXPECT_EQ(4, value2);
+    EXPECT_EQ("No", string1);
+    EXPECT_EQ("Way", string2); 
+}
+
+TEST_F(TestReflectionManager, TestAddOneClassSetInvalid) 
+{
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+
+    toTest.RegisterClass(firstClass);
+    
+    value1 = 0;
+    value2 = 0;
+    string1 = "No";
+    string2 = "Way";
+    
+    // shouldn't do anything
+    EXPECT_FALSE(toTest.CallMethod("ReflectedTester.FirstProperty")); 
+    
+    // now get the values again
+    EXPECT_FALSE(toTest.ValueSet("ReflectedTester.FirstProperty", "help"));    
+    EXPECT_FALSE(toTest.ValueSet("ReflectedTester.SecondProperty", "me"));
+    EXPECT_FALSE(toTest.ValueSet("ReflectedTester.String1", 1));
+    EXPECT_FALSE(toTest.ValueSet("ReflectedTester.String2", 2));
+    
+    // values shouldn't have been changed.
+    EXPECT_EQ(1, value1);
+    EXPECT_EQ(2, value2);
+    EXPECT_EQ("Meh", string1);
+    EXPECT_EQ("Bah", string2); 
 }
 
 TEST_F(TestReflectionManager, TestRegisterNullClass) 
-{
-    // is that even possible with shared pointers?
-  EXPECT_EQ(0, 1);
+{    
+    float value1;
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(nullptr);
+
+    toTest.RegisterClass(firstClass);    
+    
+    things = toTest.GetList();
+    value1 = 42;
+    EXPECT_FALSE(toTest.ValueGet("Nothing", value1));
+    EXPECT_FALSE(toTest.ValueSet("nothing", 44.2f));
+    EXPECT_FALSE(toTest.CallMethod("44"));
+    
+    EXPECT_EQ(0, things.size());
 }
 
 TEST_F(TestReflectionManager, TestAddSameClassTwice) 
-{
-  EXPECT_EQ(0, 1);
+{    
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+
+    // First class should get dropped for the 2nd.
+    toTest.RegisterClass(firstClass);
+    toTest.RegisterClass(firstClass);
+    
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.FirstProperty", 22));    
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.SecondProperty", 44));
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.String1", "Yum"));
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.String2", "Fun"));
+    
+    // now get the values again
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", string2));
+    
+    EXPECT_EQ(22, value1);
+    EXPECT_EQ(44, value2);
+    EXPECT_EQ("Yum", string1);
+    EXPECT_EQ("Fun", string2);     
 }
 
 TEST_F(TestReflectionManager, TestAddSameClassTwiceDifferentInstances) 
 {
-  EXPECT_EQ(0, 1);
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstDuplicate;
+    shared_ptr<IReflected> secondDuplicate;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstDuplicate = shared_ptr<IReflected>(new ReflectedTester());
+    secondDuplicate = shared_ptr<IReflected>(new ReflectedTester());
+
+    // last one wins please.
+    toTest.RegisterClass(firstDuplicate); 
+    toTest.RegisterClass(secondDuplicate); 
+    
+    // get all the stuff
+    things = toTest.GetList();
+    
+    EXPECT_EQ(5, things.size());
+    
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.FirstProperty", 22));    
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.SecondProperty", 44));
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.String1", "Yum"));
+    EXPECT_TRUE(toTest.ValueSet("ReflectedTester.String2", "Fun"));
+    
+    // now get the values again
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", string2));
+    
+    EXPECT_EQ(22, value1);
+    EXPECT_EQ(44, value2);
+    EXPECT_EQ("Yum", string1);
+    EXPECT_EQ("Fun", string2); 
+    
+    // now make sure the first class didn't get touched.
+    auto rawList = firstDuplicate->ReflectionList();
+    EXPECT_TRUE(firstDuplicate->ReflectionGet(rawList["FirstProperty"], value1));    
+    EXPECT_TRUE(firstDuplicate->ReflectionGet(rawList["SecondProperty"], value2));
+    EXPECT_TRUE(firstDuplicate->ReflectionGet(rawList["String1"], string1));
+    EXPECT_TRUE(firstDuplicate->ReflectionGet(rawList["String2"], string2));
+    
+    EXPECT_EQ(1, value1);
+    EXPECT_EQ(2, value2);
+    EXPECT_EQ("Meh", string1);
+    EXPECT_EQ("Bah", string2); 
 }
 
 TEST_F(TestReflectionManager, TestAddTwoClasses) 
 {
-  EXPECT_EQ(0, 1);
-}
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    ReflectedType itemType;
+    shared_ptr<IReflected> firstClass;
+    shared_ptr<ReflectedTesterMethodsOnly> secondClass;
 
-TEST_F(TestReflectionManager, TestSuggestionsEmptyString) 
-{
-  EXPECT_EQ(0, 1);
-}
+    vector<string> things;
 
-TEST_F(TestReflectionManager, TestSuggestionsOneChar) 
-{
-  EXPECT_EQ(0, 1);
-}
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+    secondClass = shared_ptr<ReflectedTesterMethodsOnly>(new ReflectedTesterMethodsOnly());
 
-TEST_F(TestReflectionManager, TestSuggestionsOneCharNoMatch) 
-{
-  EXPECT_EQ(0, 1);
-}
-
-TEST_F(TestReflectionManager, TestSuggestionsTwoChar) 
-{
-  EXPECT_EQ(0, 1);
-}
-
-TEST_F(TestReflectionManager, TestSuggestionsTwoCharNoMatch) 
-{
-  EXPECT_EQ(0, 1);
-}
-
-TEST_F(TestReflectionManager, TestSuggestionsOnlyOneMatch) 
-{
-  EXPECT_EQ(0, 1);
+    toTest.RegisterClass(firstClass);
+    toTest.RegisterClass(secondClass);
+    
+    EXPECT_TRUE(toTest.CallMethod("ReflectedTester.ResetToZero")); 
+    
+    // now get the values again
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.String2", string2));
+    
+    EXPECT_EQ(0, value1);
+    EXPECT_EQ(0, value2);
+    EXPECT_EQ("No", string1);
+    EXPECT_EQ("Way", string2); 
+    
+    secondClass->UpdateValues(value1, value2);
+    
+    EXPECT_EQ(1, value1);
+    EXPECT_EQ(2, value2);
+    
+    EXPECT_TRUE(toTest.CallMethod("ReflectedTesterMethodsOnly.ResetToZero"));
+    secondClass->UpdateValues(value1, value2);
+    
+    EXPECT_EQ(0, value1);
+    EXPECT_EQ(0, value2);
+    
+    EXPECT_TRUE(toTest.CallMethod("ReflectedTesterMethodsOnly.ResetToOne"));
+    secondClass->UpdateValues(value1, value2);
+    
+    EXPECT_EQ(1, value1);
+    EXPECT_EQ(1, value2);
 }
