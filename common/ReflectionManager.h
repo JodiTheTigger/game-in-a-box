@@ -65,6 +65,11 @@ public:
 private:
     std::map<std::string, float> myUnusedDefaultSettings;
     std::map<std::string, std::tuple<std::shared_ptr<IReflected>, ReflectionKey>> myStringToClassAndKey;
+    
+    bool CheckAndGetClassAndKey(
+        const std::string& argument,
+        std::shared_ptr<IReflected>& reflected, 
+        ReflectionKey& key) const;
 };
 
 #endif // REFLECTIONMANAGER_H
