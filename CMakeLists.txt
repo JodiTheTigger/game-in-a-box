@@ -17,42 +17,87 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+include(CheckCXXCompilerFlag)
 project(game-in-a-box CXX)
 
 ###############
 # Prerequisites 
 ###############
 
+# Check features, not compiler.
+# Left in here incase there is some compiler based bugs we need
+# to check against.
+#
 # set gcc to use c++0x11
-if(CMAKE_COMPILER_IS_GNUCXX)
+#if(CMAKE_COMPILER_IS_GNUCXX)
+#
+#  # Make sure we have g++ 4.7 or higher for c++11 features
+#  # annoyingly in cmake 2.8.8 this is much easier, but I don't have
+#  # that in ubuntu 12.04
+#  exec_program(
+#      ${CMAKE_CXX_COMPILER}
+#      ARGS                    --version
+#      OUTPUT_VARIABLE _compiler_output)
+#  string(REGEX REPLACE ".* ([0-9]\\.[0-9]\\.[0-9]).*" "\\1"
+#         gcc_compiler_version ${_compiler_output})
+#  message(STATUS "C++ compiler version: '${gcc_compiler_version}' [${CMAKE_CXX_COMPILER}]")
+#
+#  if(NOT gcc_compiler_version MATCHES "[0-9]\\.[0-9]\\.[0-9]")
+#    message(FATAL_ERROR "Cannot deduce C++ version information.")
+#  endif()
+#
+#  if(NOT gcc_compiler_version VERSION_GREATER "4.6.99")
+#    message(FATAL_ERROR "Requires GCC version 4.7 or greater for C++11 functionality. Got ${gcc_compiler_version}.")
+#  endif()
+#  
+#  set(CMAKE_CXX_FLAGS "-std=c++0x")                                                                                                                                                                                                                         
+#endif()
 
-  # Make sure we have g++ 4.7 or higher for c++11 features
-  # annoyingly in cmake 2.8.8 this is much easier, but I don't have
-  # that in ubuntu 12.04
-  exec_program(
-      ${CMAKE_CXX_COMPILER}
-      ARGS                    --version
-      OUTPUT_VARIABLE _compiler_output)
-  string(REGEX REPLACE ".* ([0-9]\\.[0-9]\\.[0-9]).*" "\\1"
-         gcc_compiler_version ${_compiler_output})
-  message(STATUS "C++ compiler version: '${gcc_compiler_version}' [${CMAKE_CXX_COMPILER}]")
+# Check compiler options
+check_cxx_compiler_flag("-std=c++11" HAS_CPP11)
+check_cxx_compiler_flag("-std=c++0x" HAS_CPP0X)
+check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
+check_cxx_compiler_flag(-Wall HAS_WALL)
+check_cxx_compiler_flag(-Wextra HAS_WEXTRA)
+check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
+check_cxx_compiler_flag(-Werror HAS_WERROR)
 
-  if(NOT gcc_compiler_version MATCHES "[0-9]\\.[0-9]\\.[0-9]")
-    message(FATAL_ERROR "Cannot deduce C++ version information.")
-  endif()
+# apply compiler options
+if (HAS_CPP11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(HAS_CPP0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+else()
+    message(FATAL_ERROR "Compiler requires C++11 functionality.")
+endif()
 
-  if(NOT gcc_compiler_version VERSION_GREATER "4.6.99")
-    message(FATAL_ERROR "Requires GCC version 4.7 or greater for C++11 functionality. Got ${gcc_compiler_version}.")
-  endif()
+if (HAS_WALL)
+    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Wall")
+endif()
 
-  set(CMAKE_CXX_FLAGS "-std=c++0x")                                                                                                                                                                                                                         
+if (HAS_WEXTRA)
+    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Wextra")
+endif()
+
+if (HAS_WEFFICENTCPLUSPLUS)
+    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Weffc++")
+endif()
+
+if (HAS_WERROR)
+    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Werror")
 endif()
 
 ###############
 # Server 
 ###############    
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_executable(game-in-a-box-server common/RollingStatistics.cpp common/BitStream.cpp server/main.cpp)
+add_executable(
+game-in-a-box-server 
+common/BitStream.cpp 
+common/RollingStatistics.cpp
+server/main.cpp)
+
+set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
 target_link_libraries(game-in-a-box-server) 
 add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
     
