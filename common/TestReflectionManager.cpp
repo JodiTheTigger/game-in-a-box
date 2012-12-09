@@ -196,7 +196,6 @@ TEST_F(TestReflectionManager, TestAddOneClassAllValues)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
 
     vector<string> things;
@@ -225,7 +224,6 @@ TEST_F(TestReflectionManager, TestAddOneClassSet)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
 
     vector<string> things;
@@ -260,7 +258,6 @@ TEST_F(TestReflectionManager, TestAddOneClassSetMethodGet)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
 
     vector<string> things;
@@ -292,7 +289,6 @@ TEST_F(TestReflectionManager, TestAddOneClassGetInvalid)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
 
     vector<string> things;
@@ -331,7 +327,6 @@ TEST_F(TestReflectionManager, TestAddOneClassSetInvalid)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
 
     vector<string> things;
@@ -366,7 +361,6 @@ TEST_F(TestReflectionManager, TestRegisterNullClass)
 {    
     float value1;
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
 
     vector<string> things;
@@ -393,7 +387,6 @@ TEST_F(TestReflectionManager, TestAddSameClassTwice)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
 
     vector<string> things;
@@ -430,7 +423,6 @@ TEST_F(TestReflectionManager, TestAddSameClassTwiceDifferentInstances)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstDuplicate;
     shared_ptr<IReflected> secondDuplicate;
 
@@ -486,7 +478,6 @@ TEST_F(TestReflectionManager, TestAddTwoClasses)
     string string2;
     
     ReflectionManager toTest;
-    ReflectedType itemType;
     shared_ptr<IReflected> firstClass;
     shared_ptr<ReflectedTesterMethodsOnly> secondClass;
 

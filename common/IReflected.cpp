@@ -38,12 +38,12 @@ public:
     {
     }
     
-    const ReflectedType Type() const
+    ReflectedType Type() const
     {
         return myType;
     }
     
-    const uint8_t Index() const
+    uint8_t Index() const
     {
         return myIndexIntoType;
     }
@@ -80,7 +80,9 @@ ReflectionKey::~ReflectionKey()
 {
     
 }
-IReflected::IReflected() : myPrivateReflectionHasDoneInit(false)
+IReflected::IReflected() 
+    : myPrivateReflectionHasDoneInit(false)
+    , myReflectionMap()
 {
 }
 

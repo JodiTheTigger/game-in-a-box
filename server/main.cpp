@@ -70,42 +70,6 @@ extern "C"
     }
 }
 
-class ScratchClass : public IReflected
-{    
-    REFLECTION_BOILERPLATE(ScratchClass)
-    
-public:
-	ScratchClass()
-		: myFirst(1)
-		, mySecond(2)
-		, argh("argh")
-	{
-	}
-
-    float FirstPropertyGet() const {return myFirst;} 
-    void FirstPropertySet(float toSet) {myFirst = toSet;}
-    float SecondPropertyGet() const {return mySecond;} 
-    void SecondPropertySet(float toSet) {mySecond = toSet;}
-    void ResetToZero() {myFirst = 0; mySecond=0; argh="Bother";}
-    std::string BahGet() const {return argh;}
-    void BahSet(std::string newy){argh = newy;}
-    
-private:
-    float myFirst;
-    float mySecond;   
-    std::string argh;
-    
-    void InitReflection() override
-    {
-        REFLECTION_VARIABLE_FLOAT(ScratchClass, FirstProperty)
-        REFLECTION_VARIABLE_FLOAT(ScratchClass, SecondProperty)
-        
-        REFLECTION_VARIABLE_STRING(ScratchClass, Bah)
-        
-        REFLECTION_METHOD(ScratchClass, ResetToZero)
-    } 
-};
-
 void Scratch();
 
 int main(int argc, char** argv)
@@ -133,27 +97,7 @@ void Scratch()
   // ///////////////////////////
   // The Ugly
   // ///////////////////////////
-  
-  // new reflection play.
-  ScratchClass fred2;
-  IReflected& dude = fred2;
-  auto things = dude.ReflectionList();
-  
-  auto what = things.begin();
-  
-  dude.ReflectionSet(things["FirstProperty"], 4.0);
-  
-  for (auto& arghgh : things)
-  {
-      float asFloat = 0;
-      std::string asString("");
-      bool ok1, ok2;
-      
-      ok1 = dude.ReflectionGet(arghgh.second, asFloat);
-      ok2 = dude.ReflectionGet(arghgh.second, asString);
-    std::cout << arghgh.first << ": " << asFloat << "(" << ok1 << "), " << asString << "(" << ok2 << ")" << std::endl;   
-  } 
-      
+        
   // This is scratch code at the moment. Testing ideas and the C++11 std libraries.
     std::cout << "Hello, world!" << std::endl;
     
@@ -181,10 +125,10 @@ void Scratch()
       std::cout << "Time: " << millis << std::endl;
       
       
-      typedef std::chrono::high_resolution_clock Clock;
-      auto tt1 = Clock::now();
-      auto tt2 = Clock::now();
-      auto result = tt2 - tt1;
+      //typedef std::chrono::high_resolution_clock Clock;
+      //auto tt1 = Clock::now();
+      //auto tt2 = Clock::now();
+      //auto result = tt2 - tt1;
       //std::cout << t2 << " " << t1 << '\n';
     }
     

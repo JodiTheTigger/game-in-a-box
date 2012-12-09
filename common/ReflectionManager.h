@@ -61,7 +61,6 @@ public:
     bool CallMethod(const std::string& method);
     
 private:
-    std::map<std::string, float> myUnusedDefaultSettings;
     std::map<std::string, std::tuple<std::shared_ptr<IReflected>, ReflectionKey>> myStringToClassAndKey;
     
     bool CheckAndGetClassAndKey(
