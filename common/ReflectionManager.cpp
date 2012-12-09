@@ -21,16 +21,20 @@
 #include "ReflectionManager.h"
 #include "IReflected.h"
 
-using namespace std;
+// NOTES: 
+//   I've benchmarked using map:find vs [] for accessing elements. [] is faster up to
+//   500k loops. However it isn't a const operations (grrr) so I use find for now. Could
+//   change the map access code to a non-const operation for a speedup if it becomes a bottleneck.
+//
+//   The value set and get functions are pretty much duplicates, with only the data type
+//   being the difference. I don't know a way to collapse all that duplicate code. I've
+//   tried by exporting it to a helper function but I get the feeling it could be better.
 
-// RAM: TODO! Benchmark lots of valuegets to see if using a const map and find()
-// is a slowdown compared to making the map non-const and just using the index []
-// operator for reads.
+using namespace std;
 
 ReflectionManager::ReflectionManager()
 : myStringToClassAndKey(map<string, tuple<shared_ptr<IReflected>, ReflectionKey>>())
 {
-    // TODO!
     
 }
 
@@ -80,8 +84,6 @@ bool ReflectionManager::ValueGet(const std::string& argument, float& value) cons
     }
 }
 
-// TODO! This is duplicate code, I'm sure c++ has a way with dealing with this! varidacs arn't typesafe, auto is
-// compile time only checking. something else?
 bool ReflectionManager::ValueGet(const std::string& argument, std::string& value) const
 { 
     ReflectionKey theKey;
@@ -113,7 +115,6 @@ bool ReflectionManager::ValueGet(const std::string& argument, ReflectedType& arg
     }
 }
 
-// RAM: TODO! This is silly, this is all copy/paste code - bad!
 bool ReflectionManager::ValueSet(const std::string& argument, float newValue)
 {
     ReflectionKey theKey;
@@ -144,7 +145,6 @@ bool ReflectionManager::ValueSet(const std::string& argument, std::string newVal
     }
 }
 
-// RAM: TODO! Argh! More duplicate code!
 bool ReflectionManager::CallMethod(const std::string& method)
 {
     ReflectionKey theKey;
@@ -176,4 +176,3 @@ bool ReflectionManager::CheckAndGetClassAndKey(
     
     return true;
 }
-

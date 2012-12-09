@@ -22,8 +22,13 @@
 
 #include <utility>
 
-// I could have used std::pair, but I wanted the Type() and Index() accessors
-// as opposed to first and second from std::pair.
+// NOTES:
+//   I could have used std::pair for ReflectionKeyPrivate, but I wanted the Type() and 
+//   Index() accessors as opposed to first and second from std::pair.
+//
+//   I could easily support dynamically named classes by having a derived class that you pass in
+//   the class' name via the constructor and return that as opposed to a static string. Something
+//   to do if the need arises, but not now as I don't need it. No point over-engineering.
 class ReflectionKeyPrivate
 {
 public:

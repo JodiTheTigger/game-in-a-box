@@ -34,8 +34,6 @@ class IReflected;
 class ReflectionKey;
 enum class ReflectedType;
 
-// TODO! Don't support duplicate classes. Too much hassle.
-
 class ReflectionManager
 {
     CLASS_NOCOPY_NOASSIGN(ReflectionManager)
