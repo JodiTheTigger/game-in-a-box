@@ -23,7 +23,7 @@
 #include "common/BitStream.h"
 #include <thread>
 
-int main(int argc, char **argv) 
+int main(int, char**) 
 {
   // ///////////////////////////
   // The Ugly
@@ -55,10 +55,10 @@ int main(int argc, char **argv)
       std::cout << "Time: " << millis << std::endl;
       
       
-      typedef std::chrono::high_resolution_clock Clock;
-      auto tt1 = Clock::now();
-      auto tt2 = Clock::now();
-      auto result = tt2 - tt1;
+      //typedef std::chrono::high_resolution_clock Clock;
+      //auto tt1 = Clock::now();
+      //auto tt2 = Clock::now();
+      //auto result = tt2 - tt1;
       //std::cout << t2 << " " << t1 << '\n';
     }
     
