@@ -21,6 +21,9 @@
 #include <cstdint>
 #include "GameInABoxServer.h"
 
+// Linux
+#include <signal.h>
+
 // For the Scratch code
 #include <iostream>
 #include <chrono>
@@ -31,6 +34,41 @@
 #include "common/BuildMacros.h"
 
 #include "common/IReflected.h"
+
+// Globals for signal use.
+GameInABoxServer* theGame = nullptr;
+
+// Linux signal handlers
+extern "C"
+{
+    void SignalSigHup(int signal)
+    {
+        if (signal == SIGHUP)
+        {
+            if (theGame != nullptr)
+            {
+                // RAM: TODO! formalise this debug please
+                std::cout << std::endl << "Received SIGHUP" << std::endl;
+                std::cout << std::flush;
+                theGame->Stop();
+            }
+        }
+    }
+    
+    void SignalSigInt(int signal)
+    {
+        if (signal == SIGINT)
+        {
+            if (theGame != nullptr)
+            {
+                // RAM: TODO! formalise this debug please
+                std::cout << std::endl << "Received SIGINT" << std::endl;
+                std::cout << std::flush;
+                theGame->Stop();
+            }
+        }
+    }
+}
 
 class ScratchClass : public IReflected
 {    
@@ -75,10 +113,17 @@ int main(int argc, char** argv)
     // call testing scratch code
     Scratch();
     
-    GameInABoxServer theGame(argc, (uint8_t**)argv);
+    // make the game
+    theGame = new GameInABoxServer(argc, (uint8_t**)argv);
+    
+    // Register linux signal handlers
+    signal(SIGHUP, SignalSigHup);
+    signal(SIGINT, SignalSigInt);
     
     // runs until theGame.Stop() is called.
-    theGame.Run();
+    theGame->Run();
+    
+    delete theGame;
     
     return 0;
 }

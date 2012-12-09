@@ -21,18 +21,23 @@
 
 #include "GameInABoxServer.h"
 
+using namespace std;
+
 GameInABoxServer::GameInABoxServer(int32_t, uint8_t**)
+: myQuitSemephore(false)
 {
     // TODO!
 }
 
 void GameInABoxServer::Stop()
 {
-    // TODO!
+    myQuitSemephore = true;
 }
 
 void GameInABoxServer::Run()
 {
-    // TODO!
+    while (!myQuitSemephore)
+    {
+    }
 }
 

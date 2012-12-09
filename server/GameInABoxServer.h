@@ -23,9 +23,15 @@
 #define GAMEINABOXSERVER_H
 
 #include <cstdint>
+#include <mutex>
+#include <condition_variable>
+
+#include "common/BuildMacros.h"
 
 class GameInABoxServer
 {
+    CLASS_NOCOPY_NOASSIGN(GameInABoxServer)
+    
 public:
     GameInABoxServer(int32_t argc, uint8_t** argv);
     
@@ -38,9 +44,7 @@ public:
     // when started.
     void Stop();
 private:
-    // Don't allow copying, I want the compiler to tell me if I'm accidentally doing a copy.
-    GameInABoxServer(const GameInABoxServer&);
-    GameInABoxServer& operator=(const GameInABoxServer&);
+    volatile bool myQuitSemephore; 
 };
 
 #endif // GAMEINABOXSERVER_H
