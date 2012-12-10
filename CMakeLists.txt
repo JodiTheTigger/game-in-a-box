@@ -79,9 +79,11 @@ if (HAS_WEXTRA)
     set(PARANOID_FLAGS "${PARANOID_FLAGS} -Wextra")
 endif()
 
-if (HAS_WEFFICENTCPLUSPLUS)
-    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Weffc++")
-endif()
+# C++11 allows in-class initialization of data members
+# GCC 4.7 effc++ hasn't been updated to support this yet
+#if (HAS_WEFFICENTCPLUSPLUS)
+#    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Weffc++")
+#endif()
 
 if (HAS_WERROR)
     set(PARANOID_FLAGS "${PARANOID_FLAGS} -Werror")

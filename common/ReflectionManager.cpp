@@ -33,7 +33,6 @@
 using namespace std;
 
 ReflectionManager::ReflectionManager()
-: myStringToClassAndKey(map<string, tuple<shared_ptr<IReflected>, ReflectionKey>>())
 {
     
 }
