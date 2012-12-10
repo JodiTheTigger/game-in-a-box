@@ -63,8 +63,7 @@ enum class ReflectedType
 
 class IReflected
 {
-public:
-    
+public:    
     IReflected();
 
     const std::string ReflectionClassName() const;
@@ -79,6 +78,7 @@ public:
 
     ReflectedType ReflectionType(const ReflectionKey& key) const;
 
+    // RAM: TODO! No longer needed to be public, fix.
     virtual ~IReflected() {};
     
 private:
