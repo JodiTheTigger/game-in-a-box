@@ -29,6 +29,12 @@
 #include "common/BuildMacros.h"
 #include "common/IReflected.h"
 
+// forward declarations
+class NetworkProvider;
+class NetworkManager;
+class StateManager;
+class ReflectionManager;
+
 class GameInABoxServer : public IReflected
 {
     CLASS_NOCOPY_NOASSIGN(GameInABoxServer)    
@@ -36,6 +42,7 @@ class GameInABoxServer : public IReflected
     
 public:
     GameInABoxServer(int32_t argc, uint8_t** argv);
+    ~GameInABoxServer();
     
     // Starts the game, runs the main game loop, keeps going until a fatal error
     // or Stop() has been called.
@@ -56,6 +63,13 @@ private:
     volatile bool myQuitSemephore; 
     uint16_t myPeriodMainLoopInMs;
     uint16_t myPeriodNetworkSendInMs;
+    
+    // my pretties
+    std::shared_ptr<NetworkProvider> myNetworkSource;
+    std::shared_ptr<NetworkManager> myNetworkState;
+    std::shared_ptr<StateManager> myGame;
+    
+    std::unique_ptr<ReflectionManager> myMirror;
     
     void InitReflection() override;    
 };

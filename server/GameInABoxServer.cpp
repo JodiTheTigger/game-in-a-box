@@ -23,6 +23,11 @@
 #include <chrono>
 #include <thread>
 
+#include "common/NetworkProvider.h"
+#include "common/NetworkManager.h"
+#include "common/StateManager.h"
+#include "common/ReflectionManager.h"
+
 using namespace std;
 using namespace std::chrono;
 
@@ -30,8 +35,15 @@ GameInABoxServer::GameInABoxServer(int32_t, uint8_t**)
 : myQuitSemephore(false)
 , myPeriodMainLoopInMs(16)
 , myPeriodNetworkSendInMs(50)
+, myMirror(new ReflectionManager())
 {
     // TODO!
+}
+
+
+GameInABoxServer::~GameInABoxServer()
+{
+    // Nothing.
 }
 
 void GameInABoxServer::InitReflection()
@@ -49,6 +61,13 @@ void GameInABoxServer::Run()
     system_clock::time_point timeLoopNetworkStart;
     system_clock::time_point timeNow;
     uint32_t timeDeltaInMs;
+    
+    // startup
+    myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
+    myNetworkState = shared_ptr<NetworkManager>(new NetworkManager());
+    myGame = shared_ptr<StateManager>(new StateManager());
+    
+    // register
     
     while (!myQuitSemephore)
     {
