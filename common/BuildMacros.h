@@ -23,7 +23,7 @@
 
 // Don't allow copying, I want the compiler to tell me if I'm accidentally doing a copy. 
 #define CLASS_NOCOPY_NOASSIGN(CLASSNAME) private: \
-    CLASSNAME(const CLASSNAME &); \
-    CLASSNAME &operator=(const CLASSNAME &);
+    CLASSNAME(const CLASSNAME &) = delete; \
+    CLASSNAME &operator=(const CLASSNAME &) = delete;
 
 #endif // BUILDMACROS_H
