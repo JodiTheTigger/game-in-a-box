@@ -29,6 +29,11 @@
 //   The value set and get functions are pretty much duplicates, with only the data type
 //   being the difference. I don't know a way to collapse all that duplicate code. I've
 //   tried by exporting it to a helper function but I get the feeling it could be better.
+//
+//   I've used weak_ptrs to keep track of classes to force a strict ownership model. However
+//   This does mean a bunch of checks and smart pointer copies whenever accessing a member. This
+//   might cause a slow down if reflection is used in an inner-loop. However we can fix that problem
+//   if we actually have it, as opposed to fixing it now and making ownership complicated.
 
 using namespace std;
 
@@ -38,20 +43,21 @@ ReflectionManager::ReflectionManager()
 }
 
 // Registers the class, Pointers to null are ignored.
-void ReflectionManager::RegisterClass(shared_ptr<IReflected> reflectedClass)
+void ReflectionManager::RegisterClass(weak_ptr<IReflected> reflectedClass)
 {
     std::map<std::string, ReflectionKey> reflectedData;
+    auto concreteClass = reflectedClass.lock();    
     
-    if (reflectedClass.get() == nullptr)
+    if (concreteClass.get() == nullptr)
     {
         return;
     }
     
-    reflectedData = reflectedClass->ReflectionList();
+    reflectedData = concreteClass->ReflectionList();
     
     for (auto reflectedItem : reflectedData)
     {
-        string nameToUse = reflectedClass->ReflectionClassName() + "." + reflectedItem.first;
+        string nameToUse = concreteClass->ReflectionClassName() + "." + reflectedItem.first;
         myStringToClassAndKey[nameToUse] = make_tuple(reflectedClass, reflectedItem.second);
     }
 }
@@ -164,6 +170,10 @@ bool ReflectionManager::CheckAndGetClassAndKey(
     std::shared_ptr<IReflected>& theReflected, 
     ReflectionKey& theKey) const
 {        
+    weak_ptr<IReflected> classWeak;
+    shared_ptr<IReflected> classConcrete;
+    ReflectionKey keyToUse;
+    
     if (myStringToClassAndKey.find(argument) == myStringToClassAndKey.end())
     {
         // no key
@@ -171,7 +181,18 @@ bool ReflectionManager::CheckAndGetClassAndKey(
     }
     
     // Argh, map[index] isn't const as it creates new items if the key isn't found!
-    tie(theReflected, theKey) = myStringToClassAndKey.find(argument)->second;
+    tie(classWeak, keyToUse) = myStringToClassAndKey.find(argument)->second;
     
-    return true;
+    classConcrete = classWeak.lock();
+    
+    if (classConcrete.get() != nullptr)
+    {
+        theReflected = classConcrete;
+        theKey = keyToUse;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

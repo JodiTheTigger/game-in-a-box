@@ -520,3 +520,37 @@ TEST_F(TestReflectionManager, TestAddTwoClasses)
     EXPECT_EQ(1, value1);
     EXPECT_EQ(1, value2);
 }
+
+TEST_F(TestReflectionManager, TestAddOneClassDeletePointer) 
+{   
+    float value1;
+    float value2;
+    string string1;
+    string string2;
+    
+    ReflectionManager toTest;
+    shared_ptr<IReflected> firstClass;
+
+    vector<string> things;
+
+    // Let's do it.
+    firstClass = shared_ptr<IReflected>(new ReflectedTester());
+    string1 = "Yet";
+    string2 = "Again";
+
+    toTest.RegisterClass(firstClass);
+    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.FirstProperty", value1));    
+    EXPECT_TRUE(toTest.ValueGet("ReflectedTester.SecondProperty", value2));
+    
+    firstClass.reset();
+    
+    EXPECT_FALSE(toTest.ValueGet("ReflectedTester.String1", string1));
+    EXPECT_FALSE(toTest.ValueGet("ReflectedTester.String2", string2));
+    
+    EXPECT_EQ(1, value1);
+    EXPECT_EQ(2, value2);
+    EXPECT_EQ("Yet", string1);
+    EXPECT_EQ("Again", string2);    
+    
+}

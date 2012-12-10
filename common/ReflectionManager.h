@@ -42,7 +42,7 @@ public:
     ReflectionManager();
     
     // If the same type of class gets registered twice the last one wins.
-    void RegisterClass(std::shared_ptr<IReflected> reflectedClass);    
+    void RegisterClass(std::weak_ptr<IReflected> reflectedClass);    
     
     std::vector<std::string> GetList() const;
         
@@ -61,7 +61,7 @@ public:
     bool CallMethod(const std::string& method);
     
 private:
-    std::map<std::string, std::tuple<std::shared_ptr<IReflected>, ReflectionKey>> myStringToClassAndKey;
+    std::map<std::string, std::tuple<std::weak_ptr<IReflected>, ReflectionKey>> myStringToClassAndKey;
     
     bool CheckAndGetClassAndKey(
         const std::string& argument,
