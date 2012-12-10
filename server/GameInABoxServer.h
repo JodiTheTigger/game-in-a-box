@@ -27,10 +27,12 @@
 #include <condition_variable>
 
 #include "common/BuildMacros.h"
+#include "common/IReflected.h"
 
-class GameInABoxServer
+class GameInABoxServer : public IReflected
 {
-    CLASS_NOCOPY_NOASSIGN(GameInABoxServer)
+    CLASS_NOCOPY_NOASSIGN(GameInABoxServer)    
+    REFLECTION_BOILERPLATE(GameInABoxServer)
     
 public:
     GameInABoxServer(int32_t argc, uint8_t** argv);
@@ -43,8 +45,19 @@ public:
     // If called before Run has been called, it will cause Run to exit immediately
     // when started.
     void Stop();
+    
+    // Reflection Properties
+    float ServerTickMainLoopPeriodInMsGet() const;
+    void ServerTickMainLoopPeriodInMsSet(float newValue);
+    
+    float ServerTickSendNetworkPeriodInMsGet() const;
+    void ServerTickSendNetworkPeriodInMsSet(float newValue);
 private:
     volatile bool myQuitSemephore; 
+    uint16_t myPeriodMainLoopInMs;
+    uint16_t myPeriodNetworkSendInMs;
+    
+    void InitReflection() override;    
 };
 
 #endif // GAMEINABOXSERVER_H

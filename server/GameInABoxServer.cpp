@@ -18,15 +18,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "GameInABoxServer.h"
 
+#include <chrono>
+#include <thread>
+
 using namespace std;
+using namespace std::chrono;
 
 GameInABoxServer::GameInABoxServer(int32_t, uint8_t**)
 : myQuitSemephore(false)
+, myPeriodMainLoopInMs(16)
+, myPeriodNetworkSendInMs(50)
 {
     // TODO!
+}
+
+void GameInABoxServer::InitReflection()
+{
 }
 
 void GameInABoxServer::Stop()
@@ -36,8 +45,58 @@ void GameInABoxServer::Stop()
 
 void GameInABoxServer::Run()
 {
+    system_clock::time_point timeLoopMainStart;
+    system_clock::time_point timeLoopNetworkStart;
+    system_clock::time_point timeNow;
+    uint32_t timeDeltaInMs;
+    
     while (!myQuitSemephore)
     {
+        // Check Network
+        
+        // Update Gamestate
+        
+        // //////////////////////
+        // Send Network
+        // //////////////////////
+        timeNow = high_resolution_clock::now();
+        timeDeltaInMs = duration_cast<milliseconds>(timeNow-timeLoopNetworkStart).count();
+        
+        if (timeDeltaInMs < myPeriodNetworkSendInMs)
+        {
+            // Send network stuff!
+        }
+        
+        // //////////////////////
+        // Sleep
+        // //////////////////////
+        // only sleep if we have the time to sleep
+        timeNow = high_resolution_clock::now();
+        timeDeltaInMs = duration_cast<milliseconds>(timeNow-timeLoopMainStart).count();
+        
+        if (timeDeltaInMs < myPeriodMainLoopInMs)
+        {
+            this_thread::sleep_for(std::chrono::milliseconds(myPeriodMainLoopInMs - timeDeltaInMs));
+        }
     }
+}
+
+float GameInABoxServer::ServerTickMainLoopPeriodInMsGet() const
+{
+    return myPeriodMainLoopInMs;
+}
+void GameInABoxServer::ServerTickMainLoopPeriodInMsSet(float newValue)
+{
+    myPeriodMainLoopInMs = newValue;
+}
+
+float GameInABoxServer::ServerTickSendNetworkPeriodInMsGet() const
+{
+    return myPeriodMainLoopInMs;
+}
+
+void GameInABoxServer::ServerTickSendNetworkPeriodInMsSet(float newValue)
+{
+    myPeriodMainLoopInMs = newValue;
 }
 
