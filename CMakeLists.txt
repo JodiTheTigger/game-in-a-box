@@ -96,6 +96,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server 
+common/AutoComplete.cpp
 common/IReflected.cpp 
 common/ReflectionManager.cpp 
 common/StateManager.cpp 
@@ -135,7 +136,9 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/common/RollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/BitStream.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestBitStream.cpp)
+  ${PROJECT_SOURCE_DIR}/common/TestBitStream.cpp
+  ${PROJECT_SOURCE_DIR}/common/AutoComplete.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestAutoComplete.cpp)
   
 target_link_libraries(
   game-in-a-box-common-tests
