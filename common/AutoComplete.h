@@ -37,7 +37,8 @@ public:
     
     // Returns the next best match for the string. If there is more
     // than one string that matches the base string, then the base
-    // string is returned.
+    // string is returned. If nothing matches, then an empty string.
+    // is returned.
     std::string GetNextBestMatch(std::string baseString);
 
 private:

@@ -35,8 +35,8 @@ std::vector<std::string> AutoComplete::GetMatchList(std::string)
     return vector<string>();
 }
 
-std::string AutoComplete::GetNextBestMatch(std::string baseString)
+std::string AutoComplete::GetNextBestMatch(std::string)
 {
     // TODO!
-    return baseString;
+    return "";
 }
