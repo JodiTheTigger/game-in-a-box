@@ -45,17 +45,21 @@ private:
     class Node
     {
     public:
-        Node(char item) : Node(item, false) {}
-        Node(char item, bool isEndOfWord);
+        Node(std::string item);
         
-        bool IsOnlyBranch();
-        void AddChild(Node child);
+        bool IsLeaf() const;
+        std::size_t MatchingCharacters(std::string toMatch) const;
+        void Insert(std::string toInsert);
+        std::string NextMatch(std::string toMatch) const;
         
     private:
+        std::string myString;
         std::vector<std::unique_ptr<Node>> myChildren;
+        
+        const std::unique_ptr<AutoComplete::Node>* BestMatchChild(std::string toMatch) const;
     };
     
-    std::unique_ptr<Node> myRoot;
+    Node myRoot;
 };
 
 #endif // AUTOCOMPLETE_H

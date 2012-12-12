@@ -34,6 +34,7 @@
 #include "common/BuildMacros.h"
 
 #include "common/IReflected.h"
+#include "common/AutoComplete.h"
 
 // Globals for signal use.
 GameInABoxServer* theGame = nullptr;
@@ -97,6 +98,19 @@ void Scratch()
   // ///////////////////////////
   // The Ugly
   // ///////////////////////////
+  
+      AutoComplete toTest = AutoComplete(std::vector<std::string> 
+    {
+        "OneWordInList.Happy()",
+        "OneWordInList.RealHappy",
+        "OneWordInList.RealHappy",
+        "TwoThings",
+        "Tree.One()",
+        "Tree.Two",
+        "Tree.Tree.Trie"        
+    } );
+      
+      std::cout << "Tr -> " << toTest.GetNextBestMatch("Tr") << std::endl;
         
   // This is scratch code at the moment. Testing ideas and the C++11 std libraries.
     std::cout << "Hello, world!" << std::endl;
@@ -134,7 +148,7 @@ void Scratch()
     
     std::cout << " lets try thread sleeping " << std::endl;
     
-    for (int i = 0; i < 100 ; i++)
+    for (int i = 0; i < 2 ; i++)
     {
       using namespace std::chrono;
       
