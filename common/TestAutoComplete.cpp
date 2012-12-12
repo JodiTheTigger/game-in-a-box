@@ -21,6 +21,8 @@
 #include "AutoComplete.h"
 #include "gtest/gtest.h"
 
+#include <algorithm>
+
 using namespace std;
 
 // Class definition!
@@ -30,24 +32,187 @@ class TestAutoComplete : public ::testing::Test
 
 TEST_F(TestAutoComplete, EmptyList) 
 {
-    // TODO!
-    EXPECT_TRUE(false);
+    AutoComplete toTest = AutoComplete(vector<string>());
+        
+    EXPECT_EQ("", toTest.GetNextBestMatch("Harry"));
+    EXPECT_EQ("", toTest.GetNextBestMatch(""));
+    EXPECT_EQ(0, toTest.GetMatchList("").size());
 }
 
 TEST_F(TestAutoComplete, OneWordInList) 
 {
-    // TODO!
-    EXPECT_TRUE(false);
+    AutoComplete toTest = AutoComplete(vector<string> {"OneWordInList.Happy()"});
+    
+    // next best match
+    EXPECT_EQ("", toTest.GetNextBestMatch("Harry"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Word"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("."));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch(""));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("One"));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("OneWordInList."));
+    EXPECT_EQ("", toTest.GetNextBestMatch("OneWordInList.."));
+    
+    // match list
+    EXPECT_EQ(0, toTest.GetMatchList("Harry").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Word").size());
+    EXPECT_EQ(0, toTest.GetMatchList("OneWordInList..").size());
+    EXPECT_EQ(1, toTest.GetMatchList("").size());
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("")[0]);
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("One")[0]);
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.")[0]);
 }
 
 TEST_F(TestAutoComplete, TwoWordsInList) 
+{    
+    vector<string> results;
+    AutoComplete toTest = AutoComplete(vector<string> 
+    {
+        "OneWordInList.Happy()",
+        "TwoWrodsInList.Sad()"        
+    } );
+    
+    // next best match
+    EXPECT_EQ("", toTest.GetNextBestMatch("Harry"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Word"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Sad"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("."));
+    EXPECT_EQ("", toTest.GetNextBestMatch(""));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("One"));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("OneWordInList."));
+    EXPECT_EQ("TwoWrodsInList.Sad()", toTest.GetNextBestMatch("Two"));
+    EXPECT_EQ("TwoWrodsInList.Sad()", toTest.GetNextBestMatch("TwoWrodsInList."));
+    
+    // match list
+    EXPECT_EQ(0, toTest.GetMatchList("Harry").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Word").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Sad").size());
+    EXPECT_EQ(2, toTest.GetMatchList("").size());
+    
+    results = toTest.GetMatchList("");
+    
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "TwoWrodsInList.Sad()"));
+    
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("One")[0]);
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.")[0]);
+    EXPECT_EQ("TwoWrodsInList.Sad()", toTest.GetMatchList("TwoW")[0]);
+    EXPECT_EQ("TwoWrodsInList.Sad()", toTest.GetMatchList("TwoWrodsInList.S")[0]);
+}
+
+TEST_F(TestAutoComplete, TwoWordsInListSimilar) 
 {
-    // TODO!
-    EXPECT_TRUE(false);
+    vector<string> results;
+    AutoComplete toTest = AutoComplete(vector<string> 
+    {
+        "OneWordInList.Happy()",
+        "OneWordInList.RealHappy"        
+    } );
+    
+    // next best match
+    EXPECT_EQ("", toTest.GetNextBestMatch("Harry"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Word"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Sad"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("."));
+    EXPECT_EQ("", toTest.GetNextBestMatch(""));
+    EXPECT_EQ("OneWordInList.", toTest.GetNextBestMatch("One"));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("OneWordInList.H"));
+    EXPECT_EQ("OneWordInList.RealHappy", toTest.GetNextBestMatch("OneWordInList.R"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Two"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("TwoWrodsInList."));
+    
+    // match list
+    EXPECT_EQ(0, toTest.GetMatchList("Harry").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Word").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Sad").size());
+    EXPECT_EQ(2, toTest.GetMatchList("").size());
+    
+    results = toTest.GetMatchList("");
+    
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.RealHappy"));
+    
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.H")[0]);
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.Hap")[0]);
+    EXPECT_EQ("OneWordInList.RealHappy", toTest.GetMatchList("OneWordInList.Re")[0]);
+    EXPECT_EQ("OneWordInList.RealHappy", toTest.GetMatchList("OneWordInList.Real")[0]);
+}
+
+TEST_F(TestAutoComplete, Duplicates)
+{
+    vector<string> results;
+    AutoComplete toTest = AutoComplete(vector<string> 
+    {
+        "OneWordInList.Happy()",
+        "OneWordInList.Happy()"        
+    } );
+    
+    // next best match
+    EXPECT_EQ("", toTest.GetNextBestMatch("Harry"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Word"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("."));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch(""));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("One"));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("OneWordInList."));
+    EXPECT_EQ("", toTest.GetNextBestMatch("OneWordInList.."));
+    
+    // match list
+    EXPECT_EQ(0, toTest.GetMatchList("Harry").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Word").size());
+    EXPECT_EQ(0, toTest.GetMatchList("OneWordInList..").size());
+    EXPECT_EQ(1, toTest.GetMatchList("").size());
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("")[0]);
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("One")[0]);
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.")[0]);
 }
 
 TEST_F(TestAutoComplete, SimpleAutocompleteTests) 
 {
-    // TODO!
-    EXPECT_TRUE(false);
+    vector<string> results;
+    AutoComplete toTest = AutoComplete(vector<string> 
+    {
+        "OneWordInList.Happy()",
+        "OneWordInList.RealHappy",
+        "OneWordInList.RealHappy",
+        "TwoThings",
+        "Tree.One()",
+        "Tree.Two",
+        "Tree.Tree.Trie"        
+    } );
+    
+    // next best match
+    EXPECT_EQ("", toTest.GetNextBestMatch("Harry"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Word"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("Sad"));
+    EXPECT_EQ("", toTest.GetNextBestMatch("."));
+    EXPECT_EQ("", toTest.GetNextBestMatch(""));
+    EXPECT_EQ("OneWordInList.", toTest.GetNextBestMatch("One"));
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("OneWordInList.H"));
+    EXPECT_EQ("OneWordInList.RealHappy", toTest.GetNextBestMatch("OneWordInList.R"));
+    EXPECT_EQ("TwoThings", toTest.GetNextBestMatch("Two"));
+    EXPECT_EQ("Tree.", toTest.GetNextBestMatch("Tree"));
+    EXPECT_EQ("Tree.T", toTest.GetNextBestMatch("Tree.T"));
+    EXPECT_EQ("Tree.Tree.Trie", toTest.GetNextBestMatch("Tree.Tr"));
+    
+    // match list
+    EXPECT_EQ(0, toTest.GetMatchList("Harry").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Word").size());
+    EXPECT_EQ(0, toTest.GetMatchList("Sad").size());
+    EXPECT_EQ(6, toTest.GetMatchList("").size());
+    EXPECT_EQ(3, toTest.GetMatchList("Tr").size());
+    EXPECT_EQ(2, toTest.GetMatchList("Tree.T").size());
+    EXPECT_EQ(2, toTest.GetMatchList("One").size());
+    
+    results = toTest.GetMatchList("");
+    
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.RealHappy"));
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "TwoThings"));
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.One()"));
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.Two"));
+    EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.Tree.Trie"));
+    
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.H")[0]);
+    EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.Hap")[0]);
+    EXPECT_EQ("OneWordInList.RealHappy", toTest.GetMatchList("OneWordInList.Re")[0]);
+    EXPECT_EQ("OneWordInList.RealHappy", toTest.GetMatchList("OneWordInList.Real")[0]);
 }
