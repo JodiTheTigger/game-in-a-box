@@ -45,22 +45,25 @@ private:
     class Node
     {
     public:
-        Node(std::string item);
+        Node() : Node("", false) {};
         
-        void Insert(std::string toInsert);
-        
+        void Insert(std::string toInsert);        
         bool IsLeaf() const;
         std::size_t MatchingCharacters(const std::string& toMatch) const;
         std::string NextMatch(const std::string& toMatch) const;
         std::vector<std::string> GetMatchList(const std::string& toMatch) const;
         
     private:
+        Node(std::string item, bool isWordEnd);
+        bool myStringIsWordEnd;
         std::string myString;
         std::vector<std::unique_ptr<Node>> myChildren;
         
         std::vector<std::string> GetTails() const;
         
-        const std::unique_ptr<AutoComplete::Node>* BestMatchChild(const std::string& toMatch) const;
+        // Returns myChildren.size() is none found.
+        size_t BestMatchChildIndex(const std::string& toMatch) const;
+        std::string NextMatchWithChildren(const std::string& toMatch) const;
     };
     
     Node myRoot;

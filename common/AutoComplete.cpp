@@ -34,15 +34,16 @@ using namespace std;
 // /////
 // Node
 // /////
-AutoComplete::Node::Node(std::string item) 
-: myString(item)
+AutoComplete::Node::Node(std::string item, bool isWordEnd) 
+: myStringIsWordEnd(isWordEnd)
+, myString(item) 
 {
     
 }
 
 bool AutoComplete::Node::IsLeaf() const
 {
-    return (myChildren.size() == 0);
+    return (myChildren.empty());
 }
 
 size_t AutoComplete::Node::MatchingCharacters(const std::string& toMatch) const
@@ -85,154 +86,211 @@ void AutoComplete::Node::Insert(std::string toInsert)
         
         if (matchCount == 0)
         {
-            if (myChildren.size() == 0)
+            if (IsLeaf())
             {
                 std::cout << " -> Add to Child(0)";
                 
                 // easy! just add as a child
-                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert)));
-                
-                cout << " Test (" << myChildren[0]->myString << ")";
+                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert, true)));
             }
             else
             {
-                auto bestChild = BestMatchChild(toInsert);
+                size_t bestChild;
                 
-                if (bestChild == nullptr)
+                bestChild = BestMatchChildIndex(toInsert);
+                
+                if (bestChild == myChildren.size())
                 {
                     std::cout << " -> Add as Child(1+)";
                     
                     // add as another child
-                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert)));
+                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert, true)));
                 }
                 else
                 {
-                    std::cout << " -> Insert to Child (" << (*bestChild)->myString << ")";
-                    (*bestChild)->Insert(toInsert);
+                    std::cout << " -> Insert to Child (" << myChildren[bestChild]->myString << ")";
+                    myChildren[bestChild]->Insert(toInsert);
                 }
             }
         }
         else
         {
-            // need to split?
-            if (myChildren.size() == 0)
-            {               
-                std::cout << 
-                    " -> Split to " << 
-                    myString.substr(matchCount) << 
-                    " (child) " << 
-                    toInsert.substr(0, matchCount) << 
-                    "(myString)";
+            string tail;
+            
+            tail = toInsert.substr(matchCount);
+            
+            // Split, or just add as a child
+            if (matchCount == myString.size())
+            {                    
+                if (IsLeaf())
+                {        
+                    std::cout << " -> Insert tail (" << tail << ") as Child";
                     
-                // insert the split off bit as a child.
-                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(myString.substr(matchCount))));
-                myString = toInsert.substr(0, matchCount); 
-                
-                    std::cout << " -> Split and Add (" << toInsert.substr(matchCount) << ") Recursive";
-                    
-                Insert(toInsert.substr(matchCount));
-            }
-            else
-            {   
-                string toInsertSubstring;
-                
-                toInsertSubstring = toInsert.substr(matchCount);
-                
-                // matches any children?                
-                auto bestChild = BestMatchChild(toInsertSubstring);
-                
-                if (bestChild == nullptr)
-                {
-                    std::cout << " -> Split and Add (" << toInsertSubstring << ") as Child";
-                    
-                    // No, then just add the substring as a child.
-                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsertSubstring)));
+                    // add as a child, easy
+                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));
                 }
                 else
                 {
-                    std::cout << " -> Split and Insert (" << toInsertSubstring << ") to Child(" << (*bestChild)->myString << ")";
-                    (*bestChild)->Insert(toInsertSubstring);
-                }                
+                    size_t match;
+                    
+                    // test against the childen, and add to them, or if
+                    // no one matches, add as another child.
+                    match = BestMatchChildIndex(tail);
+                    
+                    if (match < myChildren.size())
+                    {
+                        std::cout << " -> Insert tail (" << tail << ") to Child";
+                        myChildren[match]->Insert(tail);
+                    }
+                    else
+                    {
+                        std::cout << " -> Insert tail (" << tail << ") as another Child";
+                        myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));                        
+                    }                       
+                }
+            }
+            else
+            {
+                // Bah, have to split my string, move nodes, and stuff.
+                unique_ptr<Node> mrSplit;
+                string oldTail;
+                                
+                oldTail = myString.substr(matchCount);                
+                mrSplit.reset(new Node(oldTail, true)); 
+                
+                std::cout << " -> Insert as split! (" << myString.substr(0, matchCount) << ")";    
+                
+                // move the children across
+                while (!myChildren.empty())
+                {
+                    mrSplit->myChildren.push_back(move(myChildren.back()));
+                }
+                
+                // change my string to the smaller common one, and add the new as it's first child.
+                myString = myString.substr(0, matchCount);
+                myStringIsWordEnd = false;
+                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));               
             }
         }
     }
-    
-                cout << " Test (" << myChildren[0]->myString << ")";
-                
+                    
     std::cout << std::endl << "Done: " << argh << std::endl;
     --argh;
 }
 
-const unique_ptr<AutoComplete::Node>* AutoComplete::Node::BestMatchChild(const std::string& toMatch) const
+size_t AutoComplete::Node::BestMatchChildIndex(const std::string& toMatch) const
 {
-    const unique_ptr<Node>* bestMatch;
-    size_t bestMatchCount;
-                    
-    // find the best match of the children and choose them
-    bestMatch = nullptr;
-    bestMatchCount = 0;
-    
-    for (auto& dude : myChildren)
-    {
-        size_t match;
-        
-        match = dude->MatchingCharacters(toMatch);
-        if (match > bestMatchCount)
+    if (!toMatch.empty())
+    {   
+        for (size_t index = 0; index < myChildren.size(); index++)
         {
-            bestMatch = &dude;
-            bestMatchCount = match;
+            if (toMatch[0] == myChildren[index]->myString[0])
+            {
+                return index;
+            }
         }
     }
         
-    return bestMatch;
+    return myChildren.size();
 }
 
+std::string AutoComplete::Node::NextMatchWithChildren(const std::string& toMatch) const
+{
+    string result;
+    
+    // empty match, and only one child means match against that child.
+    if (toMatch.empty() && (myChildren.size() == 1))
+    {
+        return myChildren[0]->myString;
+    }
+    
+    auto bestChild = BestMatchChildIndex(toMatch);
+            
+    // no child match == no match
+    if (bestChild < myChildren.size())
+    {
+        string tailMatch;
+        
+        tailMatch = myChildren[bestChild]->NextMatch(toMatch);        
+        
+        cout << " ChildMatch (" << tailMatch << ")";
+        
+        // only match if they do
+        if (!tailMatch.empty())
+        {
+            result = myString + tailMatch;
+        }
+    }
+    
+    return result;
+}
 
 std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
 {
     std::string result;
-    cout << "NextMatch (" << toMatch << ")";
+    cout << " NextMatch (" << toMatch << ")" << flush;
     
-    if (myChildren.size() > 0)
-                cout << " Test1 (" << myChildren[0]->myString << ")" << flush;
-                
-    if (!toMatch.empty())
+    // if im the root, then pass it off to the children
+    if (myString.empty())
     {
-        size_t matchCount;
-        
-        result = myString;
-        matchCount = MatchingCharacters(toMatch);
-        cout << ": " << matchCount;
-        if ((matchCount == 0) && (!myString.empty()))
+        if (!IsLeaf())
         {
-            cout << " empty";
-            result = "";
+            cout << " root" << flush;
+            result = NextMatchWithChildren(toMatch);
         }
-        else
+    }
+    else
+    {                        
+        if (!toMatch.empty())
         {
-            if (myString.size() == matchCount)
+            size_t matchCount;
+            
+            result = myString;
+            matchCount = MatchingCharacters(toMatch);
+            cout << ": " << matchCount << flush;
+            if (matchCount == 0)
             {
-                if ((!IsLeaf()) && (toMatch != myString))
+                cout << " empty" << flush;
+                result = "";
+            }
+            else
+            {
+                // the string matches and is smaller than myString, then
+                // expand out to my string
+                if (matchCount == toMatch.size())
                 {
-                    cout << " Children";
-                    string shorter;
-                    
-                    shorter = toMatch.substr(matchCount);
-                    
-    if (myChildren.size() > 0)
-                cout << " Test2 (" << myChildren[0]->myString << ")" << flush;
-  
-                    auto bestChild = BestMatchChild(shorter);
-  
-    if (myChildren.size() > 0)
-                cout << " Test3 (" << myChildren[0]->myString << ")" << flush;
-                    
-                    result = myString + (*bestChild)->NextMatch(shorter);
+                    if (myString.size() >= toMatch.size())
+                    {
+                        result = myString;
+                    }
+                }
+                else
+                {
+                    // implies that toMath.size() > myString.size()
+                    // because if it isn't then there isn't a match
+                    // and we return nothing.
+                    if (myString.size() == matchCount)
+                    {
+                        // string matches, but is too long so no match at all really.
+                        if (!IsLeaf())
+                        {                            
+                            cout << " Children" << flush;
+                            string tail;
+                            
+                            tail = toMatch.substr(matchCount);                               
+                            result = NextMatchWithChildren(tail);
+                        }
+                    }
                 }
             }
         }
+        else
+        {
+                    cout << " My String" << flush;
+            result = myString;
+        }
     }
-    cout << " Done" << endl;
+    cout << " Done (" << result << ")" << endl << flush;
     return result;
 }
 
@@ -264,18 +322,17 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
     vector<string> result;
     
     if (!toMatch.empty())
-    {
-    
+    {    
         size_t matchCount;
         
         matchCount = MatchingCharacters(toMatch);
-        cout << "Match: " << toMatch << ": " << matchCount;
+        cout << "Match: " << toMatch << ": " << matchCount << flush;
         
         if (matchCount >= myString.size())
         {
             if (matchCount == toMatch.size())
             {
-                cout << " Tails straight";
+                cout << " Tails straight" << flush;
                 // means this node is an exact match, return the children.
                 for (string tail : GetTails())
                 {
@@ -287,37 +344,49 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
                 // implicit toMatch.size() > myString.size()        
                 if (!IsLeaf())
                 {
-                    cout << " Tails children";
+                    cout << " Tails children" << flush;
                     string shorter;
                     
                     shorter = toMatch.substr(matchCount);
                     
-                    auto bestChild = BestMatchChild(shorter);
+                    auto bestChild = BestMatchChildIndex(shorter);
                     
-                    for (string tail : (*bestChild)->GetTails())
-                    {
-                        result.push_back(myString + tail);
+                    if (bestChild < myChildren.size())
+                    {                    
+                        for (string tail : myChildren[bestChild]->GetTails())
+                        {
+                            result.push_back(myString + tail);
+                        }
                     }
                 }
                 else
                 {
                     if (myString.size() > 0)
                     {
-                        cout << " Me only";
+                        cout << " Me only" << flush;
                         result.push_back(myString);
                     }
                 }
             }
         }
     }
-    cout << " Match Done " << endl;
+    else
+    {
+        // empty match, match all!
+        cout << " MATCH ALL!" << flush;
+        for (string tail : GetTails())
+        {
+            result.push_back(myString + tail);
+        }
+    }
+    cout << " Match Done " << endl << flush;
     return result;
 }
 
 // /////
 // Auto Complete
 // /////
-AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node(""))
+AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
 {
     for (string newWord : wordList)
     {
