@@ -156,6 +156,9 @@ void AutoComplete::Node::Insert(std::string toInsert)
             }
         }
     }
+    
+                cout << " Test (" << myChildren[0]->myString << ")";
+                
     std::cout << std::endl << "Done: " << argh << std::endl;
     --argh;
 }
@@ -189,6 +192,10 @@ std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
 {
     std::string result;
     cout << "NextMatch (" << toMatch << ")";
+    
+    if (myChildren.size() > 0)
+                cout << " Test1 (" << myChildren[0]->myString << ")" << flush;
+                
     if (!toMatch.empty())
     {
         size_t matchCount;
@@ -212,7 +219,13 @@ std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
                     
                     shorter = toMatch.substr(matchCount);
                     
+    if (myChildren.size() > 0)
+                cout << " Test2 (" << myChildren[0]->myString << ")" << flush;
+  
                     auto bestChild = BestMatchChild(shorter);
+  
+    if (myChildren.size() > 0)
+                cout << " Test3 (" << myChildren[0]->myString << ")" << flush;
                     
                     result = myString + (*bestChild)->NextMatch(shorter);
                 }

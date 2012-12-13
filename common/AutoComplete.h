@@ -47,9 +47,10 @@ private:
     public:
         Node(std::string item);
         
+        void Insert(std::string toInsert);
+        
         bool IsLeaf() const;
         std::size_t MatchingCharacters(const std::string& toMatch) const;
-        void Insert(std::string toInsert);
         std::string NextMatch(const std::string& toMatch) const;
         std::vector<std::string> GetMatchList(const std::string& toMatch) const;
         
