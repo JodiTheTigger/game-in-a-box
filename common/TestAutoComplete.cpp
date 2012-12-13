@@ -56,7 +56,9 @@ TEST_F(TestAutoComplete, OneWordInList)
     EXPECT_EQ(0, toTest.GetMatchList("Harry").size());
     EXPECT_EQ(0, toTest.GetMatchList("Word").size());
     EXPECT_EQ(0, toTest.GetMatchList("OneWordInList..").size());
-    EXPECT_EQ(1, toTest.GetMatchList("").size());
+    ASSERT_EQ(1, toTest.GetMatchList("").size());
+    ASSERT_EQ(1, toTest.GetMatchList("One").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.").size());
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("")[0]);
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("One")[0]);
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.")[0]);
@@ -93,6 +95,10 @@ TEST_F(TestAutoComplete, TwoWordsInList)
     EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
     EXPECT_NE(results.end(), find(results.begin(), results.end(), "TwoWrodsInList.Sad()"));
     
+    ASSERT_EQ(1, toTest.GetMatchList("One").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.").size());
+    ASSERT_EQ(1, toTest.GetMatchList("TwoW").size());
+    ASSERT_EQ(1, toTest.GetMatchList("TwoWrodsInList.S").size());
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("One")[0]);
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.")[0]);
     EXPECT_EQ("TwoWrodsInList.Sad()", toTest.GetMatchList("TwoW")[0]);
@@ -131,6 +137,11 @@ TEST_F(TestAutoComplete, TwoWordsInListSimilar)
     EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
     EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.RealHappy"));
     
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.H").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Hap").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Re").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Real").size());
+    
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.H")[0]);
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.Hap")[0]);
     EXPECT_EQ("OneWordInList.RealHappy", toTest.GetMatchList("OneWordInList.Re")[0]);
@@ -159,7 +170,9 @@ TEST_F(TestAutoComplete, Duplicates)
     EXPECT_EQ(0, toTest.GetMatchList("Harry").size());
     EXPECT_EQ(0, toTest.GetMatchList("Word").size());
     EXPECT_EQ(0, toTest.GetMatchList("OneWordInList..").size());
-    EXPECT_EQ(1, toTest.GetMatchList("").size());
+    ASSERT_EQ(1, toTest.GetMatchList("").size());
+    ASSERT_EQ(1, toTest.GetMatchList("One").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.").size());
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("")[0]);
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("One")[0]);
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.")[0]);
@@ -210,6 +223,11 @@ TEST_F(TestAutoComplete, SimpleAutocompleteTests)
     EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.One()"));
     EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.Two"));
     EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.Tree.Trie"));
+    
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.H").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Hap").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Re").size());
+    ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Real").size());
     
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.H")[0]);
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetMatchList("OneWordInList.Hap")[0]);
