@@ -48,15 +48,18 @@ private:
         Node(std::string item);
         
         bool IsLeaf() const;
-        std::size_t MatchingCharacters(std::string toMatch) const;
+        std::size_t MatchingCharacters(const std::string& toMatch) const;
         void Insert(std::string toInsert);
-        std::string NextMatch(std::string toMatch) const;
+        std::string NextMatch(const std::string& toMatch) const;
+        std::vector<std::string> GetMatchList(const std::string& toMatch) const;
         
     private:
         std::string myString;
         std::vector<std::unique_ptr<Node>> myChildren;
         
-        const std::unique_ptr<AutoComplete::Node>* BestMatchChild(std::string toMatch) const;
+        std::vector<std::string> GetTails() const;
+        
+        const std::unique_ptr<AutoComplete::Node>* BestMatchChild(const std::string& toMatch) const;
     };
     
     Node myRoot;

@@ -45,7 +45,7 @@ bool AutoComplete::Node::IsLeaf() const
     return (myChildren.size() == 0);
 }
 
-size_t AutoComplete::Node::MatchingCharacters(std::string toMatch) const
+size_t AutoComplete::Node::MatchingCharacters(const std::string& toMatch) const
 {
     size_t result;
     size_t max;
@@ -158,7 +158,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
     --argh;
 }
 
-const unique_ptr<AutoComplete::Node>* AutoComplete::Node::BestMatchChild(std::string toMatch) const
+const unique_ptr<AutoComplete::Node>* AutoComplete::Node::BestMatchChild(const std::string& toMatch) const
 {
     const unique_ptr<Node>* bestMatch;
     size_t bestMatchCount;
@@ -183,7 +183,7 @@ const unique_ptr<AutoComplete::Node>* AutoComplete::Node::BestMatchChild(std::st
 }
 
 
-std::string AutoComplete::Node::NextMatch(std::string toMatch) const
+std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
 {
     std::string result;
     size_t matchCount;
@@ -208,6 +208,72 @@ std::string AutoComplete::Node::NextMatch(std::string toMatch) const
     return result;
 }
 
+std::vector<std::string> AutoComplete::Node::GetTails() const
+{
+    vector<string> result;
+    
+    if (IsLeaf())
+    {
+        result.push_back(myString);
+    }
+    else
+    {
+        for (auto& child : myChildren)
+        {
+            for (auto tail : child->GetTails())
+            {
+                result.push_back(myString + tail);
+            }
+        }
+    }
+    
+    return result;
+}
+
+
+std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toMatch) const
+{
+    vector<string> result;
+    
+    size_t matchCount;
+    
+    matchCount = MatchingCharacters(toMatch);
+    
+    if (matchCount >= myString.size())
+    {
+        if (matchCount == toMatch.size())
+        {
+            // means this node is an exact match, return the children.
+            for (string tail : GetTails())
+            {
+                result.push_back(myString + tail);
+            }
+        }
+        else
+        {    
+            // implicit toMatch.size() > myString.size()        
+            if (!IsLeaf())
+            {
+                string shorter;
+                
+                shorter = toMatch.substr(matchCount);
+                
+                auto bestChild = BestMatchChild(shorter);
+                
+                for (string tail : (*bestChild)->GetTails())
+                {
+                    result.push_back(myString + tail);
+                }
+            }
+            else
+            {
+                result.push_back(myString);
+            }
+        }
+    }
+    
+    return result;
+}
 
 // /////
 // Auto Complete
@@ -220,10 +286,9 @@ AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node(""))
     }
 }
 
-std::vector<std::string> AutoComplete::GetMatchList(std::string)
+std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
 {
-    // TODO!
-    return vector<string>();
+    return myRoot.GetMatchList(toMatch);
 }
 
 std::string AutoComplete::GetNextBestMatch(std::string toMatch)
