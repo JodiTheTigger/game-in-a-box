@@ -72,7 +72,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
 {
     ++argh;
     
-    std::cout << std::endl << argh << ": " << toInsert;
+    std::cout << std::endl << " Insert (" << toInsert << "): " << argh;
     
     // ignore duplicates
     if (toInsert != myString)
@@ -91,6 +91,8 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 
                 // easy! just add as a child
                 myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert)));
+                
+                cout << " Test (" << myChildren[0]->myString << ")";
             }
             else
             {
@@ -186,25 +188,38 @@ const unique_ptr<AutoComplete::Node>* AutoComplete::Node::BestMatchChild(const s
 std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
 {
     std::string result;
-    size_t matchCount;
-    
-    result = myString;
-    matchCount = MatchingCharacters(toMatch);
-    
-    if (myString.size() == matchCount)
+    cout << "NextMatch (" << toMatch << ")";
+    if (!toMatch.empty())
     {
-        if ((!IsLeaf()) && (toMatch != myString))
+        size_t matchCount;
+        
+        result = myString;
+        matchCount = MatchingCharacters(toMatch);
+        cout << ": " << matchCount;
+        if ((matchCount == 0) && (!myString.empty()))
         {
-            string shorter;
-            
-            shorter = toMatch.substr(matchCount);
-            
-            auto bestChild = BestMatchChild(shorter);
-            
-            result = myString + (*bestChild)->NextMatch(shorter);
+            cout << " empty";
+            result = "";
+        }
+        else
+        {
+            if (myString.size() == matchCount)
+            {
+                if ((!IsLeaf()) && (toMatch != myString))
+                {
+                    cout << " Children";
+                    string shorter;
+                    
+                    shorter = toMatch.substr(matchCount);
+                    
+                    auto bestChild = BestMatchChild(shorter);
+                    
+                    result = myString + (*bestChild)->NextMatch(shorter);
+                }
+            }
         }
     }
-    
+    cout << " Done" << endl;
     return result;
 }
 
@@ -235,43 +250,54 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
 {
     vector<string> result;
     
-    size_t matchCount;
-    
-    matchCount = MatchingCharacters(toMatch);
-    
-    if (matchCount >= myString.size())
+    if (!toMatch.empty())
     {
-        if (matchCount == toMatch.size())
+    
+        size_t matchCount;
+        
+        matchCount = MatchingCharacters(toMatch);
+        cout << "Match: " << toMatch << ": " << matchCount;
+        
+        if (matchCount >= myString.size())
         {
-            // means this node is an exact match, return the children.
-            for (string tail : GetTails())
+            if (matchCount == toMatch.size())
             {
-                result.push_back(myString + tail);
-            }
-        }
-        else
-        {    
-            // implicit toMatch.size() > myString.size()        
-            if (!IsLeaf())
-            {
-                string shorter;
-                
-                shorter = toMatch.substr(matchCount);
-                
-                auto bestChild = BestMatchChild(shorter);
-                
-                for (string tail : (*bestChild)->GetTails())
+                cout << " Tails straight";
+                // means this node is an exact match, return the children.
+                for (string tail : GetTails())
                 {
                     result.push_back(myString + tail);
                 }
             }
             else
-            {
-                result.push_back(myString);
+            {    
+                // implicit toMatch.size() > myString.size()        
+                if (!IsLeaf())
+                {
+                    cout << " Tails children";
+                    string shorter;
+                    
+                    shorter = toMatch.substr(matchCount);
+                    
+                    auto bestChild = BestMatchChild(shorter);
+                    
+                    for (string tail : (*bestChild)->GetTails())
+                    {
+                        result.push_back(myString + tail);
+                    }
+                }
+                else
+                {
+                    if (myString.size() > 0)
+                    {
+                        cout << " Me only";
+                        result.push_back(myString);
+                    }
+                }
             }
         }
     }
-    
+    cout << " Match Done " << endl;
     return result;
 }
 
