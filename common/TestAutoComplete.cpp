@@ -119,7 +119,7 @@ TEST_F(TestAutoComplete, TwoWordsInListSimilar)
     EXPECT_EQ("", toTest.GetNextBestMatch("Word"));
     EXPECT_EQ("", toTest.GetNextBestMatch("Sad"));
     EXPECT_EQ("", toTest.GetNextBestMatch("."));
-    EXPECT_EQ("", toTest.GetNextBestMatch(""));
+    EXPECT_EQ("OneWordInList.", toTest.GetNextBestMatch(""));
     EXPECT_EQ("OneWordInList.", toTest.GetNextBestMatch("One"));
     EXPECT_EQ("OneWordInList.Happy()", toTest.GetNextBestMatch("OneWordInList.H"));
     EXPECT_EQ("OneWordInList.RealHappy", toTest.GetNextBestMatch("OneWordInList.R"));
