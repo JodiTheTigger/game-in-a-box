@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <queue>
 
 class AutoComplete
 {
@@ -52,6 +53,12 @@ private:
         std::size_t MatchingCharacters(const std::string& toMatch) const;
         std::string NextMatch(const std::string& toMatch) const;
         std::vector<std::string> GetMatchList(const std::string& toMatch) const;
+        void BestMatchMap(const std::string& toMatch, std::vector<size_t>& map) const;
+        
+        std::string ArghMatch(const std::string& toMatch, const std::string& base);
+        void ArghMatchMap(const std::string& toMatch, std::queue< size_t >& treeMap);
+        std::string MapToString(std::queue<size_t>& treeMap);
+        std::vector<std::string> MapToStringAndTails(std::queue<size_t>& treeMap);
         
     private:
         Node(std::string item, bool isWordEnd);
@@ -64,6 +71,7 @@ private:
         // Returns myChildren.size() is none found.
         size_t BestMatchChildIndex(const std::string& toMatch) const;
         std::string NextMatchWithChildren(const std::string& toMatch) const;
+        
     };
     
     Node myRoot;

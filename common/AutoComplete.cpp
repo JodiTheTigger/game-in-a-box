@@ -225,9 +225,194 @@ std::string AutoComplete::Node::NextMatchWithChildren(const std::string& toMatch
     return result;
 }
 
+
+std::string AutoComplete::Node::ArghMatch(const std::string& toMatch, const std::string& base)
+{
+    size_t matchCount;
+    
+    matchCount = MatchingCharacters(toMatch);
+    
+    if ((matchCount == toMatch.size()) && (matchCount <= myString.size()))
+    {
+        return base + myString;
+    }
+    else 
+    {
+        if (myString.empty() || (matchCount < toMatch.size() && matchCount >= myString.size())) 
+        {
+            string beginning = toMatch.substr(0, matchCount);
+            string ending = toMatch.substr(matchCount);
+            size_t childIndex;           
+            
+            childIndex = BestMatchChildIndex(ending);
+            
+            if (childIndex < myChildren.size())
+            {
+                return myChildren[childIndex]->ArghMatch(ending, base + beginning);
+            }
+        }
+    }
+    
+    return "";
+}
+
+
+void AutoComplete::Node::ArghMatchMap(const std::string& toMatch, std::queue<size_t>& treeMap)
+{
+    size_t matchCount;
+    
+    matchCount = MatchingCharacters(toMatch);
+    
+    if ((matchCount == toMatch.size()) && (matchCount <= myString.size()))
+    {
+        // NADA
+    }
+    else 
+    {
+        if (myString.empty() || (matchCount < toMatch.size() && matchCount >= myString.size())) 
+        {
+            string beginning = toMatch.substr(0, matchCount);
+            string ending = toMatch.substr(matchCount);
+            size_t childIndex;           
+            
+            childIndex = BestMatchChildIndex(ending);
+            
+            if (childIndex < myChildren.size())
+            {
+                treeMap.push(childIndex);
+                myChildren[childIndex]->ArghMatchMap(ending, treeMap);
+            }
+        }
+    }
+}
+
+std::string AutoComplete::Node::MapToString(queue< size_t>& treeMap)
+{
+    if (IsLeaf() || treeMap.empty())
+    {
+        return myString;
+    }
+    else
+    {
+        size_t childIndex;
+        
+        childIndex = treeMap.front();
+        treeMap.pop();
+        
+        return myString + myChildren[childIndex]->MapToString(treeMap);
+    }
+}
+
+
+std::vector<std::string> AutoComplete::Node::MapToStringAndTails(std::queue<size_t>& treeMap)
+{
+    vector<string> result;
+    
+    if (IsLeaf() || treeMap.empty())
+    {
+        result = GetTails();
+    }
+    else
+    {
+        size_t childIndex;
+        
+        childIndex = treeMap.front();
+        treeMap.pop();
+        
+        result = myChildren[childIndex]->MapToStringAndTails(treeMap);
+        
+        for (auto& dude : result)
+        {
+            dude = myString + dude;
+        }
+    }
+    
+    return result;
+}
+
+void AutoComplete::Node::BestMatchMap(const std::string& toMatch, std::vector<size_t>& map) const
+{
+    size_t matchCount;
+    size_t matchCountChild;
+    size_t childIndex;    
+    string tail;
+    
+    cout << "MAP(" << toMatch << ")"<< flush;
+    
+    if (IsLeaf())
+    {
+    cout << "LEAF." << flush;
+        return;
+    }
+    
+    if (toMatch.empty())
+    {
+        
+    cout << "EMPTY." << flush;
+        return;
+    }
+    
+    matchCount = MatchingCharacters(toMatch);    
+    
+    if (matchCount < myString.size())
+    {
+        
+    cout << "NOT FULL STRING." << flush;
+        return;
+    }
+    
+    childIndex = BestMatchChildIndex(toMatch);
+    
+    if (childIndex == myChildren.size())
+    {
+        
+    cout << "NO CHILD MATCH." << flush;
+        return;
+    }
+    
+    tail = toMatch.substr(matchCount);
+    matchCountChild = myChildren[childIndex]->MatchingCharacters(tail);
+    
+    if ((matchCountChild == tail.size()) || (matchCountChild ==  myChildren[childIndex]->myString.length()))
+    {
+    cout << "child (" <<childIndex << ")." << flush;
+        map.push_back(childIndex);
+        myChildren[childIndex]->BestMatchMap(tail, map);
+    }
+    cout << "DONE" << flush;
+    
+    
+    
+    
+/*
+    
+    if (myString.empty())
+    {
+        cout << "ROOT." << flush;
+        // root! special case.
+        if (myChildren.size() == 1)
+        {
+    cout << "ROOTCHILD." << flush;
+            map.push_back(0);
+            myChildren[0]->BestMatchMap(toMatch, map);
+        }
+        
+        return;
+    }
+    
+    
+    if (matchCount == 0)
+    {
+    cout << "NOMATCH." << flush;
+        return;
+    }
+  */  
+}
+
 std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
 {
     std::string result;
+    
     cout << " NextMatch (" << toMatch << ")" << flush;
     
     // if im the root, then pass it off to the children
@@ -410,10 +595,36 @@ AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
 
 std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
 {
-    return myRoot.GetMatchList(toMatch);
+    queue<size_t> theMap;
+    myRoot.ArghMatchMap(toMatch, theMap);
+    
+    return myRoot.MapToStringAndTails(theMap);
+    
+    //return myRoot.GetMatchList(toMatch);
 }
 
 std::string AutoComplete::GetNextBestMatch(std::string toMatch)
 {
+    /*
+    {
+        vector<size_t> theMap;
+        
+        myRoot.BestMatchMap(toMatch, theMap);
+        
+        cout << endl << "map: " << toMatch << ": ";
+        for (auto stone : theMap)
+        {
+            cout << "-> " << stone;
+        }
+        cout << "." << endl;
+    }
+    
     return myRoot.NextMatch(toMatch);
+    */
+    queue<size_t> theMap;
+    myRoot.ArghMatchMap(toMatch, theMap);
+    string mapResult = myRoot.MapToString(theMap);
+    string result = myRoot.ArghMatch(toMatch, "");
+    cout << "ARGH@! " << toMatch << " -> " << result << ":" << mapResult << endl; 
+    return myRoot.ArghMatch(toMatch, "");
 }
