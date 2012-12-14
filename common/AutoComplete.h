@@ -25,6 +25,7 @@
 #include <string>
 #include <memory>
 #include <queue>
+#include <deque>
 
 class AutoComplete
 {
@@ -56,9 +57,9 @@ private:
         void BestMatchMap(const std::string& toMatch, std::vector<size_t>& map) const;
         
         std::string ArghMatch(const std::string& toMatch, const std::string& base);
-        void ArghMatchMap(const std::string& toMatch, std::queue< size_t >& treeMap);
-        std::string MapToString(std::queue<size_t>& treeMap);
-        std::vector<std::string> MapToStringAndTails(std::queue<size_t>& treeMap);
+        bool ArghMatchMap(const std::string& toMatch, std::deque< size_t >& treeMap);
+        std::string MapToString(std::deque<size_t>& treeMap);
+        std::vector<std::string> MapToStringAndTails(std::deque<size_t>& treeMap);
         
     private:
         Node(std::string item, bool isWordEnd);
