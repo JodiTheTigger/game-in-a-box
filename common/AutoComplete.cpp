@@ -245,7 +245,7 @@ std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
         {
             size_t matchCount;
             
-            result = myString;
+            //result = myString;
             matchCount = MatchingCharacters(toMatch);
             cout << ": " << matchCount << flush;
             if (matchCount == 0)
@@ -261,6 +261,7 @@ std::string AutoComplete::Node::NextMatch(const std::string& toMatch) const
                 {
                     if (myString.size() >= toMatch.size())
                     {
+                            cout << " my string expand" << flush;
                         result = myString;
                     }
                 }
@@ -300,7 +301,10 @@ std::vector<std::string> AutoComplete::Node::GetTails() const
     
     if (IsLeaf())
     {
-        result.push_back(myString);
+        if (!myString.empty())
+        {
+            result.push_back(myString);
+        }
     }
     else
     {
@@ -328,7 +332,7 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
         matchCount = MatchingCharacters(toMatch);
         cout << "Match: " << toMatch << ": " << matchCount << flush;
         
-        if (matchCount >= myString.size())
+        if (matchCount == myString.size())
         {
             if (matchCount == toMatch.size())
             {
@@ -353,8 +357,9 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
                     
                     if (bestChild < myChildren.size())
                     {                    
-                        for (string tail : myChildren[bestChild]->GetTails())
+                        for (string tail : myChildren[bestChild]->GetMatchList(shorter))
                         {
+                    cout << " Tails children (" << tail << ")" << flush;
                             result.push_back(myString + tail);
                         }
                     }
@@ -369,6 +374,14 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
                 }
             }
         }
+        else
+        {
+            if (matchCount == toMatch.size())
+            {
+                cout << " Substring" << flush;
+                result.push_back(myString);
+            }
+        }
     }
     else
     {
@@ -376,10 +389,11 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
         cout << " MATCH ALL!" << flush;
         for (string tail : GetTails())
         {
+            cout << " tail (" << tail << ")" << flush;
             result.push_back(myString + tail);
         }
     }
-    cout << " Match Done " << endl << flush;
+    cout << " Match Done (" << result.size() << ")" << endl << flush;
     return result;
 }
 
