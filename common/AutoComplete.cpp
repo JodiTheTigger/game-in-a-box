@@ -263,13 +263,23 @@ std::string AutoComplete::Node::ArghMatch(const std::string& toMatch, const std:
 bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t >& treeMap)
 {
     cout << "FIRSTARG: (" << toMatch << ")";
-    // special case
+    // special cases
+    if (myString.empty() && toMatch.empty())
+    {
+        if (myChildren.size() == 1)
+        {
+            treeMap.push_front(0);
+        }
+        
+        return true;
+    }
+    /* above is generalistaion of this special case.
     if (myString.empty() && toMatch.empty() && myChildren.size() == 1)
     {
         cout << "ARGH:Special.";
         treeMap.push_front(0);
         return true;
-    }
+    }*/
     
     size_t matchCount;
     
@@ -651,6 +661,8 @@ AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
         cout << " ============== " << endl;
         myRoot.PrintTree();
     }
+        cout << " ======xxx===== " << endl;
+    
 }
 
 std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
@@ -695,19 +707,11 @@ std::string AutoComplete::GetNextBestMatch(std::string toMatch)
     string mapResult;
     
     deque<size_t> theMap;
-    
-    
-        cout << endl << "MAP IS: ";
-        for (size_t point : theMap)
-        {
-            cout << point << "<-";
-        }
-        cout << "start" << endl << flush;
-     
-    
-    
+        
     if (myRoot.ArghMatchMap(toMatch, theMap))
     {
+        if (!theMap.empty())
+        {
         cout << "frontback:" << theMap.front() << ":" << theMap.back() << endl;
         cout << endl << "MAP IS: ";
         for (size_t point : theMap)
@@ -715,7 +719,7 @@ std::string AutoComplete::GetNextBestMatch(std::string toMatch)
             cout << point << " <- ";
         }
         cout << "start" << endl << flush;
-     
+        }
         mapResult = myRoot.MapToString(theMap);
         string result = myRoot.ArghMatch(toMatch, "");
         cout << "ARGH@! " << toMatch << " -> " << result << ":" << mapResult << endl; 
