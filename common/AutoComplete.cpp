@@ -169,7 +169,10 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 // change my string to the smaller common one, and add the new as it's first child.
                 myString = myString.substr(0, matchCount);
                 myStringIsWordEnd = false;
-                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));               
+                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));    
+                
+                // Don't forget the old tail
+                myChildren.push_back(move(mrSplit));
             }
         }
     }
@@ -293,15 +296,17 @@ bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t 
             
             childIndex = BestMatchChildIndex(ending);
             
-                cout << "ARGH:Try Child (" << ending << ").";
+                cout << "ARGH:Try Child (" << ending << ": " << childIndex << ").";
                 
             if (childIndex < myChildren.size())
             {
                 cout << "ARGH:Got Child.";
                 if (myChildren[childIndex]->ArghMatchMap(ending, treeMap))
                 {
-                    cout << "ARGH:Child";
+                    cout << "ARGH:Child (" << childIndex << ")";
+                    //auto copied = childIndex;
                     treeMap.push_front(childIndex);
+                    cout << "Again (" << treeMap.front() << ":" << treeMap.back() << "=" << treeMap.size() << ")";
                     return true;
                 }
             }
@@ -324,14 +329,17 @@ std::string AutoComplete::Node::MapToString(std::deque< size_t >& treeMap)
 {
     if (IsLeaf() || treeMap.empty())
     {
+        cout << endl;
         return myString;
     }
     else
     {
         size_t childIndex;
         
-        childIndex = treeMap.back();
-        treeMap.pop_back();
+        childIndex = treeMap.front();
+        treeMap.pop_front();
+        
+        cout << "MS: " << childIndex;
         
         return myString + myChildren[childIndex]->MapToString(treeMap);
     }
@@ -350,8 +358,8 @@ std::vector<std::string> AutoComplete::Node::MapToStringAndTails(std::deque<size
     {
         size_t childIndex;
         
-        childIndex = treeMap.back();
-        treeMap.pop_back();
+        childIndex = treeMap.front();
+        treeMap.pop_front();
         
         result = myChildren[childIndex]->MapToStringAndTails(treeMap);
         
@@ -630,7 +638,6 @@ void AutoComplete::Node::PrintTree()
             child->PrintTree();
         }
     }
-    // RAM: TODO!
 }
 
 // /////
@@ -641,9 +648,9 @@ AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
     for (string newWord : wordList)
     {
         myRoot.Insert(newWord);
+        cout << " ============== " << endl;
+        myRoot.PrintTree();
     }
-    
-    myRoot.PrintTree();
 }
 
 std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
@@ -653,6 +660,12 @@ std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
     
     if (myRoot.ArghMatchMap(toMatch, theMap))
     {
+        cout << "MAP IS: ";
+        for (auto point : theMap)
+        {
+            cout << point << "<-";
+        }
+        cout << "start" << endl << flush;
         result = myRoot.MapToStringAndTails(theMap);
     }
     
@@ -682,8 +695,27 @@ std::string AutoComplete::GetNextBestMatch(std::string toMatch)
     string mapResult;
     
     deque<size_t> theMap;
+    
+    
+        cout << endl << "MAP IS: ";
+        for (size_t point : theMap)
+        {
+            cout << point << "<-";
+        }
+        cout << "start" << endl << flush;
+     
+    
+    
     if (myRoot.ArghMatchMap(toMatch, theMap))
     {
+        cout << "frontback:" << theMap.front() << ":" << theMap.back() << endl;
+        cout << endl << "MAP IS: ";
+        for (size_t point : theMap)
+        {
+            cout << point << " <- ";
+        }
+        cout << "start" << endl << flush;
+     
         mapResult = myRoot.MapToString(theMap);
         string result = myRoot.ArghMatch(toMatch, "");
         cout << "ARGH@! " << toMatch << " -> " << result << ":" << mapResult << endl; 
