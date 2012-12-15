@@ -259,6 +259,7 @@ std::string AutoComplete::Node::ArghMatch(const std::string& toMatch, const std:
 
 bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t >& treeMap)
 {
+    cout << "FIRSTARG: (" << toMatch << ")";
     // special case
     if (myString.empty() && toMatch.empty() && myChildren.size() == 1)
     {
@@ -292,9 +293,11 @@ bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t 
             
             childIndex = BestMatchChildIndex(ending);
             
+                cout << "ARGH:Try Child (" << ending << ").";
+                
             if (childIndex < myChildren.size())
             {
-                cout << "ARGH:Try Child (" << ending << ").";
+                cout << "ARGH:Got Child.";
                 if (myChildren[childIndex]->ArghMatchMap(ending, treeMap))
                 {
                     cout << "ARGH:Child";
@@ -302,10 +305,18 @@ bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t 
                     return true;
                 }
             }
+            else
+            {
+                // RAM: debug
+                for (size_t i = 0; i < myChildren.size(); i++)
+                {
+                    cout << "i: " << i << "==" << myChildren[i]->myString[0] << " ";
+                }
+            }
         }
     }
     
-    cout << "ARGH:NO "<<matchCount <<" (" << toMatch << ")" << endl;
+    cout << "ARGH:NO "<<matchCount <<" (" << toMatch << ":" << myString << ")" << endl;
     return false;
 }
 
@@ -605,6 +616,23 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
     return result;
 }
 
+void AutoComplete::Node::PrintTree()
+{
+    if (IsLeaf())
+    {
+        cout << myString << endl;
+    }
+    else
+    {
+        for (auto& child : myChildren)
+        {
+            cout << myString;
+            child->PrintTree();
+        }
+    }
+    // RAM: TODO!
+}
+
 // /////
 // Auto Complete
 // /////
@@ -614,6 +642,8 @@ AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
     {
         myRoot.Insert(newWord);
     }
+    
+    myRoot.PrintTree();
 }
 
 std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
