@@ -206,38 +206,6 @@ std::string AutoComplete::Node::NextMatchWithChildren(const std::string& toMatch
     return result;
 }
 
-
-std::string AutoComplete::Node::ArghMatch(const std::string& toMatch, const std::string& base)
-{
-    size_t matchCount;
-    
-    matchCount = MatchingCharacters(toMatch);
-    
-    if ((matchCount == toMatch.size()) && (matchCount <= myString.size()))
-    {
-        return base + myString;
-    }
-    else 
-    {
-        if (myString.empty() || (matchCount < toMatch.size() && matchCount >= myString.size())) 
-        {
-            string beginning = toMatch.substr(0, matchCount);
-            string ending = toMatch.substr(matchCount);
-            size_t childIndex;           
-            
-            childIndex = BestMatchChildIndex(ending);
-            
-            if (childIndex < myChildren.size())
-            {
-                return myChildren[childIndex]->ArghMatch(ending, base + beginning);
-            }
-        }
-    }
-    
-    return "";
-}
-
-
 bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t >& treeMap)
 {   
     size_t matchCount;
@@ -577,21 +545,6 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
     return result;
 }
 
-void AutoComplete::Node::PrintTree(std::string base)
-{
-    if (IsLeaf())
-    {
-        cout << base << "||" << myString << endl;
-    }
-    else
-    {
-        for (auto& child : myChildren)
-        {
-            child->PrintTree(base + ":" + myString);
-        }
-    }
-}
-
 // /////
 // Auto Complete
 // /////
@@ -625,7 +578,6 @@ std::string AutoComplete::GetNextBestMatch(std::string toMatch)
     if (myRoot.ArghMatchMap(toMatch, theMap))
     {
         mapResult = myRoot.MapToString(theMap);
-        string result = myRoot.ArghMatch(toMatch, "");
     }
     
     return mapResult;

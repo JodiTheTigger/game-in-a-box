@@ -56,11 +56,10 @@ private:
         std::vector<std::string> GetMatchList(const std::string& toMatch) const;
         void BestMatchMap(const std::string& toMatch, std::vector<size_t>& map) const;
         
-        std::string ArghMatch(const std::string& toMatch, const std::string& base);
+        
         bool ArghMatchMap(const std::string& toMatch, std::deque< size_t >& treeMap);
         std::string MapToString(std::deque<size_t>& treeMap);
         std::vector<std::string> MapToStringAndTails(std::deque<size_t>& treeMap);
-        void PrintTree(std::string base);
         
     private:
         Node(std::string item, bool isWordEnd);
