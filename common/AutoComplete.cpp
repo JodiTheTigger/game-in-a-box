@@ -34,9 +34,8 @@ using namespace std;
 // /////
 // Node
 // /////
-AutoComplete::Node::Node(std::string item, bool isWordEnd) 
-: myStringIsWordEnd(isWordEnd)
-, myString(item) 
+AutoComplete::Node::Node(std::string item) 
+: myString(item) 
 {
     
 }
@@ -81,7 +80,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
             if (IsLeaf())
             {
                 // easy! just add as a child
-                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert, true)));
+                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert)));
             }
             else
             {
@@ -92,7 +91,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 if (bestChild == myChildren.size())
                 {
                     // add as another child
-                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert, true)));
+                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert)));
                 }
                 else
                 {
@@ -112,7 +111,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 if (IsLeaf())
                 {        
                     // add as a child, easy
-                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));
+                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail)));
                 }
                 else
                 {
@@ -128,7 +127,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
                     }
                     else
                     {
-                        myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));                        
+                        myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail)));                        
                     }                       
                 }
             }
@@ -139,7 +138,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 string oldTail;        
                 
                 oldTail = myString.substr(matchCount);                
-                mrSplit.reset(new Node(oldTail, true)); 
+                mrSplit.reset(new Node(oldTail)); 
                 
                 // move the children across
                 while (!myChildren.empty())
@@ -149,8 +148,7 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 
                 // change my string to the smaller common one, and add the new as it's first child.
                 myString = myString.substr(0, matchCount);
-                myStringIsWordEnd = false;
-                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));    
+                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail)));    
                 
                 // Don't forget the old tail
                 myChildren.push_back(move(mrSplit));

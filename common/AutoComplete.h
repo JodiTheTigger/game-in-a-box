@@ -47,7 +47,7 @@ private:
     class Node
     {
     public:
-        Node() : Node("", false) {};
+        Node() : Node("") {};
         
         void Insert(std::string toInsert);        
                 
@@ -56,8 +56,7 @@ private:
         std::vector<std::string> MapToStringAndTails(std::deque<size_t>& treeMap);
         
     private:
-        Node(std::string item, bool isWordEnd);
-        bool myStringIsWordEnd;
+        Node(std::string item);
         std::string myString;
         std::vector<std::unique_ptr<Node>> myChildren;
         
