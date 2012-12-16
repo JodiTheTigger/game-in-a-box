@@ -50,14 +50,8 @@ private:
         Node() : Node("", false) {};
         
         void Insert(std::string toInsert);        
-        bool IsLeaf() const;
-        std::size_t MatchingCharacters(const std::string& toMatch) const;
-        std::string NextMatch(const std::string& toMatch) const;
-        std::vector<std::string> GetMatchList(const std::string& toMatch) const;
-        void BestMatchMap(const std::string& toMatch, std::vector<size_t>& map) const;
-        
-        
-        bool ArghMatchMap(const std::string& toMatch, std::deque< size_t >& treeMap);
+                
+        bool MatchMap(const std::string& toMatch, std::deque< size_t >& treeMap);
         std::string MapToString(std::deque<size_t>& treeMap);
         std::vector<std::string> MapToStringAndTails(std::deque<size_t>& treeMap);
         
@@ -68,11 +62,14 @@ private:
         std::vector<std::unique_ptr<Node>> myChildren;
         
         std::vector<std::string> GetTails() const;
+                
+        bool IsLeaf() const;
         
         // Returns myChildren.size() is none found.
         size_t BestMatchChildIndex(const std::string& toMatch) const;
-        std::string NextMatchWithChildren(const std::string& toMatch) const;
         
+        //
+        std::size_t MatchingCharacters(const std::string& toMatch) const;
     };
     
     Node myRoot;
