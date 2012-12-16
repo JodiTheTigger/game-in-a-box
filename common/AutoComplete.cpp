@@ -22,30 +22,165 @@
 
 #include <algorithm>
 
-// RAM: debug
-#include <iostream>
-
 using namespace std;
 
-// RAM: NOTE implemented as a Trie: http://login2win.blogspot.co.nz/2011/06/c-tries.html
-// RAM: NOTE implemented as a Radix http://code.google.com/p/radixtree/source/browse/trunk/RadixTree/src/ds/tree/
-// http://en.wikipedia.org/wiki/Radix_tree
+// AutoComplete Notes:
+// ===================
+//
+// I was going to implement as a Trie (http://login2win.blogspot.co.nz/2011/06/c-tries.html) but
+// decided on a radix tree instead (http://en.wikipedia.org/wiki/Radix_tree). I insert at creation
+// and don't allow deletes to make my life easier. This class took me longer that I wanted but it
+// finally works. I loosely based my working code from someone else's work:
+// http://code.google.com/p/radixtree/source/browse/trunk/RadixTree/src/ds/tree/
+//
+// I created the Map function so the code can be shared by GetMatchList and GetNextBestMatch
+// where in the implementation I based my work on wrote similar code twice.
 
-// /////
-// Node
-// /////
-AutoComplete::Node::Node(std::string item) 
-: myString(item) 
+// /////////////////////
+// Public Auto Complete
+// /////////////////////
+AutoComplete::AutoComplete(std::vector<std::string> wordList)
+: AutoComplete()
 {
+    for (string newWord : wordList)
+    {
+        Insert(newWord);
+    }
+}
+
+std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch) const
+{
+    std::vector<std::string> result;
+    deque<size_t> theMap;
     
+    if (MatchMap(toMatch, theMap))
+    {
+        result = MapToStringAndTails(theMap);
+    }
+    
+    return result;
 }
 
-bool AutoComplete::Node::IsLeaf() const
+std::string AutoComplete::GetNextBestMatch(std::string toMatch) const
 {
-    return (myChildren.empty());
+    string mapResult;
+    
+    deque<size_t> theMap;
+        
+    if (MatchMap(toMatch, theMap))
+    {
+        mapResult = MapToString(theMap);
+    }
+    
+    return mapResult;
 }
 
-size_t AutoComplete::Node::MatchingCharacters(const std::string& toMatch) const
+// /////////////////////
+// Private Auto Complete
+// /////////////////////
+
+AutoComplete::AutoComplete()
+: AutoComplete("")
+{
+}
+
+AutoComplete::AutoComplete(std::string word)
+: myString(word)
+{
+}
+
+void AutoComplete::Insert(std::string toInsert)
+{
+    // ignore duplicates
+    if (toInsert != myString)
+    {
+        size_t matchCount;
+            
+        matchCount = MatchingCharacters(toInsert);
+        
+        if (matchCount == 0)
+        {
+            if (IsLeaf())
+            {
+                // easy! just add as a child
+                myChildren.push_back(unique_ptr<AutoComplete>(new AutoComplete(toInsert)));
+            }
+            else
+            {
+                size_t bestChild;
+                
+                bestChild = BestMatchChildIndex(toInsert);
+                
+                if (bestChild == myChildren.size())
+                {
+                    // add as another child
+                    myChildren.push_back(unique_ptr<AutoComplete>(new AutoComplete(toInsert)));
+                }
+                else
+                {
+                    myChildren[bestChild]->Insert(toInsert);
+                }
+            }
+        }
+        else
+        {
+            string tail;
+            
+            tail = toInsert.substr(matchCount);
+            
+            // Split, or just add as a child
+            if (matchCount == myString.size())
+            {                    
+                if (IsLeaf())
+                {        
+                    // add as a child, easy
+                    myChildren.push_back(unique_ptr<AutoComplete>(new AutoComplete(tail)));
+                }
+                else
+                {
+                    size_t match;
+                    
+                    // test against the childen, and add to them, or if
+                    // no one matches, add as another child.
+                    match = BestMatchChildIndex(tail);
+                    
+                    if (match < myChildren.size())
+                    {
+                        myChildren[match]->Insert(tail);
+                    }
+                    else
+                    {
+                        myChildren.push_back(unique_ptr<AutoComplete>(new AutoComplete(tail)));                        
+                    }                       
+                }
+            }
+            else
+            {
+                // Bah, have to split my string, move nodes, and stuff.
+                unique_ptr<AutoComplete> mrSplit;
+                string oldTail;        
+                
+                oldTail = myString.substr(matchCount);                
+                mrSplit.reset(new AutoComplete(oldTail)); 
+                
+                // move the children across
+                while (!myChildren.empty())
+                {
+                    mrSplit->myChildren.push_back(move(myChildren.back()));
+                }
+                
+                // change my string to the smaller common one, and add the new as it's first child.
+                myString = myString.substr(0, matchCount);
+                myChildren.push_back(unique_ptr<AutoComplete>(new AutoComplete(tail)));    
+                
+                // Don't forget the old tail
+                myChildren.push_back(move(mrSplit));
+            }
+        }
+    }
+}
+
+size_t AutoComplete::MatchingCharacters(const std::string& toMatch) const
 {
     size_t result;
     size_t max;
@@ -66,98 +201,8 @@ size_t AutoComplete::Node::MatchingCharacters(const std::string& toMatch) const
     return result;
 }
 
-void AutoComplete::Node::Insert(std::string toInsert)
-{
-    // ignore duplicates
-    if (toInsert != myString)
-    {
-        size_t matchCount;
-            
-        matchCount = MatchingCharacters(toInsert);
-        
-        if (matchCount == 0)
-        {
-            if (IsLeaf())
-            {
-                // easy! just add as a child
-                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert)));
-            }
-            else
-            {
-                size_t bestChild;
-                
-                bestChild = BestMatchChildIndex(toInsert);
-                
-                if (bestChild == myChildren.size())
-                {
-                    // add as another child
-                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert)));
-                }
-                else
-                {
-                    myChildren[bestChild]->Insert(toInsert);
-                }
-            }
-        }
-        else
-        {
-            string tail;
-            
-            tail = toInsert.substr(matchCount);
-            
-            // Split, or just add as a child
-            if (matchCount == myString.size())
-            {                    
-                if (IsLeaf())
-                {        
-                    // add as a child, easy
-                    myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail)));
-                }
-                else
-                {
-                    size_t match;
-                    
-                    // test against the childen, and add to them, or if
-                    // no one matches, add as another child.
-                    match = BestMatchChildIndex(tail);
-                    
-                    if (match < myChildren.size())
-                    {
-                        myChildren[match]->Insert(tail);
-                    }
-                    else
-                    {
-                        myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail)));                        
-                    }                       
-                }
-            }
-            else
-            {
-                // Bah, have to split my string, move nodes, and stuff.
-                unique_ptr<Node> mrSplit;
-                string oldTail;        
-                
-                oldTail = myString.substr(matchCount);                
-                mrSplit.reset(new Node(oldTail)); 
-                
-                // move the children across
-                while (!myChildren.empty())
-                {
-                    mrSplit->myChildren.push_back(move(myChildren.back()));
-                }
-                
-                // change my string to the smaller common one, and add the new as it's first child.
-                myString = myString.substr(0, matchCount);
-                myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail)));    
-                
-                // Don't forget the old tail
-                myChildren.push_back(move(mrSplit));
-            }
-        }
-    }
-}
-
-size_t AutoComplete::Node::BestMatchChildIndex(const std::string& toMatch) const
+// Returns myChildren.size() is none found.
+size_t AutoComplete::BestMatchChildIndex(const std::string& toMatch) const
 {
     if (!toMatch.empty())
     {   
@@ -173,7 +218,7 @@ size_t AutoComplete::Node::BestMatchChildIndex(const std::string& toMatch) const
     return myChildren.size();
 }
 
-bool AutoComplete::Node::MatchMap(const string& toMatch, std::deque< size_t >& treeMap)
+bool AutoComplete::MatchMap(const string& toMatch, std::deque< size_t >& treeMap) const
 {   
     size_t matchCount;
  
@@ -224,7 +269,7 @@ bool AutoComplete::Node::MatchMap(const string& toMatch, std::deque< size_t >& t
     return false;
 }
 
-std::string AutoComplete::Node::MapToString(std::deque< size_t >& treeMap)
+std::string AutoComplete::MapToString(std::deque< size_t >& treeMap) const
 {
     if (IsLeaf() || treeMap.empty())
     {
@@ -242,7 +287,7 @@ std::string AutoComplete::Node::MapToString(std::deque< size_t >& treeMap)
 }
 
 
-std::vector<std::string> AutoComplete::Node::MapToStringAndTails(std::deque<size_t>& treeMap)
+std::vector<std::string> AutoComplete::MapToStringAndTails(std::deque<size_t>& treeMap) const
 {
     vector<string> result;
     
@@ -268,7 +313,7 @@ std::vector<std::string> AutoComplete::Node::MapToStringAndTails(std::deque<size
     return result;
 }
 
-std::vector<std::string> AutoComplete::Node::GetTails() const
+std::vector<std::string> AutoComplete::GetTails() const
 {
     vector<string> result;
     
@@ -293,41 +338,7 @@ std::vector<std::string> AutoComplete::Node::GetTails() const
     return result;
 }
 
-
-// /////
-// Auto Complete
-// /////
-AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
+bool AutoComplete::IsLeaf() const
 {
-    for (string newWord : wordList)
-    {
-        myRoot.Insert(newWord);
-    }
-}
-
-std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
-{
-    std::vector<std::string> result;
-    deque<size_t> theMap;
-    
-    if (myRoot.MatchMap(toMatch, theMap))
-    {
-        result = myRoot.MapToStringAndTails(theMap);
-    }
-    
-    return result;
-}
-
-std::string AutoComplete::GetNextBestMatch(std::string toMatch)
-{
-    string mapResult;
-    
-    deque<size_t> theMap;
-        
-    if (myRoot.MatchMap(toMatch, theMap))
-    {
-        mapResult = myRoot.MapToString(theMap);
-    }
-    
-    return mapResult;
+    return (myChildren.empty());
 }

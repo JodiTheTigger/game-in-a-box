@@ -35,43 +35,30 @@ public:
     // Returns a list of all complete strings with the prefix of the searchString
     // Can be empty if nothing matches, or only contain one if there is only
     // one possible match (yay auto-complete to that).
-    std::vector<std::string> GetMatchList(std::string searchString);
+    std::vector<std::string> GetMatchList(std::string searchString) const;
     
     // Returns the next best match for the string. If there is more
     // than one string that matches the base string, then the base
     // string is returned. If nothing matches, then an empty string.
     // is returned.
-    std::string GetNextBestMatch(std::string baseString);
+    std::string GetNextBestMatch(std::string baseString) const;
 
 private:
-    class Node
-    {
-    public:
-        Node() : Node("") {};
-        
-        void Insert(std::string toInsert);        
-                
-        bool MatchMap(const std::string& toMatch, std::deque< size_t >& treeMap);
-        std::string MapToString(std::deque<size_t>& treeMap);
-        std::vector<std::string> MapToStringAndTails(std::deque<size_t>& treeMap);
-        
-    private:
-        Node(std::string item);
-        std::string myString;
-        std::vector<std::unique_ptr<Node>> myChildren;
-        
-        std::vector<std::string> GetTails() const;
-                
-        bool IsLeaf() const;
-        
-        // Returns myChildren.size() is none found.
-        size_t BestMatchChildIndex(const std::string& toMatch) const;
-        
-        //
-        std::size_t MatchingCharacters(const std::string& toMatch) const;
-    };
+    std::string myString;
+    std::vector<std::unique_ptr<AutoComplete>> myChildren;
     
-    Node myRoot;
+    AutoComplete();
+    AutoComplete(std::string word);
+    
+    void                        Insert(std::string toInsert);
+        
+    std::size_t                 MatchingCharacters(const std::string& toMatch) const;
+    size_t                      BestMatchChildIndex(const std::string& toMatch) const;
+    bool                        MatchMap(const std::string& toMatch, std::deque< size_t >& treeMap) const;
+    std::string                 MapToString(std::deque<size_t>& treeMap) const;
+    std::vector<std::string>    MapToStringAndTails(std::deque<size_t>& treeMap) const;
+    std::vector<std::string>    GetTails() const;
+    bool                        IsLeaf() const;        
 };
 
 #endif // AUTOCOMPLETE_H
