@@ -66,15 +66,9 @@ size_t AutoComplete::Node::MatchingCharacters(const std::string& toMatch) const
     
     return result;
 }
-// RAM: debug
-static int argh = 0;
 
 void AutoComplete::Node::Insert(std::string toInsert)
 {
-    ++argh;
-    
-    std::cout << std::endl << " Insert (" << toInsert << "): " << argh;
-    
     // ignore duplicates
     if (toInsert != myString)
     {
@@ -82,14 +76,10 @@ void AutoComplete::Node::Insert(std::string toInsert)
             
         matchCount = MatchingCharacters(toInsert);
         
-        std::cout << " Match: " << matchCount << std::endl;
-        
         if (matchCount == 0)
         {
             if (IsLeaf())
             {
-                std::cout << " -> Add to Child(0)";
-                
                 // easy! just add as a child
                 myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert, true)));
             }
@@ -101,14 +91,11 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 
                 if (bestChild == myChildren.size())
                 {
-                    std::cout << " -> Add as Child(1+)";
-                    
                     // add as another child
                     myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(toInsert, true)));
                 }
                 else
                 {
-                    std::cout << " -> Insert to Child (" << myChildren[bestChild]->myString << ")";
                     myChildren[bestChild]->Insert(toInsert);
                 }
             }
@@ -124,8 +111,6 @@ void AutoComplete::Node::Insert(std::string toInsert)
             {                    
                 if (IsLeaf())
                 {        
-                    std::cout << " -> Insert tail (" << tail << ") as Child";
-                    
                     // add as a child, easy
                     myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));
                 }
@@ -139,12 +124,10 @@ void AutoComplete::Node::Insert(std::string toInsert)
                     
                     if (match < myChildren.size())
                     {
-                        std::cout << " -> Insert tail (" << tail << ") to Child";
                         myChildren[match]->Insert(tail);
                     }
                     else
                     {
-                        std::cout << " -> Insert tail (" << tail << ") as another Child";
                         myChildren.push_back(unique_ptr<Node>(new AutoComplete::Node(tail, true)));                        
                     }                       
                 }
@@ -153,21 +136,10 @@ void AutoComplete::Node::Insert(std::string toInsert)
             {
                 // Bah, have to split my string, move nodes, and stuff.
                 unique_ptr<Node> mrSplit;
-                string oldTail;
-                          
-                
-                cout << endl << "Cildren before: " << endl;
-                for (auto& child : myChildren)
-                {
-                    cout << myString << ":" << child->myString << endl;
-                }
-                cout << "--------- " << endl;
-                
+                string oldTail;        
                 
                 oldTail = myString.substr(matchCount);                
                 mrSplit.reset(new Node(oldTail, true)); 
-                
-                std::cout << " -> Insert as split! (" << myString.substr(0, matchCount) << ":" << oldTail << ":" << tail << ")";    
                 
                 // move the children across
                 while (!myChildren.empty())
@@ -182,22 +154,9 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 
                 // Don't forget the old tail
                 myChildren.push_back(move(mrSplit));
-                
-                
-                cout << endl << "Cildren after: " << endl;
-                for (auto& child : myChildren)
-                {
-                    cout << myString << ":" << child->myString << endl;
-                }
-                
-                cout << "--------- " << endl;
-                
             }
         }
     }
-                    
-    std::cout << std::endl << "Done: " << argh << std::endl;
-    --argh;
 }
 
 size_t AutoComplete::Node::BestMatchChildIndex(const std::string& toMatch) const
@@ -280,36 +239,24 @@ std::string AutoComplete::Node::ArghMatch(const std::string& toMatch, const std:
 
 
 bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t >& treeMap)
-{
-    cout << "FIRSTARG: (" << toMatch << ")";
+{   
+    size_t matchCount;
+ 
     // special cases
     if (myString.empty() && toMatch.empty())
     {
-        cout << "ARGH:ROOT And EMPTY.";
-     
         if (myChildren.size() == 1)
         {
-            cout << "ARGH:Root,Empty, 1 child.";
             treeMap.push_front(0);
         }
         
         return true;
     }
-    /* above is generalistaion of this special case.
-    if (myString.empty() && toMatch.empty() && myChildren.size() == 1)
-    {
-        cout << "ARGH:Special.";
-        treeMap.push_front(0);
-        return true;
-    }*/
-    
-    size_t matchCount;
     
     matchCount = MatchingCharacters(toMatch);
     
     if ((matchCount == toMatch.size()) && (matchCount <= myString.size()))
     {
-        cout << "ARGH:This (" << toMatch << ")" << endl;
         return true;
     }
     else 
@@ -327,33 +274,18 @@ bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t 
             size_t childIndex;           
             
             childIndex = BestMatchChildIndex(ending);
-            
-                cout << "ARGH:Try Child (" << ending << ": " << childIndex << ").";
-                
+              
             if (childIndex < myChildren.size())
             {
-                cout << "ARGH:Got Child.";
                 if (myChildren[childIndex]->ArghMatchMap(ending, treeMap))
                 {
-                    cout << "ARGH:Child (" << childIndex << ")";
-                    //auto copied = childIndex;
                     treeMap.push_front(childIndex);
-                    cout << "Again (" << treeMap.front() << ":" << treeMap.back() << "=" << treeMap.size() << ")";
                     return true;
-                }
-            }
-            else
-            {
-                // RAM: debug
-                for (size_t i = 0; i < myChildren.size(); i++)
-                {
-                    cout << "i: " << i << "==" << myChildren[i]->myString[0] << " ";
                 }
             }
         }
     }
-    
-    cout << "ARGH:NO "<<matchCount <<" (" << toMatch << ":" << myString << ")" << endl;
+ 
     return false;
 }
 
@@ -361,7 +293,6 @@ std::string AutoComplete::Node::MapToString(std::deque< size_t >& treeMap)
 {
     if (IsLeaf() || treeMap.empty())
     {
-        cout << endl;
         return myString;
     }
     else
@@ -370,8 +301,6 @@ std::string AutoComplete::Node::MapToString(std::deque< size_t >& treeMap)
         
         childIndex = treeMap.front();
         treeMap.pop_front();
-        
-        cout << "MS: " << childIndex;
         
         return myString + myChildren[childIndex]->MapToString(treeMap);
     }
@@ -589,13 +518,11 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
         size_t matchCount;
         
         matchCount = MatchingCharacters(toMatch);
-        cout << "Match: " << toMatch << ": " << matchCount << flush;
         
         if (matchCount == myString.size())
         {
             if (matchCount == toMatch.size())
             {
-                cout << " Tails straight" << flush;
                 // means this node is an exact match, return the children.
                 for (string tail : GetTails())
                 {
@@ -607,7 +534,6 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
                 // implicit toMatch.size() > myString.size()        
                 if (!IsLeaf())
                 {
-                    cout << " Tails children" << flush;
                     string shorter;
                     
                     shorter = toMatch.substr(matchCount);
@@ -618,7 +544,6 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
                     {                    
                         for (string tail : myChildren[bestChild]->GetMatchList(shorter))
                         {
-                    cout << " Tails children (" << tail << ")" << flush;
                             result.push_back(myString + tail);
                         }
                     }
@@ -627,7 +552,6 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
                 {
                     if (myString.size() > 0)
                     {
-                        cout << " Me only" << flush;
                         result.push_back(myString);
                     }
                 }
@@ -637,7 +561,6 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
         {
             if (matchCount == toMatch.size())
             {
-                cout << " Substring" << flush;
                 result.push_back(myString);
             }
         }
@@ -645,14 +568,12 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
     else
     {
         // empty match, match all!
-        cout << " MATCH ALL!" << flush;
         for (string tail : GetTails())
         {
-            cout << " tail (" << tail << ")" << flush;
             result.push_back(myString + tail);
         }
     }
-    cout << " Match Done (" << result.size() << ")" << endl << flush;
+    
     return result;
 }
 
@@ -679,11 +600,7 @@ AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
     for (string newWord : wordList)
     {
         myRoot.Insert(newWord);
-        cout << " ============== " << endl;
-        myRoot.PrintTree("+");
     }
-        cout << " ======xxx===== " << endl;
-    
 }
 
 std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
@@ -693,66 +610,23 @@ std::vector<std::string> AutoComplete::GetMatchList(std::string toMatch)
     
     if (myRoot.ArghMatchMap(toMatch, theMap))
     {
-        cout << "MAP IS: ";
-        for (auto point : theMap)
-        {
-            cout << point << "<-";
-        }
-        cout << "start" << endl << flush;
         result = myRoot.MapToStringAndTails(theMap);
     }
     
     return result;
-    
-    //return myRoot.GetMatchList(toMatch);
 }
 
 std::string AutoComplete::GetNextBestMatch(std::string toMatch)
 {
-    /*
-    {
-        vector<size_t> theMap;
-        
-        myRoot.BestMatchMap(toMatch, theMap);
-        
-        cout << endl << "map: " << toMatch << ": ";
-        for (auto stone : theMap)
-        {
-            cout << "-> " << stone;
-        }
-        cout << "." << endl;
-    }
-    
-    return myRoot.NextMatch(toMatch);
-    */
     string mapResult;
     
     deque<size_t> theMap;
         
     if (myRoot.ArghMatchMap(toMatch, theMap))
     {
-        if (!theMap.empty())
-        {
-        cout << "frontback:" << theMap.front() << ":" << theMap.back() << endl;
-        cout << endl << "MAP IS: ";
-        for (size_t point : theMap)
-        {
-            cout << point << " <- ";
-        }
-        cout << "start" << endl << flush;
-        }
-        else
-        {
-            cout << "true but empty map" << endl;
-        }
         mapResult = myRoot.MapToString(theMap);
         string result = myRoot.ArghMatch(toMatch, "");
-        cout << "ARGH@! " << toMatch << " -> " << result << ":" << mapResult << endl; 
     }
-    else
-    {
-        cout << "NO MAP!" << endl;
-    }
+    
     return mapResult;
-    //return myRoot.ArghMatch(toMatch, "");
 }
