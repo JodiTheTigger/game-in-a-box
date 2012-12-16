@@ -154,11 +154,20 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 // Bah, have to split my string, move nodes, and stuff.
                 unique_ptr<Node> mrSplit;
                 string oldTail;
-                                
+                          
+                
+                cout << endl << "Cildren before: " << endl;
+                for (auto& child : myChildren)
+                {
+                    cout << myString << ":" << child->myString << endl;
+                }
+                cout << "--------- " << endl;
+                
+                
                 oldTail = myString.substr(matchCount);                
                 mrSplit.reset(new Node(oldTail, true)); 
                 
-                std::cout << " -> Insert as split! (" << myString.substr(0, matchCount) << ")";    
+                std::cout << " -> Insert as split! (" << myString.substr(0, matchCount) << ":" << oldTail << ":" << tail << ")";    
                 
                 // move the children across
                 while (!myChildren.empty())
@@ -173,6 +182,16 @@ void AutoComplete::Node::Insert(std::string toInsert)
                 
                 // Don't forget the old tail
                 myChildren.push_back(move(mrSplit));
+                
+                
+                cout << endl << "Cildren after: " << endl;
+                for (auto& child : myChildren)
+                {
+                    cout << myString << ":" << child->myString << endl;
+                }
+                
+                cout << "--------- " << endl;
+                
             }
         }
     }
@@ -266,8 +285,11 @@ bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t 
     // special cases
     if (myString.empty() && toMatch.empty())
     {
+        cout << "ARGH:ROOT And EMPTY.";
+     
         if (myChildren.size() == 1)
         {
+            cout << "ARGH:Root,Empty, 1 child.";
             treeMap.push_front(0);
         }
         
@@ -285,7 +307,7 @@ bool AutoComplete::Node::ArghMatchMap(const string& toMatch, std::deque< size_t 
     
     matchCount = MatchingCharacters(toMatch);
     
-    if ((matchCount == toMatch.size()) && (matchCount < myString.size()))
+    if ((matchCount == toMatch.size()) && (matchCount <= myString.size()))
     {
         cout << "ARGH:This (" << toMatch << ")" << endl;
         return true;
@@ -634,18 +656,17 @@ std::vector<std::string> AutoComplete::Node::GetMatchList(const std::string& toM
     return result;
 }
 
-void AutoComplete::Node::PrintTree()
+void AutoComplete::Node::PrintTree(std::string base)
 {
     if (IsLeaf())
     {
-        cout << myString << endl;
+        cout << base << "||" << myString << endl;
     }
     else
     {
         for (auto& child : myChildren)
         {
-            cout << myString;
-            child->PrintTree();
+            child->PrintTree(base + ":" + myString);
         }
     }
 }
@@ -659,7 +680,7 @@ AutoComplete::AutoComplete(std::vector<std::string> wordList) : myRoot(Node())
     {
         myRoot.Insert(newWord);
         cout << " ============== " << endl;
-        myRoot.PrintTree();
+        myRoot.PrintTree("+");
     }
         cout << " ======xxx===== " << endl;
     
@@ -720,9 +741,17 @@ std::string AutoComplete::GetNextBestMatch(std::string toMatch)
         }
         cout << "start" << endl << flush;
         }
+        else
+        {
+            cout << "true but empty map" << endl;
+        }
         mapResult = myRoot.MapToString(theMap);
         string result = myRoot.ArghMatch(toMatch, "");
         cout << "ARGH@! " << toMatch << " -> " << result << ":" << mapResult << endl; 
+    }
+    else
+    {
+        cout << "NO MAP!" << endl;
     }
     return mapResult;
     //return myRoot.ArghMatch(toMatch, "");
