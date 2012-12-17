@@ -21,8 +21,24 @@
 #ifndef NETWORKMANAGER_H
 #define NETWORKMANAGER_H
 
+#include <memory>
+#include "BuildMacros.h"
+
+// forward declarations
+class StateManager;
+
 class NetworkManager
 {
+    CLASS_NOCOPY_NOASSIGN(NetworkManager);
+   
+public:
+    NetworkManager(std::weak_ptr<StateManager> stateManager);
+    
+    // Sends the network state to all connected clients
+    void SendState();
+    
+private:
+    std::weak_ptr<StateManager> myStateManager;
 };
 
 #endif // NETWORKMANAGER_H

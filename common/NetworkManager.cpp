@@ -19,4 +19,16 @@
 */
 
 #include "NetworkManager.h"
+#include "StateManager.h"
+
+NetworkManager::NetworkManager(std::weak_ptr<StateManager> stateManager)
+: myStateManager(stateManager)
+{
+}
+
+void NetworkManager::SendState()
+{
+    // Obviously TODO!
+}
+
 

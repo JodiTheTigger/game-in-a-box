@@ -63,9 +63,9 @@ void GameInABoxServer::Run()
     uint32_t timeDeltaInMs;
     
     // startup
-    myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
-    myNetworkState = shared_ptr<NetworkManager>(new NetworkManager());
     myGame = shared_ptr<StateManager>(new StateManager());
+    myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
+    myNetworkState = shared_ptr<NetworkManager>(new NetworkManager(myGame));
     
     // register
     
@@ -83,7 +83,7 @@ void GameInABoxServer::Run()
         
         if (timeDeltaInMs < myPeriodNetworkSendInMs)
         {
-            // Send network stuff!
+            myNetworkState->SendState();
         }
         
         // //////////////////////
