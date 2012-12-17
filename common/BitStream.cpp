@@ -50,7 +50,7 @@ void BitStream::Push(bool value)
   
   if (value)
   {    
-    byteIndex = myBitIndex / 8;
+    byteIndex = (uint32_t) (myBitIndex / 8);
     bitIndex = (uint8_t) myBitIndex & 0x07;
     (*myBuffer)[byteIndex] |= 1 << bitIndex;
   }
@@ -75,7 +75,7 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
   {   
     uint32_t byteIndex;
     
-    byteIndex = myBitIndex / 8;
+    byteIndex = (uint32_t) (myBitIndex / 8);
     
     myBuffer->push_back(0);
     (*myBuffer)[byteIndex] = value & ((1 << bitsToPush) - 1);
@@ -136,7 +136,7 @@ bool BitStream::Pull1Bit()
   uint8_t bitIndex;
   uint8_t asByte;
   
-  byteIndex = myBitIndex / 8;
+  byteIndex = (uint32_t) (myBitIndex / 8);
   bitIndex = (uint8_t) myBitIndex & 0x07;
   
   asByte = (*myBuffer)[byteIndex];
@@ -169,7 +169,7 @@ uint8_t BitStream::PullU8(uint8_t bitsToPull)
         return 0;
     }
     
-    byteIndex = myBitIndex / 8;
+    byteIndex = (uint32_t) (myBitIndex / 8);
     bitIndex = (uint8_t) myBitIndex & 0x07;
     result = (*myBuffer)[byteIndex];
 
