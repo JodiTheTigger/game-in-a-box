@@ -70,6 +70,12 @@ check_cxx_compiler_flag(-Werror HAS_WERROR)
 # http://blogs.msdn.com/b/vcblog/archive/2012/11/02/visual-c-c-11-and-the-future-of-c.aspx
 if (MSVC12)
 	set(HAS_MSCPP true)
+	
+	# Bah, can't get this to work either. Have to do it manually.
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_VARIADIC_MAX=10")
+	
+	# Maybe this will work someday (doesn't work in 2.8.11)
+	set(CMAKE_VS_PLATFORM_TOOLSET "v120_CTP_Nov2012")
 endif()
 
 # apply compiler options
