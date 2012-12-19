@@ -58,20 +58,39 @@ check_cxx_compiler_flag("-std=c++11" HAS_CPP11)
 check_cxx_compiler_flag("-std=c++0x" HAS_CPP0X)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Wall HAS_WALL)
+check_cxx_compiler_flag(-W4 HAS_W4)
 check_cxx_compiler_flag(-Wextra HAS_WEXTRA)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Werror HAS_WERROR)
+
+# OK, so MSVC12 is needed for c++11 but doesn't support it without the
+# November 2012 CTP as the platform toolset.
+# CMAKE doesn't support spefifying the toolset yet, so the user has to
+# Manually do it!
+# http://blogs.msdn.com/b/vcblog/archive/2012/11/02/visual-c-c-11-and-the-future-of-c.aspx
+if (MSVC12)
+	set(HAS_MSCPP true)
+	
+	# Bah, can't get this to work either. Have to do it manually.
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_VARIADIC_MAX=10")
+	
+	# Maybe this will work someday (doesn't work in 2.8.11)
+	set(CMAKE_VS_PLATFORM_TOOLSET "v120_CTP_Nov2012")
+endif()
 
 # apply compiler options
 if (HAS_CPP11)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 elseif(HAS_CPP0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
+elseif(NOT MSVC11)
     message(FATAL_ERROR "Compiler requires C++11 functionality.")
 endif()
 
-if (HAS_WALL)
+#prefer W4 over WALL for MSVC at least.
+if (HAS_W4)
+    set(PARANOID_FLAGS "${PARANOID_FLAGS} -W4")
+elseif(HAS_WALL)
     set(PARANOID_FLAGS "${PARANOID_FLAGS} -Wall")
 endif()
 
@@ -150,7 +169,5 @@ add_test(
   NAME game-in-a-box-common-tests
   COMMAND game-in-a-box-common-tests
 )
-
-
 
 

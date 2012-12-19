@@ -23,6 +23,12 @@
 #include <cmath>
 #include <algorithm>
 
+// ARGH! MSVC WART! Need to have a pre-compiled header to put all the warts into
+// but for now, this will have to do.
+#ifdef _MSC_VER
+#define roundf(dbl) dbl >= 0.0 ? (int)(dbl + 0.5) : ((dbl - (double)(int)dbl) <= -0.5 ? (int)dbl : (int)(dbl - 0.5))
+#endif
+
 using namespace std;
 
 RollingStatistics::RollingStatistics(uint32_t rollingBufferSizeInSamples)
@@ -94,8 +100,8 @@ void RollingStatistics::Calculate()
     myMin = sorted.front();
     myMax = sorted.back();
     
-    myQuartile25 = sorted[(uint32_t) round((sorted.size() - 1) * 0.25f)];
-    myQuartile75 = sorted[(uint32_t) round((sorted.size() - 1) * 0.75f)];
+    myQuartile25 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.25)];
+    myQuartile75 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.75)];
     
     if (sorted.size() == 1)
     {
