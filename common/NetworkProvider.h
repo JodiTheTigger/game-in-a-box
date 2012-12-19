@@ -21,8 +21,27 @@
 #ifndef NETWORKPROVIDER_H
 #define NETWORKPROVIDER_H
 
+#include <cstdint>
+#include <vector>
+
+// RAM: TODO!
+class NetworkAddress
+{
+public:
+    uint16_t Port() { return 0; }
+};
+
+// RAM: TODO! Turn this into an interface please! support ip4 ip6 and whatever else.
 class NetworkProvider
 {
+public:
+    // returns true if a packet was received (passed values are touched)
+    // otherwise false if there is nothing to get (passed values are not touched)
+    bool GetPacket(NetworkAddress& remoteAddress, std::vector<uint8_t>& data);
+    
+    // returns the amount of bytes reported sent by the system
+    // blocking
+    uint32_t SendPacket(const NetworkAddress& targetAddress, const std::vector<uint8_t>& data);
 };
 
 #endif // NETWORKPROVIDER_H

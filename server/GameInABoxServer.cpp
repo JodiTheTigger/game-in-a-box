@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <thread>
+#include <vector>
 
 #include "common/NetworkProvider.h"
 #include "common/NetworkManager.h"
@@ -65,7 +66,9 @@ void GameInABoxServer::Run()
     // startup
     myGame = shared_ptr<StateManager>(new StateManager());
     myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
-    myNetworkState = shared_ptr<NetworkManager>(new NetworkManager(myGame));
+    
+    // RAM: TODO!
+    myNetworkState = shared_ptr<NetworkManager>(new NetworkManager(vector<unique_ptr<NetworkProvider>>(), myGame));
     
     // register
     
@@ -74,6 +77,7 @@ void GameInABoxServer::Run()
         // Check Network
         
         // Update Gamestate
+        myNetworkState->ProcessIncomming();
         
         // //////////////////////
         // Send Network

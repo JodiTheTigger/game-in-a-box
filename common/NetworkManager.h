@@ -22,23 +22,35 @@
 #define NETWORKMANAGER_H
 
 #include <memory>
+#include <vector>
 #include "BuildMacros.h"
 
 // forward declarations
 class StateManager;
+class NetworkProvider;
 
 class NetworkManager
 {
     CLASS_NOCOPY_NOASSIGN(NetworkManager);
    
 public:
-    NetworkManager(std::weak_ptr<StateManager> stateManager);
+    NetworkManager(
+        std::vector<std::unique_ptr<NetworkProvider>> networks,
+        std::weak_ptr<StateManager> stateManager);
+    
+    // Processes all waiting packets.
+    // -Does connection challenges
+    // -Does connectionless packets (challenge, info)
+    // -Generates new clients (tells the state manager)
+    // -Processes incoming client state
+    void ProcessIncomming();
     
     // Sends the network state to all connected clients
     void SendState();
     
 private:
     std::weak_ptr<StateManager> myStateManager;
+    std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
 };
 
 #endif // NETWORKMANAGER_H

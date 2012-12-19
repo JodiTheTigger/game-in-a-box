@@ -20,3 +20,17 @@
 
 #include "NetworkProvider.h"
 
+bool NetworkProvider::GetPacket(NetworkAddress& , std::vector<uint8_t>& )
+{
+    // TODO!
+    return false;
+}
+
+// returns the amount of bytes reported sent by the system
+// blocking
+uint32_t NetworkProvider::SendPacket(const NetworkAddress&, const std::vector<uint8_t>& )
+{
+    // TODO!
+    return 0;
+}
+

@@ -20,10 +20,41 @@
 
 #include "NetworkManager.h"
 #include "StateManager.h"
+#include "NetworkProvider.h"
 
-NetworkManager::NetworkManager(std::weak_ptr<StateManager> stateManager)
+using namespace std;
+
+NetworkManager::NetworkManager(
+        std::vector<std::unique_ptr<NetworkProvider>> networks,
+        std::weak_ptr<StateManager> stateManager)
 : myStateManager(stateManager)
+, myNetworks()
 {
+    for (auto& network : networks)
+    {
+        if (network)
+        {
+            myNetworks.push_back(move(network));
+        }
+    }
+}
+
+void NetworkManager::ProcessIncomming()
+{
+    for (auto& network : myNetworks)
+    {
+        vector<uint8_t> data;
+        NetworkAddress address;
+        
+        if (network->GetPacket(address, data))
+        {
+            // process data
+            // TODO! make a packet factory that checks for a valid
+            // packet and returns a packet which is either connectionless
+            // or has bits filled in (but can still be a fragment).
+            // GamePacket = Packet::GetPacket(address, data); if (GamePacket != nullptr) { Process packet further }
+        }
+    }
 }
 
 void NetworkManager::SendState()
