@@ -18,12 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "INetworkAddress.h"
 #include "MockINetworkAddress.h"
 
 using namespace std;
+using ::testing::Return;
 
 // Class definition!
 class TestINetworkAddress : public ::testing::Test 
@@ -32,8 +34,13 @@ class TestINetworkAddress : public ::testing::Test
 
 TEST_F(TestINetworkAddress, Port) 
 {
-    // RAM: TODO!
-    EXPECT_EQ(0,1);
+    MockINetworkAddress address;
+    
+    EXPECT_CALL(address, PrivatePort())
+        .Times(1)
+        .WillRepeatedly(Return((uint16_t) 12345));
+    
+    EXPECT_EQ(address.Port(),12345);
 }
 
 TEST_F(TestINetworkAddress, Address) 

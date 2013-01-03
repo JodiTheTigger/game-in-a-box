@@ -167,7 +167,8 @@ target_link_libraries(
   game-in-a-box-common-tests
   pthread
   gtest
-  gtest_main)
+  gtest_main
+  gmock)
   
 add_test(
   NAME game-in-a-box-common-tests

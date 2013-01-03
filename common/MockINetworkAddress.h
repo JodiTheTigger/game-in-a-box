@@ -21,9 +21,11 @@
 #include "gmock/gmock.h"
 #include "INetworkAddress.h"
 
-class NetworkAddressMock : public INetworkAddress
+class MockINetworkAddress : public INetworkAddress
 {
-private:
+public:
+    // In general these methods should stay private. But they need to
+    // be public for testing sake.
     MOCK_CONST_METHOD0(PrivatePort, uint16_t());
     MOCK_CONST_METHOD0(PrivateAddress, uint64_t());
     MOCK_CONST_METHOD0(PrivateAddressString, std::string());
