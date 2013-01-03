@@ -115,6 +115,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server 
+common/INetworkAddress.cpp 
 common/AutoComplete.cpp
 common/IReflected.cpp 
 common/ReflectionManager.cpp 
@@ -142,12 +143,15 @@ add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-
 # yikes! that wasted a day of my life. Doesn't work as it can't find a make target
 # Maybe it only works in windows? Either way, include gmock with the source.
 
-add_subdirectory(third-party/gmock-1.6.0/gtest)
+#add_subdirectory(third-party/gmock-1.6.0/gtest)
+add_subdirectory(third-party/gmock-1.6.0)
 enable_testing()
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/common/INetworkAddress.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestINetworkAddress.cpp
   ${PROJECT_SOURCE_DIR}/common/ReflectionManager.cpp
   ${PROJECT_SOURCE_DIR}/common/IReflected.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestReflectionManager.cpp 
