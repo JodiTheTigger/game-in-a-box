@@ -111,6 +111,7 @@ endif()
 # Third Party Libraries
 ###############
 
+# TODO! Move to 1.52.0 for c++11 support.
 FIND_PACKAGE( Boost 1.46.1 COMPONENTS system thread REQUIRED )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
