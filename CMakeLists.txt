@@ -114,10 +114,6 @@ endif()
 FIND_PACKAGE( Boost 1.46.1 COMPONENTS system thread REQUIRED )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
-# I package boost as part of the git
-#set(${Boost_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/third-party/boost/boost_1_52_0)
-#include_directories(${Boost_INCLUDE_DIR})
-
 ###############
 # Server 
 ###############    
@@ -138,7 +134,7 @@ server/GameInABoxServer.cpp
 server/main.cpp)
 
 set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
-target_link_libraries(game-in-a-box-server ${Boost_LIBRARIES}) 
+target_link_libraries(game-in-a-box-server pthread ${Boost_LIBRARIES}) 
 add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
     
 ###############
