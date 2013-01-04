@@ -56,7 +56,6 @@ project(game-in-a-box CXX)
 # Check compiler options
 check_cxx_compiler_flag("-std=c++11" HAS_CPP11)
 check_cxx_compiler_flag("-std=c++0x" HAS_CPP0X)
-check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Wall HAS_WALL)
 check_cxx_compiler_flag(-W4 HAS_W4)
 check_cxx_compiler_flag(-Wextra HAS_WEXTRA)
@@ -64,8 +63,8 @@ check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Werror HAS_WERROR)
 
 # OK, so MSVC12 is needed for c++11 but doesn't support it without the
-# November 2012 CTP as the platform toolset.
-# CMAKE doesn't support spefifying the toolset yet, so the user has to
+# November 2012 CTP as the platform tool-set.
+# CMAKE doesn't support specifying the tool-set yet, so the user has to
 # Manually do it!
 # http://blogs.msdn.com/b/vcblog/archive/2012/11/02/visual-c-c-11-and-the-future-of-c.aspx
 if (MSVC12)
@@ -109,6 +108,17 @@ if (HAS_WERROR)
 endif()
 
 ###############
+# Third Party Libraries
+###############
+
+FIND_PACKAGE( Boost 1.46.1 COMPONENTS system thread REQUIRED )
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+
+# I package boost as part of the git
+#set(${Boost_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/third-party/boost/boost_1_52_0)
+#include_directories(${Boost_INCLUDE_DIR})
+
+###############
 # Server 
 ###############    
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -128,7 +138,7 @@ server/GameInABoxServer.cpp
 server/main.cpp)
 
 set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
-target_link_libraries(game-in-a-box-server) 
+target_link_libraries(game-in-a-box-server ${Boost_LIBRARIES}) 
 add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
     
 ###############
@@ -168,7 +178,8 @@ target_link_libraries(
   pthread
   gtest
   gtest_main
-  gmock)
+  gmock
+  ${Boost_LIBRARIES})
   
 add_test(
   NAME game-in-a-box-common-tests

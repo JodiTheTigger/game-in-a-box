@@ -23,6 +23,7 @@
 #include "NetworkProvider.h"
 
 using namespace std;
+using namespace boost::asio::ip;
 
 NetworkManager::NetworkManager(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
@@ -44,7 +45,7 @@ void NetworkManager::ProcessIncomming()
     for (auto& network : myNetworks)
     {
         vector<uint8_t> data;
-        NetworkAddress address;
+        udp::endpoint address;
         
         if (network->GetPacket(address, data))
         {

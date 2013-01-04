@@ -23,6 +23,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <boost/asio/ip/udp.hpp>
 
 // RAM: TODO!
 class NetworkAddress
@@ -37,11 +38,11 @@ class NetworkProvider
 public:
     // returns true if a packet was received (passed values are touched)
     // otherwise false if there is nothing to get (passed values are not touched)
-    bool GetPacket(NetworkAddress& remoteAddress, std::vector<uint8_t>& data);
+    bool GetPacket(boost::asio::ip::udp::endpoint& remoteAddress, std::vector<uint8_t>& data);
     
     // returns the amount of bytes reported sent by the system
     // blocking
-    uint32_t SendPacket(const NetworkAddress& targetAddress, const std::vector<uint8_t>& data);
+    uint32_t SendPacket(const boost::asio::ip::udp::endpoint& targetAddress, const std::vector<uint8_t>& data);
 };
 
 #endif // NETWORKPROVIDER_H

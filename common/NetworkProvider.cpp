@@ -20,7 +20,7 @@
 
 #include "NetworkProvider.h"
 
-bool NetworkProvider::GetPacket(NetworkAddress& , std::vector<uint8_t>& )
+bool NetworkProvider::GetPacket(boost::asio::ip::udp::endpoint& , std::vector<uint8_t>& )
 {
     // TODO!
     return false;
@@ -28,7 +28,7 @@ bool NetworkProvider::GetPacket(NetworkAddress& , std::vector<uint8_t>& )
 
 // returns the amount of bytes reported sent by the system
 // blocking
-uint32_t NetworkProvider::SendPacket(const NetworkAddress&, const std::vector<uint8_t>& )
+uint32_t NetworkProvider::SendPacket(const boost::asio::ip::udp::endpoint&, const std::vector<uint8_t>& )
 {
     // TODO!
     return 0;
