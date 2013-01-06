@@ -122,6 +122,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server  
+common/NetworkFragment.cpp
 common/AutoComplete.cpp
 common/IReflected.cpp 
 common/ReflectionManager.cpp 
@@ -155,6 +156,10 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOUR
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/common/NetworkProvider.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestNetworkProvider.cpp
+  ${PROJECT_SOURCE_DIR}/common/NetworkFragment.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestNetworkFragment.cpp
   ${PROJECT_SOURCE_DIR}/common/ReflectionManager.cpp
   ${PROJECT_SOURCE_DIR}/common/IReflected.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestReflectionManager.cpp 
