@@ -44,8 +44,10 @@ void NetworkManager::ProcessIncomming()
 {
     for (auto& network : myNetworks)
     {
-        vector<uint8_t> data;
+        unique_ptr<vector<uint8_t>> data;
         udp::endpoint address;
+        
+        data.reset(new vector<uint8_t>());
         
         if (network->GetPacket(address, data))
         {
