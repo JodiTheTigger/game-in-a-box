@@ -26,13 +26,6 @@
 #include <memory>
 #include <boost/asio/ip/udp.hpp>
 
-// RAM: TODO!
-class NetworkAddress
-{
-public:
-    uint16_t Port() { return 0; }
-};
-
 // RAM: TODO! Turn this into an interface please! support ip4 ip6 and whatever else.
 class NetworkProvider
 {
