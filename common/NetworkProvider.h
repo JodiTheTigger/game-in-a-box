@@ -32,11 +32,13 @@ class NetworkProvider
 public:
     // returns true if a packet was received (passed values are touched)
     // otherwise false if there is nothing to get (passed values are not touched)
-    bool GetPacket(boost::asio::ip::udp::endpoint& remoteAddress, std::unique_ptr<std::vector<uint8_t>>& data);
+    bool GetPacket(boost::asio::ip::udp::endpoint& remoteAddress, std::vector<uint8_t>& data);
     
-    // returns the amount of bytes reported sent by the system
-    // blocking
-    uint32_t SendPacket(const boost::asio::ip::udp::endpoint& targetAddress, const std::unique_ptr<std::vector<uint8_t>>& data);
+    // Sends the packet, consumes the data, blocking.
+    void SendPacket(const boost::asio::ip::udp::endpoint& targetAddress, std::unique_ptr<std::vector<uint8_t>> data);
+    
+    // Sends the packet, returns bytes sent, blocking.
+    uint32_t SendPacket(const boost::asio::ip::udp::endpoint& targetAddress, std::vector<uint8_t> data);
 };
 
 #endif // NETWORKPROVIDER_H

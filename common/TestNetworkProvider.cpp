@@ -29,11 +29,8 @@ class TestNetworkProvider : public ::testing::Test
 {
 };
 
-TEST_F(TestNetworkProvider, GetPacketNullData) 
+TEST_F(TestNetworkProvider, GetPacketNoData) 
 {
-    NetworkProvider toTest;
-    udp::endpoint address;
-    unique_ptr<vector<uint8_t>> data;
-    
-    EXPECT_FALSE(toTest.GetPacket(address, data));  
+    // RAM: TODO!
+    EXPECT_FALSE(true);  
 }
