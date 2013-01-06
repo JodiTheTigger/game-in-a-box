@@ -21,6 +21,7 @@
 #include "NetworkManager.h"
 #include "StateManager.h"
 #include "NetworkProvider.h"
+#include "NetworkFragment.h"
 
 using namespace std;
 using namespace boost::asio::ip;
@@ -44,16 +45,21 @@ void NetworkManager::ProcessIncomming()
 {
     for (auto& network : myNetworks)
     {
-        vector<uint8_t> data;
+        unique_ptr<vector<uint8_t>> data;
         udp::endpoint address;
         
-        if (network->GetPacket(address, data))
+        data.reset(new vector<uint8_t>);
+        
+        if (network->GetPacket(address, *(data.get())))
         {
-            // process data
-            // TODO! make a packet factory that checks for a valid
-            // packet and returns a packet which is either connectionless
-            // or has bits filled in (but can still be a fragment).
-            // GamePacket = Packet::GetPacket(address, data); if (GamePacket != nullptr) { Process packet further }
+            unique_ptr<NetworkFragment> fragment;
+             
+            fragment = NetworkFragment::GetFragmentFromData(address, move(data));
+            
+            if (fragment)
+            {
+                // RAM: TODO!
+            }
         }
     }
 }
