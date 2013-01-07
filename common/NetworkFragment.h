@@ -26,12 +26,13 @@
 #include <vector>
 #include <boost/asio/ip/udp.hpp>
 
+// forward references
+class NetworkPacket;
+
 class NetworkFragment
 {
 public:
-    static std::unique_ptr<NetworkFragment> GetFragmentFromData(
-        boost::asio::ip::udp::endpoint address,
-        std::unique_ptr<std::vector<uint8_t>> data);
+    static std::unique_ptr<NetworkFragment> GetFragmentFromData(NetworkPacket& packetData);
 
 private:
     // It's assumed this is a valid fragment by the time this

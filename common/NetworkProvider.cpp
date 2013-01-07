@@ -20,7 +20,7 @@
 
 #include "NetworkProvider.h"
     
-bool NetworkProvider::GetPacket(boost::asio::ip::udp::endpoint& , std::vector<uint8_t>& )
+bool NetworkProvider::GetPacket(NetworkPacket&)
 {
     // TODO!
     return false;
@@ -29,14 +29,7 @@ bool NetworkProvider::GetPacket(boost::asio::ip::udp::endpoint& , std::vector<ui
 
 
 // Sends the packet, consumes the data, blocking.
-void NetworkProvider::SendPacket(const boost::asio::ip::udp::endpoint&, std::unique_ptr<std::vector<uint8_t>>)
+void NetworkProvider::SendPacket(NetworkPacket&)
 {
     // TODO!
-}
-
-// Sends the packet, returns bytes sent, blocking.
-uint32_t NetworkProvider::SendPacket(const boost::asio::ip::udp::endpoint&, std::vector<uint8_t>)
-{
-    // TODO!
-    return 0;
 }

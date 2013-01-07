@@ -22,7 +22,6 @@
 #include "gtest/gtest.h"
 
 using namespace std;
-using namespace boost::asio::ip;
 
 // Class definition!
 class TestNetworkProvider : public ::testing::Test 

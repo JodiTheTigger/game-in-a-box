@@ -21,24 +21,19 @@
 #ifndef NETWORKPROVIDER_H
 #define NETWORKPROVIDER_H
 
-#include <cstdint>
-#include <vector>
-#include <memory>
-#include <boost/asio/ip/udp.hpp>
+// forward references
+class NetworkPacket;
 
 // RAM: TODO! Turn this into an interface please! support ip4 ip6 and whatever else.
 class NetworkProvider
 {
 public:
     // returns true if a packet was received (passed values are touched)
-    // otherwise false if there is nothing to get (passed values are not touched)
-    bool GetPacket(boost::asio::ip::udp::endpoint& remoteAddress, std::vector<uint8_t>& data);
+    // otherwise false if there is nothing to get (passed values are undefined)
+    bool GetPacket(NetworkPacket& networkData);
     
     // Sends the packet, consumes the data, blocking.
-    void SendPacket(const boost::asio::ip::udp::endpoint& targetAddress, std::unique_ptr<std::vector<uint8_t>> data);
-    
-    // Sends the packet, returns bytes sent, blocking.
-    uint32_t SendPacket(const boost::asio::ip::udp::endpoint& targetAddress, std::vector<uint8_t> data);
+    void SendPacket(NetworkPacket& networkData);
 };
 
 #endif // NETWORKPROVIDER_H

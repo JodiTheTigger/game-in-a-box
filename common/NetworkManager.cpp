@@ -22,6 +22,7 @@
 #include "StateManager.h"
 #include "NetworkProvider.h"
 #include "NetworkFragment.h"
+#include "NetworkPacket.h"
 
 using namespace std;
 using namespace boost::asio::ip;
@@ -45,16 +46,13 @@ void NetworkManager::ProcessIncomming()
 {
     for (auto& network : myNetworks)
     {
-        unique_ptr<vector<uint8_t>> data;
-        udp::endpoint address;
+        NetworkPacket data;
         
-        data.reset(new vector<uint8_t>);
-        
-        if (network->GetPacket(address, *(data.get())))
+        if (network->GetPacket(data))
         {
             unique_ptr<NetworkFragment> fragment;
              
-            fragment = NetworkFragment::GetFragmentFromData(address, move(data));
+            fragment = NetworkFragment::GetFragmentFromData(data);
             
             if (fragment)
             {

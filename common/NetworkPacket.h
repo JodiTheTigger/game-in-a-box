@@ -18,23 +18,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "NetworkFragment.h"
-#include "NetworkPacket.h"
+#ifndef NETWORKPACKET_H
+#define NETWORKPACKET_H
 
-using namespace std;
+#include <cstdint>
+#include <vector>
+#include <memory>
+#include <boost/asio/ip/udp.hpp>
 
-std::unique_ptr<NetworkFragment> NetworkFragment::GetFragmentFromData(NetworkPacket& packetData)
+#include "BuildMacros.h"
+
+class NetworkPacket
 {
-    unique_ptr<NetworkFragment> result;
+    CLASS_NOCOPY_NOASSIGN(NetworkPacket);
     
-    // Make sure we have data
-    if (packetData.data)
-    {
-        // RAM: TODO: do the rest of the packet processing.
-    }
-    
-    // C++ lets you do this without a std::move for return types.
-    return result;
-}
+public:
+    boost::asio::ip::udp::endpoint              address;
+    std::unique_ptr<std::vector<uint8_t>>       data;
+};
 
-
+#endif // NETWORKPACKET_H
