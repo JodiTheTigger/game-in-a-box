@@ -20,24 +20,50 @@
 
 #include "Huffman.h"
 
+#include <queue>
+
+#include "BitStream.h"
+
 using namespace std;
 
 Huffman::Huffman(std::unique_ptr<std::array<uint64_t, 256>> frequencies)
-{
+{    
+    priority_queue<Node*, std::vector<Node*>, NodeCompare> trees;
+ 
+    for (uint16_t i = 0; i < frequencies->size(); ++i)
+    {
+        if ((*frequencies)[i] != 0)
+        {
+            trees.push(new NodeLeaf((*frequencies)[i], (uint8_t) i));
+        }
+    }
+    
+    while (trees.size() > 1)
+    {
+        Node* childRight = trees.top();
+        trees.pop();
+ 
+        Node* childLeft = trees.top();
+        trees.pop();
+ 
+        Node* parent = new NodeInternal(childRight, childLeft);
+        trees.push(parent);
+    }
+    
+    //return trees.top();
+    // TODO: create EncodeMap!
 }
 
-std::unique_ptr<std::array<uint32_t, 256>> Huffman::CreateHuffmanCodes(const std::vector<uint64_t>& )
+std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>& data) const
 {
-    unique_ptr<array<uint32_t, 256>> result;
+    BitStream encoded(data.size());
     
-    return result;
-}
-
-std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>& ) const
-{
-    unique_ptr<vector<uint8_t>> result;
+    for (uint8_t byte : data)
+    {
+        encoded.Push(myEncodeMap[byte].value, myEncodeMap[byte].bits);
+    }
     
-    return result;
+    return encoded.TakeBuffer();
 }
 
 std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>& ) const

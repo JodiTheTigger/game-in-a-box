@@ -29,12 +29,69 @@
 // forward references
 class BitStream;
 
+// Based off http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
 class Huffman
 {
+public:
     Huffman(std::unique_ptr<std::array<uint64_t, 256>> frequencies);
     
     std::unique_ptr<std::vector<uint8_t>> Encode(const std::vector<uint8_t>& data) const;
     std::unique_ptr<std::vector<uint8_t>> Decode(const std::vector<uint8_t>& data) const;
+    
+private:
+    // apparently max bits for huffman is ceil(log2(alphabetsize))
+    // so I can use a byte to store the huffman code.
+    struct EncodeMapDatum
+    {
+        uint8_t value;
+        uint8_t bits;
+    };
+    
+    class Node
+    {
+    public:
+        const uint64_t myFrequency;
+        
+        virtual ~Node() {}
+    protected:
+        Node(uint64_t frequency) : myFrequency(frequency) {}
+    };
+    
+    class NodeInternal : public Node
+    {
+    public:
+        std::unique_ptr<Node> myLeft;
+        std::unique_ptr<Node> myRight;
+        
+        NodeInternal(Node* left, Node* right) 
+            : Node(left->myFrequency + right->myFrequency)
+            , myLeft(left)
+            , myRight(right)
+        {
+        }        
+    };
+    
+    class NodeLeaf : public Node
+    {
+    public:
+        const uint8_t myByte;
+        
+        NodeLeaf(uint64_t frequency, uint8_t byte) 
+            : Node(frequency)
+            , myByte(byte)
+        {
+        }
+    };    
+    
+    struct NodeCompare
+    {
+        bool operator()(const Node* left, const Node* right) const 
+        {
+            return (left->myFrequency > right->myFrequency);            
+        }
+    };
+        
+    std::array<EncodeMapDatum, 256> myEncodeMap;
 };
 
 #endif // HUFFMAN_H
