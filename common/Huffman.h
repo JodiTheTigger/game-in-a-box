@@ -31,9 +31,7 @@ class BitStream;
 
 class Huffman
 {
-    Huffman(std::array<uint32_t, 256> huffmanCode);
-    
-    static std::unique_ptr<std::array<uint32_t, 256>> CreateHuffmanCodes(const std::vector<uint64_t>& byteFrequencies);
+    Huffman(std::unique_ptr<std::array<uint64_t, 256>> frequencies);
     
     std::unique_ptr<std::vector<uint8_t>> Encode(const std::vector<uint8_t>& data) const;
     std::unique_ptr<std::vector<uint8_t>> Decode(const std::vector<uint8_t>& data) const;

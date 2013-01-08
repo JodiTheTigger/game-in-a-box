@@ -22,7 +22,7 @@
 
 using namespace std;
 
-Huffman::Huffman(std::array<uint32_t, 256>)
+Huffman::Huffman(std::unique_ptr<std::array<uint64_t, 256>> frequencies)
 {
 }
 
