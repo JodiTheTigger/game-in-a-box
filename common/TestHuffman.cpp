@@ -21,11 +21,23 @@
 #include "Huffman.h"
 #include "gtest/gtest.h"
 
+#include <string>
+
 using namespace std;
 
 // Class definition!
 class TestHuffman : public ::testing::Test 
 {
+    virtual void SetUp()
+    {
+        std::string testPhrase;
+
+        testPhrase = "Silly Sally saw sixty-six thick thistle sticks";
+
+        myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
+    }
+    
+    std::vector<std::vector<uint8_t>*> myTestBuffers; 
 };
 
 TEST_F(TestHuffman, CreateSimpleMap) 
