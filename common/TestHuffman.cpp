@@ -22,6 +22,7 @@
 #include "gtest/gtest.h"
 
 #include <string>
+#include <array>
 
 using namespace std;
 
@@ -37,11 +38,24 @@ class TestHuffman : public ::testing::Test
         myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
     }
     
+protected:
     std::vector<std::vector<uint8_t>*> myTestBuffers; 
 };
 
-TEST_F(TestHuffman, CreateSimpleMap) 
+TEST_F(TestHuffman, TestBuffers) 
 {
+    for (auto buffer : myTestBuffers)
+    {
+        // generate frequencies
+        array<uint64_t, 256> frequencies;
+        
+        for (uint8_t item : *buffer)
+        {
+            frequencies[item]++;
+        }
+        
+        Huffman toTest(frequencies);
+    }
     // RAM: TODO!
     EXPECT_FALSE(true);
 }
