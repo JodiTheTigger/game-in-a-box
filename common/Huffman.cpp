@@ -26,15 +26,15 @@
 
 using namespace std;
 
-Huffman::Huffman(std::unique_ptr<std::array<uint64_t, 256>> frequencies)
+Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
 {    
     priority_queue<Node*, std::vector<Node*>, NodeCompare> trees;
  
-    for (uint16_t i = 0; i < frequencies->size(); ++i)
+    for (uint16_t i = 0; i < frequencies.size(); ++i)
     {
-        if ((*frequencies)[i] != 0)
+        if (frequencies[i] != 0)
         {
-            trees.push(new NodeLeaf((*frequencies)[i], (uint8_t) i));
+            trees.push(new NodeLeaf(frequencies[i], (uint8_t) i));
         }
     }
     
