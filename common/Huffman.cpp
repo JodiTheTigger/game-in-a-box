@@ -50,8 +50,43 @@ Huffman::Huffman(std::unique_ptr<std::array<uint64_t, 256>> frequencies)
         trees.push(parent);
     }
     
+    // Generate the Encode Map
+    GenerateEncodeMap(trees.top(), ValueAndBits(0,0));
+    
     //return trees.top();
     // TODO: create EncodeMap!
+}
+
+void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits prefix)
+{
+    const NodeLeaf* leaf            = dynamic_cast<const NodeLeaf*>(node);
+    const NodeInternal* internal    = dynamic_cast<const NodeInternal*>(node);
+    
+    if (leaf != nullptr)
+    {
+        myEncodeMap[leaf->myByte] = prefix;
+    }
+    else 
+    {
+        if (internal != nullptr)
+        {
+            ValueAndBits prefixLeft;
+            ValueAndBits prefixRight;
+            
+            prefixLeft = prefix;
+            prefixRight = prefix;
+            
+            prefixLeft.bits++;
+            prefixLeft.value <<= 1;
+            //prefixLeft.value |= 0;
+            GenerateEncodeMap(internal->myLeft.get(), prefixLeft);
+            
+            prefixRight.bits++;
+            prefixRight.value <<= 1;
+            prefixRight.value |= 1;
+            GenerateEncodeMap(internal->myRight.get(), prefixRight);            
+        }
+    }
 }
 
 std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>& data) const

@@ -39,12 +39,21 @@ public:
     std::unique_ptr<std::vector<uint8_t>> Decode(const std::vector<uint8_t>& data) const;
     
 private:
-    // apparently max bits for huffman is ceil(log2(alphabetsize))
-    // so I can use a byte to store the huffman code.
-    struct EncodeMapDatum
+    // Class fails if the max code is greater than 16 bits.
+    struct ValueAndBits
     {
-        uint8_t value;
+        uint16_t value;
         uint8_t bits;
+        
+        ValueAndBits() : ValueAndBits(0,0) 
+        {            
+        }
+        
+        ValueAndBits(uint16_t newValue, uint8_t newBits) 
+            : value(newValue)
+            , bits(newBits)
+        {                
+        }
     };
     
     class Node
@@ -91,7 +100,10 @@ private:
         }
     };
         
-    std::array<EncodeMapDatum, 256> myEncodeMap;
+    std::array<ValueAndBits, 256> myEncodeMap;
+    //std::vector<std::vector<ValueAndBits>> myDecodeMap;
+    
+    void GenerateEncodeMap(const Node* node, ValueAndBits prefix);
 };
 
 #endif // HUFFMAN_H
