@@ -40,12 +40,11 @@ public:
     
     void Rewind(uint8_t bitsToRewind);
     
-    uint64_t SizeInBits() const { return myCurrentBitCount; }
+    uint64_t SizeInBytes() const { return mySourceBuffer.size(); }
     uint64_t PositionRead() const { return myBitIndex; }
 private:
     const std::vector<uint8_t>& mySourceBuffer;
     uint64_t myBitIndex;
-    uint64_t myCurrentBitCount;    
 };
 
 #endif // BITSTREAMREADONLY_H

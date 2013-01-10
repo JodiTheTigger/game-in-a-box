@@ -20,6 +20,15 @@
 
 #include "BitStreamReadOnly.h"
 
+BitStreamReadOnly::BitStreamReadOnly(const std::vector< uint8_t >& sourceBuffer) 
+    : mySourceBuffer(sourceBuffer)
+    , myBitIndex(0)
+{
+}
+
+BitStreamReadOnly::~BitStreamReadOnly()
+{
+}
 
 bool BitStreamReadOnly::Pull1Bit()
 {
@@ -118,5 +127,18 @@ uint32_t BitStreamReadOnly::PullU32(uint8_t bitsToPull)
     
     return result;
 }
+
+void BitStreamReadOnly::Rewind(uint8_t bitsToRewind)
+{
+    if (bitsToRewind > myBitIndex)
+    {
+        myBitIndex = 0;
+    }
+    else
+    {
+        myBitIndex -= bitsToRewind;
+    }
+}
+
 
 
