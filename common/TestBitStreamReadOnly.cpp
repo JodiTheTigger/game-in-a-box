@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BitStream.h"
+#include "BitStreamReadOnly.h"
 #include "gtest/gtest.h"
-/*
+
 using namespace std;
 
 // Class definition!
@@ -28,33 +28,29 @@ class TestBitStreamReadOnly : public ::testing::Test
 {
 };
 
-TEST_F(TestBitStream, FromPointer) 
+TEST_F(TestBitStreamReadOnly, Simple) 
 {
-  unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
+  vector<uint8_t> dude;
   
-  dude->push_back(1);
+  dude.push_back(1);
   
-  BitStream result(move(dude));
+  BitStreamReadOnly result(dude);
   
-  EXPECT_EQ(8, result.SizeInBits());
+  EXPECT_EQ(1, result.SizeInBytes());
   EXPECT_EQ(1, result.PullU8(4));
-  EXPECT_EQ(4, result.Position());  
+  EXPECT_EQ(4, result.PositionRead());  
 }
 
-TEST_F(TestBitStream, ZeroSize) 
+TEST_F(TestBitStreamReadOnly, ZeroSize) 
 {
-  BitStream testStream(8);
-  unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
+  vector<uint8_t> dude;
   
-  EXPECT_EQ(0, testStream.SizeInBits());
-  EXPECT_EQ(0, testStream.Position());
+  BitStreamReadOnly testStream(dude);
   
-  dude = testStream.TakeBuffer();
-  
-  // haven't added any data - so expect the size of the array to be 0.
-  EXPECT_EQ(0, dude->size());
+  EXPECT_EQ(0, testStream.SizeInBytes());
+  EXPECT_EQ(0, testStream.PositionRead());
 }
-
+/*
 TEST_F(TestBitStream, AddOneBit)
 {
   BitStream source(22);

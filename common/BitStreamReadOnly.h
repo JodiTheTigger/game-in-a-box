@@ -42,6 +42,7 @@ public:
     
     uint64_t SizeInBytes() const { return mySourceBuffer.size(); }
     uint64_t PositionRead() const { return myBitIndex; }
+    
 private:
     const std::vector<uint8_t>& mySourceBuffer;
     uint64_t myBitIndex;
