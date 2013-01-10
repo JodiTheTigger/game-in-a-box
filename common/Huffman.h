@@ -101,9 +101,10 @@ private:
     };
         
     std::array<ValueAndBits, 256> myEncodeMap;
-    //std::vector<std::vector<ValueAndBits>> myDecodeMap;
+    std::vector<std::vector<ValueAndBits>> myDecodeMap;
     
     void GenerateEncodeMap(const Node* node, ValueAndBits prefix);
+    void GenerateDecodeMap();
 };
 
 #endif // HUFFMAN_H
