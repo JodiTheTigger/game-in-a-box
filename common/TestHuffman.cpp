@@ -55,7 +55,16 @@ TEST_F(TestHuffman, TestBuffers)
         }
         
         Huffman toTest(frequencies);
+        
+        for (auto bufferToTest : myTestBuffers)
+        {
+            unique_ptr<vector<uint8_t>> encoded;
+            unique_ptr<vector<uint8_t>> decoded;
+            
+            encoded = toTest.Encode(*bufferToTest);
+            decoded = toTest.Decode(*encoded);
+            
+            EXPECT_EQ(*bufferToTest, *decoded);
+        }        
     }
-    // RAM: TODO!
-    EXPECT_FALSE(true);
 }
