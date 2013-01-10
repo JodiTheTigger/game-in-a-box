@@ -112,6 +112,7 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_executable(
 game-in-a-box-server 
+common/BitStreamReadOnly.cpp 
 common/BitStream.cpp 
 common/RollingStatistics.cpp
 server/main.cpp)
@@ -140,6 +141,8 @@ ADD_EXECUTABLE(
   game-in-a-box-common-tests 
   ${PROJECT_SOURCE_DIR}/common/RollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp 
+  ${PROJECT_SOURCE_DIR}/common/BitStreamReadOnly.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestBitStreamReadOnly.cpp
   ${PROJECT_SOURCE_DIR}/common/BitStream.cpp
   ${PROJECT_SOURCE_DIR}/common/TestBitStream.cpp)
   
