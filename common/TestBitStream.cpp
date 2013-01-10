@@ -38,7 +38,10 @@ TEST_F(TestBitStream, FromPointer)
   
   EXPECT_EQ(8, result.SizeInBits());
   EXPECT_EQ(1, result.PullU8(4));
-  EXPECT_EQ(4, result.Position());  
+  EXPECT_EQ(4, result.PositionRead());
+  
+  // RAM: TODO: Test WritePosition
+  EXPECT_TRUE(false);
 }
 
 TEST_F(TestBitStream, ZeroSize) 
@@ -47,12 +50,15 @@ TEST_F(TestBitStream, ZeroSize)
   unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
   
   EXPECT_EQ(0, testStream.SizeInBits());
-  EXPECT_EQ(0, testStream.Position());
+  EXPECT_EQ(0, testStream.PositionRead());
   
   dude = testStream.TakeBuffer();
   
   // haven't added any data - so expect the size of the array to be 0.
   EXPECT_EQ(0, dude->size());
+  
+  // RAM: TODO: Test WritePosition
+  EXPECT_TRUE(false);
 }
 
 TEST_F(TestBitStream, AddOneBit)
