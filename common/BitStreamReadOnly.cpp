@@ -20,9 +20,9 @@
 
 #include "BitStreamReadOnly.h"
 
-BitStreamReadOnly::BitStreamReadOnly(const std::vector< uint8_t >& sourceBuffer) 
-    : mySourceBuffer(sourceBuffer)
-    , myBitIndex(0)
+BitStreamReadOnly::BitStreamReadOnly(const std::vector< uint8_t >& sourceBuffer)
+    : mySourceBuffer(&sourceBuffer)
+    , myBitIndex(0) 
 {
 }
 
@@ -30,26 +30,36 @@ BitStreamReadOnly::~BitStreamReadOnly()
 {
 }
 
-bool BitStreamReadOnly::Pull1Bit()
+void BitStreamReadOnly::Reset(const std::vector<uint8_t>& newSourceBuffer)
 {
+    // Only do the same as the constructor
+    mySourceBuffer = &newSourceBuffer;
+    myBitIndex = 0;
+}
+
+bool BitStreamReadOnly::Pull1Bit()
+{    
   uint32_t byteIndex;
   uint8_t bitIndex;
   uint8_t asByte;
   
+  // I hate writing (*ptr)[index]
+  auto& sourceBuffer = *mySourceBuffer;
+  
   byteIndex = (uint32_t) (myBitIndex / 8);
   bitIndex = (uint8_t) myBitIndex & 0x07;
     
-    if (byteIndex >= mySourceBuffer.size())
+    if (byteIndex >= sourceBuffer.size())
     {
-        if (myBitIndex > mySourceBuffer.size() * 8)
+        if (myBitIndex > sourceBuffer.size() * 8)
         {
-            myBitIndex = mySourceBuffer.size() * 8;
+            myBitIndex = sourceBuffer.size() * 8;
         }
         
         return false;
     }
   
-  asByte = mySourceBuffer[byteIndex];
+  asByte = sourceBuffer[byteIndex];
   
   ++myBitIndex;
   
@@ -68,6 +78,8 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
     uint32_t byteIndex;
     uint8_t bitIndex;
     uint8_t result;
+    
+    auto& sourceBuffer = *mySourceBuffer;
  
     if (bitsToPull > 8)
     {
@@ -82,17 +94,17 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
     byteIndex = (uint32_t) (myBitIndex / 8);
     bitIndex = (uint8_t) myBitIndex & 0x07;
     
-    if (byteIndex >= mySourceBuffer.size())
+    if (byteIndex >= sourceBuffer.size())
     {
-        if (myBitIndex > mySourceBuffer.size() * 8)
+        if (myBitIndex > sourceBuffer.size() * 8)
         {
-            myBitIndex = mySourceBuffer.size() * 8;
+            myBitIndex = sourceBuffer.size() * 8;
         }
         
         return 0;
     }
     
-    result = mySourceBuffer[byteIndex];
+    result = sourceBuffer[byteIndex];
 
     if (bitIndex == 0)
     {
@@ -103,13 +115,13 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
         uint16_t second;
         uint16_t asU16;
         
-        if ((byteIndex+1) >= mySourceBuffer.size())
+        if ((byteIndex+1) >= sourceBuffer.size())
         {
             second = 0;
         }
         else
         {
-            second = mySourceBuffer[byteIndex + 1];
+            second = sourceBuffer[byteIndex + 1];
         }
         
         asU16 = result + (second << 8);
@@ -120,9 +132,9 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
     myBitIndex += bitsToPull;
     
     // EOF?
-    if ((myBitIndex / 8) >= mySourceBuffer.size())
+    if ((myBitIndex / 8) >= sourceBuffer.size())
     {
-        myBitIndex = mySourceBuffer.size() * 8;
+        myBitIndex = sourceBuffer.size() * 8;
     }
   
     return result;

@@ -21,11 +21,15 @@
 #ifndef BITSTREAMREADONLY_H
 #define BITSTREAMREADONLY_H
 
+#include "BuildMacros.h"
+
 #include <cstdint>
 #include <vector>
 
 class BitStreamReadOnly
-{
+{    
+    CLASS_NOCOPY_NOASSIGN(BitStreamReadOnly)
+ 
 public:
     BitStreamReadOnly(const std::vector<uint8_t>& sourceBuffer);
     virtual ~BitStreamReadOnly();
@@ -39,12 +43,13 @@ public:
     uint32_t PullU32(uint8_t bitsToPull);    
     
     void Rewind(uint8_t bitsToRewind);
+    void Reset(const std::vector<uint8_t>& newSourceBuffer);
     
-    uint64_t SizeInBytes() const { return mySourceBuffer.size(); }
+    uint64_t SizeInBytes() const { return mySourceBuffer->size(); }
     uint64_t PositionRead() const { return myBitIndex; }
-    
+
 private:
-    const std::vector<uint8_t>& mySourceBuffer;
+    const std::vector<uint8_t>* mySourceBuffer;
     uint64_t myBitIndex;
 };
 

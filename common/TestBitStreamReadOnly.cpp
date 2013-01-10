@@ -69,6 +69,32 @@ TEST_F(TestBitStreamReadOnly, ReadPastEnd)
   EXPECT_EQ(8, result.PositionRead());  
 }
 
+TEST_F(TestBitStreamReadOnly, Reset)
+{ 
+    vector<uint8_t> dude1;
+    vector<uint8_t> dude2;
+  
+  dude1.push_back(1);
+  dude2.push_back(2);
+  
+  BitStreamReadOnly result(dude1);
+
+  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(4, result.PositionRead());  
+  
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(8, result.PositionRead());  
+
+  result.Reset(dude2);
+  
+  EXPECT_EQ(2, result.PullU8(4));
+  EXPECT_EQ(4, result.PositionRead());  
+  
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(8, result.PositionRead());  
+
+}
+
 TEST_F(TestBitStreamReadOnly, ArrayUpdatedBehindBack)
 {
   vector<uint8_t> dude;
