@@ -38,6 +38,16 @@ bool BitStreamReadOnly::Pull1Bit()
   
   byteIndex = (uint32_t) (myBitIndex / 8);
   bitIndex = (uint8_t) myBitIndex & 0x07;
+    
+    if (byteIndex >= mySourceBuffer.size())
+    {
+        if (myBitIndex > mySourceBuffer.size() * 8)
+        {
+            myBitIndex = mySourceBuffer.size() * 8;
+        }
+        
+        return false;
+    }
   
   asByte = mySourceBuffer[byteIndex];
   
@@ -71,6 +81,17 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
     
     byteIndex = (uint32_t) (myBitIndex / 8);
     bitIndex = (uint8_t) myBitIndex & 0x07;
+    
+    if (byteIndex >= mySourceBuffer.size())
+    {
+        if (myBitIndex > mySourceBuffer.size() * 8)
+        {
+            myBitIndex = mySourceBuffer.size() * 8;
+        }
+        
+        return 0;
+    }
+    
     result = mySourceBuffer[byteIndex];
 
     if (bitIndex == 0)
@@ -79,13 +100,30 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
     }
     else
     {
+        uint16_t second;
         uint16_t asU16;
-        asU16 = result + (((uint16_t) mySourceBuffer[byteIndex + 1]) << 8);
+        
+        if ((byteIndex+1) >= mySourceBuffer.size())
+        {
+            second = 0;
+        }
+        else
+        {
+            second = mySourceBuffer[byteIndex + 1];
+        }
+        
+        asU16 = result + (second << 8);
         asU16 = asU16 >> bitIndex;    
         result = (uint8_t) (asU16 & ((1 << bitsToPull) - 1));
     }
     
     myBitIndex += bitsToPull;
+    
+    // EOF?
+    if ((myBitIndex / 8) >= mySourceBuffer.size())
+    {
+        myBitIndex = mySourceBuffer.size() * 8;
+    }
   
     return result;
 }

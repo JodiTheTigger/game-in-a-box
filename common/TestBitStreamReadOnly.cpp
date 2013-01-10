@@ -50,125 +50,110 @@ TEST_F(TestBitStreamReadOnly, ZeroSize)
   EXPECT_EQ(0, testStream.SizeInBytes());
   EXPECT_EQ(0, testStream.PositionRead());
 }
-/*
-TEST_F(TestBitStream, AddOneBit)
+
+TEST_F(TestBitStreamReadOnly, ReadPastEnd)
 {
-  BitStream source(22);
-  BitStream source2(22);
+  vector<uint8_t> dude;
   
-  source.Push(true);
-  EXPECT_EQ(1, source.SizeInBits());
+  dude.push_back(1);
   
-  BitStream result(move(source.TakeBuffer())); 
+  BitStreamReadOnly result(dude);
+
+  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(4, result.PositionRead());  
   
-  EXPECT_TRUE(result.Pull1Bit());   
-  
-  source2.Push(false);
-  source2.Push(true);
-  source2.Push(true);
-  EXPECT_EQ(3, source2.SizeInBits());
-  
-  BitStream result2(source2.TakeBuffer()); 
-  
-  EXPECT_FALSE(result2.Pull1Bit());
-  EXPECT_TRUE(result2.Pull1Bit());
-  EXPECT_TRUE(result2.Pull1Bit());
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(8, result.PositionRead());  
+
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(8, result.PositionRead());  
 }
 
-TEST_F(TestBitStream, AddU8)
+TEST_F(TestBitStreamReadOnly, ArrayUpdatedBehindBack)
 {
-  BitStream source(22);
+  vector<uint8_t> dude;
   
-  source.Push((uint8_t) 69, 8);
-  EXPECT_EQ(8, source.SizeInBits());
+  dude.push_back(1);
   
-  BitStream result(move(source.TakeBuffer()));  
+  BitStreamReadOnly result(dude);
+
+  EXPECT_EQ(1, result.PullU8(8));
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(8, result.PositionRead());  
   
-  EXPECT_EQ(69, result.PullU8(8)); 
+  dude.push_back(1);
+
+  EXPECT_EQ(1, result.PullU8(8));
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(16, result.PositionRead());  
+
+  dude.clear();
   
-  BitStream source2(22);
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(0, result.PositionRead());  
+
+  result.Rewind(100);
   
-  source2.Push((uint8_t) 69, 8);
-  EXPECT_EQ(8, source2.SizeInBits());
-  
-  BitStream result2(move(source2.TakeBuffer()));  
-  
-  EXPECT_EQ(5, result2.PullU8(4));
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(0, result.PositionRead());  
 }
 
-TEST_F(TestBitStream, AddMoreBitsThanNeeded)
+TEST_F(TestBitStreamReadOnly, Rewind)
 {
-  BitStream source(22);
+  vector<uint8_t> dude;
   
-  source.Push((uint8_t) 0xFF, 4);
-  source.Push(false);
-  source.Push(true);
-  source.Push(false);
-  EXPECT_EQ(7, source.SizeInBits());
+  dude.push_back(1);
+  dude.push_back(1);
   
-  BitStream result(move(source.TakeBuffer()));  
-  
-  EXPECT_EQ(47, result.PullU8(8));
-}
+  BitStreamReadOnly result(dude);
 
-TEST_F(TestBitStream, AddU16)
-{
-  BitStream source(69);
+  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(4, result.PositionRead());  
   
-  source.Push((uint16_t) 0x1234, 16);
-  EXPECT_EQ(16, source.SizeInBits());
-  
-  BitStream result(move(source.TakeBuffer()));  
-  
-  EXPECT_EQ(0x1234, result.PullU16(16));
-}
-
-TEST_F(TestBitStream, AddU32)
-{
-  BitStream source(69);
-  
-  source.Push((uint32_t) 0x12345678, 32);
-  EXPECT_EQ(32, source.SizeInBits());
-  
-  BitStream result(move(source.TakeBuffer()));  
-  
-  EXPECT_EQ(0x12345678, result.PullU32(32));
-}
-
-TEST_F(TestBitStream, AddUnalignedU8)
-{
-  BitStream source(69);
-  
-  source.Push(true);
-  source.Push((uint8_t) 133, 8);
-  EXPECT_EQ(9, source.SizeInBits());
-  
-  BitStream result(move(source.TakeBuffer()));  
-  
-  EXPECT_TRUE(result.Pull1Bit());
-  EXPECT_EQ(133, result.PullU8(8));
-}
-
-TEST_F(TestBitStream, AddLotsOfStuff)
-{
-    BitStream source(16);
-
-    source.Push(true);  
-    source.Push(false);
-    source.Push((uint8_t) 0x12, 8);
-    source.Push((uint16_t) 0x3456, 16);
-    source.Push(true);  
-    source.Push(false);
-    source.Push((uint32_t) 0x789abcde, 32);
-    EXPECT_EQ(60, source.SizeInBits());
+  result.Rewind(4);
     
-    BitStream result(move(source.TakeBuffer()));  
+  EXPECT_EQ(1, result.PullU8(8));
+  EXPECT_EQ(8, result.PositionRead());  
   
+  result.Rewind(7);
+  
+  EXPECT_EQ(128, result.PullU8(8));
+  EXPECT_EQ(9, result.PositionRead());  
+  
+  result.Rewind(100);
+  
+  EXPECT_EQ(257, result.PullU16(9));
+  EXPECT_EQ(9, result.PositionRead());  
+}
+
+TEST_F(TestBitStreamReadOnly, TestLotsOfStuff)
+{
+    vector<uint8_t> dude;
+    
+    BitStreamReadOnly result(dude);
+    
+    dude.push_back(1);
+    dude.push_back(2);
+    dude.push_back(4);
+    dude.push_back(8);
+    dude.push_back(16);
+    
+    EXPECT_EQ(5, result.SizeInBytes());
+    
     EXPECT_TRUE(result.Pull1Bit());
     EXPECT_FALSE(result.Pull1Bit());
-    EXPECT_EQ(0x12, result.PullU8(8));
-    EXPECT_EQ(0x3456, result.PullU16(16));
-    EXPECT_TRUE(result.Pull1Bit());
+    EXPECT_EQ(0x80, result.PullU8(8));
+    EXPECT_EQ(0x100, result.PullU16(16));
     EXPECT_FALSE(result.Pull1Bit());
-    EXPECT_EQ(0x789abcde, result.PullU32(32));
-}*/
+    EXPECT_TRUE(result.Pull1Bit());
+    EXPECT_EQ(0x100, result.PullU32(32));
+    
+    result.Rewind(100);
+    EXPECT_EQ(0x08040201, result.PullU32(32));
+    
+    result.Rewind(31);
+    EXPECT_EQ(0x04020100, result.PullU32(32));
+    
+}
