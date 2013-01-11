@@ -45,7 +45,6 @@ public:
     void Push(uint32_t value, uint8_t bitsToPush);
 
     uint64_t SizeInBits() const { return myCurrentBitCount; }
-    uint64_t PositionWrite() const { return myBitIndexWrite; }
 
     std::unique_ptr<std::vector<uint8_t>> TakeBuffer();
 
