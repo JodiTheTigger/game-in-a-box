@@ -38,7 +38,7 @@ TEST_F(TestBitStream, FromPointer)
   
   EXPECT_EQ(8, result.SizeInBits());
   EXPECT_EQ(1, result.PullU8(4));
-  EXPECT_EQ(4, result.Position());  
+  EXPECT_EQ(4, result.PositionRead());
 }
 
 TEST_F(TestBitStream, ZeroSize) 
@@ -47,7 +47,7 @@ TEST_F(TestBitStream, ZeroSize)
   unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
   
   EXPECT_EQ(0, testStream.SizeInBits());
-  EXPECT_EQ(0, testStream.Position());
+  EXPECT_EQ(0, testStream.PositionRead());
   
   dude = testStream.TakeBuffer();
   

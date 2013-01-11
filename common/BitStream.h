@@ -26,8 +26,9 @@
 #include <memory>
 
 #include "BuildMacros.h"
+#include "BitStreamReadOnly.h"
 
-class BitStream
+class BitStream : public BitStreamReadOnly
 {
     CLASS_NOCOPY_NOASSIGN(BitStream)
     
@@ -43,22 +44,13 @@ public:
     void Push(uint16_t value, uint8_t bitsToPush);
     void Push(uint32_t value, uint8_t bitsToPush);
 
-    bool Pull1Bit();
-    
-    // These will only pull as many bits as the output data size.
-    // e.g. for a uint8_t it will pull no more than 8 bits.
-    uint8_t PullU8(uint8_t bitsToPull);
-    uint16_t PullU16(uint8_t bitsToPull);
-    uint32_t PullU32(uint8_t bitsToPull);
-    
     uint64_t SizeInBits() const { return myCurrentBitCount; }
-    uint64_t Position() const { return myBitIndex; }
 
     std::unique_ptr<std::vector<uint8_t>> TakeBuffer();
 
 private:
     std::unique_ptr<std::vector<uint8_t>> myBuffer;
-    uint64_t myBitIndex;
+    uint64_t myBitIndexWrite;
     uint64_t myCurrentBitCount;
 
 };

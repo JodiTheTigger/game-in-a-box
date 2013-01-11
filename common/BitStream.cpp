@@ -23,16 +23,19 @@
 using namespace std;
 
 BitStream::BitStream(uint32_t initialCapacityInBytes)
-    : myBuffer(new vector<uint8_t>())
-    , myBitIndex(0)
+    : BitStreamReadOnly(vector<uint8_t>())
+    , myBuffer(new vector<uint8_t>())
+    , myBitIndexWrite(0)
     , myCurrentBitCount(0)
 {
+  Reset(*myBuffer);
   myBuffer->reserve(initialCapacityInBytes);
 }
 
 BitStream::BitStream(unique_ptr<vector<uint8_t>> sourceBuffer)
-    : myBuffer(move(sourceBuffer))
-    , myBitIndex(0)
+    : BitStreamReadOnly(*sourceBuffer)
+    , myBuffer(move(sourceBuffer))
+    , myBitIndexWrite(0)
     , myCurrentBitCount(myBuffer->size() * 8)
 {
 }
@@ -43,19 +46,19 @@ void BitStream::Push(bool value)
   uint8_t bitIndex;
   
   // new byte needed?
-  if (0 == (myBitIndex & 0x07))
+  if (0 == (myBitIndexWrite & 0x07))
   {
     myBuffer->push_back(0);
   }
   
   if (value)
   {    
-    byteIndex = (uint32_t) (myBitIndex / 8);
-    bitIndex = (uint8_t) myBitIndex & 0x07;
+    byteIndex = (uint32_t) (myBitIndexWrite / 8);
+    bitIndex = (uint8_t) myBitIndexWrite & 0x07;
     (*myBuffer)[byteIndex] |= 1 << bitIndex;
   }
   
-  ++myBitIndex;
+  ++myBitIndexWrite;
   ++myCurrentBitCount;
 }
 
@@ -71,16 +74,16 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
       return;
   }
   
-  if ((myBitIndex & 0x07) == 0)
+  if ((myBitIndexWrite & 0x07) == 0)
   {   
     uint32_t byteIndex;
     
-    byteIndex = (uint32_t) (myBitIndex / 8);
+    byteIndex = (uint32_t) (myBitIndexWrite / 8);
     
     myBuffer->push_back(0);
     (*myBuffer)[byteIndex] = value & ((1 << bitsToPush) - 1);
     
-    myBitIndex += bitsToPush;    
+    myBitIndexWrite += bitsToPush;    
     myCurrentBitCount += bitsToPush;
   }
   else
@@ -130,104 +133,6 @@ void BitStream::Push(uint32_t value, uint8_t bitsToPush)
   }
 }
 
-bool BitStream::Pull1Bit()
-{
-  uint32_t byteIndex;
-  uint8_t bitIndex;
-  uint8_t asByte;
-  
-  byteIndex = (uint32_t) (myBitIndex / 8);
-  bitIndex = (uint8_t) myBitIndex & 0x07;
-  
-  asByte = (*myBuffer)[byteIndex];
-  
-  ++myBitIndex;
-  
-  if (0 == ((asByte >> bitIndex) & 0x01))
-  {    
-    return false;
-  }
-  else
-  {
-    return true;
-  }  
-}
-
-uint8_t BitStream::PullU8(uint8_t bitsToPull)
-{
-    uint32_t byteIndex;
-    uint8_t bitIndex;
-    uint8_t result;
- 
-    if (bitsToPull > 8)
-    {
-        bitsToPull = 8;
-    }
-    
-    if (bitsToPull == 0)
-    {
-        return 0;
-    }
-    
-    byteIndex = (uint32_t) (myBitIndex / 8);
-    bitIndex = (uint8_t) myBitIndex & 0x07;
-    result = (*myBuffer)[byteIndex];
-
-    if (bitIndex == 0)
-    {
-        result = result & ((1 << bitsToPull) - 1);
-    }
-    else
-    {
-        uint16_t asU16;
-        asU16 = result + (((uint16_t) (*myBuffer)[byteIndex + 1]) << 8);
-        asU16 = asU16 >> bitIndex;    
-        result = (uint8_t) (asU16 & ((1 << bitsToPull) - 1));
-    }
-    
-    myBitIndex += bitsToPull;
-  
-    return result;
-}
-
-uint16_t BitStream::PullU16(uint8_t bitsToPull)
-{
-    uint16_t result;
-    
-    if (bitsToPull == 0)
-    {
-        return 0;
-    }
-    
-    result = PullU8(bitsToPull);
-    
-    if (bitsToPull > 8)
-    {
-        result |= ((uint16_t) PullU8(bitsToPull - 8)) << 8;
-    }
-    
-    return result;
-}
-
-uint32_t BitStream::PullU32(uint8_t bitsToPull)
-{
-    uint32_t result;
-    
-    if (bitsToPull == 0)
-    {
-        return 0;
-    }
-    
-    result = PullU16(bitsToPull);
-    
-    if (bitsToPull > 16)
-    {
-        result |= ((uint32_t) PullU16(bitsToPull - 16)) << 16;
-    }
-    
-    return result;
-}
-
 unique_ptr<vector<uint8_t>> BitStream::TakeBuffer()
 {
   unique_ptr<vector<uint8_t>> result;
@@ -235,7 +140,7 @@ unique_ptr<vector<uint8_t>> BitStream::TakeBuffer()
   result = move(myBuffer);
   
   // class is pretty much dead after this point.
-  myBitIndex = 0;
+  myBitIndexWrite = 0;
   myCurrentBitCount = 0;
   myBuffer.reset(new vector<uint8_t>());
   
