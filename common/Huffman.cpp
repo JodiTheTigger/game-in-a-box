@@ -135,7 +135,7 @@ void Huffman::GenerateDecodeMap()
         if (point.bits > 16)
         {
             // wel, shit.
-            throw std::logic_error("Huffman map uses more than 16 bits");
+            throw std::logic_error("Huffman map uses more than 16 bits (uses " + to_string(point.bits) + ").");
         }
          
         if (point.bits < 10)
@@ -154,6 +154,7 @@ void Huffman::GenerateDecodeMap()
             myDecodeMap.push_back(vector<ValueAndBits>());
             point.value >>= 9;
             point.bits -= 9;
+            myDecodeMap[lookupCount].resize(1 << point.bits);
             
             all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
             thisIndex = lookupCount;
@@ -179,9 +180,35 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>
     return encoded.TakeBuffer();
 }
 
-std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>& ) const
+std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>& data) const
 {
     unique_ptr<vector<uint8_t>> result;
+    BitStreamReadOnly inBuffer(data);
+    //uint64_t index;
+    
+    //index = 0;
+    while (inBuffer.PositionRead() < data.size())
+    {
+        ValueAndBits codeWord;
+        uint16_t bits9;
+        
+        bits9 = inBuffer.PullU16(9);
+        
+        codeWord = myDecodeMap[0][bits9];
+        
+        if (codeWord.value < 256)
+        {
+            result->push_back(codeWord.value);
+            inBuffer.Rewind(9 - codeWord.bits);
+        }        
+        else
+        {
+            //uint8_t bitsRead;
+            
+            //bitsRead = codeWord.bits - 9;
+            // RAM: TODO!
+        }
+    }
     
     return result;
 }
