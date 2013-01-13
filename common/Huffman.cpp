@@ -21,6 +21,7 @@
 #include "Huffman.h"
 
 #include <queue>
+#include <stdexcept>
 
 #include "BitStream.h"
 
@@ -87,8 +88,83 @@ void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits
     }
 }
 
+// Assume that the bits that are at the top of the 9 bits
+std::vector<uint16_t> Huffman::Get9BitBytesStartingWith(uint16_t startValue, uint8_t bitSize)
+{
+    vector<uint16_t> result;
+    
+    if ((bitSize < 9) && (bitSize > 0))
+    {
+        uint8_t mask;
+        uint8_t count;
+        
+        count = 1 << (9 - bitSize);
+        mask = count - 1;
+        startValue &= mask;
+        
+        for (int i = 0; i < count; i++)
+        {
+            result.push_back(startValue | count);
+        }
+    }
+    else
+    {
+        result.push_back(startValue);
+    }
+    
+    return result;
+}
+
 void Huffman::GenerateDecodeMap()
 {
+    uint8_t lookupCount;
+    
+    // always have a index 0 map which is 512 bit.
+    lookupCount = 0;
+    myDecodeMap.push_back(vector<ValueAndBits>());
+    myDecodeMap[0].resize(512);
+    
+    for (int result = 0; result < 256; result++)
+    {
+        vector<uint16_t> all9Bits;
+        ValueAndBits point;
+        uint8_t thisIndex;
+        
+        point = myEncodeMap[result];
+        
+        if (point.bits > 16)
+        {
+            // wel, shit.
+            throw std::logic_error("Huffman map uses more than 16 bits");
+        }
+         
+        if (point.bits < 10)
+        {
+            thisIndex = 0;
+            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);
+        }   
+        else
+        {
+            // make a new lookup please.
+            lookupCount++;
+            myDecodeMap[0][point.value] = ValueAndBits(256 + lookupCount, point.bits);
+            
+            // make a new lookup please.
+            lookupCount++;
+            myDecodeMap.push_back(vector<ValueAndBits>());
+            point.value >>= 9;
+            point.bits -= 9;
+            
+            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
+            thisIndex = lookupCount;
+        }
+        
+        for (auto byte : all9Bits)
+        {
+            myDecodeMap[thisIndex][byte].value = result;
+            myDecodeMap[thisIndex][byte].value = point.bits;
+        }
+    }
 }
 
 std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>& data) const
