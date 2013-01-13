@@ -143,7 +143,12 @@ TEST_F(TestBitStreamReadOnly, Rewind)
   EXPECT_EQ(1, result.PullU8(8));
   EXPECT_EQ(8, result.PositionRead());  
   
-  result.Rewind(7);
+  result.Rewind(0);
+  
+  EXPECT_EQ(1, result.PullU8(8));
+  EXPECT_EQ(16, result.PositionRead());  
+  
+  result.Rewind(15);
   
   EXPECT_EQ(128, result.PullU8(8));
   EXPECT_EQ(9, result.PositionRead());  
