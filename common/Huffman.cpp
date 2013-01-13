@@ -184,9 +184,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
 {
     unique_ptr<vector<uint8_t>> result;
     BitStreamReadOnly inBuffer(data);
-    //uint64_t index;
     
-    //index = 0;
     while (inBuffer.PositionRead() < data.size())
     {
         ValueAndBits codeWord;
@@ -203,10 +201,17 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
         }        
         else
         {
-            //uint8_t bitsRead;
+            uint8_t bitsRead;
+            uint8_t index;
             
-            //bitsRead = codeWord.bits - 9;
-            // RAM: TODO!
+            index = codeWord.value - 256;
+            bitsRead = codeWord.bits - 9;
+            
+            bits9 = inBuffer.PullU8(bitsRead);
+            
+            codeWord = myDecodeMap[index][bits9];
+            result->push_back(codeWord.value);
+            inBuffer.Rewind(bitsRead - codeWord.bits);            
         }
     }
     
