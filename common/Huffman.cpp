@@ -22,6 +22,7 @@
 
 #include <queue>
 #include <stdexcept>
+#include <map>
 
 #include "BitStream.h"
 
@@ -33,10 +34,9 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
  
     for (uint16_t i = 0; i < frequencies.size(); ++i)
     {
-        if (frequencies[i] != 0)
-        {
-            trees.push(new NodeLeaf(frequencies[i], (uint8_t) i));
-        }
+        // Encode even 0 probability items as we need a tree
+        // with all 256 entires.
+        trees.push(new NodeLeaf(frequencies[i], (uint8_t) i));
     }
     
     while (trees.size() > 1)
@@ -53,7 +53,34 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
     
     // Generate the Encode Map
     GenerateEncodeMap(trees.top(), ValueAndBits(0,0));
+    GenerateCanonicalEncodeMap();
     GenerateDecodeMap();
+}
+
+void Huffman::GenerateCanonicalEncodeMap()
+{
+    map<uint8_t, map<uint8_t, uint8_t>> sorted;
+    uint16_t code;
+    
+    for (int i = 0; i < 256; i++)
+    {
+        auto node = myEncodeMap[i];
+        sorted[node.bits][i] = (uint8_t) i;
+    }
+    
+    code = 0;
+    for (size_t bits = 0; bits < sorted.size(); bits++)
+    {
+        for (size_t j = 0; j < sorted[bits].size(); j++)
+        {
+            myEncodeMap[sorted[bits][j]].bits = bits;
+            myEncodeMap[sorted[bits][j]].value = code;
+            
+            code++;
+        }
+        
+        code = (code << 1);
+    }    
 }
 
 void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits prefix)

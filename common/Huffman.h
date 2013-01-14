@@ -104,6 +104,7 @@ private:
     std::vector<std::vector<ValueAndBits>> myDecodeMap;
     
     void GenerateEncodeMap(const Node* node, ValueAndBits prefix);
+    void GenerateCanonicalEncodeMap();
     void GenerateDecodeMap();
     
     std::vector<uint16_t> Get9BitBytesStartingWith(uint16_t startValue, uint8_t bitSize);
