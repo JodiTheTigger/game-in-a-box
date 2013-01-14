@@ -73,10 +73,10 @@ void Huffman::GenerateCanonicalEncodeMap()
     code = 0;
     for (size_t bits = 0; bits < sorted.size(); bits++)
     {
-        for (size_t j = 0; j < sorted[bits].size(); j++)
+        for (auto mapItem : sorted[bits])
         {
-            myEncodeMap[sorted[bits][j]].bits = bits;
-            myEncodeMap[sorted[bits][j]].value = code;
+            myEncodeMap[sorted[bits][mapItem.first]].bits = bits;
+            myEncodeMap[sorted[bits][mapItem.first]].value = code;
             
             code++;
         }
@@ -124,16 +124,17 @@ std::vector<uint16_t> Huffman::Get9BitBytesStartingWith(uint16_t startValue, uin
     
     if ((bitSize < 9) && (bitSize > 0))
     {
-        uint8_t mask;
+        uint16_t mask;
         uint8_t count;
         
         count = 1 << (9 - bitSize);
-        mask = count - 1;
+        mask = 0xFFFF ^ (count - 1);
+        
         startValue &= mask;
         
         for (int i = 0; i < count; i++)
         {
-            result.push_back(startValue | count);
+            result.push_back(startValue | i);
         }
     }
     else
@@ -170,7 +171,6 @@ void Huffman::GenerateDecodeMap()
         if (point.bits < 10)
         {
             thisIndex = 0;
-            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);
         }   
         else
         {
@@ -184,15 +184,16 @@ void Huffman::GenerateDecodeMap()
             point.value >>= 9;
             point.bits -= 9;
             myDecodeMap[lookupCount].resize(1 << point.bits);
-            
-            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
+        
             thisIndex = lookupCount;
         }
+            
+        all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
         
         for (auto byte : all9Bits)
         {
             myDecodeMap[thisIndex][byte].value = result;
-            myDecodeMap[thisIndex][byte].value = point.bits;
+            myDecodeMap[thisIndex][byte].bits = point.bits;
         }
     }
 }
@@ -213,6 +214,8 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
 {
     unique_ptr<vector<uint8_t>> result;
     BitStreamReadOnly inBuffer(data);
+    
+    result.reset(new vector<uint8_t>());
     
     while (inBuffer.PositionRead() < data.size())
     {
