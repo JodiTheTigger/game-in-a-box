@@ -47,7 +47,7 @@ TEST_F(TestHuffman, TestBuffers)
     for (auto buffer : myTestBuffers)
     {
         // generate frequencies
-        array<uint64_t, 256> frequencies;
+        array<uint64_t, 256> frequencies = {0};
         
         for (uint8_t item : *buffer)
         {
