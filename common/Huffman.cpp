@@ -34,9 +34,11 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
  
     for (uint16_t i = 0; i < frequencies.size(); ++i)
     {
-        // Encode even 0 probability items as we need a tree
+        // Encode even 0 probability items (as 1) since we need a tree
         // with all 256 entires.
-        trees.push(new NodeLeaf(frequencies[i], (uint8_t) i));
+        // Note: if we encode 0 frequencies, then the table goes
+        // 100% unbalanced and we end up having 32+ bits.
+        trees.push(new NodeLeaf(frequencies[i] + 1, (uint8_t) i));
     }
     
     while (trees.size() > 1)
@@ -161,7 +163,7 @@ void Huffman::GenerateDecodeMap()
         
         if (point.bits > 16)
         {
-            // wel, shit.
+            // well, shit.
             throw std::logic_error("Huffman map uses more than 16 bits (uses " + to_string(point.bits) + ").");
         }
          
