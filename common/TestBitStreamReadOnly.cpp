@@ -37,8 +37,10 @@ TEST_F(TestBitStreamReadOnly, Simple)
   BitStreamReadOnly result(dude);
   
   EXPECT_EQ(1, result.SizeInBytes());
-  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(0, result.PullU8(4));
   EXPECT_EQ(4, result.PositionRead());  
+  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(8, result.PositionRead());  
 }
 
 TEST_F(TestBitStreamReadOnly, ZeroSize) 
@@ -59,10 +61,10 @@ TEST_F(TestBitStreamReadOnly, ReadPastEnd)
   
   BitStreamReadOnly result(dude);
 
-  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(0, result.PullU8(4));
   EXPECT_EQ(4, result.PositionRead());  
   
-  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(16, result.PullU8(8));
   EXPECT_EQ(8, result.PositionRead());  
 
   EXPECT_EQ(0, result.PullU8(8));
@@ -79,20 +81,19 @@ TEST_F(TestBitStreamReadOnly, Reset)
   
   BitStreamReadOnly result(dude1);
 
-  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(0, result.PullU8(4));
   EXPECT_EQ(4, result.PositionRead());  
   
-  EXPECT_EQ(0, result.PullU8(8));
+  EXPECT_EQ(16, result.PullU8(8));
   EXPECT_EQ(8, result.PositionRead());  
 
   result.Reset(dude2);
   
-  EXPECT_EQ(2, result.PullU8(4));
+  EXPECT_EQ(0, result.PullU8(4));
   EXPECT_EQ(4, result.PositionRead());  
   
-  EXPECT_EQ(0, result.PullU8(8));
-  EXPECT_EQ(8, result.PositionRead());  
-
+  EXPECT_EQ(32, result.PullU8(8));
+  EXPECT_EQ(8, result.PositionRead()); 
 }
 
 TEST_F(TestBitStreamReadOnly, ArrayUpdatedBehindBack)
@@ -135,7 +136,7 @@ TEST_F(TestBitStreamReadOnly, Rewind)
   
   BitStreamReadOnly result(dude);
 
-  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(0, result.PullU8(4));
   EXPECT_EQ(4, result.PositionRead());  
   
   result.Rewind(4);
@@ -150,12 +151,12 @@ TEST_F(TestBitStreamReadOnly, Rewind)
   
   result.Rewind(15);
   
-  EXPECT_EQ(128, result.PullU8(8));
+  EXPECT_EQ(2, result.PullU8(8));
   EXPECT_EQ(9, result.PositionRead());  
   
   result.Rewind(100);
   
-  EXPECT_EQ(257, result.PullU16(9));
+  EXPECT_EQ(2, result.PullU16(9));
   EXPECT_EQ(9, result.PositionRead());  
 }
 
@@ -173,18 +174,17 @@ TEST_F(TestBitStreamReadOnly, TestLotsOfStuff)
     
     EXPECT_EQ(5, result.SizeInBytes());
     
-    EXPECT_TRUE(result.Pull1Bit());
     EXPECT_FALSE(result.Pull1Bit());
-    EXPECT_EQ(0x80, result.PullU8(8));
-    EXPECT_EQ(0x100, result.PullU16(16));
     EXPECT_FALSE(result.Pull1Bit());
-    EXPECT_TRUE(result.Pull1Bit());
-    EXPECT_EQ(0x100, result.PullU32(32));
+    EXPECT_EQ(4, result.PullU8(8));
+    EXPECT_EQ(0x810, result.PullU16(16));
+    EXPECT_FALSE(result.Pull1Bit());
+    EXPECT_FALSE(result.Pull1Bit());
+    EXPECT_EQ(0x81000000, result.PullU32(32));
     
     result.Rewind(100);
-    EXPECT_EQ(0x08040201, result.PullU32(32));
+    EXPECT_EQ(0x01020408, result.PullU32(32));
     
     result.Rewind(31);
-    EXPECT_EQ(0x04020100, result.PullU32(32));
-    
+    EXPECT_EQ(0x02040810, result.PullU32(32));    
 }

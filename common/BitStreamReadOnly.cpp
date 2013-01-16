@@ -124,8 +124,8 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
             second = sourceBuffer[byteIndex + 1];
         }
         
-        asU16 = (result << 8) + second;
-        asU16 = asU16 >> (bitIndex + bitsToPull);    
+        asU16 = (((uint16_t) result) << 8) + second;
+        asU16 = asU16 >> (8 - bitIndex + (8-bitsToPull));    
         result = (uint8_t) asU16;
     }
     
@@ -149,7 +149,13 @@ uint16_t BitStreamReadOnly::PullU16(uint8_t bitsToPull)
         return 0;
     }
     
-    result = PullU8(bitsToPull) << 8;
+    if (bitsToPull > 16)
+    {
+        bitsToPull = 16;
+    }
+    
+    result = PullU8(bitsToPull);
+    result <<= (bitsToPull - 8);
     
     if (bitsToPull > 8)
     {
@@ -168,7 +174,13 @@ uint32_t BitStreamReadOnly::PullU32(uint8_t bitsToPull)
         return 0;
     }
     
-    result = PullU16(bitsToPull) << 16;
+    if (bitsToPull > 32)
+    {
+        bitsToPull = 32;
+    }
+    
+    result = PullU16(bitsToPull);
+    result <<= (bitsToPull - 16);
     
     if (bitsToPull > 16)
     {
