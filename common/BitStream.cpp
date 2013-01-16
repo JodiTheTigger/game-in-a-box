@@ -95,7 +95,7 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
       if (bitsToPush > (8 - bitIndex))
       {
             myBuffer->push_back(0);
-          (*myBuffer)[byteIndex + 1] |= value << bitIndex;
+          (*myBuffer)[byteIndex + 1] |= value << (8 - bitIndex);
       }      
     }
   

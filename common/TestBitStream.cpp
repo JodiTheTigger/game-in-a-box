@@ -37,7 +37,7 @@ TEST_F(TestBitStream, FromPointer)
   BitStream result(move(dude));
   
   EXPECT_EQ(8, result.SizeInBits());
-  EXPECT_EQ(1, result.PullU8(4));
+  EXPECT_EQ(0, result.PullU8(4));
   EXPECT_EQ(4, result.PositionRead());
 }
 
@@ -97,7 +97,7 @@ TEST_F(TestBitStream, AddU8)
   
   BitStream result2(move(source2.TakeBuffer()));  
   
-  EXPECT_EQ(5, result2.PullU8(4));
+  EXPECT_EQ(4, result2.PullU8(4));
 }
 
 TEST_F(TestBitStream, AddMoreBitsThanNeeded)
@@ -112,7 +112,7 @@ TEST_F(TestBitStream, AddMoreBitsThanNeeded)
   
   BitStream result(move(source.TakeBuffer()));  
   
-  EXPECT_EQ(47, result.PullU8(8));
+  EXPECT_EQ(0xF4, result.PullU8(8));
 }
 
 TEST_F(TestBitStream, AddU16)
