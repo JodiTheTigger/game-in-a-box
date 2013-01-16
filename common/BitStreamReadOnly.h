@@ -46,7 +46,7 @@ public:
     void Reset(const std::vector<uint8_t>& newSourceBuffer);
     
     uint64_t SizeInBytes() const { return mySourceBuffer->size(); }
-    uint64_t PositionRead() const { return myBitIndex; }
+    uint64_t PositionReadBits() const { return myBitIndex; }
 
 private:
     const std::vector<uint8_t>* mySourceBuffer;
