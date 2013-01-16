@@ -38,7 +38,7 @@ TEST_F(TestBitStream, FromPointer)
   
   EXPECT_EQ(8, result.SizeInBits());
   EXPECT_EQ(0, result.PullU8(4));
-  EXPECT_EQ(4, result.PositionRead());
+  EXPECT_EQ(4, result.PositionReadBits());
 }
 
 TEST_F(TestBitStream, ZeroSize) 
@@ -47,7 +47,7 @@ TEST_F(TestBitStream, ZeroSize)
   unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
   
   EXPECT_EQ(0, testStream.SizeInBits());
-  EXPECT_EQ(0, testStream.PositionRead());
+  EXPECT_EQ(0, testStream.PositionReadBits());
   
   dude = testStream.TakeBuffer();
   
@@ -175,4 +175,35 @@ TEST_F(TestBitStream, AddLotsOfStuff)
     EXPECT_TRUE(result.Pull1Bit());
     EXPECT_FALSE(result.Pull1Bit());
     EXPECT_EQ(0x789abcde, result.PullU32(32));
+}
+
+TEST_F(TestBitStream, TakeBuffer)
+{
+  BitStream source(69);
+  unique_ptr<vector<uint8_t>> result;
+  
+  source.Push((uint16_t) 0x1234, 16);
+  EXPECT_EQ(16, source.SizeInBits());
+  
+  result = source.TakeBuffer();  
+  
+  EXPECT_EQ(0x12, (*result)[0]);
+  EXPECT_EQ(0x34, (*result)[1]);
+}
+
+TEST_F(TestBitStream, HuffmanZeroBug)
+{
+  BitStream source(69);
+  unique_ptr<vector<uint8_t>> result;
+  
+  source.Push((uint16_t) 0, 2);
+  source.Push((uint16_t) 3, 3);
+  source.Push((uint16_t) 4, 3);
+  source.Push((uint16_t) 12, 4);
+  EXPECT_EQ(12, source.SizeInBits());
+  
+  result = source.TakeBuffer();  
+  
+  EXPECT_EQ(28, (*result)[0]);
+  EXPECT_EQ(0xC0, (*result)[1]);
 }
