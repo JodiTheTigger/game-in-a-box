@@ -41,10 +41,7 @@ BitStream::BitStream(unique_ptr<vector<uint8_t>> sourceBuffer)
 }
 
 void BitStream::Push(bool value)
-{
-  uint32_t byteIndex;
-  uint8_t bitIndex;
-  
+{ 
   // new byte needed?
   if (0 == (myBitIndexWrite & 0x07))
   {
@@ -52,10 +49,14 @@ void BitStream::Push(bool value)
   }
   
   if (value)
-  {    
+  {
+    uint32_t byteIndex;
+    uint8_t bitIndex;
+  
     byteIndex = (uint32_t) (myBitIndexWrite / 8);
     bitIndex = (uint8_t) myBitIndexWrite & 0x07;
-    (*myBuffer)[byteIndex] |= 1 << bitIndex;
+    
+    (*myBuffer)[byteIndex] |= 0x80 >> bitIndex;
   }
   
   ++myBitIndexWrite;
@@ -64,42 +65,42 @@ void BitStream::Push(bool value)
 
 void BitStream::Push(uint8_t value, uint8_t bitsToPush)
 {
-  if (bitsToPush > 8)
-  {
-    bitsToPush = 8;
-  }
+    uint32_t byteIndex;
+    uint8_t bitIndex;
+  
+    if (bitsToPush > 8)
+    {
+        bitsToPush = 8;
+    }
   
   if (bitsToPush == 0)
   {
       return;
-  }
+  } 
   
-  if ((myBitIndexWrite & 0x07) == 0)
-  {   
-    uint32_t byteIndex;
-    
     byteIndex = (uint32_t) (myBitIndexWrite / 8);
+    bitIndex = (uint8_t) myBitIndexWrite & 0x07;
     
+    value &= (1 << bitsToPush) - 1;
+  
+  if (bitIndex == 0)
+  { 
     myBuffer->push_back(0);
-    (*myBuffer)[byteIndex] = value & ((1 << bitsToPush) - 1);
-    
-    myBitIndexWrite += bitsToPush;    
-    myCurrentBitCount += bitsToPush;
+    (*myBuffer)[byteIndex] = value << (8 - bitsToPush);
   }
   else
   {
-    for (int i = 0; i < bitsToPush; i++)
-    {
-      if (0 == ((value >> i) & 0x01))
+          (*myBuffer)[byteIndex] |= value >> bitIndex;
+    
+      if (bitsToPush > (8 - bitIndex))
       {
-	Push(false);
-      }
-      else
-      {
-	Push(true);
+            myBuffer->push_back(0);
+          (*myBuffer)[byteIndex + 1] |= value << bitIndex;
       }      
     }
-  }
+  
+    myBitIndexWrite += bitsToPush;    
+    myCurrentBitCount += bitsToPush;
 }
 
 
@@ -110,11 +111,11 @@ void BitStream::Push(uint16_t value, uint8_t bitsToPush)
       return;
   }
   
-  Push((uint8_t) (value & 0xff), bitsToPush);
+  Push((uint8_t) (value >> 8), bitsToPush);
   
   if (bitsToPush > 8)
   {
-    Push((uint8_t) ((value >> 8) & 0xff), bitsToPush - 8);
+    Push((uint8_t) value, bitsToPush - 8);
   }
 }
 
@@ -125,11 +126,11 @@ void BitStream::Push(uint32_t value, uint8_t bitsToPush)
       return;
   }
   
-  Push((uint16_t) (value & 0xffff), bitsToPush);
+  Push((uint16_t) (value >> 16), bitsToPush);
   
   if (bitsToPush > 16)
   {
-    Push((uint16_t) ((value >> 16) & 0xffff), bitsToPush - 16);
+    Push((uint16_t) value, bitsToPush - 16);
   }
 }
 

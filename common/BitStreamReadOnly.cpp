@@ -63,7 +63,7 @@ bool BitStreamReadOnly::Pull1Bit()
   
   ++myBitIndex;
   
-  if (0 == ((asByte >> bitIndex) & 0x01))
+  if (0 == (asByte & (0x80 >> bitIndex)))
   {    
     return false;
   }
@@ -108,7 +108,7 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
 
     if (bitIndex == 0)
     {
-        result = result & ((1 << bitsToPull) - 1);
+        result = result >> (8 - bitsToPull);
     }
     else
     {
@@ -124,9 +124,9 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
             second = sourceBuffer[byteIndex + 1];
         }
         
-        asU16 = result + (second << 8);
-        asU16 = asU16 >> bitIndex;    
-        result = (uint8_t) (asU16 & ((1 << bitsToPull) - 1));
+        asU16 = (result << 8) + second;
+        asU16 = asU16 >> (bitIndex + bitsToPull);    
+        result = (uint8_t) asU16;
     }
     
     myBitIndex += bitsToPull;
@@ -149,11 +149,11 @@ uint16_t BitStreamReadOnly::PullU16(uint8_t bitsToPull)
         return 0;
     }
     
-    result = PullU8(bitsToPull);
+    result = PullU8(bitsToPull) << 8;
     
     if (bitsToPull > 8)
     {
-        result |= ((uint16_t) PullU8(bitsToPull - 8)) << 8;
+        result |= PullU8(bitsToPull - 8);
     }
     
     return result;
@@ -168,11 +168,11 @@ uint32_t BitStreamReadOnly::PullU32(uint8_t bitsToPull)
         return 0;
     }
     
-    result = PullU16(bitsToPull);
+    result = PullU16(bitsToPull) << 16;
     
     if (bitsToPull > 16)
     {
-        result |= ((uint32_t) PullU16(bitsToPull - 16)) << 16;
+        result |= PullU16(bitsToPull - 16);
     }
     
     return result;
