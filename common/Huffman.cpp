@@ -68,6 +68,7 @@ void Huffman::GenerateCanonicalEncodeMap()
 {
     map<uint8_t, map<uint8_t, uint8_t>> sorted;
     uint16_t code;
+    size_t bits;
     
     for (int i = 0; i < 256; i++)
     {
@@ -76,7 +77,7 @@ void Huffman::GenerateCanonicalEncodeMap()
     }
     
     code = 0;
-    for (size_t bits = 0; bits < sorted.size(); bits++)
+    for (bits = 0; bits < sorted.size(); bits++)
     {        
         // Ignore 0 bit items, as they are invalid.
         // They are there because not all 256 bytes
@@ -96,6 +97,10 @@ void Huffman::GenerateCanonicalEncodeMap()
         
         code = (code << 1);
     }    
+    
+    // finally, the EOF marker
+    myEofMarker.value = code;
+    myEofMarker.bits = bits;
 }
 
 void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits prefix)
@@ -285,8 +290,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
             index = codeWord.value - 256;
             bitsRead = codeWord.bits - 9;
             
-            bits9 = inBuffer.PullU8(bitsRead);
-            
+            bits9 = inBuffer.PullU8(bitsRead);            
             codeWord = myDecodeMap[index][bits9];
             
             if (codeWord.value == myEofValue)
