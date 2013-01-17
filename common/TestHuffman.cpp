@@ -33,8 +33,11 @@ class TestHuffman : public ::testing::Test
     {
         std::string testPhrase;
 
-        testPhrase = "Silly Sally saw sixty-six thick thistle sticks";
+        // Simple phrase so I could check the tree against online tree creators.
+        testPhrase = "SILLY SALLY SAW SIXTYSIX THICK THISTLE STICKS";
+        myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
 
+        testPhrase = "Silly Sally saw sixty-six thick thistle sticks";
         myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
     }
     
