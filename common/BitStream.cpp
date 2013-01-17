@@ -67,6 +67,8 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
 {
     uint32_t byteIndex;
     uint8_t bitIndex;
+    uint8_t topAligned;
+   
   
     if (bitsToPush > 8)
     {
@@ -82,27 +84,27 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
     bitIndex = (uint8_t) myBitIndexWrite & 0x07;
     
     value &= (1 << bitsToPush) - 1;
-  
+    topAligned = (value << (8 - bitsToPush));
+   
   if (bitIndex == 0)
   { 
     myBuffer->push_back(0);
-    (*myBuffer)[byteIndex] = value << (8 - bitsToPush);
+    (*myBuffer)[byteIndex] = topAligned;
   }
   else
-  {
-          (*myBuffer)[byteIndex] |= (value << (8 - bitsToPush)) >> bitIndex;
+  {      
+      (*myBuffer)[byteIndex] |= topAligned >> bitIndex;
     
       if (bitsToPush > (8 - bitIndex))
       {
             myBuffer->push_back(0);
-          (*myBuffer)[byteIndex + 1] |= value << (8 - bitIndex);
+          (*myBuffer)[byteIndex + 1] |= topAligned << (8 - bitIndex);
       }      
     }
   
     myBitIndexWrite += bitsToPush;    
     myCurrentBitCount += bitsToPush;
 }
-
 
 void BitStream::Push(uint16_t value, uint8_t bitsToPush)
 {  

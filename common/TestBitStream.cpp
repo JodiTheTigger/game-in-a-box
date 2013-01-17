@@ -218,10 +218,10 @@ TEST_F(TestBitStream, HuffmanMissingTopBitBug)
   source.Push((uint16_t) 2, 3);
   
   source.Push((uint16_t) 2, 3);
-  source.Push((uint16_t) 2, 4);
+  source.Push((uint16_t) 13, 4);
   
-  source.Push((uint16_t) 13, 3);
   source.Push((uint16_t) 0, 3);
+  source.Push((uint16_t) 3, 3);
   source.Push((uint16_t) 10, 4);  
   
   source.Push((uint16_t) 2, 3);
