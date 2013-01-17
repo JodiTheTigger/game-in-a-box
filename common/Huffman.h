@@ -39,6 +39,9 @@ public:
     std::unique_ptr<std::vector<uint8_t>> Decode(const std::vector<uint8_t>& data) const;
     
 private:
+    // Not 0xFFFF as it gives me +1 wraparound bugs
+    const uint16_t myEofValue = 0xFFFE;
+    
     // Class fails if the max code is greater than 16 bits.
     struct ValueAndBits
     {
@@ -60,6 +63,9 @@ private:
     {
     public:
         const uint64_t myFrequency;
+        
+        // Node by itself is an EOF marker.
+        Node() : Node(1) {};
         
         virtual ~Node() {}
     protected:
@@ -96,12 +102,22 @@ private:
     {
         bool operator()(const Node* left, const Node* right) const 
         {
-            return (left->myFrequency > right->myFrequency);            
+            if (left->myFrequency == right->myFrequency)
+            {
+                // If the frequencies are the same, give precedence to
+                // leaf nodes as they represent more common values.
+                return (dynamic_cast<const NodeLeaf*>(left) != nullptr);               
+            }
+            else
+            {
+                return (left->myFrequency > right->myFrequency);            
+            }   
         }
     };
         
     std::array<ValueAndBits, 256> myEncodeMap;
     std::vector<std::vector<ValueAndBits>> myDecodeMap;
+    ValueAndBits myEofMarker;    
     
     void GenerateEncodeMap(const Node* node, ValueAndBits prefix);
     void GenerateCanonicalEncodeMap();

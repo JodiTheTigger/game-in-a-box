@@ -34,22 +34,27 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
  
     for (uint16_t i = 0; i < frequencies.size(); ++i)
     {
-        // Encode even 0 probability items (as 1) since we need a tree
-        // with all 256 entires.
         // Note: if we encode 0 frequencies, then the table goes
         // 100% unbalanced and we end up having 32+ bits.
-        trees.push(new NodeLeaf(frequencies[i] + 1, (uint8_t) i));
+        if (frequencies[i] > 0)
+        {
+            trees.push(new NodeLeaf(frequencies[i], (uint8_t) i));
+        }
     }
+    
+    // EOF is special, as it isn't a value as such.
+    // I don't want to make 257 sized arrays!
+    trees.push(new Node());
     
     while (trees.size() > 1)
     {
-        Node* childRight = trees.top();
-        trees.pop();
- 
         Node* childLeft = trees.top();
         trees.pop();
  
-        Node* parent = new NodeInternal(childRight, childLeft);
+        Node* childRight = trees.top();
+        trees.pop();
+ 
+        Node* parent = new NodeInternal(childLeft, childRight);
         trees.push(parent);
     }
     
@@ -72,7 +77,15 @@ void Huffman::GenerateCanonicalEncodeMap()
     
     code = 0;
     for (size_t bits = 0; bits < sorted.size(); bits++)
-    {
+    {        
+        // Ignore 0 bit items, as they are invalid.
+        // They are there because not all 256 bytes
+        // have a non-zero frequency.
+        if (bits == 0)
+        {
+            continue;
+        }
+        
         for (auto mapItem : sorted[bits])
         {
             myEncodeMap[sorted[bits][mapItem.first]].bits = bits;
@@ -112,25 +125,28 @@ void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits
             prefixRight.bits++;
             prefixRight.value <<= 1;
             prefixRight.value |= 1;
-            GenerateEncodeMap(internal->myRight.get(), prefixRight);            
+            
+            GenerateEncodeMap(internal->myRight.get(), prefixRight);   
+        }
+        else
+        {
+            // EOF marker.
+            myEofMarker = prefix;
         }
     }
 }
 
-// Assume that the bits that are at the top of the 9 bits
 std::vector<uint16_t> Huffman::Get9BitBytesStartingWith(uint16_t startValue, uint8_t bitSize)
 {
     vector<uint16_t> result;
     
     if ((bitSize < 9) && (bitSize > 0))
     {
-        uint16_t mask;
-        uint8_t count;
+        uint16_t count;
         
         count = 1 << (9 - bitSize);
-        mask = 0xFFFF ^ (count - 1);
-        
-        startValue &= mask;
+                
+        startValue <<= (9 - bitSize);
         
         for (int i = 0; i < count; i++)
         {
@@ -154,48 +170,63 @@ void Huffman::GenerateDecodeMap()
     myDecodeMap.push_back(vector<ValueAndBits>());
     myDecodeMap[0].resize(512);
     
-    for (int result = 0; result < 256; result++)
+    for (uint16_t result = 0; result < 257; result++)
     {
         vector<uint16_t> all9Bits;
         ValueAndBits point;
         uint8_t thisIndex;
         
-        point = myEncodeMap[result];
+        // EOF marker?
+        if (result < 256)
+        {            
+            point = myEncodeMap[result];
+        }
+        else
+        {
+            point = myEofMarker;
+            result = myEofValue;
+        }
+        
+        // not used? ok.
+        if (point.bits == 0)
+        {
+            continue;
+        }
         
         if (point.bits > 16)
         {
-            // well, shit.
+            // Bollox!
             throw std::logic_error("Huffman map uses more than 16 bits (uses " + to_string(point.bits) + ").");
         }
          
         if (point.bits < 10)
         {
             thisIndex = 0;
+            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
         }   
         else
         {
+            // RAM: NOTE: This is unverified atm!
+            
             // make a new lookup please.
             lookupCount++;
             myDecodeMap[0][point.value] = ValueAndBits(256 + lookupCount, point.bits);
             
-            // make a new lookup please.
-            lookupCount++;
             myDecodeMap.push_back(vector<ValueAndBits>());
             point.value >>= 9;
             point.bits -= 9;
             myDecodeMap[lookupCount].resize(1 << point.bits);
         
             thisIndex = lookupCount;
+            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
         }
             
-        all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
-        
         for (auto byte : all9Bits)
         {
             myDecodeMap[thisIndex][byte].value = result;
             myDecodeMap[thisIndex][byte].bits = point.bits;
         }
-    }
+    }   
 }
 
 std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>& data) const
@@ -207,7 +238,10 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>
         encoded.Push(myEncodeMap[byte].value, myEncodeMap[byte].bits);
     }
     
-    return encoded.TakeBuffer();
+    // EOF
+    encoded.Push(myEofMarker.value, myEofMarker.bits);
+    
+    return move(encoded.TakeBuffer());
 }
 
 std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>& data) const
@@ -216,8 +250,8 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
     BitStreamReadOnly inBuffer(data);
     
     result.reset(new vector<uint8_t>());
-    
-    while (inBuffer.PositionRead() < data.size())
+        
+    while ((inBuffer.PositionReadBits() / 8) < data.size())
     {
         ValueAndBits codeWord;
         uint16_t bits9;
@@ -226,22 +260,41 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
         
         codeWord = myDecodeMap[0][bits9];
         
+        if (codeWord.bits == 0)
+        {
+            // well, shit.
+            throw std::logic_error("Decode map produced 0 bit codeword. Corrupt Stream.");
+        }
+        
         if (codeWord.value < 256)
         {
             result->push_back(codeWord.value);
             inBuffer.Rewind(9 - codeWord.bits);
         }        
         else
-        {
+        {   
             uint8_t bitsRead;
             uint8_t index;
             
+            if (codeWord.value == myEofValue)
+            {
+                // EOF marker!
+                break;
+            }
+         
             index = codeWord.value - 256;
             bitsRead = codeWord.bits - 9;
             
             bits9 = inBuffer.PullU8(bitsRead);
             
             codeWord = myDecodeMap[index][bits9];
+            
+            if (codeWord.value == myEofValue)
+            {
+                // EOF marker!
+                break;
+            }
+            
             result->push_back(codeWord.value);
             inBuffer.Rewind(bitsRead - codeWord.bits);            
         }
