@@ -36,13 +36,41 @@ class TestHuffman : public ::testing::Test
     virtual void SetUp()
     {
         std::string testPhrase;
-
+        int i;
+        int j;
+        int count;
+        vector<uint8_t> *fib;
+        
         // Simple phrase so I could check the tree against online tree creators.
         testPhrase = "SILLY SALLY SAW SIXTYSIX THICK THISTLE STICKS";
         myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
 
         testPhrase = "Silly Sally saw sixty-six thick thistle sticks";
         myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
+        
+        // Do a Fibonacci Sequency to generate an unbalanced tree.
+        // This is used to test codewords greater than 9 bits.
+        count = 0;
+        i = 0;
+        j = 1;
+        fib = new vector<uint8_t>();
+        while (count < 12)
+        {
+            int sum;
+            
+            sum = i+j;
+            
+            for (int repeat = 0; repeat < sum; repeat++)
+            {
+                fib->push_back('A' + count);
+            }
+            
+            i = j;
+            j = sum;
+            count++;
+        }
+        
+        myTestBuffers.push_back(fib);
     }
     
 protected:
