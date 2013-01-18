@@ -236,3 +236,24 @@ TEST_F(TestBitStream, HuffmanMissingTopBitBug)
   EXPECT_EQ(0x0E, (*result)[2]);
   EXPECT_EQ(0x92, (*result)[3]);
 }
+
+TEST_F(TestBitStream, Huffman12BitsBug)
+{
+  BitStream source(69);
+  unique_ptr<vector<uint8_t>> result;
+  
+  source.Push((uint16_t) 0xFFE, 12);
+  source.Push((uint16_t) 0x7FE, 11);
+  source.Push((uint16_t) 0x7FE, 11);
+    
+  EXPECT_EQ(34, source.SizeInBits());
+  
+  result = source.TakeBuffer();  
+  
+  EXPECT_EQ(0xFF, (*result)[0]);
+  EXPECT_EQ(0xEF, (*result)[1]);
+  EXPECT_EQ(0xFD, (*result)[2]);
+  EXPECT_EQ(0xFF, (*result)[3]);
+  EXPECT_EQ(0x80, (*result)[4]);
+
+}

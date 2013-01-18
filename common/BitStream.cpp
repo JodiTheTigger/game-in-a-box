@@ -115,7 +115,7 @@ void BitStream::Push(uint16_t value, uint8_t bitsToPush)
 
     if (bitsToPush > 8)
     {
-        Push((uint8_t) (value >> 8), bitsToPush);
+        Push((uint8_t) (value >> (bitsToPush - 8)), 8);
         Push((uint8_t) value, bitsToPush - 8);
     }
     else
@@ -134,7 +134,7 @@ void BitStream::Push(uint32_t value, uint8_t bitsToPush)
 
     if (bitsToPush > 16)
     {
-        Push((uint16_t) (value >> 16), bitsToPush);
+        Push((uint16_t) (value >> (bitsToPush - 16)), 16);
         Push((uint16_t) value, bitsToPush - 16);
     }
     else
