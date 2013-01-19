@@ -188,3 +188,19 @@ TEST_F(TestBitStreamReadOnly, TestLotsOfStuff)
     result.Rewind(31);
     EXPECT_EQ(0x02040810, result.PullU32(32));    
 }
+
+TEST_F(TestBitStreamReadOnly, TestHuffmanRead7Bug)
+{    
+    vector<uint8_t> dude;
+    
+    BitStreamReadOnly result(dude);
+    
+    dude.push_back(0xFF);
+    dude.push_back(0xEF);
+    dude.push_back(0xFD);
+    dude.push_back(0xFF);
+    dude.push_back(0x80);
+    
+    EXPECT_EQ(0x01FF, result.PullU16(9));
+    EXPECT_EQ(0x77, result.PullU8(7));    
+}
