@@ -126,7 +126,7 @@ uint8_t BitStreamReadOnly::PullU8(uint8_t bitsToPull)
         
         asU16 = (((uint16_t) result) << 8) + second;
         asU16 = asU16 >> (8 - bitIndex + (8-bitsToPull));    
-        result = (uint8_t) asU16;
+        result = (uint8_t) asU16 & ((1 << bitsToPull) - 1);
     }
     
     myBitIndex += bitsToPull;

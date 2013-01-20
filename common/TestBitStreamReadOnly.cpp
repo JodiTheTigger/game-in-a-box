@@ -202,5 +202,5 @@ TEST_F(TestBitStreamReadOnly, TestHuffmanRead7Bug)
     dude.push_back(0x80);
     
     EXPECT_EQ(0x01FF, result.PullU16(9));
-    EXPECT_EQ(0x77, result.PullU8(7));    
+    EXPECT_EQ(0x6F, result.PullU8(7));    
 }
