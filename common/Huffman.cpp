@@ -141,17 +141,17 @@ void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits
     }
 }
 
-std::vector<uint16_t> Huffman::Get9BitBytesStartingWith(uint16_t startValue, uint8_t bitSize)
+std::vector<uint16_t> Huffman::GetXBitBytesStartingWith(uint16_t startValue, uint8_t bitSize, uint8_t totalBitSize)
 {
     vector<uint16_t> result;
     
-    if ((bitSize < 9) && (bitSize > 0))
+    if ((bitSize < totalBitSize) && (bitSize > 0))
     {
         uint16_t count;
         
-        count = 1 << (9 - bitSize);
+        count = 1 << (totalBitSize - bitSize);
                 
-        startValue <<= (9 - bitSize);
+        startValue <<= (totalBitSize - bitSize);
         
         for (int i = 0; i < count; i++)
         {
@@ -168,10 +168,11 @@ std::vector<uint16_t> Huffman::Get9BitBytesStartingWith(uint16_t startValue, uin
 
 void Huffman::GenerateDecodeMap()
 {
-    uint8_t lookupCount;
+    uint8_t mapIndex;
+    map<uint16_t, uint8_t> indexLookup;
     
-    // always have a index 0 map which is 512 bit.
-    lookupCount = 0;
+    // always have a index 0 map which is 9 bit.
+    mapIndex = 0;
     myDecodeMap.push_back(vector<ValueAndBits>());
     myDecodeMap[0].resize(512);
     
@@ -204,40 +205,63 @@ void Huffman::GenerateDecodeMap()
             throw std::logic_error("Huffman map uses more than 16 bits (uses " + to_string(point.bits) + ").");
         }
          
+        thisIndex = 0; 
         if (point.bits < 10)
         {
             thisIndex = 0;
-            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
+            all9Bits = GetXBitBytesStartingWith(point.value, point.bits, 9);        
         }   
         else
         {
-            // RAM: NOTE: This is unverified atm!
+            uint16_t top9;
+            uint8_t  bottom7;
             
-            // make a new lookup please.
-            lookupCount++;
-            myDecodeMap[0][point.value] = ValueAndBits(256 + lookupCount, point.bits);
-            
-            myDecodeMap.push_back(vector<ValueAndBits>());
-            point.value >>= 9;
+            // shrink it down please.
             point.bits -= 9;
-            myDecodeMap[lookupCount].resize(1 << point.bits);
-        
-            thisIndex = lookupCount;
-            all9Bits = Get9BitBytesStartingWith(point.value, point.bits);        
-        }
             
+            top9 = point.value >> point.bits;
+            bottom7 = point.value & ((1 << point.bits) - 1);
+            thisIndex = indexLookup[top9];
+            
+            // map auto generates indicies that doesn't exist
+            if (thisIndex == 0)
+            {
+                mapIndex++;
+                
+                // All second maps are 128 bytes (7 bits) to make
+                // my life easier.
+                myDecodeMap.push_back(std::vector<ValueAndBits>());
+                myDecodeMap[mapIndex].resize(1 << 7);
+                
+                // RAM: debug - reset to zero?
+                for (int a = 0; a < 128; a++)
+                {
+                    myDecodeMap[mapIndex][a].value = 0;
+                    myDecodeMap[mapIndex][a].bits = 0;
+                }
+                
+                thisIndex = mapIndex;
+                indexLookup[top9] = mapIndex;
+            }            
+            
+            // When the value is > 256, the bits are ignored.
+            myDecodeMap[0][top9] = ValueAndBits(256 + thisIndex, 9);
+            
+            all9Bits = GetXBitBytesStartingWith(bottom7, point.bits, 7);        
+        }
+     
         for (auto byte : all9Bits)
         {
             myDecodeMap[thisIndex][byte].value = result;
             myDecodeMap[thisIndex][byte].bits = point.bits;
         }
-    }   
+    }
 }
 
 std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>& data) const
 {
     BitStream encoded(data.size());
-    
+
     for (uint8_t byte : data)
     {
         encoded.Push(myEncodeMap[byte].value, myEncodeMap[byte].bits);
@@ -255,7 +279,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
     BitStreamReadOnly inBuffer(data);
     
     result.reset(new vector<uint8_t>());
-        
+   
     while ((inBuffer.PositionReadBits() / 8) < data.size())
     {
         ValueAndBits codeWord;
@@ -269,7 +293,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
         {
             // well, shit.
             throw std::logic_error("Decode map produced 0 bit codeword. Corrupt Stream.");
-        }
+        }        
         
         if (codeWord.value < 256)
         {
@@ -286,9 +310,11 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
                 // EOF marker!
                 break;
             }
-         
+            
             index = codeWord.value - 256;
-            bitsRead = codeWord.bits - 9;
+            
+            // The second decode map is 7 bits, so read that many.
+            bitsRead = 7;
             
             bits9 = inBuffer.PullU8(bitsRead);            
             codeWord = myDecodeMap[index][bits9];
@@ -300,7 +326,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
             }
             
             result->push_back(codeWord.value);
-            inBuffer.Rewind(bitsRead - codeWord.bits);            
+            inBuffer.Rewind(7 - codeWord.bits);
         }
     }
     

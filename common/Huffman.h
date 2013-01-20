@@ -123,7 +123,7 @@ private:
     void GenerateCanonicalEncodeMap();
     void GenerateDecodeMap();
     
-    std::vector<uint16_t> Get9BitBytesStartingWith(uint16_t startValue, uint8_t bitSize);
+    std::vector<uint16_t> GetXBitBytesStartingWith(uint16_t startValue, uint8_t bitSize, uint8_t totalBitSize);
 };
 
 #endif // HUFFMAN_H
