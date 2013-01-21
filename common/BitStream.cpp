@@ -1,7 +1,7 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
-    
+
     This file is part of Game-in-a-box
 
     Game-in-a-box is free software: you can redistribute it and/or modify
@@ -23,223 +23,136 @@
 using namespace std;
 
 BitStream::BitStream(uint32_t initialCapacityInBytes)
-    : myBuffer(new vector<uint8_t>())
-    , myBitIndex(0)
+    : BitStreamReadOnly(vector<uint8_t>())
+    , myBuffer(new vector<uint8_t>())
+    , myBitIndexWrite(0)
     , myCurrentBitCount(0)
 {
-  myBuffer->reserve(initialCapacityInBytes);
+    Reset(*myBuffer);
+    myBuffer->reserve(initialCapacityInBytes);
 }
 
 BitStream::BitStream(unique_ptr<vector<uint8_t>> sourceBuffer)
-    : myBuffer(move(sourceBuffer))
-    , myBitIndex(0)
+    : BitStreamReadOnly(*sourceBuffer)
+    , myBuffer(move(sourceBuffer))
+    , myBitIndexWrite(0)
     , myCurrentBitCount(myBuffer->size() * 8)
 {
 }
 
 void BitStream::Push(bool value)
 {
-  uint32_t byteIndex;
-  uint8_t bitIndex;
-  
-  // new byte needed?
-  if (0 == (myBitIndex & 0x07))
-  {
-    myBuffer->push_back(0);
-  }
-  
-  if (value)
-  {    
-    byteIndex = myBitIndex / 8;
-    bitIndex = (uint8_t) myBitIndex & 0x07;
-    (*myBuffer)[byteIndex] |= 1 << bitIndex;
-  }
-  
-  ++myBitIndex;
-  ++myCurrentBitCount;
+    // new byte needed?
+    if (0 == (myBitIndexWrite & 0x07))
+    {
+        myBuffer->push_back(0);
+    }
+
+    if (value)
+    {
+        uint32_t byteIndex;
+        uint8_t bitIndex;
+
+        byteIndex = (uint32_t) (myBitIndexWrite / 8);
+        bitIndex = (uint8_t) myBitIndexWrite & 0x07;
+
+        (*myBuffer)[byteIndex] |= 0x80 >> bitIndex;
+    }
+
+    ++myBitIndexWrite;
+    ++myCurrentBitCount;
 }
 
 void BitStream::Push(uint8_t value, uint8_t bitsToPush)
 {
-  if (bitsToPush > 8)
-  {
-    bitsToPush = 8;
-  }
-  
-  if (bitsToPush == 0)
-  {
-      return;
-  }
-  
-  if ((myBitIndex & 0x07) == 0)
-  {   
     uint32_t byteIndex;
-    
-    byteIndex = myBitIndex / 8;
-    
-    myBuffer->push_back(0);
-    (*myBuffer)[byteIndex] = value & ((1 << bitsToPush) - 1);
-    
-    myBitIndex += bitsToPush;    
-    myCurrentBitCount += bitsToPush;
-  }
-  else
-  {
-    for (int i = 0; i < bitsToPush; i++)
+    uint8_t bitIndex;
+    uint8_t topAligned;
+
+
+    if (bitsToPush > 8)
     {
-      if (0 == ((value >> i) & 0x01))
-      {
-	Push(false);
-      }
-      else
-      {
-	Push(true);
-      }      
+        bitsToPush = 8;
     }
-  }
+
+    if (bitsToPush == 0)
+    {
+        return;
+    }
+
+    byteIndex = (uint32_t) (myBitIndexWrite / 8);
+    bitIndex = (uint8_t) myBitIndexWrite & 0x07;
+
+    value &= (1 << bitsToPush) - 1;
+    topAligned = (value << (8 - bitsToPush));
+
+    if (bitIndex == 0)
+    {
+        myBuffer->push_back(0);
+        (*myBuffer)[byteIndex] = topAligned;
+    }
+    else
+    {
+        (*myBuffer)[byteIndex] |= topAligned >> bitIndex;
+
+        if (bitsToPush > (8 - bitIndex))
+        {
+            myBuffer->push_back(0);
+            (*myBuffer)[byteIndex + 1] |= topAligned << (8 - bitIndex);
+        }
+    }
+
+    myBitIndexWrite += bitsToPush;
+    myCurrentBitCount += bitsToPush;
 }
 
-
 void BitStream::Push(uint16_t value, uint8_t bitsToPush)
-{  
-  if (bitsToPush == 0)
-  {
-      return;
-  }
-  
-  Push((uint8_t) (value & 0xff), bitsToPush);
-  
-  if (bitsToPush > 8)
-  {
-    Push((uint8_t) ((value >> 8) & 0xff), bitsToPush - 8);
-  }
+{
+    if (bitsToPush == 0)
+    {
+        return;
+    }
+
+    if (bitsToPush > 8)
+    {
+        Push((uint8_t) (value >> (bitsToPush - 8)), 8);
+        Push((uint8_t) value, bitsToPush - 8);
+    }
+    else
+    {
+        Push((uint8_t) value, bitsToPush);
+    }
 }
 
 void BitStream::Push(uint32_t value, uint8_t bitsToPush)
 {
-  if (bitsToPush == 0)
-  {
-      return;
-  }
-  
-  Push((uint16_t) (value & 0xffff), bitsToPush);
-  
-  if (bitsToPush > 16)
-  {
-    Push((uint16_t) ((value >> 16) & 0xffff), bitsToPush - 16);
-  }
-}
-
-bool BitStream::Pull1Bit()
-{
-  uint32_t byteIndex;
-  uint8_t bitIndex;
-  uint8_t asByte;
-  
-  byteIndex = myBitIndex / 8;
-  bitIndex = (uint8_t) myBitIndex & 0x07;
-  
-  asByte = (*myBuffer)[byteIndex];
-  
-  ++myBitIndex;
-  
-  if (0 == ((asByte >> bitIndex) & 0x01))
-  {    
-    return false;
-  }
-  else
-  {
-    return true;
-  }  
-}
-
-uint8_t BitStream::PullU8(uint8_t bitsToPull)
-{
-    uint32_t byteIndex;
-    uint8_t bitIndex;
-    uint8_t result;
- 
-    if (bitsToPull > 8)
+    if (bitsToPush == 0)
     {
-        bitsToPull = 8;
+        return;
     }
-    
-    if (bitsToPull == 0)
-    {
-        return 0;
-    }
-    
-    byteIndex = myBitIndex / 8;
-    bitIndex = (uint8_t) myBitIndex & 0x07;
-    result = (*myBuffer)[byteIndex];
 
-    if (bitIndex == 0)
+
+    if (bitsToPush > 16)
     {
-        result = result & ((1 << bitsToPull) - 1);
+        Push((uint16_t) (value >> (bitsToPush - 16)), 16);
+        Push((uint16_t) value, bitsToPush - 16);
     }
     else
     {
-        uint16_t asU16;
-        asU16 = result + (((uint16_t) (*myBuffer)[byteIndex + 1]) << 8);
-        asU16 = asU16 >> bitIndex;    
-        result = (uint8_t) (asU16 & ((1 << bitsToPull) - 1));
+        Push((uint16_t) value, bitsToPush);
     }
-    
-    myBitIndex += bitsToPull;
-  
-    return result;
-}
-
-uint16_t BitStream::PullU16(uint8_t bitsToPull)
-{
-    uint16_t result;
-    
-    if (bitsToPull == 0)
-    {
-        return 0;
-    }
-    
-    result = PullU8(bitsToPull);
-    
-    if (bitsToPull > 8)
-    {
-        result |= ((uint16_t) PullU8(bitsToPull - 8)) << 8;
-    }
-    
-    return result;
-}
-
-uint32_t BitStream::PullU32(uint8_t bitsToPull)
-{
-    uint32_t result;
-    
-    if (bitsToPull == 0)
-    {
-        return 0;
-    }
-    
-    result = PullU16(bitsToPull);
-    
-    if (bitsToPull > 16)
-    {
-        result |= ((uint32_t) PullU16(bitsToPull - 16)) << 16;
-    }
-    
-    return result;
 }
 
 unique_ptr<vector<uint8_t>> BitStream::TakeBuffer()
 {
-  unique_ptr<vector<uint8_t>> result;
-  
-  result = move(myBuffer);
-  
-  // class is pretty much dead after this point.
-  myBitIndex = 0;
-  myCurrentBitCount = 0;
-  myBuffer.reset(new vector<uint8_t>());
-  
-  return move(result);
+    unique_ptr<vector<uint8_t>> result;
+
+    result = move(myBuffer);
+
+    // class is pretty much dead after this point.
+    myBitIndexWrite = 0;
+    myCurrentBitCount = 0;
+    myBuffer.reset(new vector<uint8_t>());
+
+    return move(result);
 }
-
-

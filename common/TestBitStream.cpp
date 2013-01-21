@@ -37,8 +37,8 @@ TEST_F(TestBitStream, FromPointer)
   BitStream result(move(dude));
   
   EXPECT_EQ(8, result.SizeInBits());
-  EXPECT_EQ(1, result.PullU8(4));
-  EXPECT_EQ(4, result.Position());  
+  EXPECT_EQ(0, result.PullU8(4));
+  EXPECT_EQ(4, result.PositionReadBits());
 }
 
 TEST_F(TestBitStream, ZeroSize) 
@@ -47,7 +47,7 @@ TEST_F(TestBitStream, ZeroSize)
   unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
   
   EXPECT_EQ(0, testStream.SizeInBits());
-  EXPECT_EQ(0, testStream.Position());
+  EXPECT_EQ(0, testStream.PositionReadBits());
   
   dude = testStream.TakeBuffer();
   
@@ -97,7 +97,7 @@ TEST_F(TestBitStream, AddU8)
   
   BitStream result2(move(source2.TakeBuffer()));  
   
-  EXPECT_EQ(5, result2.PullU8(4));
+  EXPECT_EQ(4, result2.PullU8(4));
 }
 
 TEST_F(TestBitStream, AddMoreBitsThanNeeded)
@@ -112,7 +112,7 @@ TEST_F(TestBitStream, AddMoreBitsThanNeeded)
   
   BitStream result(move(source.TakeBuffer()));  
   
-  EXPECT_EQ(47, result.PullU8(8));
+  EXPECT_EQ(0xF4, result.PullU8(8));
 }
 
 TEST_F(TestBitStream, AddU16)
@@ -175,4 +175,85 @@ TEST_F(TestBitStream, AddLotsOfStuff)
     EXPECT_TRUE(result.Pull1Bit());
     EXPECT_FALSE(result.Pull1Bit());
     EXPECT_EQ(0x789abcde, result.PullU32(32));
+}
+
+TEST_F(TestBitStream, TakeBuffer)
+{
+  BitStream source(69);
+  unique_ptr<vector<uint8_t>> result;
+  
+  source.Push((uint16_t) 0x1234, 16);
+  EXPECT_EQ(16, source.SizeInBits());
+  
+  result = source.TakeBuffer();  
+  
+  EXPECT_EQ(0x12, (*result)[0]);
+  EXPECT_EQ(0x34, (*result)[1]);
+}
+
+TEST_F(TestBitStream, HuffmanZeroBug)
+{
+  BitStream source(69);
+  unique_ptr<vector<uint8_t>> result;
+  
+  source.Push((uint16_t) 0, 2);
+  source.Push((uint16_t) 3, 3);
+  source.Push((uint16_t) 4, 3);
+  source.Push((uint16_t) 12, 4);
+  EXPECT_EQ(12, source.SizeInBits());
+  
+  result = source.TakeBuffer();  
+  
+  EXPECT_EQ(28, (*result)[0]);
+  EXPECT_EQ(0xC0, (*result)[1]);
+}
+
+TEST_F(TestBitStream, HuffmanMissingTopBitBug)
+{
+  BitStream source(69);
+  unique_ptr<vector<uint8_t>> result;
+  
+  source.Push((uint16_t) 3, 3);
+  source.Push((uint16_t) 1, 3);
+  source.Push((uint16_t) 2, 3);
+  
+  source.Push((uint16_t) 2, 3);
+  source.Push((uint16_t) 13, 4);
+  
+  source.Push((uint16_t) 0, 3);
+  source.Push((uint16_t) 3, 3);
+  source.Push((uint16_t) 10, 4);  
+  
+  source.Push((uint16_t) 2, 3);
+  source.Push((uint16_t) 2, 3);
+  
+  EXPECT_EQ(32, source.SizeInBits());
+  
+  result = source.TakeBuffer();  
+  
+  EXPECT_EQ(0x65, (*result)[0]);
+  EXPECT_EQ(0x2D, (*result)[1]);
+  EXPECT_EQ(0x0E, (*result)[2]);
+  EXPECT_EQ(0x92, (*result)[3]);
+}
+
+TEST_F(TestBitStream, Huffman12BitsBug)
+{
+  BitStream source(69);
+  unique_ptr<vector<uint8_t>> result;
+  
+  source.Push((uint16_t) 0xFFE, 12);
+  source.Push((uint16_t) 0x7FE, 11);
+  source.Push((uint16_t) 0x7FE, 11);
+    
+  EXPECT_EQ(34, source.SizeInBits());
+  
+  result = source.TakeBuffer();  
+  
+  EXPECT_EQ(0xFF, (*result)[0]);
+  EXPECT_EQ(0xEF, (*result)[1]);
+  EXPECT_EQ(0xFD, (*result)[2]);
+  EXPECT_EQ(0xFF, (*result)[3]);
+  EXPECT_EQ(0x80, (*result)[4]);
+
 }

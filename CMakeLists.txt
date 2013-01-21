@@ -118,10 +118,15 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 ###############
 # Server 
 ###############    
+# RAM: Debug, get clang to find the bits/c++config.h file!
+#include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server  
+common/Huffman.cpp 
+common/BitStreamReadOnly.cpp 
+common/BitStream.cpp 
 common/NetworkFragment.cpp
 common/AutoComplete.cpp
 common/IReflected.cpp 
@@ -129,7 +134,6 @@ common/ReflectionManager.cpp
 common/StateManager.cpp 
 common/NetworkManager.cpp 
 common/NetworkProvider.cpp 
-common/BitStream.cpp 
 common/RollingStatistics.cpp
 server/GameInABoxServer.cpp 
 server/main.cpp)
@@ -149,13 +153,14 @@ add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-
 # http://stackoverflow.com/questions/9689183/cmake-googletest/9695234#9695234
 # yikes! that wasted a day of my life. Doesn't work as it can't find a make target
 # Maybe it only works in windows? Either way, include gmock with the source.
-
 add_subdirectory(third-party/gmock-1.6.0)
 enable_testing()
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/common/Huffman.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/common/NetworkProvider.cpp
   ${PROJECT_SOURCE_DIR}/common/TestNetworkProvider.cpp
   ${PROJECT_SOURCE_DIR}/common/NetworkFragment.cpp
@@ -166,6 +171,8 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/common/TestIReflected.cpp 
   ${PROJECT_SOURCE_DIR}/common/RollingStatistics.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp 
+  ${PROJECT_SOURCE_DIR}/common/BitStreamReadOnly.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestBitStreamReadOnly.cpp
   ${PROJECT_SOURCE_DIR}/common/BitStream.cpp
   ${PROJECT_SOURCE_DIR}/common/TestBitStream.cpp
   ${PROJECT_SOURCE_DIR}/common/AutoComplete.cpp
@@ -182,5 +189,3 @@ add_test(
   NAME game-in-a-box-common-tests
   COMMAND game-in-a-box-common-tests
 )
-
-
