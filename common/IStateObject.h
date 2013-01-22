@@ -1,0 +1,7 @@
+
+#include std
+
+class IStateObject
+{
+	
+}
