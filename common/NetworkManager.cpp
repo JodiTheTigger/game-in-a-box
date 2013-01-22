@@ -44,6 +44,7 @@ NetworkManager::NetworkManager(
 
 void NetworkManager::ProcessIncomming()
 {
+    /*
     for (auto& network : myNetworks)
     {
         NetworkPacket data;
@@ -60,6 +61,7 @@ void NetworkManager::ProcessIncomming()
             }
         }
     }
+    */
 }
 
 void NetworkManager::SendState()
