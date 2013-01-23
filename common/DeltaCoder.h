@@ -35,13 +35,29 @@ class IGameStateObject;
 class DeltaCoder
 {
 public:
-    DeltaCoder(std::vector<DeltaMapItem> deltaMap, std::unique_ptr<IGameStateObject> identity);
-    bool DeltaDecode(const IGameStateObject& base, IGameStateObject& result, BitStreamReadOnly& data) const;
-    bool DeltaEncode(const IGameStateObject& base, const IGameStateObject& toDelta, BitStream& data) const;
+    DeltaCoder(
+        std::vector<DeltaMapItem> deltaMap,
+        std::unique_ptr<IGameStateObject> identity
+        bool researchEncodeZeros,
+        bool researchEncodeXorDeltas);
+    //bool DeltaDecode(const IGameStateObject& base, IGameStateObject& result, BitStreamReadOnly& data) const;
+    //bool DeltaEncode(const IGameStateObject& base, const IGameStateObject& toDelta, BitStream& data) const;
 
 private:
     const std::vector<DeltaMapItem> myDeltaMap;    
     const std::unique_ptr<IGameStateObject> myIdentityObject;
+    const bool myResearchEncodeZeros;
+    const bool myResearchEncodeXorDeltas;
+
+    bool DeltaDecodeItem(
+        const IGameStateObject& base,
+         IGameStateObject& result, 
+         BitStreamReadOnly& dataIn) const;
+
+    bool DeltaEncodeItem(
+        const IGameStateObject& base, 
+        const IGameStateObject& toDelta, 
+        BitStream& dataOut) const;
 };
 
 #endif // IDELTACODER_H

@@ -22,7 +22,15 @@
 
 using namespace std;
 
-DeltaCoder::DeltaCoder(std::vector<DeltaMapItem> deltaMap) : myDeltaMap(deltaMap)
+DeltaCoder::DeltaCoder(
+        std::vector<DeltaMapItem> deltaMap,
+        std::unique_ptr<IGameStateObject> identity
+        bool researchEncodeZeros,
+        bool researchEncodeXorDeltas)
+    : myDeltaMap(deltaMap)
+    , myIdentity(identity)
+    , myResearchEncodeZeros(researchEncodeZeros),
+    , myResearchEncodeXorDeltas(researchEncodeXorDeltas)
 {
     // Nothing.
 }
@@ -52,18 +60,33 @@ bool DeltaCoder::DeltaDecodeItem(
         }
         else
         {
-            if (data.Pull1Bit())
+            bool isZero;
+
+            isZero = false;
+
+            if (myResearchEncodeZeros)
+            {
+                isZero = data.Pull1Bit();
+            }
+
+            if (isZero)
             {
                 *out = 0;
             }
             else
             {
                 // Read / Write as a uint32_t to avoid endianess issues?
-                // Do more research!
                 // value = data.PullU32(bitsToRead)
                 // XOR value with base to get actual value  : RESEARCH!
-                *out = *in ^ data.PullU32(map.numberOfBits); 
-            }
+                if (myResearchEncodeXorDeltas)
+                {
+                    *out = *in ^ data.PullU32(map.numberOfBits); 
+                }
+                else
+                {
+                    *out = data.PullU32(map.numberOfBits);
+                }
+            }            
         }
     }
 }
