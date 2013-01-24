@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 class DeltaMapItem
 {
 public:
-    DeltaMapItem(std::string newName, uint32_t newByteOffset, newNumberOfBits)
+    DeltaMapItem(std::string newName, uint32_t newByteOffset, uint8_t newNumberOfBits)
     : name(newName)
     , byteOffset(newByteOffset)
     , numberOfBits(newNumberOfBits)

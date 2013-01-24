@@ -124,6 +124,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server  
+common/DeltaCoder.cpp 
 common/Huffman.cpp 
 common/BitStreamReadOnly.cpp 
 common/BitStream.cpp 

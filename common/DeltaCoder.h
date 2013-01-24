@@ -30,33 +30,35 @@
 #include "DeltaMapItem.h"
 
 // forward delcaration
-class IGameStateObject;
+class IStateObject;
+class BitStreamReadOnly;
+class BitStream;
 
 class DeltaCoder
 {
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<IGameStateObject> identity
+        std::unique_ptr<IStateObject> identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas);
-    //bool DeltaDecode(const IGameStateObject& base, IGameStateObject& result, BitStreamReadOnly& data) const;
-    //bool DeltaEncode(const IGameStateObject& base, const IGameStateObject& toDelta, BitStream& data) const;
+    //bool DeltaDecode(const IStateObject& base, IStateObject& result, BitStreamReadOnly& data) const;
+    //bool DeltaEncode(const IStateObject& base, const IStateObject& toDelta, BitStream& data) const;
 
 private:
     const std::vector<DeltaMapItem> myDeltaMap;    
-    const std::unique_ptr<IGameStateObject> myIdentityObject;
+    const std::unique_ptr<IStateObject> myIdentityObject;
     const bool myResearchEncodeZeros;
     const bool myResearchEncodeXorDeltas;
 
     bool DeltaDecodeItem(
-        const IGameStateObject& base,
-         IGameStateObject& result, 
+        const IStateObject& base,
+         IStateObject& result, 
          BitStreamReadOnly& dataIn) const;
 
     bool DeltaEncodeItem(
-        const IGameStateObject& base, 
-        const IGameStateObject& toDelta, 
+        const IStateObject& base, 
+        const IStateObject& toDelta, 
         BitStream& dataOut) const;
 };
 

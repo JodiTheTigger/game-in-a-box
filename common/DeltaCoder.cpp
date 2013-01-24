@@ -19,17 +19,19 @@
 */
 
 #include "DeltaCoder.h"
+#include "BitStream.h"
+#include "IStateObject.h"
 
 using namespace std;
 
 DeltaCoder::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<IGameStateObject> identity
+        std::unique_ptr<IStateObject> identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas)
     : myDeltaMap(deltaMap)
-    , myIdentity(identity)
-    , myResearchEncodeZeros(researchEncodeZeros),
+    , myIdentityObject(move(identity))
+    , myResearchEncodeZeros(researchEncodeZeros)
     , myResearchEncodeXorDeltas(researchEncodeXorDeltas)
 {
     // Nothing.
@@ -37,24 +39,33 @@ DeltaCoder::DeltaCoder(
 
 
 bool DeltaCoder::DeltaDecodeItem(
-    const IGameStateObject& base,
-     IGameStateObject& result, 
+    const IStateObject& base,
+     IStateObject& result, 
      BitStreamReadOnly& dataIn) const
 {
-    for (DeltaMapItem& map : myDeltaMap)
+    for (const DeltaMapItem& map : myDeltaMap)
     {
         const uint32_t* in;
         uint32_t* out;
 
-        in  = &(((const uint8_t*)   (&base))[map.byteOffset]);
-        out = &(((uint8_t*)         (&result))[map.byteOffset]);
+        // Too many braces otherwise, this isn't lisp.
+        {
+            const uint8_t* bytesBase;
+            uint8_t* bytesDelta;
+            
+            bytesBase   = (const uint8_t*) (&base);
+            bytesDelta  = (uint8_t*) (&result);
+                
+            in  = (const uint32_t *) &(bytesBase[map.byteOffset]);
+            out = (uint32_t *) &(bytesDelta[map.byteOffset]);
+        }
 
         // Bits are:
         // Object member unchanged (1 == yes)
         // Object member is 0.0 (1 == yes) : RESEARCH!
         // Object member data (if both previous are no)
 
-        if (data.Pull1Bit())
+        if (dataIn.Pull1Bit())
         {
             *out = *in;
         }
@@ -66,7 +77,7 @@ bool DeltaCoder::DeltaDecodeItem(
 
             if (myResearchEncodeZeros)
             {
-                isZero = data.Pull1Bit();
+                isZero = dataIn.Pull1Bit();
             }
 
             if (isZero)
@@ -80,42 +91,84 @@ bool DeltaCoder::DeltaDecodeItem(
                 // XOR value with base to get actual value  : RESEARCH!
                 if (myResearchEncodeXorDeltas)
                 {
-                    *out = *in ^ data.PullU32(map.numberOfBits); 
+                    *out = *in ^ dataIn.PullU32(map.numberOfBits); 
                 }
                 else
                 {
-                    *out = data.PullU32(map.numberOfBits);
+                    *out = dataIn.PullU32(map.numberOfBits);
                 }
             }            
         }
     }
+    
+    // Do I need a return type if all I return is true?
+    return true;
 }
 
 bool DeltaCoder::DeltaEncodeItem(
-    const IGameStateObject& base, 
-    const IGameStateObject& toDelta, 
+    const IStateObject& base, 
+    const IStateObject& toDelta, 
     BitStream& dataOut) const
 {
-    // for each item in state data
+    for (const DeltaMapItem& map : myDeltaMap)
     {
-        // if (base==toDelta)
+        const uint32_t* itemBase;
+        const uint32_t* itemDelta;
+
+        // Too many braces otherwise, this isn't lisp.
         {
-            data.Push1Bit(true);
+            const uint8_t* bytesBase;
+            const uint8_t* bytesDelta;
+            
+            bytesBase   = (const uint8_t*) (&base);
+            bytesDelta  = (const uint8_t*) (&toDelta);
+                
+            itemBase  = (const uint32_t *) &(bytesBase[map.byteOffset]);
+            itemDelta = (const uint32_t *) &(bytesDelta[map.byteOffset]);
+        }
+
+        if (*itemBase == *itemDelta)
+        {
+            dataOut.Push(true);
         }
         else
         {
-            data.Push1Bit(false);
+            dataOut.Push(false);
 
-            // if (toDelta = 0)  : RESEARCH!
+            if (myResearchEncodeZeros)
             {
-                data.Push1Bit(true);
+                if (*itemDelta == 0)
+                {
+                    dataOut.Push(true);
+                }
+                else
+                {
+                    dataOut.Push(false);
+                    
+                    if (myResearchEncodeXorDeltas)
+                    {
+                        dataOut.Push(*itemBase ^ *itemDelta, map.numberOfBits); 
+                    }
+                    else
+                    {
+                        dataOut.Push(*itemDelta, map.numberOfBits);
+                    }
+                }
             }
             else
-            {
-                data.Push1Bit(false);
-
-                // XOR with base to get value to write  : RESEARCH!
+            {                
+                if (myResearchEncodeXorDeltas)
+                {
+                    dataOut.Push(*itemBase ^ *itemDelta, map.numberOfBits); 
+                }
+                else
+                {
+                    dataOut.Push(*itemDelta, map.numberOfBits);
+                }
             }
         }
     }
+    
+    // even needed?
+    return true;
 }
