@@ -29,7 +29,7 @@
 // Argh Includes
 #include "DeltaMapItem.h"
 
-// forward delcaration
+// forward declaration
 class IStateObject;
 class BitStreamReadOnly;
 class BitStream;
@@ -42,24 +42,28 @@ public:
         std::unique_ptr<IStateObject> identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas);
-    //bool DeltaDecode(const IStateObject& base, IStateObject& result, BitStreamReadOnly& data) const;
-    //bool DeltaEncode(const IStateObject& base, const IStateObject& toDelta, BitStream& data) const;
+    
+    // TODO: change bool return to mean we ran out of bytes for the result object to write the result.
+    // TODO: It's assumed the state object is an c-array in memory
+    // And there is enough space allocated for all x objects
+    // find a way to make this type safe to prevent buffer overruns!
+    bool DeltaDecode(
+        const IStateObject& base,
+        IStateObject& result, 
+        BitStreamReadOnly& dataIn) const;
 
+    // TODO: change bool return to mean the entire state object hasn't changed.
+    // TODO: same problems as Decode.
+    bool DeltaEncode(
+        const IStateObject& base, 
+        const IStateObject& toDelta, 
+        BitStream& dataOut) const;
+        
 private:
     const std::vector<DeltaMapItem> myDeltaMap;    
     const std::unique_ptr<IStateObject> myIdentityObject;
     const bool myResearchEncodeZeros;
     const bool myResearchEncodeXorDeltas;
-
-    bool DeltaDecodeItem(
-        const IStateObject& base,
-         IStateObject& result, 
-         BitStreamReadOnly& dataIn) const;
-
-    bool DeltaEncodeItem(
-        const IStateObject& base, 
-        const IStateObject& toDelta, 
-        BitStream& dataOut) const;
 };
 
 #endif // IDELTACODER_H

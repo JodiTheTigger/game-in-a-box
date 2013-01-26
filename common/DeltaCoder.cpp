@@ -37,8 +37,7 @@ DeltaCoder::DeltaCoder(
     // Nothing.
 }
 
-
-bool DeltaCoder::DeltaDecodeItem(
+bool DeltaCoder::DeltaDecode(
     const IStateObject& base,
      IStateObject& result, 
      BitStreamReadOnly& dataIn) const
@@ -105,7 +104,7 @@ bool DeltaCoder::DeltaDecodeItem(
     return true;
 }
 
-bool DeltaCoder::DeltaEncodeItem(
+bool DeltaCoder::DeltaEncode(
     const IStateObject& base, 
     const IStateObject& toDelta, 
     BitStream& dataOut) const

@@ -160,6 +160,8 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOUR
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/common/DeltaCoder.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/common/Huffman.cpp
   ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/common/NetworkProvider.cpp

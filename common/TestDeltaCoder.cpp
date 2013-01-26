@@ -15,22 +15,30 @@
     GNU Affero General Public License for more details.
 
     You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ISTATEOBJECT_H
-#define ISTATEOBJECT_H
+#include "Huffman.h"
+#include "gtest/gtest.h"
 
-#include <cstdint>
+#include <string>
+#include <array>
 
-class IStateObject
+using namespace std;
+
+// Class definition!
+class TestDeltaCoder : public ::testing::Test 
 {
-public:
-    size_t SizeInBytes() { return PrivateSizeInBytes(); }
-private:
-    virtual size_t PrivateSizeInBytes() = 0;
+    virtual void SetUp()
+    {
+        // please remove if not used.
+    }
+    
+protected:
+    //std::vector<std::vector<uint8_t>*> myTestBuffers; 
 };
 
-#endif // ISTATEOBJECT_H
-
-
+TEST_F(TestDeltaCoder, Stub) 
+{
+    EXPECT_TRUE(false);
+}

@@ -26,17 +26,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "DeltaMapItem.h"
 
+// Tell you what, this feels an awful like reflection.
 class DeltaMapVector
 {
 public:
     DeltaMapVector(std::vector<DeltaMapItem> newItems, uint32_t itemCount)
     : items(newItems)
-    , count(itemCount)
+    , repeatCount(itemCount)
     {
     }
 
-    const std::vector<DeltaMapItem> items;
-    const uint32_t count;
+    const std::vector<const DeltaMapItem> items;
+    const uint32_t repeatCount;
 };
 
 #endif // DELTAMAPVECTOR_H
