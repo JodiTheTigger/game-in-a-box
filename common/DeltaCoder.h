@@ -20,10 +20,13 @@
 /*
     NOTES:
     ======
-    This is basically a C function working on raw byte arrays
-    I don't want to work with classes as down low this should 
-    be working with continuous areas of memory. Classes and polymorphism
-    can ruin all that. The down side is lack of type checking and array overrun protection.
+    DeltaCoder only works on structs (uint8_t*) not classes.
+    Due to polymorphism and c++ standards, memory layout of classes
+    (especially with polymorphism) cannot be guaranteed to be in continous memory.
+    Since I want to work directly with a memory array, instead of calling getters and        
+    setters (which would be via reflection), i've changed the signature of DeltaCoder.
+
+    The down side is lack of type checking and array overrun protection.
     "identitySizeInBytes" is my attempt at basic array bounds checking at object creation.
 */
 
