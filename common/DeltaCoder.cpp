@@ -22,7 +22,6 @@
 
 #include "DeltaCoder.h"
 #include "BitStream.h"
-#include "IStateObject.h"
 
 using namespace std;
 
