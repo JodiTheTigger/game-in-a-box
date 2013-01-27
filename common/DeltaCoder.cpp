@@ -28,7 +28,8 @@ using namespace std;
 
 DeltaCoder::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<IStateObject> identity,
+        std::unique_ptr<uint8_t[]> identity,
+        size_t identitySizeInBytes,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas)
     : myDeltaMap(deltaMap)
@@ -36,25 +37,27 @@ DeltaCoder::DeltaCoder(
     , myResearchEncodeZeros(researchEncodeZeros)
     , myResearchEncodeXorDeltas(researchEncodeXorDeltas)
 {
-    // Nothing.
+    // Make sure the delta map is valid by checking if it runs out
+    // of bounds of the identity structure.
+    for (const DeltaMapItem& map : myDeltaMap)
+    {
+        if ((map.byteOffset + 4) >= identitySizeInBytes)
+        {
+            throw std::logic_error("DeltaMapItem is reading data past the end of identity. Buffer overrun.");
+        }
+    }
 }
 
 void DeltaCoder::DeltaDecode(
-    const IStateObject& base,
-     IStateObject& result, 
-     BitStreamReadOnly& dataIn) const
+    const uint8_t* base,
+    uint8_t* result, 
+    BitStreamReadOnly& dataIn) const
 {    
     for (const DeltaMapItem& map : myDeltaMap)
     {
         const uint32_t* in;
         uint32_t* out;
         
-        // Should this be an exception?
-        if ((map.byteOffset + 4) > base.SizeInBytes())
-        {
-            throw std::logic_error("DeltaMapItem is reading data past the end of IStateObject. Buffer overrun.");
-        }
-
         // Too many braces otherwise, this isn't lisp.
         {
             const uint8_t* bytesBase;
@@ -110,8 +113,8 @@ void DeltaCoder::DeltaDecode(
 }
 
 bool DeltaCoder::DeltaEncode(
-    const IStateObject& base, 
-    const IStateObject& toDelta, 
+    const uint8_t* base, 
+    const uint8_t* toDelta, 
     BitStream& dataOut) const
 {
     bool noChange;

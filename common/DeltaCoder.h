@@ -17,6 +17,15 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
+/*
+    NOTES:
+    ======
+    This is basically a C function working on raw byte arrays
+    I don't want to work with classes as down low this should 
+    be working with continuous areas of memory. Classes and polymorphism
+    can ruin all that. The down side is lack of type checking and array overrun protection.
+    "identitySizeInBytes" is my attempt at basic array bounds checking at object creation.
+*/
 
 #ifndef IDELTACODER_H
 #define IDELTACODER_H
@@ -30,7 +39,6 @@
 #include "DeltaMapItem.h"
 
 // forward declaration
-class IStateObject;
 class BitStreamReadOnly;
 class BitStream;
 
@@ -39,24 +47,25 @@ class DeltaCoder
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<IStateObject> identity,
+        std::unique_ptr<uint8_t[]> identity,
+        size_t identitySizeInBytes,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas);
     
     void DeltaDecode(
-        const IStateObject& base,
-        IStateObject& result, 
+        const uint8_t* base,
+        uint8_t* result, 
         BitStreamReadOnly& dataIn) const;
 
     // Returns true if base == toDelta, otherwise false.
     bool DeltaEncode(
-        const IStateObject& base, 
-        const IStateObject& toDelta, 
+        const uint8_t* base, 
+        const uint8_t* toDelta,
         BitStream& dataOut) const;
         
 private:
     const std::vector<DeltaMapItem> myDeltaMap;    
-    const std::unique_ptr<IStateObject> myIdentityObject;
+    const std::unique_ptr<uint8_t[]> myIdentityObject;
     const bool myResearchEncodeZeros;
     const bool myResearchEncodeXorDeltas;
 };
