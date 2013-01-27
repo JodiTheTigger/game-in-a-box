@@ -39,4 +39,9 @@ public:
     const uint8_t numberOfBits;
 };
 
+// ///////////////////
+// Delta Map Item Macros
+// ///////////////////
+#define DELTAMAP(CLASS_TYPE, CLASS_MEMBER, NUMBER_OFBITS) #CLASS_MEMBER,(uint32_t)&((CLASS_TYPE*)0)->CLASS_MEMBER, NUMBER_OFBITS
+
 #endif // DELTAMAPITEM_H

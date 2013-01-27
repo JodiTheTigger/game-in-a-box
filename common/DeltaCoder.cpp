@@ -18,6 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include <stdexcept>
+
 #include "DeltaCoder.h"
 #include "BitStream.h"
 #include "IStateObject.h"
@@ -37,15 +39,21 @@ DeltaCoder::DeltaCoder(
     // Nothing.
 }
 
-bool DeltaCoder::DeltaDecode(
+void DeltaCoder::DeltaDecode(
     const IStateObject& base,
      IStateObject& result, 
      BitStreamReadOnly& dataIn) const
-{
+{    
     for (const DeltaMapItem& map : myDeltaMap)
     {
         const uint32_t* in;
         uint32_t* out;
+        
+        // Should this be an exception?
+        if ((map.byteOffset + 4) > base.SizeInBytes())
+        {
+            throw std::logic_error("DeltaMapItem is reading data past the end of IStateObject. Buffer overrun.");
+        }
 
         // Too many braces otherwise, this isn't lisp.
         {
@@ -99,9 +107,6 @@ bool DeltaCoder::DeltaDecode(
             }            
         }
     }
-    
-    // Do I need a return type if all I return is true?
-    return true;
 }
 
 bool DeltaCoder::DeltaEncode(
@@ -109,6 +114,10 @@ bool DeltaCoder::DeltaEncode(
     const IStateObject& toDelta, 
     BitStream& dataOut) const
 {
+    bool noChange;
+    
+    noChange = true;
+    
     for (const DeltaMapItem& map : myDeltaMap)
     {
         const uint32_t* itemBase;
@@ -134,6 +143,8 @@ bool DeltaCoder::DeltaEncode(
         {
             dataOut.Push(false);
 
+            noChange = false;
+            
             if (myResearchEncodeZeros)
             {
                 if (*itemDelta == 0)
@@ -168,6 +179,5 @@ bool DeltaCoder::DeltaEncode(
         }
     }
     
-    // even needed?
-    return true;
+    return noChange;
 }

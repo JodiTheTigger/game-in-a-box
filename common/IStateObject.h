@@ -26,9 +26,11 @@
 class IStateObject
 {
 public:
-    size_t SizeInBytes() { return PrivateSizeInBytes(); }
+    size_t SizeInBytes() const { return PrivateSizeInBytes(); }
+    virtual ~IStateObject();
+    
 private:
-    virtual size_t PrivateSizeInBytes() = 0;
+    virtual size_t PrivateSizeInBytes() const = 0;
 };
 
 #endif // ISTATEOBJECT_H

@@ -43,17 +43,12 @@ public:
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas);
     
-    // TODO: change bool return to mean we ran out of bytes for the result object to write the result.
-    // TODO: It's assumed the state object is an c-array in memory
-    // And there is enough space allocated for all x objects
-    // find a way to make this type safe to prevent buffer overruns!
-    bool DeltaDecode(
+    void DeltaDecode(
         const IStateObject& base,
         IStateObject& result, 
         BitStreamReadOnly& dataIn) const;
 
-    // TODO: change bool return to mean the entire state object hasn't changed.
-    // TODO: same problems as Decode.
+    // Returns true if base == toDelta, otherwise false.
     bool DeltaEncode(
         const IStateObject& base, 
         const IStateObject& toDelta, 
