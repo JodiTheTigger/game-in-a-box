@@ -18,11 +18,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Huffman.h"
+#include "DeltaCoder.h"
+#include "DeltaMapItem.h"
 #include "gtest/gtest.h"
 
 #include <string>
-#include <array>
+#include <vector>
 
 using namespace std;
 
@@ -35,10 +36,21 @@ class TestDeltaCoder : public ::testing::Test
     }
     
 protected:
-    //std::vector<std::vector<uint8_t>*> myTestBuffers; 
+    
+    struct DeltaTester
+    {
+        uint32_t first;
+        uint32_t second;
+        float waitWhat;
+    };
 };
 
 TEST_F(TestDeltaCoder, Stub) 
 {
+    vector<DeltaMapItem> map = {
+        {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
+        {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
+        {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
+    
     EXPECT_TRUE(false);
 }
