@@ -39,7 +39,7 @@ DeltaCoder<OBJECT>::DeltaCoder(
     // of bounds of the identity structure.
     for (const DeltaMapItem& map : myDeltaMap)
     {
-        if ((map.byteOffset + 4) >= sizeof(OBJECT))
+        if ((map.byteOffset + 4) > sizeof(OBJECT))
         {
             throw std::logic_error("DeltaMapItem is reading data past the end of identity. Buffer overrun.");
         }
