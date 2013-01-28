@@ -124,7 +124,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server  
-common/DeltaCoder.cpp 
 common/Huffman.cpp 
 common/BitStreamReadOnly.cpp 
 common/BitStream.cpp 
@@ -160,7 +159,6 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOUR
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
-  ${PROJECT_SOURCE_DIR}/common/DeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/common/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/common/Huffman.cpp
   ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp

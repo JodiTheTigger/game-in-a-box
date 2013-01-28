@@ -20,15 +20,14 @@
 
 #include <stdexcept>
 
-#include "DeltaCoder.h"
 #include "BitStream.h"
 
 using namespace std;
 
-DeltaCoder::DeltaCoder(
+template<class OBJECT>
+DeltaCoder<OBJECT>::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<uint8_t[]> identity,
-        size_t identitySizeInBytes,
+        std::unique_ptr<OBJECT> identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas)
     : myDeltaMap(deltaMap)
@@ -40,18 +39,30 @@ DeltaCoder::DeltaCoder(
     // of bounds of the identity structure.
     for (const DeltaMapItem& map : myDeltaMap)
     {
-        if ((map.byteOffset + 4) >= identitySizeInBytes)
+        if ((map.byteOffset + 4) >= sizeof(OBJECT))
         {
             throw std::logic_error("DeltaMapItem is reading data past the end of identity. Buffer overrun.");
         }
     }
 }
 
-void DeltaCoder::DeltaDecode(
-    const uint8_t* base,
-    uint8_t* result, 
+template<class OBJECT>
+void DeltaCoder<OBJECT>::DeltaDecode(
+    const OBJECT* base,
+    OBJECT& result, 
     BitStreamReadOnly& dataIn) const
 {    
+    const OBJECT* basePointer;
+    
+    if (base == nullptr)
+    {
+        basePointer = myIdentityObject.get();
+    }
+    else
+    {
+        basePointer = base;
+    }
+    
     for (const DeltaMapItem& map : myDeltaMap)
     {
         const uint32_t* in;
@@ -62,7 +73,7 @@ void DeltaCoder::DeltaDecode(
             const uint8_t* bytesBase;
             uint8_t* bytesDelta;
             
-            bytesBase   = (const uint8_t*) (&base);
+            bytesBase   = (const uint8_t*) basePointer;
             bytesDelta  = (uint8_t*) (&result);
                 
             in  = (const uint32_t *) &(bytesBase[map.byteOffset]);
@@ -110,13 +121,23 @@ void DeltaCoder::DeltaDecode(
         }
     }
 }
-
-bool DeltaCoder::DeltaEncode(
-    const uint8_t* base, 
-    const uint8_t* toDelta, 
+template<class OBJECT>
+bool DeltaCoder<OBJECT>::DeltaEncode(
+    const OBJECT* base, 
+    const OBJECT& toDelta, 
     BitStream& dataOut) const
 {
     bool noChange;
+    const OBJECT* basePointer;
+    
+    if (base == nullptr)
+    {
+        basePointer = myIdentityObject.get();
+    }
+    else
+    {
+        basePointer = base;
+    }
     
     noChange = true;
     
@@ -130,7 +151,7 @@ bool DeltaCoder::DeltaEncode(
             const uint8_t* bytesBase;
             const uint8_t* bytesDelta;
             
-            bytesBase   = (const uint8_t*) (&base);
+            bytesBase   = (const uint8_t*) basePointer;
             bytesDelta  = (const uint8_t*) (&toDelta);
                 
             itemBase  = (const uint32_t *) &(bytesBase[map.byteOffset]);

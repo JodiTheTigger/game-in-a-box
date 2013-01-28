@@ -25,9 +25,6 @@
     (especially with polymorphism) cannot be guaranteed to be in continous memory.
     Since I want to work directly with a memory array, instead of calling getters and        
     setters (which would be via reflection), i've changed the signature of DeltaCoder.
-
-    The down side is lack of type checking and array overrun protection.
-    "identitySizeInBytes" is my attempt at basic array bounds checking at object creation.
 */
 
 #ifndef IDELTACODER_H
@@ -45,32 +42,37 @@
 class BitStreamReadOnly;
 class BitStream;
 
+template<class OBJECT>
 class DeltaCoder
 {
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<uint8_t[]> identity,
-        size_t identitySizeInBytes,
+        std::unique_ptr<OBJECT> identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas);
     
+    // if base == nullptr use the identity
     void DeltaDecode(
-        const uint8_t* base,
-        uint8_t* result, 
+        const OBJECT* base,
+        OBJECT& result, 
         BitStreamReadOnly& dataIn) const;
 
+    // if base == nullptr use the identity
     // Returns true if base == toDelta, otherwise false.
     bool DeltaEncode(
-        const uint8_t* base, 
-        const uint8_t* toDelta,
+        const OBJECT* base, 
+        const OBJECT& toDelta,
         BitStream& dataOut) const;
         
 private:
     const std::vector<DeltaMapItem> myDeltaMap;    
-    const std::unique_ptr<uint8_t[]> myIdentityObject;
+    const std::unique_ptr<OBJECT> myIdentityObject;
     const bool myResearchEncodeZeros;
     const bool myResearchEncodeXorDeltas;
 };
+
+// The only downside of templates
+#include "DeltaCoder.cpp"
 
 #endif // IDELTACODER_H
