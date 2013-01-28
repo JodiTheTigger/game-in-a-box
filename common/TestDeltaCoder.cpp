@@ -24,6 +24,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 using namespace std;
 
@@ -45,12 +46,30 @@ protected:
     };
 };
 
-TEST_F(TestDeltaCoder, Stub) 
+TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity) 
 {
+    unique_ptr<DeltaTester> identity;
+    DeltaTester first;
+    DeltaTester result;
+    BitStream data(32);
+    
     vector<DeltaMapItem> map = {
         {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
         {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
         {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
     
-    EXPECT_TRUE(false);
+    identity.reset(new DeltaTester());
+    first.first = 1;
+    first.second = 2;
+    first.waitWhat = 3.141f;
+        
+    DeltaCoder<DeltaTester> myCoder(map, move(identity), true, true);
+    
+    myCoder.DeltaEncode(nullptr, first, data);
+    myCoder.DeltaDecode(nullptr, result, data);
+    
+    // CBF defining a operator== for my struct.
+    EXPECT_EQ(first.first, result.first);
+    EXPECT_EQ(first.second, result.second);
+    EXPECT_EQ(first.waitWhat, result.waitWhat);
 }
