@@ -73,3 +73,39 @@ TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity)
     EXPECT_EQ(first.second, result.second);
     EXPECT_EQ(first.waitWhat, result.waitWhat);
 }
+
+TEST_F(TestDeltaCoder, EncodeAgainstIdentity) 
+{
+    unique_ptr<DeltaTester> identity;
+    DeltaTester first;
+    DeltaTester result;
+    uint32_t temp;
+    BitStream data(32);
+    
+    vector<DeltaMapItem> map = {
+        {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
+        {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
+        {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
+    
+    identity.reset(new DeltaTester());
+    first.first = 1;
+    first.second = 2;
+    first.waitWhat = 3.141f;
+        
+    DeltaCoder<DeltaTester> myCoder(map, move(identity), true, true);
+    
+    myCoder.DeltaEncode(nullptr, first, data);
+    
+    EXPECT_FALSE(data.Pull1Bit());
+    EXPECT_FALSE(data.Pull1Bit());    
+    EXPECT_EQ(1, data.PullU32(8));
+        
+    EXPECT_FALSE(data.Pull1Bit());
+    EXPECT_FALSE(data.Pull1Bit());    
+    EXPECT_EQ(2, data.PullU32(18));
+        
+    EXPECT_FALSE(data.Pull1Bit());
+    EXPECT_FALSE(data.Pull1Bit());
+    temp = data.PullU32(32);
+    EXPECT_EQ(3.141f, *((float*) &(temp)));   
+}
