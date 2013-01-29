@@ -204,3 +204,19 @@ TEST_F(TestBitStreamReadOnly, TestHuffmanRead7Bug)
     EXPECT_EQ(0x01FF, result.PullU16(9));
     EXPECT_EQ(0x6F, result.PullU8(7));    
 }
+
+TEST_F(TestBitStreamReadOnly, TestReadLessThanAllBits)
+{    
+    vector<uint8_t> dude;
+    
+    BitStreamReadOnly result(dude);
+    
+    dude.push_back(0x1);
+    dude.push_back(0x2);
+    dude.push_back(0x3);
+    dude.push_back(0x4);
+    
+    EXPECT_EQ(0x01, result.PullU16(8));
+    EXPECT_EQ(0x0203, result.PullU32(16));
+    EXPECT_EQ(0x04, result.PullU32(8));    
+}
