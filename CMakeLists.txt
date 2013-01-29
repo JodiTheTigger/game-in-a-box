@@ -123,7 +123,9 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
-game-in-a-box-server  
+game-in-a-box-server 
+common/GameInABox.cpp
+common/IStateManager.cpp  
 common/Huffman.cpp 
 common/BitStreamReadOnly.cpp 
 common/BitStream.cpp 
@@ -131,7 +133,6 @@ common/NetworkFragment.cpp
 common/AutoComplete.cpp
 common/IReflected.cpp 
 common/ReflectionManager.cpp 
-common/StateManager.cpp 
 common/NetworkManager.cpp 
 common/NetworkProvider.cpp 
 common/RollingStatistics.cpp
@@ -158,7 +159,9 @@ enable_testing()
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
 ADD_EXECUTABLE(
-  game-in-a-box-common-tests
+  game-in-a-box-common-tests 
+  ${PROJECT_SOURCE_DIR}/common/GameInABox.cpp
+  ${PROJECT_SOURCE_DIR}/common/IStateManager.cpp  
   ${PROJECT_SOURCE_DIR}/common/Huffman.cpp
   ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/common/NetworkProvider.cpp

@@ -18,11 +18,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef STATEMANAGER_H
-#define STATEMANAGER_H
+#include "GameInABox.h"
 
-class StateManager
+uint16_t GameInABox::PrivateCurrentStateTick()
 {
-};
+    // RAM: TODO!
+    return 0;
+}
 
-#endif // STATEMANAGER_H
+void GameInABox::PrivateDeltaGet(uint16_t, uint16_t, uint16_t&, BitStream&) const
+{
+    // RAM: TODO!
+}
+
+void GameInABox::PrivateDeltaSet(uint16_t, uint16_t, BitStreamReadOnly&)
+{
+    // RAM: TODO!
+}
