@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <random>
 
 using namespace std;
 
@@ -43,6 +44,9 @@ protected:
         uint32_t first;
         uint32_t second;
         float waitWhat;
+        
+        DeltaTester(uint32_t f, uint32_t s, float w) : first(f), second(s), waitWhat(w) {};
+        DeltaTester() : DeltaTester(0,0,0) {};
     };
 };
 
@@ -108,4 +112,51 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
     EXPECT_FALSE(data.Pull1Bit());
     temp = data.PullU32(32);
     EXPECT_EQ(3.141f, *((float*) &(temp)));   
+}
+
+TEST_F(TestDeltaCoder, RandomStates)
+{
+    minstd_rand generator;
+    uniform_int_distribution<uint32_t> even;
+    uniform_int_distribution<uint32_t> even100(0,100);
+    
+    vector<DeltaTester> states;
+    DeltaTester identity;
+    
+    vector<DeltaMapItem> map = {
+        {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
+        {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
+        {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
+    
+        
+    DeltaCoder<DeltaTester> myCoder(map, identity, true, true);
+    
+    generator.seed(1);
+    
+    for (int i = 0; i < 100; i++)
+    {
+        states.push_back(DeltaTester(
+            (uint32_t) even(generator),
+            (uint32_t) even(generator),
+            ((float) even(generator)) / 37.0f));
+    }
+    
+    for (int i = 0; i < 100; i++)
+    {
+        uint32_t from;
+        uint32_t to;
+        DeltaTester result;
+        
+        BitStream stream(32);
+        
+        from = even100(generator);
+        to = even100(generator);
+        
+        myCoder.DeltaEncode(&(states[from]), states[to], stream);
+        myCoder.DeltaDecode(&(states[from]), result, stream);
+                
+        EXPECT_EQ(states[to].first, result.first);
+        EXPECT_EQ(states[to].second, result.second);
+        EXPECT_EQ(states[to].waitWhat, result.waitWhat);
+    }
 }
