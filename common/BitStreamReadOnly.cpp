@@ -155,10 +155,10 @@ uint16_t BitStreamReadOnly::PullU16(uint8_t bitsToPull)
     }
     
     result = PullU8(bitsToPull);
-    result <<= (bitsToPull - 8);
     
     if (bitsToPull > 8)
     {
+        result <<= (bitsToPull - 8);
         result |= PullU8(bitsToPull - 8);
     }
     
@@ -180,10 +180,10 @@ uint32_t BitStreamReadOnly::PullU32(uint8_t bitsToPull)
     }
     
     result = PullU16(bitsToPull);
-    result <<= (bitsToPull - 16);
     
     if (bitsToPull > 16)
     {
+        result <<= (bitsToPull - 16);
         result |= PullU16(bitsToPull - 16);
     }
     

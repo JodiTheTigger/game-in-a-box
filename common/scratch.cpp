@@ -15,21 +15,7 @@
     GNU Affero General Public License for more details.
 
     You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "NetworkFragment.h"
-#include "gtest/gtest.h"
-
-using namespace std;
-
-// Class definition!
-class TestNetworkFragment : public ::testing::Test 
-{
-};
-
-TEST_F(TestNetworkFragment, FromNullPointer) 
-{
-    // RAM: TODO!
-    //EXPECT_EQ(0,1);  
-}
+//using namespace std;

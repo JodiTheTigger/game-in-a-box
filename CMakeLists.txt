@@ -119,7 +119,7 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 # Server 
 ###############    
 # RAM: Debug, get clang to find the bits/c++config.h file!
-#include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
+include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
@@ -162,6 +162,7 @@ ADD_EXECUTABLE(
   game-in-a-box-common-tests 
   ${PROJECT_SOURCE_DIR}/common/GameInABox.cpp
   ${PROJECT_SOURCE_DIR}/common/IStateManager.cpp  
+  ${PROJECT_SOURCE_DIR}/common/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/common/Huffman.cpp
   ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/common/NetworkProvider.cpp
