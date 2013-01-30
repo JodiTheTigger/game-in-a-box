@@ -19,7 +19,7 @@
 */
 
 #include "NetworkManager.h"
-#include "StateManager.h"
+#include "IStateManager.h"
 #include "NetworkProvider.h"
 #include "NetworkFragment.h"
 #include "NetworkPacket.h"
@@ -29,7 +29,7 @@ using namespace boost::asio::ip;
 
 NetworkManager::NetworkManager(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
-        std::weak_ptr<StateManager> stateManager)
+        std::weak_ptr<IStateManager> stateManager)
 : myStateManager(stateManager)
 , myNetworks()
 {

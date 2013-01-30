@@ -26,7 +26,8 @@
 
 #include "common/NetworkProvider.h"
 #include "common/NetworkManager.h"
-#include "common/StateManager.h"
+#include "common/IStateManager.h"
+#include "common/GameInABox.h"
 #include "common/ReflectionManager.h"
 
 using namespace std;
@@ -64,7 +65,8 @@ void GameInABoxServer::Run()
     uint32_t timeDeltaInMs;
     
     // startup
-    myGame = shared_ptr<StateManager>(new StateManager());
+    // Can have different game types, for now choose GameInABox.
+    myGame = shared_ptr<IStateManager>(new GameInABox());
     myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
     
     // RAM: TODO!

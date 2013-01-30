@@ -33,15 +33,18 @@ class IStateManager
     CLASS_NOCOPY_NOASSIGN(IStateManager);
     
 public:    
+    IStateManager() {};
+    
     uint16_t CurrentStateTick();
     
     void DeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const;
     void DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source);
 
-private:
+protected:
     // Don't delete via base class, use smart pointers or the derived pointer please.
     ~IStateManager();
     
+private:
     virtual uint16_t PrivateCurrentStateTick() = 0;
     
     virtual void PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const = 0;

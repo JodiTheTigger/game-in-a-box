@@ -28,6 +28,7 @@
 // forward declarations
 class StateManager;
 class NetworkProvider;
+class IStateManager;
 
 class NetworkManager
 {
@@ -36,7 +37,7 @@ class NetworkManager
 public:
     NetworkManager(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
-        std::weak_ptr<StateManager> stateManager);
+        std::weak_ptr<IStateManager> stateManager);
     
     // Processes all waiting packets.
     // -Does connection challenges
@@ -49,7 +50,7 @@ public:
     void SendState();
     
 private:
-    std::weak_ptr<StateManager> myStateManager;
+    std::weak_ptr<IStateManager> myStateManager;
     std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
 };
 

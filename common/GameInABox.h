@@ -26,6 +26,9 @@
 
 class GameInABox : public IStateManager
 {
+public:
+    GameInABox() {};
+    
 private:
     uint16_t PrivateCurrentStateTick() override;
     

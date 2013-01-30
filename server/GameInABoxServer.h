@@ -32,7 +32,7 @@
 // forward declarations
 class NetworkProvider;
 class NetworkManager;
-class StateManager;
+class IStateManager;
 class ReflectionManager;
 
 class GameInABoxServer : public IReflected
@@ -67,7 +67,7 @@ private:
     // my pretties
     std::shared_ptr<NetworkProvider> myNetworkSource;
     std::shared_ptr<NetworkManager> myNetworkState;
-    std::shared_ptr<StateManager> myGame;
+    std::shared_ptr<IStateManager> myGame;
     
     std::unique_ptr<ReflectionManager> myMirror;
     
