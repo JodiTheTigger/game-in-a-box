@@ -35,6 +35,13 @@ class TestDeltaCoder : public ::testing::Test
     virtual void SetUp()
     {
         // please remove if not used.
+        myMap = {{
+            {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
+            {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
+            {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}}};
+            
+        myIdentity = DeltaTester();
+        myFirst = DeltaTester(1, 2, 3.141f);
     }
     
 protected:
@@ -48,57 +55,79 @@ protected:
         DeltaTester(uint32_t f, uint32_t s, float w) : first(f), second(s), waitWhat(w) {};
         DeltaTester() : DeltaTester(0,0,0) {};
     };
+    
+    vector<DeltaMapItem> myMap;
+    DeltaTester myIdentity;
+    DeltaTester myFirst;
 };
 
 TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity) 
 {
-    DeltaTester identity;
-    DeltaTester first;
     DeltaTester result;
     BitStream data(32);
-    
-    vector<DeltaMapItem> map = {
-        {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
-        {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
-        {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
-    
-    identity = DeltaTester();
-    first.first = 1;
-    first.second = 2;
-    first.waitWhat = 3.141f;
         
-    DeltaCoder<DeltaTester> myCoder(map, identity, true, true);
+    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
     
-    myCoder.DeltaEncode(nullptr, first, data);
+    myCoder.DeltaEncode(nullptr, myFirst, data);
     myCoder.DeltaDecode(nullptr, result, data);
     
     // CBF defining a operator== for my struct.
-    EXPECT_EQ(first.first, result.first);
-    EXPECT_EQ(first.second, result.second);
-    EXPECT_EQ(first.waitWhat, result.waitWhat);
+    EXPECT_EQ(myFirst.first, result.first);
+    EXPECT_EQ(myFirst.second, result.second);
+    EXPECT_EQ(myFirst.waitWhat, result.waitWhat);
+}
+
+TEST_F(TestDeltaCoder, EncodeDecodeFullDiff) 
+{
+    DeltaTester second;
+    DeltaTester result;
+    BitStream data(32);
+        
+    second.first = 4;
+    second.second = 8;
+    second.waitWhat = 1.7f;
+        
+    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
+    
+    myCoder.DeltaEncode(&myFirst, second, data);
+    myCoder.DeltaDecode(&myFirst, result, data);
+    
+    // CBF defining a operator== for my struct.
+    EXPECT_EQ(second.first, result.first);
+    EXPECT_EQ(second.second, result.second);
+    EXPECT_EQ(second.waitWhat, result.waitWhat);
+}
+
+TEST_F(TestDeltaCoder, EncodeDecodePartialDiff) 
+{
+    DeltaTester second;
+    DeltaTester result;
+    BitStream data(32);
+        
+    second.first = 5;
+    second.second = myFirst.second;
+    second.waitWhat = 1.7f;
+        
+    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
+    
+    myCoder.DeltaEncode(&myFirst, second, data);
+    myCoder.DeltaDecode(&myFirst, result, data);
+    
+    // CBF defining a operator== for my struct.
+    EXPECT_EQ(second.first, result.first);
+    EXPECT_EQ(second.second, result.second);
+    EXPECT_EQ(second.waitWhat, result.waitWhat);
 }
 
 TEST_F(TestDeltaCoder, EncodeAgainstIdentity) 
 {
-    DeltaTester identity;
-    DeltaTester first;
     DeltaTester result;
     uint32_t temp;
     BitStream data(32);
+            
+    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
     
-    vector<DeltaMapItem> map = {
-        {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
-        {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
-        {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
-    
-    identity = DeltaTester();
-    first.first = 1;
-    first.second = 2;
-    first.waitWhat = 3.141f;
-        
-    DeltaCoder<DeltaTester> myCoder(map, identity, true, true);
-    
-    myCoder.DeltaEncode(nullptr, first, data);
+    myCoder.DeltaEncode(nullptr, myFirst, data);
     
     EXPECT_FALSE(data.Pull1Bit());
     EXPECT_FALSE(data.Pull1Bit());    
@@ -114,6 +143,8 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
     EXPECT_EQ(3.141f, *((float*) &(temp)));   
 }
 
+
+
 TEST_F(TestDeltaCoder, RandomStates)
 {
     minstd_rand generator;
@@ -121,15 +152,8 @@ TEST_F(TestDeltaCoder, RandomStates)
     uniform_int_distribution<uint32_t> even100(0,100);
     
     vector<DeltaTester> states;
-    DeltaTester identity;
-    
-    vector<DeltaMapItem> map = {
-        {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
-        {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
-        {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
-    
-        
-    DeltaCoder<DeltaTester> myCoder(map, identity, true, true);
+            
+    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
     
     generator.seed(1);
     
