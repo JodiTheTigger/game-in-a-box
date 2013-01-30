@@ -51,7 +51,7 @@ public:
         OBJECT identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas);
-    
+        
     // if base == nullptr use the identity
     void DeltaDecode(
         const OBJECT* base,

@@ -160,12 +160,12 @@ TEST_F(TestDeltaCoder, RandomStates)
     for (int i = 0; i < 100; i++)
     {
         states.push_back(DeltaTester(
-            (uint32_t) even(generator),
-            (uint32_t) even(generator),
+            (uint32_t) even(generator) & 0xFF,
+            (uint32_t) even(generator) & 0x3FFFF,
             ((float) even(generator)) / 37.0f));
     }
     
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 1000; i++)
     {
         uint32_t from;
         uint32_t to;
