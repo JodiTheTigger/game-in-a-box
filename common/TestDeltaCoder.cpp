@@ -48,7 +48,7 @@ protected:
 
 TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity) 
 {
-    unique_ptr<DeltaTester> identity;
+    DeltaTester identity;
     DeltaTester first;
     DeltaTester result;
     BitStream data(32);
@@ -58,12 +58,12 @@ TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity)
         {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
         {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
     
-    identity.reset(new DeltaTester());
+    identity = DeltaTester();
     first.first = 1;
     first.second = 2;
     first.waitWhat = 3.141f;
         
-    DeltaCoder<DeltaTester> myCoder(map, move(identity), true, true);
+    DeltaCoder<DeltaTester> myCoder(map, identity, true, true);
     
     myCoder.DeltaEncode(nullptr, first, data);
     myCoder.DeltaDecode(nullptr, result, data);
@@ -76,7 +76,7 @@ TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity)
 
 TEST_F(TestDeltaCoder, EncodeAgainstIdentity) 
 {
-    unique_ptr<DeltaTester> identity;
+    DeltaTester identity;
     DeltaTester first;
     DeltaTester result;
     uint32_t temp;
@@ -87,12 +87,12 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
         {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
         {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}};
     
-    identity.reset(new DeltaTester());
+    identity = DeltaTester();
     first.first = 1;
     first.second = 2;
     first.waitWhat = 3.141f;
         
-    DeltaCoder<DeltaTester> myCoder(map, move(identity), true, true);
+    DeltaCoder<DeltaTester> myCoder(map, identity, true, true);
     
     myCoder.DeltaEncode(nullptr, first, data);
     

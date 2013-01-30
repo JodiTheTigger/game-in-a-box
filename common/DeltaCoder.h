@@ -48,7 +48,7 @@ class DeltaCoder
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<OBJECT> identity,
+        OBJECT identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas);
     
@@ -67,7 +67,7 @@ public:
         
 private:
     const std::vector<DeltaMapItem> myDeltaMap;    
-    const std::unique_ptr<OBJECT> myIdentityObject;
+    const OBJECT myIdentityObject;
     const bool myResearchEncodeZeros;
     const bool myResearchEncodeXorDeltas;
 };

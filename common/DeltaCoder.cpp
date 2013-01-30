@@ -27,11 +27,11 @@ using namespace std;
 template<class OBJECT>
 DeltaCoder<OBJECT>::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        std::unique_ptr<OBJECT> identity,
+        OBJECT identity,
         bool researchEncodeZeros,
         bool researchEncodeXorDeltas)
     : myDeltaMap(deltaMap)
-    , myIdentityObject(move(identity))
+    , myIdentityObject(identity)
     , myResearchEncodeZeros(researchEncodeZeros)
     , myResearchEncodeXorDeltas(researchEncodeXorDeltas)
 {
@@ -56,7 +56,7 @@ void DeltaCoder<OBJECT>::DeltaDecode(
     
     if (base == nullptr)
     {
-        basePointer = myIdentityObject.get();
+        basePointer = &myIdentityObject;
     }
     else
     {
@@ -132,7 +132,7 @@ bool DeltaCoder<OBJECT>::DeltaEncode(
     
     if (base == nullptr)
     {
-        basePointer = myIdentityObject.get();
+        basePointer = &myIdentityObject;
     }
     else
     {
