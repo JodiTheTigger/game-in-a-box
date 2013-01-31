@@ -37,4 +37,121 @@ std::unique_ptr<NetworkFragment> NetworkFragment::GetFragmentFromData(NetworkPac
     return result;
 }
 
+NetworkFragment::NetworkFragment(
+    boost::asio::ip::udp::endpoint address,
+    std::unique_ptr<std::vector<uint8_t>> data)
+: myAddress(address)
+, myData(move(data))
+{
+    // RAM: TODO: assert(myData->size >= PacketSizeMinimum)
+    myDataRaw = &((*myData)[0]);
+}
+
+bool NetworkFragment::IsCommand() const
+{
+    return (myDataRaw[0] == 0xFF) && (myDataRaw[0] == myDataRaw[1]);
+}
+
+bool NetworkFragment::IsFragmented() const
+{
+    if (IsCommand())
+    {
+        return false;
+    }
+    else
+    {
+        return ((myDataRaw[0] & 0x80) != 0);
+    }
+}
+
+uint16_t NetworkFragment::SequenceGet() const
+{
+    return U16Get(0);
+}
+
+uint16_t NetworkFragment::QPortGet() const
+{
+    uint16_t result;
+    
+    if (IsCommand())
+    {
+        result = 0;
+    }
+    else
+    {
+        result = U16Get(2);
+    }
+    
+    return result;
+}
+
+uint16_t NetworkFragment::FragmentOffset() const
+{
+    if (!IsCommand() && IsFragmented())
+    {
+        return U16Get(4);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+uint16_t NetworkFragment::FragmentTotalSizeInBytes() const
+{
+    if (!IsCommand() && IsFragmented())
+    {
+        return U16Get(6);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+uint32_t NetworkFragment::KeyGet() const
+{
+    if (IsCommand())
+    {
+        return U32Get(4);
+    }
+    else
+    {
+        return 0;
+    }    
+}
+
+NetworkFragment::Command NetworkFragment::CommandGet() const
+{
+    if (IsCommand())
+    {
+        return (NetworkFragment::Command) myDataRaw[8];
+    }
+    else
+    {
+        return Command::Invalid;
+    }    
+}
+
+boost::asio::ip::udp::endpoint NetworkFragment::AddressGet() const
+{
+    return myAddress;
+}
+
+uint16_t NetworkFragment::U16Get(size_t offsetInBytes) const
+{
+    return (((uint16_t) myDataRaw[offsetInBytes]) << 8) | (uint16_t) myDataRaw[offsetInBytes + 1];
+}
+
+uint32_t NetworkFragment::U32Get(size_t offsetInBytes) const
+{
+    return (
+        (((uint32_t) myDataRaw[offsetInBytes + 0]) << 24) | 
+        (((uint32_t) myDataRaw[offsetInBytes + 1]) << 16) | 
+        (((uint32_t) myDataRaw[offsetInBytes + 2]) << 8) | 
+        (((uint32_t) myDataRaw[offsetInBytes + 3])));
+}
+
+
+
 

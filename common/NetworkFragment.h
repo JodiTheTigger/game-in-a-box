@@ -26,20 +26,87 @@
 #include <vector>
 #include <boost/asio/ip/udp.hpp>
 
+// NOTE: Not casting memory into structs because I don't want to deal with packing and endianess issues.
+
 // forward references
 class NetworkPacket;
+
+// Packet Format
+// =============
+// Info coded high byte first.
+// 
+// 00: uint16_t sequence (0xFFFF == Out of band command packet)
+// if (sequence != 0xFFFF)
+// {
+// 02: uint16_t qport
+// If (sequence & 0x8000)
+// {
+// 04: uint16_t fragment offset
+// 06: uint16_t fragment total length in bytes
+// 08: uint8_t[] data
+// }
+// else
+// {
+// 04: uint8_t[] data
+// }
+// }
+// else
+// {
+// 04: uint32_t key
+// 08: uint8_t command
+// 09: uint8_t[] data
+// }
 
 class NetworkFragment
 {
 public:
     static std::unique_ptr<NetworkFragment> GetFragmentFromData(NetworkPacket& packetData);
+    
+    enum class Command : uint8_t
+    {
+        Invalid = 0,
+        Challenge,
+        ChallengeResponse,
+        GetInfo,
+        Connect,
+        
+        // Commands created by the IStateManager
+        // RAM: TODO: NEEDED? State = 255
+    };
+    
+    uint16_t SequenceGet() const;
 
+    bool IsCommand() const;
+    bool IsFragmented() const;
+    
+    // returns 0 if IsCommand() is true.
+    uint16_t QPortGet() const;
+    
+    // returns 0 unless IsFragmented() is true.
+    uint16_t FragmentOffset() const;
+    uint16_t FragmentTotalSizeInBytes() const;
+    
+    // returns 0 unless IsCommand() is true.
+    uint32_t KeyGet() const;
+    Command CommandGet() const;
+    
+    boost::asio::ip::udp::endpoint AddressGet() const;
+    
 private:
+    const size_t PacketSizeMinimum = 2 + 2 + 4;
+    
+    boost::asio::ip::udp::endpoint myAddress;
+    std::unique_ptr<std::vector<uint8_t>> myData;
+    uint8_t* myDataRaw;
+        
     // It's assumed this is a valid fragment by the time this
     // is used.
     NetworkFragment(
         boost::asio::ip::udp::endpoint address,
         std::unique_ptr<std::vector<uint8_t>> data);
+    
+    uint16_t U16Get(size_t offsetInBytes) const;
+    uint32_t U32Get(size_t offsetInBytes) const;
 };
 
 #endif // NETWORKFRAGMENT_H
