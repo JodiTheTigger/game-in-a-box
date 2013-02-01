@@ -249,7 +249,6 @@ bool AutoComplete::MatchMap(const string& toMatch, std::deque< size_t >& treeMap
                 )
             )
         {
-            string beginning = toMatch.substr(0, matchCount);
             string ending = toMatch.substr(matchCount);
             size_t childIndex;           
             
