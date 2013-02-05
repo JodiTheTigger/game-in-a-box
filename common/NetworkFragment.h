@@ -24,63 +24,31 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <boost/asio/ip/udp.hpp>
 
-// NOTE: Not casting memory into structs because I don't want to deal with packing and endianess issues.
-
-// forward references
-class NetworkPacket;
+#include "NetworkPacket.h"
 
 class NetworkFragment
 {
 public:
     static std::unique_ptr<NetworkFragment> GetFragmentFromData(NetworkPacket& packetData);
     
-    enum class Command : uint8_t
-    {
-        Invalid = 0,
-        Challenge,
-        ChallengeResponse,
-        GetInfo,
-        Connect,
-        
-        // Commands created by the IStateManager
-        // RAM: TODO: NEEDED? State = 255
-    };
+    uint16_t sequence;
+    uint16_t linkId;
+    uint8_t fragmentId;
     
-    uint16_t SequenceGet() const;
-
-    bool IsCommand() const;
-    bool IsFragmented() const;
+    bool isFragmented;
     
-    // returns 0 if IsCommand() is true.
-    uint16_t QPortGet() const;
-    
-    // returns 0 unless IsFragmented() is true.
-    uint16_t FragmentOffset() const;
-    uint16_t FragmentTotalSizeInBytes() const;
-    
-    // returns 0 unless IsCommand() is true.
-    uint32_t KeyGet() const;
-    Command CommandGet() const;
-    
-    boost::asio::ip::udp::endpoint AddressGet() const;
+    NetworkPacket packet;   
+    size_t dataOffset;  
     
 private:
-    const size_t PacketSizeMinimum = 2 + 2 + 4;
-    
-    boost::asio::ip::udp::endpoint myAddress;
-    std::unique_ptr<std::vector<uint8_t>> myData;
-    uint8_t* myDataRaw;
-        
+    const size_t MinimumSize = 2 + 2;
+           
     // It's assumed this is a valid fragment by the time this
     // is used.
-    NetworkFragment(
-        boost::asio::ip::udp::endpoint address,
-        std::unique_ptr<std::vector<uint8_t>> data);
+    NetworkFragment(NetworkPacket& packetData);
     
     uint16_t U16Get(size_t offsetInBytes) const;
-    uint32_t U32Get(size_t offsetInBytes) const;
 };
 
 #endif // NETWORKFRAGMENT_H
