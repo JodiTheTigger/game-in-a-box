@@ -21,6 +21,8 @@
 #ifndef NETWORKPROVIDER_H
 #define NETWORKPROVIDER_H
 
+#include <vector>
+
 // forward references
 class NetworkPacket;
 
@@ -28,12 +30,11 @@ class NetworkPacket;
 class NetworkProvider
 {
 public:
-    // returns true if a packet was received (passed values are touched)
-    // otherwise false if there is nothing to get (passed values are undefined)
-    bool GetPacket(NetworkPacket& networkData);
+    // Non blocking, can return empty array.
+    std::vector<NetworkPacket> Recieve();
     
-    // Sends the packet, consumes the data, blocking.
-    void SendPacket(NetworkPacket& networkData);
+    // Adds the packets to the send queue. consumes the data (move()), non-blocking.
+    void Send(std::vector<NetworkPacket> packets);
 };
 
 #endif // NETWORKPROVIDER_H

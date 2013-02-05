@@ -19,17 +19,15 @@
 */
 
 #include "NetworkProvider.h"
-    
-bool NetworkProvider::GetPacket(NetworkPacket&)
+#include "NetworkPacket.h"
+
+using namespace std;
+
+std::vector<NetworkPacket> NetworkProvider::Recieve()
 {
-    // TODO!
-    return false;
+    return {};
 }
 
-
-
-// Sends the packet, consumes the data, blocking.
-void NetworkProvider::SendPacket(NetworkPacket&)
+void NetworkProvider::Send(std::vector<NetworkPacket>)
 {
-    // TODO!
 }
