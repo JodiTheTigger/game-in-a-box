@@ -24,8 +24,7 @@
 #include <memory>
 #include <boost/asio/ip/udp.hpp>
 
-// forward references
-class NetworkPacket;
+#include "NetworkPacket.h"
 
 class NetworkCommand
 {
@@ -49,12 +48,11 @@ public:
     };
     
     uint32_t key;
-    CommandType command;
-    size_t dataOffset;    
+    CommandType command; 
     
-    boost::asio::ip::udp::endpoint              address;
-    std::unique_ptr<std::vector<uint8_t>>       data;
-
+    NetworkPacket packet;
+    size_t dataOffset;  
+    
 private:
     // 2: Sequence
     // 1: command

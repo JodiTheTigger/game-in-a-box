@@ -30,11 +30,9 @@
 
 class NetworkPacket
 {
-    CLASS_NOCOPY_NOASSIGN(NetworkPacket);
-    
 public:
-    boost::asio::ip::udp::endpoint              address;
-    std::unique_ptr<std::vector<uint8_t>>       data;
+    boost::asio::ip::udp::endpoint     address;
+    std::vector<uint8_t>               data;
 };
 
 #endif // NETWORKPACKET_H

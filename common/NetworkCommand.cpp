@@ -36,36 +36,30 @@ std::unique_ptr<NetworkCommand> NetworkCommand::FromData(NetworkPacket& packetDa
 {
     unique_ptr<NetworkCommand> result;
  
-    if (packetData.data)
+    if (packetData.data.size() >= NetworkCommand::MinimumSize)
     {
-        vector<uint8_t>& rawData = *(packetData.data.get());
-    
-        if (rawData.size() >= NetworkCommand::MinimumSize)
+        if ((packetData.data[0] == 0xFF) || (packetData.data[1] == 0xFF))
         {
-            if ((rawData[0] == 0xFF) || (rawData[1] == 0xFF))
+            if (packetData.data[6] < (uint8_t) CommandType::CommandCount)
             {
-                if (rawData[6] < (uint8_t) CommandType::CommandCount)
-                {
-                    // good to go
-                    result.reset(new NetworkCommand(packetData));
-                }
+                // good to go
+                result.reset(new NetworkCommand(packetData));
             }
         }
     }
-    
+
     return result;
 }
 
+// take the packet's data, don't copy it.
 NetworkCommand::NetworkCommand(NetworkPacket& packetData)
-: address(packetData.address)
-, data(move(packetData.data))
-{
-    vector<uint8_t>& rawData = *(data.get());
-    
-    command = (CommandType) rawData[6];
+: packet(move(packetData))
+, dataOffset(NetworkCommand::MinimumSize)
+{   
+    command = (CommandType) packetData.data[6];
     key = 
-        (((uint32_t) rawData[2 + 0]) << 24) | 
-        (((uint32_t) rawData[2 + 1]) << 16) | 
-        (((uint32_t) rawData[2 + 2]) << 8) | 
-        (((uint32_t) rawData[2 + 3]));
+        (((uint32_t) packetData.data[2 + 0]) << 24) | 
+        (((uint32_t) packetData.data[2 + 1]) << 16) | 
+        (((uint32_t) packetData.data[2 + 2]) << 8) | 
+        (((uint32_t) packetData.data[2 + 3]));
 }
