@@ -31,32 +31,6 @@
 // forward references
 class NetworkPacket;
 
-// Packet Format
-// =============
-// Info coded high byte first.
-// 
-// 00: uint16_t sequence (0xFFFF == Out of band command packet)
-// if (sequence != 0xFFFF)
-// {
-// 02: uint16_t qport
-// If (sequence & 0x8000)
-// {
-// 04: uint16_t fragment offset
-// 06: uint16_t fragment total length in bytes
-// 08: uint8_t[] data
-// }
-// else
-// {
-// 04: uint8_t[] data
-// }
-// }
-// else
-// {
-// 04: uint32_t key
-// 08: uint8_t command
-// 09: uint8_t[] data
-// }
-
 class NetworkFragment
 {
 public:

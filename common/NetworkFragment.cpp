@@ -23,6 +23,23 @@
 
 using namespace std;
 
+// Packet Format
+// =============
+// Info coded high byte first.
+// 
+// 00: uint16_t sequence (0xFFFF == Ignored out of band command packet)
+// 02: uint16_t qport
+// If (sequence & 0x8000)
+// {
+// 04: uint16_t fragment offset
+// 06: uint16_t fragment total length in bytes
+// 08: uint8_t[] data
+// }
+// else
+// {
+// 04: uint8_t[] data
+// }
+
 std::unique_ptr<NetworkFragment> NetworkFragment::GetFragmentFromData(NetworkPacket& packetData)
 {
     unique_ptr<NetworkFragment> result;

@@ -128,7 +128,8 @@ common/GameInABox.cpp
 common/IStateManager.cpp  
 common/Huffman.cpp 
 common/BitStreamReadOnly.cpp 
-common/BitStream.cpp 
+common/BitStream.cpp
+common/NetworkCommand.cpp
 common/NetworkFragment.cpp
 common/AutoComplete.cpp
 common/IReflected.cpp 
