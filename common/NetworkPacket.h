@@ -31,8 +31,9 @@
 class NetworkPacket
 {
 public:
-    boost::asio::ip::udp::endpoint     address;
-    std::vector<uint8_t>               data;
+    boost::asio::ip::udp::endpoint      address;
+    size_t                              dataOffset;
+    std::vector<uint8_t>                data;
 };
 
 #endif // NETWORKPACKET_H
