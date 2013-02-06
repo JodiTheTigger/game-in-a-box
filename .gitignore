@@ -1,5 +1,6 @@
 # ignore temp files.
 *~
+*.autosave
 
 # Ignore build directories
 build/
