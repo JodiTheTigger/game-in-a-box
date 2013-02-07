@@ -30,8 +30,10 @@
 class NetworkFragment
 {
 public:
-    static std::unique_ptr<NetworkFragment> GetFragmentFromData(NetworkPacket& packetData);
-    
+    // RAM: Is there a better way than two functions to figure out if linkId is there or not?
+    static std::unique_ptr<NetworkFragment> GetFragmentFromDataClient(NetworkPacket& packetData);
+    static std::unique_ptr<NetworkFragment> GetFragmentFromDataServer(NetworkPacket& packetData);
+
     uint16_t sequence;
     uint16_t linkId;
     uint8_t fragmentId;
@@ -42,7 +44,8 @@ public:
     size_t dataOffset;  
     
 private:
-    const size_t MinimumSize = 2 + 2;
+    static const size_t MinimumSizeClient = 2 + 2;
+    static const size_t MinimumSizeServer = 2;
            
     // It's assumed this is a valid fragment by the time this
     // is used.

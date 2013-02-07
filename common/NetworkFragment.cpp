@@ -40,23 +40,25 @@ using namespace std;
 // 04: uint8_t[] data
 // }
 
-std::unique_ptr<NetworkFragment> NetworkFragment::GetFragmentFromData(NetworkPacket&)
+std::unique_ptr<NetworkFragment> NetworkFragment::GetFragmentFromDataClient(NetworkPacket& packetData)
 {
     unique_ptr<NetworkFragment> result;
-    
-    // Make sure we have data
-    //if (packetData.data)
+
+    if (packetData.data.size() >= NetworkFragment::MinimumSizeClient)
     {
-        // RAM: TODO: do the rest of the packet processing.
+        if ((packetData.data[0] != 0xFF) && (packetData.data[1] != 0xFF))
+        {
+            // good to go
+            result.reset(new NetworkFragment(packetData));
+        }
     }
-    
-    // C++ lets you do this without a std::move for return types.
+
     return result;
 }
 
 NetworkFragment::NetworkFragment(NetworkPacket& packetData)
 : packet(move(packetData))
-, dataOffset(NetworkFragment::MinimumSize)
+, dataOffset(NetworkFragment::MinimumSizeClient)
 {
     if (packet.data[0] & 0x80)
     {

@@ -124,6 +124,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server 
+common/NetworkManagerBase.cpp
+common/NetworkManagerServer.cpp
 common/GameInABox.cpp
 common/IStateManager.cpp  
 common/Huffman.cpp 
