@@ -46,9 +46,21 @@ private:
     static const size_t OffsetSequence = 0;
     static const size_t OffsetFragmentLinkId = 2;
     static const size_t OffsetFragmentId = 4;
+    static const size_t OffsetFragmentData = 5;
     static const size_t OffsetCommandKey = 2;
     static const size_t OffsetCommand = 6;
     static const size_t OffsetCommandData = 7;
+
+    static const size_t MtuIp4 = 576;
+    static const size_t MtuIp6 = 1280;
+    static const size_t MtuEthernetV2 = 1500;
+    static const size_t MtuEthernetLlcSnapPppoe = 1492;
+
+    static const size_t SizeMaxMtu = MtuEthernetLlcSnapPppoe;
+    static const size_t SizeIpHeaderMinimum = 20;
+    static const size_t SizeUdpHeader = 8;
+
+    static const size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
 
     enum class Command : uint8_t
     {
@@ -105,6 +117,9 @@ private:
             return this->value > other.value;
         }
     };
+
+    // pure functional is good.
+    static NetworkPacket PacketDefragment(const std::vector<NetworkPacket>& fragments);
 
     void ParseCommand(NetworkPacket& packetData);
     void ParseDelta(NetworkPacket& packetData);
