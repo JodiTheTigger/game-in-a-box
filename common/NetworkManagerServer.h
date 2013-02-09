@@ -38,7 +38,8 @@ public:
     NetworkManagerServer();
 
     // scratch class
-    void ParsePacket(NetworkPacket& packetData);
+    void ParsePacketFromClient(NetworkPacket& packetData);
+    void ParsePacketFromServer(NetworkPacket& packetData);
 
 private:
     static const size_t MinimumPacketSize = 3;

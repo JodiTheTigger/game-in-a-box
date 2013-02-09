@@ -6,7 +6,7 @@ NetworkManagerServer::NetworkManagerServer()
 {
 }
 
-void NetworkManagerServer::ParsePacket(NetworkPacket &packetData)
+void NetworkManagerServer::ParsePacketFromClient(NetworkPacket &packetData)
 {
     if (packetData.data.size() >= NetworkManagerServer::MinimumPacketSizeFromClient)
     {
@@ -19,9 +19,55 @@ void NetworkManagerServer::ParsePacket(NetworkPacket &packetData)
             // a CommandType.
             switch (packetData.data[OffsetCommand])
             {
+                // RAM: TODO, make this test a functor so it can
+                // be common between client and server.
                 case (uint8_t) Command::Challenge:
                 case (uint8_t) Command::Info:
                 case (uint8_t) Command::Connect:
+                {
+                    ParseCommand(packetData);
+                    break;
+                }
+
+                default:
+                {
+                    // Nada
+                    break;
+                }
+            }
+        }
+        else
+        {
+            Sequence sequence;
+
+            sequence = SequenceFromPacket(packetData);
+
+            // Ignore packets marked as fragmented, as
+            // clients aren't allowed to fragment packets.
+            if ((packetData.data[0] & 0x80) != 0)
+            {
+                // Not fragmented, yippie.
+                ParseDelta(packetData);
+            }
+        }
+    }
+}
+
+void NetworkManagerServer::ParsePacketFromServer(NetworkPacket &packetData)
+{
+    if (packetData.data.size() >= NetworkManagerServer::MinimumPacketSizeFromClient)
+    {
+        if ((packetData.data[0] = 0xFF) || (packetData.data[1] = 0xFF))
+        {
+            // Command
+
+            // using a switch statement to validate the command means
+            // I don't have to worry about casting an invalid value to
+            // a CommandType.
+            switch (packetData.data[OffsetCommand])
+            {
+                case (uint8_t) Command::ChallengeResponse:
+                case (uint8_t) Command::InfoResponse:
                 {
                     ParseCommand(packetData);
                     break;
@@ -98,6 +144,7 @@ void NetworkManagerServer::ParsePacket(NetworkPacket &packetData)
         }
     }
 }
+
 
 // Assumed fragments.size() > 0
 // TODO: Add assert or warning or something.
