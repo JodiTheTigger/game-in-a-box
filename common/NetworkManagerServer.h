@@ -44,9 +44,11 @@ private:
     static const size_t MinimumPacketSize = 3;
     static const size_t MinimumPacketSizeFromClient = MinimumPacketSize + 2;
     static const size_t OffsetSequence = 0;
-    static const size_t OffsetFragmentLinkId = 2;
-    static const size_t OffsetFragmentId = 4;
-    static const size_t OffsetFragmentData = 5;
+    static const size_t OffsetLinkId = 2;
+    static const size_t OffsetDataFromServer = 2;
+    static const size_t OffsetDataFromClient = 4;
+    static const size_t OffsetFragmentId = 2;
+    static const size_t OffsetFragmentData = 3;
     static const size_t OffsetCommandKey = 2;
     static const size_t OffsetCommand = 6;
     static const size_t OffsetCommandData = 7;
@@ -120,6 +122,7 @@ private:
 
     // pure functional is good.
     static NetworkPacket PacketDefragment(const std::vector<NetworkPacket>& fragments);
+    static std::vector<NetworkPacket>PacketFragment(NetworkPacket &whole);
 
     void ParseCommand(NetworkPacket& packetData);
     void ParseDelta(NetworkPacket& packetData);

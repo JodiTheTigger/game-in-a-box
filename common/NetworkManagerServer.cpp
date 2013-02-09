@@ -104,14 +104,13 @@ void NetworkManagerServer::ParsePacket(NetworkPacket &packetData)
 NetworkPacket NetworkManagerServer::PacketDefragment(const std::vector<NetworkPacket> &fragments)
 {
     NetworkPacket notFragmented;
-    notFragmented.data.reserve(MinimumPacketSizeFromClient + (fragments.size() * SizeMaxPacketSize));
+    notFragmented.data.reserve(MinimumPacketSize + (fragments.size() * SizeMaxPacketSize));
 
-    // copy the header.
+    // copy the header, strip the fragmented flag.
+    // assumem the vectors size is the size of the largest offset used.
     notFragmented.address = fragments[0].address;
     notFragmented.data[OffsetSequence + 0] = fragments[0].data[OffsetSequence + 0] & 0x7F;
     notFragmented.data[OffsetSequence + 1] = fragments[0].data[OffsetSequence + 1];
-    notFragmented.data[OffsetFragmentLinkId + 0] = fragments[0].data[OffsetFragmentLinkId + 0];
-    notFragmented.data[OffsetFragmentLinkId + 1] = fragments[0].data[OffsetFragmentLinkId + 1];
 
     // Hmm, I assume this is going to be fast.
     for (const NetworkPacket& buffer : fragments)
@@ -123,6 +122,61 @@ NetworkPacket NetworkManagerServer::PacketDefragment(const std::vector<NetworkPa
     }
 
     return notFragmented;
+}
+
+std::vector<NetworkPacket> NetworkManagerServer::PacketFragment(NetworkPacket& whole)
+{
+    vector<NetworkPacket> result;
+
+    if (whole.data.size() < SizeMaxPacketSize)
+    {
+        result.push_back(move(whole));
+    }
+    else
+    {
+        size_t indexSource;
+        uint8_t fragmentCount;
+
+        indexSource = OffsetDataFromServer;
+        fragmentCount = 0;
+
+        while ((indexSource + SizeMaxPacketSize) < whole.data.size())
+        {
+            NetworkPacket fragment;
+            size_t bytesToCopy;
+
+            bytesToCopy = whole.data.size() - indexSource;
+            if (bytesToCopy > (SizeMaxPacketSize - OffsetFragmentData))
+            {
+                bytesToCopy = SizeMaxPacketSize - OffsetFragmentData;
+            }
+            else
+            {
+                // last fragment!
+                fragmentCount |= 0x80;
+            }
+
+            // copy the header, add fragment bit.
+            fragment.address = whole.address;
+            fragment.data[OffsetSequence + 0] = whole.data[OffsetSequence + 0] | 0x80;
+            fragment.data[OffsetSequence + 1] = whole.data[OffsetSequence + 1];
+
+            fragment.data[OffsetFragmentId] = fragmentCount;
+
+            // copy the data
+            fragment.data.insert(
+                        fragment.data.end(),
+                        whole.data.begin() + indexSource,
+                        whole.data.begin() + bytesToCopy);
+
+            fragmentCount++;
+            indexSource += bytesToCopy;
+
+            result.push_back(move(fragment));
+        }
+    }
+
+    return result;
 }
 
 void NetworkManagerServer::ParseCommand(NetworkPacket &)
