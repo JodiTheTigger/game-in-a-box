@@ -2,18 +2,28 @@
 
 using namespace std;
 
-NetworkManagerServer::NetworkManagerServer()
+NetworkManagerServer::NetworkManagerServer(
+        PacketEncoding details,
+        std::function<bool (const uint8_t&)> commandFilter)
+    : myEncodingDetails(details)
+    , myCommandFilter(commandFilter)
 {
 }
 
-void NetworkManagerServer::ParsePacketFromClient(NetworkPacket &packetData)
+// RAM: TODO: Move this to the base class as we can use myEncodingDetails to deduce if we're server or not
+void NetworkManagerServer::ParsePacket(NetworkPacket &packetData)
 {
     if (packetData.data.size() >= NetworkManagerServer::MinimumPacketSizeFromClient)
     {
         if ((packetData.data[0] = 0xFF) || (packetData.data[1] = 0xFF))
         {
             // Command
+            if (myCommandFilter(packetData.data[OffsetCommand]))
+            {
+                ParseCommand(packetData);
+            }
 
+            /*
             // using a switch statement to validate the command means
             // I don't have to worry about casting an invalid value to
             // a CommandType.
@@ -35,50 +45,7 @@ void NetworkManagerServer::ParsePacketFromClient(NetworkPacket &packetData)
                     break;
                 }
             }
-        }
-        else
-        {
-            Sequence sequence;
-
-            sequence = SequenceFromPacket(packetData);
-
-            // Ignore packets marked as fragmented, as
-            // clients aren't allowed to fragment packets.
-            if ((packetData.data[0] & 0x80) != 0)
-            {
-                // Not fragmented, yippie.
-                ParseDelta(packetData);
-            }
-        }
-    }
-}
-
-void NetworkManagerServer::ParsePacketFromServer(NetworkPacket &packetData)
-{
-    if (packetData.data.size() >= NetworkManagerServer::MinimumPacketSizeFromClient)
-    {
-        if ((packetData.data[0] = 0xFF) || (packetData.data[1] = 0xFF))
-        {
-            // Command
-
-            // using a switch statement to validate the command means
-            // I don't have to worry about casting an invalid value to
-            // a CommandType.
-            switch (packetData.data[OffsetCommand])
-            {
-                case (uint8_t) Command::ChallengeResponse:
-                case (uint8_t) Command::InfoResponse:
-                {
-                    ParseCommand(packetData);
-                    break;
-                }
-
-                default:
-                {
-                    // Nada
-                    break;
-                }
-            }
+            */
         }
         else
         {
@@ -87,11 +54,14 @@ void NetworkManagerServer::ParsePacketFromServer(NetworkPacket &packetData)
             sequence = SequenceFromPacket(packetData);
 
             // Reset the fragment buffer?
-            if ((sequence > myFragmentSequence) && (!myFragments.empty()))
+            if (myEncodingDetails == PacketEncoding::FromServer)
             {
-                myFragmentCount = 0;
-                myFragmentTotal = 0;
-                myFragments.clear();
+                if ((sequence > myFragmentSequence) && (!myFragments.empty()))
+                {
+                    myFragmentCount = 0;
+                    myFragmentTotal = 0;
+                    myFragments.clear();
+                }
             }
 
             // Fragmented?
@@ -102,42 +72,47 @@ void NetworkManagerServer::ParsePacketFromServer(NetworkPacket &packetData)
             }
             else
             {
-                uint8_t fragmentId;
-
-                fragmentId = packetData.data[OffsetFragmentId];
-
-                // deal with the fragment.
-                if (fragmentId & 0x80)
+                // servers ignore fragmented packets
+                // RAM: TODO make this a flag class please.
+                if (myEncodingDetails == PacketEncoding::FromClient)
                 {
-                    fragmentId &= 0x7F;
-                    myFragmentTotal = fragmentId + 1;
-                }
+                    uint8_t fragmentId;
 
-                // watch out for packets out of range
-                if (myFragmentCount < myFragmentTotal)
-                {
-                    // don't count duplicates
-                    if (myFragments[fragmentId].data.size() == 0)
+                    fragmentId = packetData.data[OffsetFragmentId];
+
+                    // deal with the fragment.
+                    if (fragmentId & 0x80)
                     {
-                        ++myFragmentCount;
+                        fragmentId &= 0x7F;
+                        myFragmentTotal = fragmentId + 1;
                     }
 
-                    myFragments[fragmentId] = move(packetData);
-
-                    // got them all?
-                    if (myFragmentCount == myFragmentTotal)
+                    // watch out for packets out of range
+                    if (myFragmentCount < myFragmentTotal)
                     {
-                        NetworkPacket notFragmented;
+                        // don't count duplicates
+                        if (myFragments[fragmentId].data.size() == 0)
+                        {
+                            ++myFragmentCount;
+                        }
 
-                        notFragmented = NetworkManagerServer::PacketDefragment(myFragments);
+                        myFragments[fragmentId] = move(packetData);
 
-                        // clean up
-                        myFragmentCount = 0;
-                        myFragmentTotal = 0;
-                        myFragments.clear();
+                        // got them all?
+                        if (myFragmentCount == myFragmentTotal)
+                        {
+                            NetworkPacket notFragmented;
 
-                        // Not fragmented, yippie.
-                        ParseDelta(notFragmented);
+                            notFragmented = NetworkManagerServer::PacketDefragment(myFragments);
+
+                            // clean up
+                            myFragmentCount = 0;
+                            myFragmentTotal = 0;
+                            myFragments.clear();
+
+                            // Not fragmented, yippie.
+                            ParseDelta(notFragmented);
+                        }
                     }
                 }
             }

@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <vector>
 #include <map>
+#include <functional>
 #include <boost/asio/ip/udp.hpp>
 
 #include "NetworkManagerBase.h"
@@ -35,11 +36,19 @@ class NetworkPacket;
 class NetworkManagerServer : public NetworkManagerBase
 {
 public:
-    NetworkManagerServer();
+
+    enum class PacketEncoding
+    {
+        FromClient = 0,
+        FromServer = 1
+    };
+
+    NetworkManagerServer(
+            PacketEncoding details,
+            std::function<bool (const uint8_t&)> commandFilter);
 
     // scratch class
-    void ParsePacketFromClient(NetworkPacket& packetData);
-    void ParsePacketFromServer(NetworkPacket& packetData);
+    void ParsePacket(NetworkPacket& packetData);
 
 private:
     static const size_t MinimumPacketSize = 3;
@@ -136,6 +145,8 @@ private:
     }
 
     // RAM: TODO: Is this the best storage for the use?
+    PacketEncoding myEncodingDetails;
+    std::function<bool (const uint8_t&)> myCommandFilter;
     std::vector<NetworkPacket> myFragments;
     std::map<ClientKey, Challenger> myClients;
     uint8_t myFragmentCount;
