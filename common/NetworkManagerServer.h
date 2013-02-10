@@ -36,61 +36,9 @@ class NetworkPacket;
 class NetworkManagerServer : public NetworkManagerBase
 {
 public:
-
-    enum class PacketEncoding
-    {
-        FromClient = 0,
-        FromServer = 1
-    };
-
-    NetworkManagerServer(
-            PacketEncoding details,
-            std::function<bool (const uint8_t&)> commandFilter);
-
-    // scratch class
-    void ParsePacket(NetworkPacket& packetData);
+    NetworkManagerServer();
 
 private:
-    static const size_t MinimumPacketSize = 3;
-    static const size_t MinimumPacketSizeFromClient = MinimumPacketSize + 2;
-    static const size_t OffsetSequence = 0;
-    static const size_t OffsetLinkId = 2;
-    static const size_t OffsetDataFromServer = 2;
-    static const size_t OffsetDataFromClient = 4;
-    static const size_t OffsetFragmentId = 2;
-    static const size_t OffsetFragmentData = 3;
-    static const size_t OffsetCommandKey = 2;
-    static const size_t OffsetCommand = 6;
-    static const size_t OffsetCommandData = 7;
-
-    static const size_t MtuIp4 = 576;
-    static const size_t MtuIp6 = 1280;
-    static const size_t MtuEthernetV2 = 1500;
-    static const size_t MtuEthernetLlcSnapPppoe = 1492;
-
-    static const size_t SizeMaxMtu = MtuEthernetLlcSnapPppoe;
-    static const size_t SizeIpHeaderMinimum = 20;
-    static const size_t SizeUdpHeader = 8;
-
-    static const size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
-
-    enum class Command : uint8_t
-    {
-        Invalid = 0,
-        Challenge,
-        ChallengeResponse,
-        Info,
-        InfoResponse,
-        Connect,
-        // ConnectResponse doesn't exist, I just start sending deltas.
-
-        // Argh, no easy way to tell if a uint8_t is a valid enum
-        // Have to make sure they are all sequential from 0, and test
-        // against this first. That or a huge convert case statement. Argh!
-        // RAM: using a switch statement white list, so I don't need this.
-        //CommandCount
-    };
-
     class Challenger
     {
         boost::asio::ip::udp::endpoint endpoint;
@@ -110,48 +58,12 @@ private:
         uint16_t linkId;
     };
 
-    // make this as if it's a custom uint16_t with special comparisons.
-    // Also move this class as it's needed by the IStateManager itself
-    // So it should be its own class.
-    class Sequence
-    {
-    public:
-        uint16_t value;
-        //bool fragmented;
-
-        Sequence() : Sequence(0) {};
-        Sequence(uint8_t newValue) : value(newValue) {};
-        Sequence(const Sequence& other) : value(other.value) {};
-
-        bool operator>(const Sequence& other)
-        {
-            // RAM: TODO PROPERLY! WRAPAROUND!
-            return this->value > other.value;
-        }
-    };
-
-    // pure functional is good.
-    static NetworkPacket PacketDefragment(const std::vector<NetworkPacket>& fragments);
-    static std::vector<NetworkPacket>PacketFragment(NetworkPacket &whole);
 
     void ParseCommand(NetworkPacket& packetData);
     void ParseDelta(NetworkPacket& packetData);
 
-    Sequence SequenceFromPacket(const NetworkPacket& packetData)
-    {
-        return Sequence((uint16_t) 0x7FFF &
-            (((uint16_t) (packetData.data[OffsetSequence]) << 8) ||
-            (uint16_t) (packetData.data[OffsetSequence + 0])));
-    }
-
     // RAM: TODO: Is this the best storage for the use?
-    PacketEncoding myEncodingDetails;
-    std::function<bool (const uint8_t&)> myCommandFilter;
-    std::vector<NetworkPacket> myFragments;
     std::map<ClientKey, Challenger> myClients;
-    uint8_t myFragmentCount;
-    uint8_t myFragmentTotal;
-    Sequence myFragmentSequence;
 };
 
 #endif // NETWORKMANAGERSERVER_H
