@@ -123,7 +123,8 @@ include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
-game-in-a-box-server 
+game-in-a-box-server
+common/Sequence.cpp
 common/NetworkManagerBase.cpp
 common/NetworkManagerServer.cpp
 common/GameInABox.cpp
