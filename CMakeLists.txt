@@ -133,7 +133,6 @@ common/Huffman.cpp
 common/BitStreamReadOnly.cpp 
 common/BitStream.cpp
 common/NetworkCommand.cpp
-common/NetworkFragment.cpp
 common/AutoComplete.cpp
 common/IReflected.cpp 
 common/ReflectionManager.cpp 
@@ -171,8 +170,6 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/common/NetworkProvider.cpp
   ${PROJECT_SOURCE_DIR}/common/TestNetworkProvider.cpp
-  ${PROJECT_SOURCE_DIR}/common/NetworkFragment.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestNetworkFragment.cpp
   ${PROJECT_SOURCE_DIR}/common/ReflectionManager.cpp
   ${PROJECT_SOURCE_DIR}/common/IReflected.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestReflectionManager.cpp 

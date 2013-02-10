@@ -21,7 +21,6 @@
 #include "NetworkManager.h"
 #include "IStateManager.h"
 #include "NetworkProvider.h"
-#include "NetworkFragment.h"
 #include "NetworkPacket.h"
 
 using namespace std;
