@@ -85,6 +85,8 @@ protected:
     // pure functional is good.
     static NetworkPacket PacketDefragment(const std::vector<NetworkPacket>& fragments);
     static std::vector<NetworkPacket>PacketFragment(NetworkPacket &whole);
+    static uint32_t KeyGet(const NetworkPacket& commandPacket);
+    static void KeySet(NetworkPacket& packetToModify, uint32_t key);
 
 private:
     PacketEncoding myEncodingDetails;

@@ -142,6 +142,25 @@ NetworkPacket NetworkManagerBase::PacketDefragment(const std::vector<NetworkPack
     return notFragmented;
 }
 
+
+uint32_t NetworkManagerBase::KeyGet(const NetworkPacket& commandPacket)
+{
+    // high byte first
+    return
+        uint32_t(commandPacket.data[OffsetCommandKey + 0]) << 24 |
+        uint32_t(commandPacket.data[OffsetCommandKey + 1]) << 16 |
+        uint32_t(commandPacket.data[OffsetCommandKey + 2]) << 8  |
+        uint32_t(commandPacket.data[OffsetCommandKey + 3]);
+}
+
+void NetworkManagerBase::KeySet(NetworkPacket& packetToModify, uint32_t key)
+{
+    packetToModify.data[OffsetCommandKey + 0] = uint8_t(key >> 24);
+    packetToModify.data[OffsetCommandKey + 1] = uint8_t(key >> 16);
+    packetToModify.data[OffsetCommandKey + 2] = uint8_t(key >> 8);
+    packetToModify.data[OffsetCommandKey + 3] = uint8_t(key);
+}
+
 std::vector<NetworkPacket> NetworkManagerBase::PacketFragment(NetworkPacket& whole)
 {
     vector<NetworkPacket> result;
