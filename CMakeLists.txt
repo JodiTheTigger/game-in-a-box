@@ -127,6 +127,7 @@ game-in-a-box-server
 common/Sequence.cpp
 common/NetworkManagerBase.cpp
 common/NetworkManagerServer.cpp
+common/NetworkManagerClient.cpp
 common/GameInABox.cpp
 common/IStateManager.cpp  
 common/Huffman.cpp 

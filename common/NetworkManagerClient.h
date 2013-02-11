@@ -21,10 +21,33 @@
 #ifndef NETWORKMANAGERCLIENT_H
 #define NETWORKMANAGERCLIENT_H
 
+#include "NetworkManagerBase.h"
+
+// forward delcarations
+class NetworkPacket;
+
 class NetworkManagerClient : public NetworkManagerBase
 {
 public:
     NetworkManagerClient();
+
+private:
+    enum class State
+    {
+        Idle,
+        Challenging,
+        Connecting,
+        Connected,
+        Dying,
+    };
+
+    void ParseCommand(NetworkPacket& packetData);
+    void ParseDelta(NetworkPacket& packetData);
+
+    State myState;
+
+    // RAM: Todo, make into it's own type for type checking at compile time.
+    uint32_t myKey;
 };
 
 #endif // NETWORKMANAGERCLIENT_H
