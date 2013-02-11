@@ -23,6 +23,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <map>
 #include <boost/asio/ip/udp.hpp>
 
 #include "NetworkManagerBase.h"
