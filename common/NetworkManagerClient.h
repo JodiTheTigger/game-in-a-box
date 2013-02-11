@@ -41,8 +41,8 @@ private:
         Dying,
     };
 
-    void ParseCommand(NetworkPacket& packetData);
-    void ParseDelta(NetworkPacket& packetData);
+    void ParseCommand(NetworkPacket& packetData) override;
+    void ParseDelta(NetworkPacket& packetData) override;
 
     State myState;
 

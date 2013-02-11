@@ -29,6 +29,11 @@
 // forward delcarations
 class NetworkPacket;
 
+// RAM: TODO: Rename this to PacketParseHelper or something.
+// As it's got nothing to do with network management, but
+// everything to do with parsing packets. Oh, and it also
+// contains state an info shared by both clients and servers
+// such as commands.
 class NetworkManagerBase
 {    
     void ParsePacket(NetworkPacket& packetData);

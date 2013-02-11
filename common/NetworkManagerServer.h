@@ -38,6 +38,12 @@ public:
     NetworkManagerServer();
 
 private:
+    // RAM: Note: For now not tracking
+    // client state via an enum, instead
+    // tracking state by putting various
+    // clients into various arrays
+    // (myChallengers, myClients, myDisconnected)
+
     class Challenger
     {
         boost::asio::ip::udp::endpoint endpoint;
@@ -58,8 +64,8 @@ private:
     };
 
 
-    void ParseCommand(NetworkPacket& packetData);
-    void ParseDelta(NetworkPacket& packetData);
+    void ParseCommand(NetworkPacket& packetData) override;
+    void ParseDelta(NetworkPacket& packetData) override;
 
     // RAM: TODO: Is this the best storage for the use?
     std::map<ClientKey, Challenger> myClients;
