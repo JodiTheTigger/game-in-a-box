@@ -22,11 +22,12 @@
 #define NETWORKMANAGERCLIENT_H
 
 #include "NetworkPacketParser.h"
+#include "INetworkManager.h"
 
 // forward delcarations
 class NetworkPacket;
 
-class NetworkManagerClient : public NetworkPacketParser
+class NetworkManagerClient : public NetworkPacketParser, INetworkManager
 {
 public:
     NetworkManagerClient();
@@ -43,6 +44,9 @@ private:
 
     void ParseCommand(NetworkPacket& packetData) override;
     void ParseDelta(NetworkPacket& packetData) override;
+
+    void PrivateProcessIncomming() override;
+    void PrivateSendState() override;
 
     State myState;
 

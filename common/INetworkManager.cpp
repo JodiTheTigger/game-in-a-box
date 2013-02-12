@@ -20,6 +20,11 @@
 
 #include "INetworkManager.h"
 
+INetworkManager::~INetworkManager()
+{
+    // Nothing.
+}
+
 void INetworkManager::ProcessIncomming()
 {
     PrivateProcessIncomming();

@@ -62,3 +62,13 @@ void NetworkManagerClient::ParseDelta(NetworkPacket &)
         // TODO: Pass to gamestate.
     }
 }
+
+void NetworkManagerClient::PrivateProcessIncomming()
+{
+    // TODO!
+}
+
+void NetworkManagerClient::PrivateSendState()
+{
+    // TODO!
+}

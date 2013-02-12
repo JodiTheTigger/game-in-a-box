@@ -24,8 +24,12 @@
 #include <memory>
 #include <vector>
 
+#include "BuildMacros.h"
+
 class INetworkManager
 {
+    CLASS_NOCOPY_NOASSIGN(INetworkManager);
+
 public:
     // Processes all waiting packets.
     // -Does connection challenges
@@ -38,11 +42,12 @@ public:
     void SendState();
 
 protected:
-    INetworkManager();
+    INetworkManager() {};
+    ~INetworkManager();
 
 private:
-    virtual void PrivateProcessIncomming();
-    virtual void PrivateSendState();
+    virtual void PrivateProcessIncomming() = 0;
+    virtual void PrivateSendState() = 0;
 };
 
 #endif // INETWORKMANAGER_H

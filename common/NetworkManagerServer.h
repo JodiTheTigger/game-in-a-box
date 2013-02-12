@@ -27,12 +27,13 @@
 #include <boost/asio/ip/udp.hpp>
 
 #include "NetworkPacketParser.h"
+#include "INetworkManager.h"
 #include "NetworkPacket.h"
 
 // forward declarations
 class NetworkPacket;
 
-class NetworkManagerServer : public NetworkPacketParser
+class NetworkManagerServer : public NetworkPacketParser, INetworkManager
 {
 public:
     NetworkManagerServer();
@@ -66,6 +67,9 @@ private:
 
     void ParseCommand(NetworkPacket& packetData) override;
     void ParseDelta(NetworkPacket& packetData) override;
+
+    void PrivateProcessIncomming() override;
+    void PrivateSendState() override;
 
     // RAM: TODO: Is this the best storage for the use?
     std::map<ClientKey, Challenger> myClients;
