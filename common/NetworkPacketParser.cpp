@@ -25,6 +25,13 @@
 
 using namespace std;
 
+
+// Challenge packet needs to be larger than the challenge response
+// so that the server cannot be used for udp return address amplifation attacks.
+const vector<uint8_t> NetworkPacketParser::ChallengePacket =
+    { 0xFF, 0xFF, uint8_t(Command::Challenge), 'W', 'h', 'y', ' ', 'h', 'e', 'l', 'l', 'o', ' ', 't', 'h', 'e', 'r', 'e', '.'};
+
+
 NetworkPacketParser::NetworkPacketParser(PacketEncoding details)
     : myEncodingDetails(details)
     , myFragments{0}

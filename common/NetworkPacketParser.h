@@ -47,6 +47,8 @@ protected:
     static const std::size_t OffsetDataFromClient = 4;
     static const std::size_t OffsetFragmentId = 2;
     static const std::size_t OffsetFragmentData = 3;
+    // RAM: TODO: move the key to after the command
+    // and make it optional depending on the command.
     static const std::size_t OffsetCommandKey = 2;
     static const std::size_t OffsetCommand = 6;
     static const std::size_t OffsetCommandData = 7;
@@ -62,6 +64,8 @@ protected:
 
     static const std::size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
 
+    static const std::vector<uint8_t> ChallengePacket;
+
     enum class Command : uint8_t
     {
         Invalid = 0,
@@ -71,12 +75,7 @@ protected:
         InfoResponse,
         Connect,
         // ConnectResponse doesn't exist, I just start sending deltas.
-
-        // Argh, no easy way to tell if a uint8_t is a valid enum
-        // Have to make sure they are all sequential from 0, and test
-        // against this first. That or a huge convert case statement. Argh!
-        // RAM: using a switch statement white list, so I don't need this.
-        //CommandCount
+        Disconnect
     };
 
     enum class PacketEncoding
