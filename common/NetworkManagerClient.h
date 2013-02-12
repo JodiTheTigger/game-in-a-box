@@ -21,12 +21,12 @@
 #ifndef NETWORKMANAGERCLIENT_H
 #define NETWORKMANAGERCLIENT_H
 
-#include "NetworkManagerBase.h"
+#include "NetworkPacketParser.h"
 
 // forward delcarations
 class NetworkPacket;
 
-class NetworkManagerClient : public NetworkManagerBase
+class NetworkManagerClient : public NetworkPacketParser
 {
 public:
     NetworkManagerClient();

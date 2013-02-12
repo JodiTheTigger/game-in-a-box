@@ -22,13 +22,14 @@
 #include "NetworkPacket.h"
 
 NetworkManagerClient::NetworkManagerClient()
-    : NetworkManagerBase(PacketEncoding::FromServer)
+    : NetworkPacketParser(PacketEncoding::FromServer)
     , myState(State::Idle)
 {
 }
 
 void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
 {
+    // The only command we care about is the ChallengeResponse.
     if (myState == State::Challenging)
     {
         Command command;
@@ -55,6 +56,9 @@ void NetworkManagerClient::ParseDelta(NetworkPacket &)
     // Ignore if not connected
     if (myState == State::Connected)
     {
-
+        // RAM: TODO: Parse the packet please.
+        // TODO: Decrypt
+        // TODO: Expand
+        // TODO: Pass to gamestate.
     }
 }

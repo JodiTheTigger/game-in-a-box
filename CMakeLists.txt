@@ -126,7 +126,7 @@ add_executable(
 game-in-a-box-server
 common/Sequence.cpp
 common/INetworkManager.cpp
-common/NetworkManagerBase.cpp
+common/NetworkPacketParser.cpp
 common/NetworkManagerServer.cpp
 common/NetworkManagerClient.cpp
 common/GameInABox.cpp

@@ -26,13 +26,13 @@
 #include <map>
 #include <boost/asio/ip/udp.hpp>
 
-#include "NetworkManagerBase.h"
+#include "NetworkPacketParser.h"
 #include "NetworkPacket.h"
 
 // forward declarations
 class NetworkPacket;
 
-class NetworkManagerServer : public NetworkManagerBase
+class NetworkManagerServer : public NetworkPacketParser
 {
 public:
     NetworkManagerServer();

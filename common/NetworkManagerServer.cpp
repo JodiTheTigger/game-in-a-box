@@ -3,7 +3,7 @@
 using namespace std;
 
 NetworkManagerServer::NetworkManagerServer()
-    : NetworkManagerBase(PacketEncoding::FromClient)
+    : NetworkPacketParser(PacketEncoding::FromClient)
 {
 }
 

@@ -34,7 +34,7 @@ class NetworkPacket;
 // everything to do with parsing packets. Oh, and it also
 // contains state an info shared by both clients and servers
 // such as commands.
-class NetworkManagerBase
+class NetworkPacketParser
 {    
     void ParsePacket(NetworkPacket& packetData);
 
@@ -85,7 +85,7 @@ protected:
         FromServer = 1
     };
 
-    NetworkManagerBase(PacketEncoding details);
+    NetworkPacketParser(PacketEncoding details);
 
     // pure functional is good.
     static NetworkPacket PacketDefragment(const std::vector<NetworkPacket>& fragments);

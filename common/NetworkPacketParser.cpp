@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "NetworkManagerBase.h"
+#include "NetworkPacketParser.h"
 
 #include <vector>
 #include "NetworkPacket.h"
 
 using namespace std;
 
-NetworkManagerBase::NetworkManagerBase(PacketEncoding details)
+NetworkPacketParser::NetworkPacketParser(PacketEncoding details)
     : myEncodingDetails(details)
     , myFragments{0}
 , myFragmentCount(0)
@@ -34,10 +34,10 @@ NetworkManagerBase::NetworkManagerBase(PacketEncoding details)
 {
 }
 
-void NetworkManagerBase::ParsePacket(NetworkPacket &packetData)
+void NetworkPacketParser::ParsePacket(NetworkPacket &packetData)
 {
     {
-        if (packetData.data.size() >= NetworkManagerBase::MinimumPacketSizeFromClient)
+        if (packetData.data.size() >= NetworkPacketParser::MinimumPacketSizeFromClient)
         {
             if ((packetData.data[0] = 0xFF) || (packetData.data[1] = 0xFF))
             {
@@ -119,7 +119,7 @@ void NetworkManagerBase::ParsePacket(NetworkPacket &packetData)
 
 // Assumed fragments.size() > 0
 // TODO: Add assert or warning or something.
-NetworkPacket NetworkManagerBase::PacketDefragment(const std::vector<NetworkPacket> &fragments)
+NetworkPacket NetworkPacketParser::PacketDefragment(const std::vector<NetworkPacket> &fragments)
 {
     NetworkPacket notFragmented;
     notFragmented.data.reserve(MinimumPacketSize + (fragments.size() * SizeMaxPacketSize));
@@ -143,7 +143,7 @@ NetworkPacket NetworkManagerBase::PacketDefragment(const std::vector<NetworkPack
 }
 
 
-uint32_t NetworkManagerBase::KeyGet(const NetworkPacket& commandPacket)
+uint32_t NetworkPacketParser::KeyGet(const NetworkPacket& commandPacket)
 {
     // high byte first
     return
@@ -153,7 +153,7 @@ uint32_t NetworkManagerBase::KeyGet(const NetworkPacket& commandPacket)
         uint32_t(commandPacket.data[OffsetCommandKey + 3]);
 }
 
-void NetworkManagerBase::KeySet(NetworkPacket& packetToModify, uint32_t key)
+void NetworkPacketParser::KeySet(NetworkPacket& packetToModify, uint32_t key)
 {
     packetToModify.data[OffsetCommandKey + 0] = uint8_t(key >> 24);
     packetToModify.data[OffsetCommandKey + 1] = uint8_t(key >> 16);
@@ -161,7 +161,7 @@ void NetworkManagerBase::KeySet(NetworkPacket& packetToModify, uint32_t key)
     packetToModify.data[OffsetCommandKey + 3] = uint8_t(key);
 }
 
-std::vector<NetworkPacket> NetworkManagerBase::PacketFragment(NetworkPacket& whole)
+std::vector<NetworkPacket> NetworkPacketParser::PacketFragment(NetworkPacket& whole)
 {
     vector<NetworkPacket> result;
 
@@ -216,7 +216,7 @@ std::vector<NetworkPacket> NetworkManagerBase::PacketFragment(NetworkPacket& who
     return result;
 }
 
-Sequence NetworkManagerBase::SequenceFromPacket(const NetworkPacket& packetData)
+Sequence NetworkPacketParser::SequenceFromPacket(const NetworkPacket& packetData)
 {
     return Sequence((uint16_t) 0x7FFF &
         (((uint16_t) (packetData.data[OffsetSequence]) << 8) ||
