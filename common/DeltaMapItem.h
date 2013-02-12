@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 #define DELTAMAPITEM_H
 
 #include <cstdint>
+#include <cstddef>
 #include <string>
 
 class DeltaMapItem
@@ -42,6 +43,6 @@ public:
 // ///////////////////
 // Delta Map Item Macros
 // ///////////////////
-#define DELTAMAP(CLASS_TYPE, CLASS_MEMBER, NUMBER_OFBITS) #CLASS_MEMBER,(uint32_t)&((CLASS_TYPE*)0)->CLASS_MEMBER, NUMBER_OFBITS
+#define DELTAMAP(CLASS_TYPE, CLASS_MEMBER, NUMBER_OFBITS) #CLASS_MEMBER, offsetof(CLASS_TYPE, CLASS_MEMBER), NUMBER_OFBITS
 
 #endif // DELTAMAPITEM_H
