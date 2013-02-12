@@ -21,10 +21,40 @@
 #include "NetworkManagerClient.h"
 #include "NetworkPacket.h"
 
-NetworkManagerClient::NetworkManagerClient()
+#include "NetworkProvider.h"
+#include "IStateManager.h"
+
+using namespace std;
+
+NetworkManagerClient::NetworkManagerClient(
+        std::vector<std::unique_ptr<NetworkProvider>> networks,
+        std::weak_ptr<IStateManager> stateManager)
     : NetworkPacketParser(PacketEncoding::FromServer)
+    , myStateManager(stateManager)
     , myState(State::Idle)
 {
+    for (auto& network : networks)
+    {
+        if (network)
+        {
+            myNetworks.push_back(move(network));
+        }
+    }
+}
+
+void Connect(boost::asio::ip::udp::endpoint)
+{
+
+}
+
+bool NetworkManagerClient::IsConnected()
+{
+    return myState==State::Connected;
+}
+
+bool NetworkManagerClient::IsTimedOut()
+{
+    return myState==State::Timeout;
 }
 
 void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
@@ -65,10 +95,16 @@ void NetworkManagerClient::ParseDelta(NetworkPacket &)
 
 void NetworkManagerClient::PrivateProcessIncomming()
 {
-    // TODO!
+    if ((myState != State::Idle) && (myState != State::Timeout))
+    {
+        // TODO!
+    }
 }
 
 void NetworkManagerClient::PrivateSendState()
 {
-    // TODO!
+    if ((myState != State::Idle) && (myState != State::Timeout))
+    {
+        // TODO!
+    }
 }

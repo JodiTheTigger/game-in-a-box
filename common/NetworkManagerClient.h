@@ -21,16 +21,29 @@
 #ifndef NETWORKMANAGERCLIENT_H
 #define NETWORKMANAGERCLIENT_H
 
+#include <memory>
+#include <vector>
+#include <boost/asio/ip/udp.hpp>
+
 #include "NetworkPacketParser.h"
 #include "INetworkManager.h"
 
 // forward delcarations
 class NetworkPacket;
+class NetworkProvider;
+class IStateManager;
 
 class NetworkManagerClient : public NetworkPacketParser, INetworkManager
 {
 public:
-    NetworkManagerClient();
+    NetworkManagerClient(
+            std::vector<std::unique_ptr<NetworkProvider>> networks,
+            std::weak_ptr<IStateManager> stateManager);
+
+    void Connect(boost::asio::ip::udp::endpoint serverAddress);
+
+    bool IsConnected();
+    bool IsTimedOut();
 
 private:
     enum class State
@@ -39,19 +52,22 @@ private:
         Challenging,
         Connecting,
         Connected,
-        Dying,
-    };
+        Timeout
+    };    
+
+    std::weak_ptr<IStateManager> myStateManager;
+    std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
+
+    State myState;
+
+    // RAM: Todo, make into it's own type for type checking at compile time.
+    uint32_t myKey;    
 
     void ParseCommand(NetworkPacket& packetData) override;
     void ParseDelta(NetworkPacket& packetData) override;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
-
-    State myState;
-
-    // RAM: Todo, make into it's own type for type checking at compile time.
-    uint32_t myKey;
 };
 
 #endif // NETWORKMANAGERCLIENT_H
