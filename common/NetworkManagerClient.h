@@ -24,6 +24,7 @@
 #include <memory>
 #include <vector>
 #include <boost/asio/ip/udp.hpp>
+#include <chrono>
 
 #include "NetworkPacketParser.h"
 #include "INetworkManager.h"
@@ -46,6 +47,9 @@ public:
     bool IsTimedOut();
 
 private:
+    static const uint8_t HandshakeRetries = 5;
+    static constexpr std::chrono::milliseconds HandshakeRetryPeriod{1000};
+
     enum class State
     {
         Idle,
@@ -61,7 +65,15 @@ private:
     State myState;
 
     // RAM: Todo, make into it's own type for type checking at compile time.
-    uint32_t myKey;    
+    uint32_t myKey;
+    boost::asio::ip::udp::endpoint myServerAddress;
+    NetworkProvider* myServerInterface;
+    std::chrono::steady_clock::time_point myLastPacketSent;
+
+    // RAM: TODO: replace type to Count so I don't need to use hungarian notation.
+    uint8_t myPacketSendCount;
+
+    void SendChallengePacket();
 
     void ParseCommand(NetworkPacket& packetData) override;
     void ParseDelta(NetworkPacket& packetData) override;

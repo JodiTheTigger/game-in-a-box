@@ -25,6 +25,7 @@
 #include "IStateManager.h"
 
 using namespace std;
+using namespace std::chrono;
 
 NetworkManagerClient::NetworkManagerClient(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
@@ -42,9 +43,14 @@ NetworkManagerClient::NetworkManagerClient(
     }
 }
 
-void Connect(boost::asio::ip::udp::endpoint)
+void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
 {
-
+    // reset state to challenging.
+    myState = State::Challenging;
+    myKey = 0;
+    myServerAddress = serverAddress;
+    myPacketSendCount = 0;
+    SendChallengePacket();
 }
 
 bool NetworkManagerClient::IsConnected()
@@ -55,6 +61,25 @@ bool NetworkManagerClient::IsConnected()
 bool NetworkManagerClient::IsTimedOut()
 {
     return myState==State::Timeout;
+}
+
+void NetworkManagerClient::SendChallengePacket()
+{
+    // send over all compatible interfaces
+    for (auto& network : myNetworks)
+    {
+        // RAM: TODO: Discover how to tell bewtween ipv6 and ipv4
+        //if (serverAddress.ipTypeV4orV6 == network.ipTypeV4orV6)
+        {
+            std::vector<NetworkPacket> packetToSend;
+
+            packetToSend.push_back({myServerAddress, ChallengePacket});
+
+            network->Send(packetToSend);
+            myPacketSendCount++;
+            myLastPacketSent = steady_clock::now();
+        }
+    }
 }
 
 void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
@@ -95,9 +120,47 @@ void NetworkManagerClient::ParseDelta(NetworkPacket &)
 
 void NetworkManagerClient::PrivateProcessIncomming()
 {
-    if ((myState != State::Idle) && (myState != State::Timeout))
+    switch (myState)
     {
-        // TODO!
+        case State::Connecting:
+        case State::Challenging:
+        {
+            if (myPacketSendCount > HandshakeRetries)
+            {
+                myState = State::Timeout;
+            }
+            else
+            {
+                //auto sinceLastPacket = steady_clock::now() - myLastPacketSent;
+
+                // RAM: TODO Why doesn't this line compile?
+                //if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod)
+                {
+                    if (myState == State::Challenging)
+                    {
+                        SendChallengePacket();
+                    }
+                    else
+                    {
+                        //SendConnectPacket();
+                    }
+                }
+            }
+
+            break;
+        }
+
+        //case State::Connected:
+        //{
+            // RAM: TODO!
+        //    break;
+        //}
+
+        default:
+        {
+            // Nothing!
+            break;
+        }
     }
 }
 
