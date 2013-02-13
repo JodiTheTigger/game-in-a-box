@@ -68,17 +68,13 @@ void NetworkManagerClient::SendChallengePacket()
     // send over all compatible interfaces
     for (auto& network : myNetworks)
     {
-        // RAM: TODO: Discover how to tell bewtween ipv6 and ipv4
-        //if (serverAddress.ipTypeV4orV6 == network.ipTypeV4orV6)
-        {
-            std::vector<NetworkPacket> packetToSend;
+        std::vector<NetworkPacket> packetToSend;
 
-            packetToSend.push_back({myServerAddress, ChallengePacket});
+        packetToSend.push_back({myServerAddress, ChallengePacket});
 
-            network->Send(packetToSend);
-            myPacketSendCount++;
-            myLastPacketSent = steady_clock::now();
-        }
+        network->Send(packetToSend);
+        myPacketSendCount++;
+        myLastPacketSent = steady_clock::now();
     }
 }
 
@@ -97,6 +93,7 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
             myState = State::Connecting;
 
             // RAM: TODO: Send connect packet!
+            // SendConnectPacket();
         }
     }
 }
