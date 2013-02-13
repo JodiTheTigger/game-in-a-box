@@ -32,7 +32,6 @@ class NetworkPacket
 {
 public:
     boost::asio::ip::udp::endpoint      address;
-    size_t                              dataOffset;
     std::vector<uint8_t>                data;
 };
 
