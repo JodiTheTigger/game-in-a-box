@@ -27,6 +27,7 @@
 class NetworkPacket;
 
 // RAM: TODO! Turn this into an interface please! support ip4 ip6 and whatever else.
+// RAM: Note: will silently ignore packets that are the wrong type (ipv4 send for ip6 provider)
 class NetworkProvider
 {
 public:
@@ -35,6 +36,14 @@ public:
     
     // Adds the packets to the send queue. consumes the data (move()), non-blocking.
     void Send(std::vector<NetworkPacket> packets);
+
+    // Disable and release all sockets and resources, clear all buffers. Reopens the socket.
+    void Reset();
+
+    // Disable and release all sockets and resources, clear all buffers.
+    // Sends are silently ignored, and Recieve will return nothing.
+    void Disable();
+    bool IsDisabled();
 };
 
 #endif // NETWORKPROVIDER_H

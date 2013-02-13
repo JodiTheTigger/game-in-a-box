@@ -31,3 +31,18 @@ std::vector<NetworkPacket> NetworkProvider::Recieve()
 void NetworkProvider::Send(std::vector<NetworkPacket>)
 {
 }
+
+void NetworkProvider::Reset()
+{
+
+}
+
+void NetworkProvider::Disable()
+{
+
+}
+
+bool NetworkProvider::IsDisabled()
+{
+    return true;
+}
