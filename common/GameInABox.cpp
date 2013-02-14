@@ -26,6 +26,21 @@ uint16_t GameInABox::PrivateCurrentStateTick()
     return 0;
 }
 
+IStateManager::ClientHandle GameInABox::PrivateConnect(
+        std::vector<uint8_t>,
+        bool& fail,
+        std::vector<uint8_t>&)
+{
+    // RAM: TODO!
+    fail = true;
+    return IStateManager::ClientHandle();
+}
+
+void GameInABox::PrivateDisconnect(ClientHandle)
+{
+    // RAM: TODO
+}
+
 void GameInABox::PrivateDeltaGet(uint16_t, uint16_t, uint16_t&, BitStream&) const
 {
     // RAM: TODO!

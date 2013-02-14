@@ -31,6 +31,13 @@ public:
     
 private:
     uint16_t PrivateCurrentStateTick() override;
+
+    IStateManager::ClientHandle PrivateConnect(
+            std::vector<uint8_t> connectData,
+            bool& fail,
+            std::vector<uint8_t>& failReason) override;
+
+    void PrivateDisconnect(ClientHandle playerToDisconnect) override;
     
     void PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const override;
     void PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) override;
