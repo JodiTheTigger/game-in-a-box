@@ -22,6 +22,7 @@
 #define ISTATEMANAGER_H
 
 #include <cstdint>
+#include <vector>
 #include "BuildMacros.h"
 
 // Forward declarations
@@ -33,10 +34,17 @@ class IStateManager
     CLASS_NOCOPY_NOASSIGN(IStateManager);
     
 public:    
+    class ClientHandle
+    {
+    };
+
     IStateManager() {};
     
     uint16_t CurrentStateTick();
     
+    ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::vector<uint8_t>& failReason);
+    void Disconnect(ClientHandle toDisconnect);
+
     void DeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const;
     void DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source);
 
@@ -46,6 +54,13 @@ protected:
     
 private:
     virtual uint16_t PrivateCurrentStateTick() = 0;
+
+    virtual IStateManager::ClientHandle PrivateConnect(
+            std::vector<uint8_t> connectData,
+            bool& fail,
+            std::vector<uint8_t>& failReason) = 0;
+
+    virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;
     
     virtual void PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const = 0;
     virtual void PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) = 0;

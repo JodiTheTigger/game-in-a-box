@@ -31,6 +31,16 @@ uint16_t IStateManager::CurrentStateTick()
 {
     return PrivateCurrentStateTick();
 }
+
+IStateManager::ClientHandle IStateManager::Connect(std::vector<uint8_t> connectData, bool& fail, std::vector<uint8_t>& failReason)
+{
+    return PrivateConnect(connectData, fail, failReason);
+}
+
+void IStateManager::Disconnect(ClientHandle toDisconnect)
+{
+    PrivateDisconnect(toDisconnect);
+}
     
 void IStateManager::DeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const
 {
