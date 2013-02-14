@@ -28,11 +28,11 @@
 
 #include "NetworkPacketParser.h"
 #include "INetworkManager.h"
+#include "IStateManager.h"
 
 // forward delcarations
 class NetworkPacket;
 class NetworkProvider;
-class IStateManager;
 
 class NetworkManagerClient : public NetworkPacketParser, INetworkManager
 {
@@ -41,10 +41,12 @@ public:
             std::vector<std::unique_ptr<NetworkProvider>> networks,
             std::weak_ptr<IStateManager> stateManager);
 
-    void Connect(boost::asio::ip::udp::endpoint serverAddress);
+    void Connect(
+            boost::asio::ip::udp::endpoint serverAddress,
+            std::vector<uint8_t> connectData);
 
     bool IsConnected();
-    bool IsTimedOut();
+    bool IsFailed();
 
 private:
     static const uint8_t HandshakeRetries = 5;
@@ -56,7 +58,7 @@ private:
         Challenging,
         Connecting,
         Connected,
-        Timeout
+        Failed
     };    
 
     std::weak_ptr<IStateManager> myStateManager;
@@ -69,11 +71,14 @@ private:
     boost::asio::ip::udp::endpoint myServerAddress;
     NetworkProvider* myServerInterface;
     std::chrono::steady_clock::time_point myLastPacketSent;
+    std::vector<uint8_t> myConnectData; // RAM: TODO: turn to pointer, Free once connected, as nolonger needed.
+    IStateManager::ClientHandle myClientId;
 
     // RAM: TODO: replace type to Count so I don't need to use hungarian notation.
     uint8_t myPacketSendCount;
 
     void SendChallengePacket();
+    void SendConnectPacket();
 
     void ParseCommand(NetworkPacket& packetData) override;
     void ParseDelta(NetworkPacket& packetData) override;

@@ -27,12 +27,16 @@
 using namespace std;
 using namespace std::chrono;
 
+// I don't understand constexpr
+constexpr std::chrono::milliseconds NetworkManagerClient::HandshakeRetryPeriod;
+
 NetworkManagerClient::NetworkManagerClient(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
         std::weak_ptr<IStateManager> stateManager)
     : NetworkPacketParser(PacketEncoding::FromServer)
     , myStateManager(stateManager)
     , myState(State::Idle)
+    , myClientId({})
 {
     for (auto& network : networks)
     {
@@ -43,9 +47,10 @@ NetworkManagerClient::NetworkManagerClient(
     }
 }
 
-void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
+void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress, std::vector<uint8_t> connectData)
 {
-    // reset state to challenging.
+    // RAM: TODO: reenable all interfaces please.
+    myConnectData = connectData;
     myState = State::Challenging;
     myKey = 0;
     myServerAddress = serverAddress;
@@ -58,9 +63,9 @@ bool NetworkManagerClient::IsConnected()
     return myState==State::Connected;
 }
 
-bool NetworkManagerClient::IsTimedOut()
+bool NetworkManagerClient::IsFailed()
 {
-    return myState==State::Timeout;
+    return myState==State::Failed;
 }
 
 void NetworkManagerClient::SendChallengePacket()
@@ -78,33 +83,88 @@ void NetworkManagerClient::SendChallengePacket()
     }
 }
 
-void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
+void NetworkManagerClient::SendConnectPacket()
 {
-    // The only command we care about is the ChallengeResponse.
-    if (myState == State::Challenging)
+    std::vector<NetworkPacket> packetToSend;
+
+    packetToSend.push_back({myServerAddress, ChallengePacket});
+
+    myServerInterface->Send(packetToSend);
+    myPacketSendCount++;
+    myLastPacketSent = steady_clock::now();
+}
+
+void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
+{    
+    switch (myState)
     {
-        Command command;
-
-        command = Command(packetData.data[OffsetCommand]);
-
-        if (command == Command::ChallengeResponse)
+        case State::Connecting:
+        case State::Challenging:
         {
-            myKey = KeyGet(packetData);
-            myState = State::Connecting;
+            Command command;
 
-            // RAM: TODO: Send connect packet!
-            // SendConnectPacket();
+            command = Command(packetData.data[OffsetCommand]);
+
+            if (command == Command::ChallengeResponse)
+            {
+                myKey = KeyGet(packetData);
+                myState = State::Connecting;
+
+                myPacketSendCount = 0;
+                SendConnectPacket();
+
+                // RAM: TODO: Choose myServerInterface and disable all other interfaces please.
+            }
+            else
+            {
+                auto state = myStateManager.lock();
+
+                if (state)
+                {
+                    IStateManager::ClientHandle newGuy;
+                    bool failed;
+                    vector<uint8_t> failReason;
+                    vector<uint8_t> connectData;
+
+                    connectData = ConnectDataGet(packetData);
+
+                    newGuy = state->Connect(connectData, failed, failReason);
+
+                    if (failed)
+                    {
+                        // Noooooo!
+                        // RAM: TODO!
+                        // SendDisconnect(failReason);
+                        myState = State::Failed;
+                    }
+                    else
+                    {
+                        myState = State::Connected;
+                        myConnectData.clear();
+                    }
+                }
+                else
+                {
+                    // I'm in bad shape, tell the server I'm disconnecting.
+                    // SendDisconnect(failReason);
+                    // RAM: TODO
+                    myState = State::Failed;
+                }
+            }
+
+            break;
+        }
+
+        default:
+        {
+            // NADA
+            break;
         }
     }
 }
 
 void NetworkManagerClient::ParseDelta(NetworkPacket &)
 {
-    if (myState == State::Connecting)
-    {
-        myState = State::Connected;
-    }
-
     // Ignore if not connected
     if (myState == State::Connected)
     {
@@ -112,6 +172,12 @@ void NetworkManagerClient::ParseDelta(NetworkPacket &)
         // TODO: Decrypt
         // TODO: Expand
         // TODO: Pass to gamestate.
+    }
+    else
+    {
+        // WTF? Send disconnect packet please.
+        // RAM: TODO
+        // SendDisconnect(reason im not connected dumbass!);
     }
 }
 
@@ -124,14 +190,16 @@ void NetworkManagerClient::PrivateProcessIncomming()
         {
             if (myPacketSendCount > HandshakeRetries)
             {
-                myState = State::Timeout;
+                // RAM: TODO: do state clean up on fail or connect?
+                // Put cleanup into once function please.
+                myState = State::Failed;
             }
             else
             {
-                //auto sinceLastPacket = steady_clock::now() - myLastPacketSent;
+                auto sinceLastPacket = steady_clock::now() - myLastPacketSent;
 
                 // RAM: TODO Why doesn't this line compile?
-                //if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod)
+                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod)
                 {
                     if (myState == State::Challenging)
                     {
@@ -139,7 +207,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
                     }
                     else
                     {
-                        //SendConnectPacket();
+                        SendConnectPacket();
                     }
                 }
             }
@@ -163,7 +231,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
 
 void NetworkManagerClient::PrivateSendState()
 {
-    if ((myState != State::Idle) && (myState != State::Timeout))
+    if ((myState != State::Idle) && (myState != State::Failed))
     {
         // TODO!
     }

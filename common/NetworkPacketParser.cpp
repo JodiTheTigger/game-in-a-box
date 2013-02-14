@@ -149,7 +149,8 @@ NetworkPacket NetworkPacketParser::PacketDefragment(const std::vector<NetworkPac
     return notFragmented;
 }
 
-
+// RAM: TODO Turn each commandtype into its own class and put
+// these functions there. This is ugly and non-OO.
 uint32_t NetworkPacketParser::KeyGet(const NetworkPacket& commandPacket)
 {
     // high byte first
@@ -166,6 +167,11 @@ void NetworkPacketParser::KeySet(NetworkPacket& packetToModify, uint32_t key)
     packetToModify.data[OffsetCommandKey + 1] = uint8_t(key >> 16);
     packetToModify.data[OffsetCommandKey + 2] = uint8_t(key >> 8);
     packetToModify.data[OffsetCommandKey + 3] = uint8_t(key);
+}
+
+std::vector<uint8_t> NetworkPacketParser::ConnectDataGet(const NetworkPacket& fromPacket)
+{
+    return vector<uint8_t>(fromPacket.data.begin() + OffsetConnectData, fromPacket.data.end());
 }
 
 std::vector<NetworkPacket> NetworkPacketParser::PacketFragment(NetworkPacket& whole)

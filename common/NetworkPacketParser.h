@@ -52,6 +52,7 @@ protected:
     static const std::size_t OffsetCommandKey = 2;
     static const std::size_t OffsetCommand = 6;
     static const std::size_t OffsetCommandData = 7;
+    static const std::size_t OffsetConnectData = OffsetCommandData;
 
     static const std::size_t MtuIp4 = 576;
     static const std::size_t MtuIp6 = 1280;
@@ -74,7 +75,7 @@ protected:
         Info,
         InfoResponse,
         Connect,
-        // ConnectResponse doesn't exist, I just start sending deltas.
+        ConnectResponse,
         Disconnect
     };
 
@@ -91,6 +92,9 @@ protected:
     static std::vector<NetworkPacket>PacketFragment(NetworkPacket &whole);
     static uint32_t KeyGet(const NetworkPacket& commandPacket);
     static void KeySet(NetworkPacket& packetToModify, uint32_t key);
+
+    static std::vector<uint8_t> ConnectDataGet(const NetworkPacket& fromPacket);
+
 
 private:
     PacketEncoding myEncodingDetails;
