@@ -23,6 +23,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 #include "BuildMacros.h"
 
 // Forward declarations
@@ -42,7 +43,7 @@ public:
     
     uint16_t CurrentStateTick();
     
-    ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::vector<uint8_t>& failReason);
+    ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
     void Disconnect(ClientHandle toDisconnect);
 
     void DeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const;
@@ -58,7 +59,7 @@ private:
     virtual IStateManager::ClientHandle PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,
-            std::vector<uint8_t>& failReason) = 0;
+            std::string& failReason) = 0;
 
     virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;
     

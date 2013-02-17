@@ -35,7 +35,7 @@ private:
     IStateManager::ClientHandle PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,
-            std::vector<uint8_t>& failReason) override;
+            std::string& failReason) override;
 
     void PrivateDisconnect(ClientHandle playerToDisconnect) override;
     

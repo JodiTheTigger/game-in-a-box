@@ -32,7 +32,7 @@ uint16_t IStateManager::CurrentStateTick()
     return PrivateCurrentStateTick();
 }
 
-IStateManager::ClientHandle IStateManager::Connect(std::vector<uint8_t> connectData, bool& fail, std::vector<uint8_t>& failReason)
+IStateManager::ClientHandle IStateManager::Connect(std::vector<uint8_t> connectData, bool& fail, std::string &failReason)
 {
     return PrivateConnect(connectData, fail, failReason);
 }

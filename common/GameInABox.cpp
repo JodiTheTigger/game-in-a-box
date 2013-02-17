@@ -29,7 +29,7 @@ uint16_t GameInABox::PrivateCurrentStateTick()
 IStateManager::ClientHandle GameInABox::PrivateConnect(
         std::vector<uint8_t>,
         bool& fail,
-        std::vector<uint8_t>&)
+        std::string&)
 {
     // RAM: TODO!
     fail = true;
