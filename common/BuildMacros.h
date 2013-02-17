@@ -22,6 +22,8 @@
 #define BUILDMACROS_H
 
 // Don't allow copying, I want the compiler to tell me if I'm accidentally doing a copy. 
+// RAM: Effective c++: don't use macros when the compiler can do it. Remove this macro
+// and use a baseclass where the copy and assign operator is private (or was that protected, can't remember).
 #define CLASS_NOCOPY_NOASSIGN(CLASSNAME) private: \
     CLASSNAME(const CLASSNAME &) = delete; \
     CLASSNAME &operator=(const CLASSNAME &) = delete;
