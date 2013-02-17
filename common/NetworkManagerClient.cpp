@@ -94,6 +94,18 @@ void NetworkManagerClient::SendConnectPacket()
     myLastPacketSent = steady_clock::now();
 }
 
+void NetworkManagerClient::SendDisconnectPacket(std::string)
+{
+    std::vector<NetworkPacket> packetToSend;
+
+    // RAM: TODO
+    //packetToSend.push_back({myServerAddress, ChallengePacket});
+
+    myServerInterface->Send(packetToSend);
+
+    myState = State::Failed;
+}
+
 void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
 {    
     switch (myState)
@@ -123,7 +135,7 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
                 {
                     IStateManager::ClientHandle newGuy;
                     bool failed;
-                    vector<uint8_t> failReason;
+                    string failReason;
                     vector<uint8_t> connectData;
 
                     connectData = ConnectDataGet(packetData);
@@ -131,11 +143,9 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
                     newGuy = state->Connect(connectData, failed, failReason);
 
                     if (failed)
-                    {
+                    {                        
                         // Noooooo!
-                        // RAM: TODO!
-                        // SendDisconnect(failReason);
-                        myState = State::Failed;
+                        SendDisconnectPacket(failReason);
                     }
                     else
                     {
@@ -145,10 +155,8 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
                 }
                 else
                 {
-                    // I'm in bad shape, tell the server I'm disconnecting.
-                    // SendDisconnect(failReason);
-                    // RAM: TODO
-                    myState = State::Failed;
+                    // I'm in bad shape, tell the server I'm disconnecting.                    
+                    SendDisconnectPacket("State Manager is a nullptr.");
                 }
             }
 
@@ -175,9 +183,7 @@ void NetworkManagerClient::ParseDelta(NetworkPacket &)
     }
     else
     {
-        // WTF? Send disconnect packet please.
-        // RAM: TODO
-        // SendDisconnect(reason im not connected dumbass!);
+        SendDisconnectPacket("I am not connected!");
     }
 }
 
@@ -192,7 +198,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
             {
                 // RAM: TODO: do state clean up on fail or connect?
                 // Put cleanup into once function please.
-                myState = State::Failed;
+                SendDisconnectPacket("Server Timeout");
             }
             else
             {

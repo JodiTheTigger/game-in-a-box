@@ -25,6 +25,7 @@
 #include <vector>
 #include <boost/asio/ip/udp.hpp>
 #include <chrono>
+#include <string>
 
 #include "NetworkPacketParser.h"
 #include "INetworkManager.h"
@@ -79,6 +80,7 @@ private:
 
     void SendChallengePacket();
     void SendConnectPacket();
+    void SendDisconnectPacket(std::string reason);
 
     void ParseCommand(NetworkPacket& packetData) override;
     void ParseDelta(NetworkPacket& packetData) override;
