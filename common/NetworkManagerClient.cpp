@@ -36,6 +36,7 @@ NetworkManagerClient::NetworkManagerClient(
     : NetworkPacketParser(PacketEncoding::FromServer)
     , myStateManager(stateManager)
     , myState(State::Idle)
+    , myServerInterface(networks.size())
     , myClientId({})
 {
     for (auto& network : networks)
@@ -49,12 +50,17 @@ NetworkManagerClient::NetworkManagerClient(
 
 void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress, std::vector<uint8_t> connectData)
 {
-    // RAM: TODO: reenable all interfaces please.
+    for(auto& network : myNetworks)
+    {
+        network->Reset();
+    }
+
     myConnectData = connectData;
     myState = State::Challenging;
     myKey = 0;
     myServerAddress = serverAddress;
     myPacketSendCount = 0;
+    myServerInterface = myNetworks.size();
     SendChallengePacket();
 }
 
@@ -89,7 +95,7 @@ void NetworkManagerClient::SendConnectPacket()
 
     packetToSend.push_back({myServerAddress, ChallengePacket});
 
-    myServerInterface->Send(packetToSend);
+    myNetworks[myServerInterface]->Send(packetToSend);
     myPacketSendCount++;
     myLastPacketSent = steady_clock::now();
 }
@@ -101,7 +107,7 @@ void NetworkManagerClient::SendDisconnectPacket(std::string)
     // RAM: TODO
     //packetToSend.push_back({myServerAddress, ChallengePacket});
 
-    myServerInterface->Send(packetToSend);
+    myNetworks[myServerInterface]->Send(packetToSend);
 
     myState = State::Failed;
 }
@@ -126,6 +132,7 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
                 SendConnectPacket();
 
                 // RAM: TODO: Choose myServerInterface and disable all other interfaces please.
+                // RAM: HOW? Means the packet needs to keep track of which interface sent it.
             }
             else
             {
@@ -188,6 +195,14 @@ void NetworkManagerClient::ParseDelta(NetworkPacket &)
 }
 
 void NetworkManagerClient::PrivateProcessIncomming()
+{    
+    if ((myState != State::Idle) && (myState != State::Failed))
+    {
+        // TODO!
+    }
+}
+
+void NetworkManagerClient::PrivateSendState()
 {
     switch (myState)
     {
@@ -232,13 +247,5 @@ void NetworkManagerClient::PrivateProcessIncomming()
             // Nothing!
             break;
         }
-    }
-}
-
-void NetworkManagerClient::PrivateSendState()
-{
-    if ((myState != State::Idle) && (myState != State::Failed))
-    {
-        // TODO!
     }
 }
