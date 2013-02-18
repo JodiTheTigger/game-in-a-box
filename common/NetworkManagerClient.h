@@ -70,7 +70,7 @@ private:
     // RAM: Todo, make into it's own type for type checking at compile time.
     uint32_t myKey;
     boost::asio::ip::udp::endpoint myServerAddress;
-    NetworkProvider* myServerInterface;
+    size_t myServerInterface;
     std::chrono::steady_clock::time_point myLastPacketSent;
     std::vector<uint8_t> myConnectData; // RAM: TODO: turn to pointer, Free once connected, as nolonger needed.
     IStateManager::ClientHandle myClientId;
