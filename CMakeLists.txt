@@ -124,6 +124,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(
 game-in-a-box-server
+common/PacketCommand.cpp
+common/PacketChallenge.cpp
+common/PacketChallengeResponse.cpp
 common/Sequence.cpp
 common/INetworkManager.cpp
 common/NetworkPacketParser.cpp
