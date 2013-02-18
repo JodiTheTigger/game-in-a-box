@@ -25,7 +25,13 @@ using namespace std;
 NetworkManagerServer::NetworkManagerServer()
     : NetworkPacketParser(PacketEncoding::FromClient)
     , INetworkManager()
+    , myClients()
 {
+}
+
+NetworkManagerServer::~NetworkManagerServer()
+{
+
 }
 
 void NetworkManagerServer::ParseCommand(NetworkPacket &)

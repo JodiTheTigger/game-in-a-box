@@ -37,6 +37,7 @@ class NetworkManagerServer : public NetworkPacketParser, INetworkManager
 {
 public:
     NetworkManagerServer();
+    virtual ~NetworkManagerServer();
 
 private:
     // RAM: Note: For now not tracking
@@ -47,21 +48,24 @@ private:
 
     class Challenger
     {
-        boost::asio::ip::udp::endpoint endpoint;
-        uint32_t key;
-        uint8_t challengeCount;
+    public:
+        boost::asio::ip::udp::endpoint endpoint{};
+        uint32_t key{};
+        uint8_t challengeCount{};
         // timestamp lastPacket;
+
+        virtual ~Challenger() {};
     };
 
     class Client : public Challenger
     {
-        uint16_t linkId;
+        uint16_t linkId{};
     };
 
     class ClientKey
     {
-        boost::asio::ip::address address;
-        uint16_t linkId;
+        boost::asio::ip::address address{};
+        uint16_t linkId{};
     };
 
 

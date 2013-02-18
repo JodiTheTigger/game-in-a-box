@@ -41,6 +41,10 @@ NetworkPacketParser::NetworkPacketParser(PacketEncoding details)
 {
 }
 
+NetworkPacketParser::~NetworkPacketParser()
+{
+}
+
 void NetworkPacketParser::ParsePacket(NetworkPacket &packetData)
 {
     {
