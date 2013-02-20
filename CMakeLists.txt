@@ -135,7 +135,6 @@ common/IStateManager.cpp
 common/Huffman.cpp 
 common/BitStreamReadOnly.cpp 
 common/BitStream.cpp
-common/NetworkCommand.cpp
 common/AutoComplete.cpp
 common/IReflected.cpp 
 common/ReflectionManager.cpp 
