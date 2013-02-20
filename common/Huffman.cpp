@@ -29,6 +29,9 @@
 using namespace std;
 
 Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
+    : myEncodeMap()
+    , myDecodeMap()
+    , myEofMarker()
 {    
     priority_queue<Node*, std::vector<Node*>, NodeCompare> trees;
  
