@@ -86,6 +86,7 @@ AutoComplete::AutoComplete()
 
 AutoComplete::AutoComplete(std::string word)
 : myString(word)
+, myChildren()
 {
 }
 

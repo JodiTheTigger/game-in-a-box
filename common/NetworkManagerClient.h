@@ -42,6 +42,8 @@ public:
             std::vector<std::unique_ptr<NetworkProvider>> networks,
             std::weak_ptr<IStateManager> stateManager);
 
+    virtual ~NetworkManagerClient() {}
+
     void Connect(
             boost::asio::ip::udp::endpoint serverAddress,
             std::vector<uint8_t> connectData);
@@ -76,7 +78,7 @@ private:
     IStateManager::ClientHandle myClientId;
 
     // RAM: TODO: replace type to Count so I don't need to use hungarian notation.
-    uint8_t myPacketSendCount;
+    uint8_t myPacketSentCount;
 
     void SendChallengePacket();
     void SendConnectPacket();

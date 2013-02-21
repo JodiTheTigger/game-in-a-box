@@ -28,6 +28,7 @@ class GameInABox : public IStateManager
 {
 public:
     GameInABox() {};
+    virtual ~GameInABox() {};
     
 private:
     uint16_t PrivateCurrentStateTick() override;

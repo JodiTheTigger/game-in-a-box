@@ -34,9 +34,13 @@ using namespace std;
 using namespace std::chrono;
 
 GameInABoxServer::GameInABoxServer(int32_t, uint8_t**)
-: myQuitSemephore(false)
+: REFLECTION_INIT_MEMBERS
+, myQuitSemephore(false)
 , myPeriodMainLoopInMs(16)
 , myPeriodNetworkSendInMs(50)
+, myNetworkSource()
+, myNetworkState()
+, myGame()
 , myMirror(new ReflectionManager())
 {
     // TODO!

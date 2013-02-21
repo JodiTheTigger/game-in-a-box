@@ -218,4 +218,15 @@ private:   \
         }   \
     }
 
+#define REFLECTION_INIT_MEMBERS   \
+ reflectionFloatSetters()         \
+,reflectionFloatGetters()         \
+,reflectionStringSetters()        \
+,reflectionStringGetters()        \
+,reflectionRunners()              \
+,reflectionNamesFloatVariable()   \
+,reflectionNamesStringVariable()  \
+,reflectionNamesMethods()         \
+
+
 #endif // IREFLECTED_H

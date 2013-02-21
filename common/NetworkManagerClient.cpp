@@ -35,9 +35,15 @@ NetworkManagerClient::NetworkManagerClient(
         std::weak_ptr<IStateManager> stateManager)
     : NetworkPacketParser(PacketEncoding::FromServer)
     , myStateManager(stateManager)
+    , myNetworks()
     , myState(State::Idle)
+    , myKey(0)
+    , myServerAddress()
     , myServerInterface(networks.size())
-    , myClientId({})
+    , myLastPacketSent()
+    , myConnectData()
+    , myClientId()
+    , myPacketSentCount(0)
 {
     for (auto& network : networks)
     {
@@ -59,7 +65,7 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress,
     myState = State::Challenging;
     myKey = 0;
     myServerAddress = serverAddress;
-    myPacketSendCount = 0;
+    myPacketSentCount = 0;
     myServerInterface = myNetworks.size();
     SendChallengePacket();
 }
@@ -81,10 +87,10 @@ void NetworkManagerClient::SendChallengePacket()
     {
         std::vector<NetworkPacket> packetToSend;
 
-        packetToSend.push_back({myServerAddress, ChallengePacket});
+        packetToSend.emplace_back(myServerAddress, ChallengePacket);
 
         network->Send(packetToSend);
-        myPacketSendCount++;
+        myPacketSentCount++;
         myLastPacketSent = steady_clock::now();
     }
 }
@@ -93,10 +99,10 @@ void NetworkManagerClient::SendConnectPacket()
 {
     std::vector<NetworkPacket> packetToSend;
 
-    packetToSend.push_back({myServerAddress, ChallengePacket});
+    packetToSend.emplace_back(myServerAddress, ChallengePacket);
 
     myNetworks[myServerInterface]->Send(packetToSend);
-    myPacketSendCount++;
+    myPacketSentCount++;
     myLastPacketSent = steady_clock::now();
 }
 
@@ -128,7 +134,7 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
                 myKey = KeyGet(packetData);
                 myState = State::Connecting;
 
-                myPacketSendCount = 0;
+                myPacketSentCount = 0;
                 SendConnectPacket();
 
                 // RAM: TODO: Choose myServerInterface and disable all other interfaces please.
@@ -209,7 +215,7 @@ void NetworkManagerClient::PrivateSendState()
         case State::Connecting:
         case State::Challenging:
         {
-            if (myPacketSendCount > HandshakeRetries)
+            if (myPacketSentCount > HandshakeRetries)
             {
                 // RAM: TODO: do state clean up on fail or connect?
                 // Put cleanup into once function please.

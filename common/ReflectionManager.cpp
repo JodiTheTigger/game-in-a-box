@@ -38,6 +38,7 @@
 using namespace std;
 
 ReflectionManager::ReflectionManager()
+    : myStringToClassAndKey()
 {
     
 }

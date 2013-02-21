@@ -33,6 +33,23 @@ class NetworkPacket
 public:
     boost::asio::ip::udp::endpoint      address;
     std::vector<uint8_t>                data;
+
+    NetworkPacket()
+        : address()
+        , data()
+    {
+    }
+
+    NetworkPacket(
+            boost::asio::ip::udp::endpoint addressToUse,
+            std::vector<uint8_t> dataToUse)
+        : address(addressToUse)
+        , data(dataToUse)
+    {
+    }
+
+    NetworkPacket(const NetworkPacket&) = default;
+    NetworkPacket& operator= ( NetworkPacket const &) = default;
 };
 
 #endif // NETWORKPACKET_H
