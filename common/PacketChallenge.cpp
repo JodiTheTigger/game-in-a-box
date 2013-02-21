@@ -38,7 +38,7 @@ PacketChallenge::~PacketChallenge()
 {
 }
 
-bool PacketChallenge::IsValid()
+bool PacketChallenge::IsValid() const
 {
     if (myBuffer.size() == 3 + 17)
     {

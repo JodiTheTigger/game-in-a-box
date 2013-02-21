@@ -49,7 +49,7 @@ PacketCommand::Command PacketCommand::GetCommand() const
     return Command::Invalid;
 }
 
-bool PacketCommand::IsValid()
+bool PacketCommand::IsValid() const
 {
     return (GetCommand() != Command::Invalid);
 }

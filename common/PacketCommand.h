@@ -52,7 +52,7 @@ public:
     // ----------------------------------------
 
     PacketCommand::Command GetCommand() const;
-    virtual bool IsValid() = 0;
+    virtual bool IsValid() const = 0;
 
 protected:
     static const std::size_t MinimumPacketSize = 3;

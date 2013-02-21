@@ -28,7 +28,7 @@ class PacketChallenge : public PacketCommand
 public:
     PacketChallenge();    
     virtual ~PacketChallenge();
-    virtual bool IsValid() override;
+    virtual bool IsValid() const override;
 };
 
 #endif // PACKETCHALLENGE_H
