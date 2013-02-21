@@ -23,7 +23,7 @@
 
 #include "PacketCommand.h"
 
-template<typename CommandType, CommandType TheCommand>
+template<PacketCommand::Command TheCommand>
 class PacketKey : public PacketCommand
 {
 public:

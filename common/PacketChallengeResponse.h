@@ -25,7 +25,7 @@
 
 #include "PacketKey.h"
 
-class PacketChallengeResponse : public PacketKey<PacketCommand::Command, PacketCommand::Command::ChallengeResponse>
+class PacketChallengeResponse : public PacketKey<PacketCommand::Command::ChallengeResponse>
 {
 public:
     PacketChallengeResponse(uint8_t version, uint32_t key);
