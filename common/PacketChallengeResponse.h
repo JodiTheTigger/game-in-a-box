@@ -23,24 +23,20 @@
 
 #include <cstdint>
 
-#include "PacketCommand.h"
+#include "PacketKey.h"
 
-class PacketChallengeResponse : public PacketCommand
+class PacketChallengeResponse : public PacketKey<PacketCommand::Command, PacketCommand::Command::ChallengeResponse>
 {
 public:
     PacketChallengeResponse(uint8_t version, uint32_t key);
     virtual ~PacketChallengeResponse();
 
-    virtual bool IsValid() override;
+    virtual bool IsValid() const override;
     uint8_t Version() const;
-    uint32_t Key() const;
 
 private:
-    static const std::size_t PayloadSize = 5;
-    static const std::size_t OffsetVersion = 3;
-    static const std::size_t OffsetKey = 4;
-
-    uint32_t myKey;
+    static const std::size_t PayloadSize = PacketKey::PayloadSize;
+    static const std::size_t OffsetVersion = PacketKey::OffsetKey + 4;
 };
 
 #endif // PACKETCHALLENGERESPONSE_H

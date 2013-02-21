@@ -21,34 +21,22 @@
 #include "PacketChallengeResponse.h"
 
 PacketChallengeResponse::PacketChallengeResponse(uint8_t version, uint32_t key)
-    : PacketCommand(Command::ChallengeResponse)
-    , myKey(key)
+    : PacketKey(key)
 {
-    // High byte first.
-    myBuffer.push_back(version);
-    myBuffer.push_back(uint8_t(key >> 24));
-    myBuffer.push_back(uint8_t(key >> 16));
-    myBuffer.push_back(uint8_t(key >> 8));
-    myBuffer.push_back(uint8_t(key >> 0));
+    myBuffer[OffsetVersion] = version;
 }
 
 PacketChallengeResponse::~PacketChallengeResponse()
 {
 }
 
-bool PacketChallengeResponse::IsValid()
+bool PacketChallengeResponse::IsValid() const
 {
-    if (myBuffer.size() == (PayloadSize + MinimumPacketSize))
+    if (PacketKey::IsValid())
     {
-        if (Command() == Command::ChallengeResponse)
+        if (Version() != 0)
         {
-            if (Version() != 0)
-            {
-                if (Key() != 0)
-                {
-                    return true;
-                }
-            }
+            return true;
         }
     }
 
@@ -58,12 +46,4 @@ bool PacketChallengeResponse::IsValid()
 uint8_t PacketChallengeResponse::Version() const
 {
     return myBuffer[OffsetVersion];
-}
-
-uint32_t PacketChallengeResponse::Key() const
-{
-    return  uint32_t(myBuffer[OffsetKey + 0] << 24) |
-            uint32_t(myBuffer[OffsetKey + 2] << 16) |
-            uint32_t(myBuffer[OffsetKey + 3] << 8)  |
-            uint32_t(myBuffer[OffsetKey + 4]);
 }
