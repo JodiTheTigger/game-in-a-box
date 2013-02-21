@@ -163,8 +163,13 @@ add_subdirectory(third-party/gmock-1.6.0)
 enable_testing()
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
+# RAM: TODO: Just reference the game-in-a-box library
+# RAM: TODO: Turn common into a library!
 ADD_EXECUTABLE(
-  game-in-a-box-common-tests 
+  game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/common/PacketCommand.cpp
+  ${PROJECT_SOURCE_DIR}/common/PacketChallengeResponse.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/common/GameInABox.cpp
   ${PROJECT_SOURCE_DIR}/common/IStateManager.cpp  
   ${PROJECT_SOURCE_DIR}/common/TestDeltaCoder.cpp
