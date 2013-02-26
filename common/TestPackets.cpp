@@ -75,7 +75,7 @@ TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadLength)
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Invalid, typeResult);
+    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
@@ -91,7 +91,7 @@ TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadData)
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Invalid, typeResult);
+    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
