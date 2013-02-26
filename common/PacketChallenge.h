@@ -21,14 +21,18 @@
 #ifndef PACKETCHALLENGE_H
 #define PACKETCHALLENGE_H
 
+#include <string>
 #include "PacketCommand.h"
 
 class PacketChallenge : public PacketCommand
 {
 public:
-    PacketChallenge();    
+    PacketChallenge();
+    PacketChallenge(std::vector<uint8_t> buffer) : PacketCommand(buffer) {}
     virtual ~PacketChallenge();
-    virtual bool IsValid() const override;
+    virtual bool IsValid() const;
+private:
+    static const std::string ChallengeMessage;
 };
 
 #endif // PACKETCHALLENGE_H

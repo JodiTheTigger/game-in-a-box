@@ -25,13 +25,13 @@
 
 using namespace std;
 
+const std::string PacketChallenge::ChallengeMessage = "Why, Hello there.";
+
 PacketChallenge::PacketChallenge()
     : PacketCommand(Command::Challenge)
 {
-    string challengeMessage("Why, Hello There.");
-
     // Fill the buffer with the command challange data.
-    copy(challengeMessage.begin(), challengeMessage.end(), back_inserter(myBuffer));
+    copy(ChallengeMessage.begin(), ChallengeMessage.end(), back_inserter(myBuffer));
 }
 
 PacketChallenge::~PacketChallenge()
@@ -40,7 +40,7 @@ PacketChallenge::~PacketChallenge()
 
 bool PacketChallenge::IsValid() const
 {
-    if (myBuffer.size() == 3 + 17)
+    if (myBuffer.size() == 3 + ChallengeMessage.size())
     {
         if (GetCommand() == Command::Challenge)
         {
