@@ -168,6 +168,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOUR
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
   ${PROJECT_SOURCE_DIR}/common/PacketCommand.cpp
+  ${PROJECT_SOURCE_DIR}/common/PacketChallenge.cpp
   ${PROJECT_SOURCE_DIR}/common/PacketChallengeResponse.cpp
   ${PROJECT_SOURCE_DIR}/common/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/common/GameInABox.cpp
