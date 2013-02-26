@@ -42,7 +42,60 @@ TEST_F(TestPacketCommand, ChallengeFromEmptyData)
     EXPECT_FALSE(challenge.IsValid());
 }
 
-TEST_F(TestPacketCommand, TODO)
+TEST_F(TestPacketCommand, Challenge)
+{
+    PacketCommand::Command typeResult;
+
+    PacketChallenge challenge;
+
+    typeResult = challenge.GetCommand();
+
+    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
+    EXPECT_TRUE(challenge.IsValid());
+}
+
+TEST_F(TestPacketCommand, ChallengeFromNotACommand)
+{
+    PacketCommand::Command typeResult;
+
+    PacketChallenge challenge = PacketChallenge({0xFF, 0x01, 0x02, 0x03});
+
+    typeResult = challenge.GetCommand();
+
+    EXPECT_EQ(PacketCommand::Command::Invalid, typeResult);
+    EXPECT_FALSE(challenge.IsValid());
+}
+
+
+TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadLength)
+{
+    PacketCommand::Command typeResult;
+
+    PacketChallenge challenge = PacketChallenge({0xFF, 0xFF, uint8_t(PacketCommand::Command::Challenge), 0x03});
+
+    typeResult = challenge.GetCommand();
+
+    EXPECT_EQ(PacketCommand::Command::Invalid, typeResult);
+    EXPECT_FALSE(challenge.IsValid());
+}
+
+TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadData)
+{
+    PacketCommand::Command typeResult;
+    PacketChallenge source;
+
+    // make it invalid.
+    source.myBuffer[source.myBuffer.size() - 2] = 0;
+
+    PacketChallenge challenge = PacketChallenge(source.myBuffer);
+
+    typeResult = challenge.GetCommand();
+
+    EXPECT_EQ(PacketCommand::Command::Invalid, typeResult);
+    EXPECT_FALSE(challenge.IsValid());
+}
+
+TEST_F(TestPacketCommand, NotAllTestsWritten)
 {
     EXPECT_FALSE(true);
 }
