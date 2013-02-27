@@ -95,7 +95,64 @@ TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadData)
     EXPECT_FALSE(challenge.IsValid());
 }
 
-TEST_F(TestPacketCommand, NotAllTestsWritten)
+TEST_F(TestPacketCommand, ChallengeFromValidData)
+{
+    PacketCommand::Command typeResult;
+    PacketChallenge source;
+
+    PacketChallenge challenge = PacketChallenge(source.myBuffer);
+
+    typeResult = challenge.GetCommand();
+
+    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
+    EXPECT_TRUE(challenge.IsValid());
+}
+
+TEST_F(TestPacketCommand, ChallengeResponseCreation)
+{
+    PacketChallengeResponse source(13, 0x12345678);
+
+    EXPECT_EQ(13, source.Version());
+    EXPECT_EQ(0x12345678, source.Key());
+    EXPECT_TRUE(source.IsValid());
+}
+
+TEST_F(TestPacketCommand, ChallengeResponseCreationZeroKeyInvalid)
+{
+    PacketChallengeResponse source(0, 0x12345678);
+
+    EXPECT_FALSE(source.IsValid());
+}
+
+TEST_F(TestPacketCommand, ChallengeResponseFromValidDataInvalidChallengeBadLength)
+{
+    PacketCommand::Command typeResult;
+
+    PacketChallengeResponse challengeResponse =
+            PacketChallengeResponse({0xFF, 0xFF, uint8_t(PacketCommand::Command::ChallengeResponse), 0x03});
+
+    typeResult = challengeResponse.GetCommand();
+
+    EXPECT_EQ(PacketCommand::Command::ChallengeResponse, typeResult);
+    EXPECT_FALSE(challengeResponse.IsValid());
+}
+
+TEST_F(TestPacketCommand, SimplePacketsKey)
+{
+    EXPECT_FALSE(true);
+}
+
+TEST_F(TestPacketCommand, SimplePacketsKeyInvalid)
+{
+    EXPECT_FALSE(true);
+}
+
+TEST_F(TestPacketCommand, SimplePacketsBuffer)
+{
+    EXPECT_FALSE(true);
+}
+
+TEST_F(TestPacketCommand, SimplePacketsBufferInvalid)
 {
     EXPECT_FALSE(true);
 }
