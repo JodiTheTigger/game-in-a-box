@@ -139,20 +139,54 @@ TEST_F(TestPacketCommand, ChallengeResponseFromValidDataInvalidChallengeBadLengt
 
 TEST_F(TestPacketCommand, SimplePacketsKey)
 {
-    EXPECT_FALSE(true);
+    PacketInfo      info(12345678);
+    PacketConnect   connect(87654321);
+
+    ASSERT_TRUE(info.IsValid());
+    EXPECT_EQ(12345678, info.Key());
+
+    ASSERT_TRUE(connect.IsValid());
+    EXPECT_EQ(87654321, connect.Key());
 }
 
 TEST_F(TestPacketCommand, SimplePacketsKeyInvalid)
 {
-    EXPECT_FALSE(true);
+    PacketInfo      info(0);
+    PacketConnect   connect(0);
+
+    EXPECT_FALSE(info.IsValid());
+    EXPECT_FALSE(connect.IsValid());
 }
 
 TEST_F(TestPacketCommand, SimplePacketsBuffer)
 {
-    EXPECT_FALSE(true);
+    PacketInfoResponse info;
+    PacketConnectResponse connect;
+
+    PacketInfoResponse infoBuffer({0xFF, 0xFF, uint8_t(PacketCommand::Command::InfoResponse), 0x03});
+    PacketConnectResponse connectBuffer({0xFF, 0xFF, uint8_t(PacketCommand::Command::ConnectResponse), 0x03, 0x20});
+
+    ASSERT_TRUE(info.IsValid());
+    EXPECT_EQ(0, info.GetBuffer().size());
+
+    ASSERT_TRUE(connect.IsValid());
+    EXPECT_EQ(0, connect.GetBuffer().size());
+
+    ASSERT_TRUE(infoBuffer.IsValid());
+    EXPECT_EQ(1, infoBuffer.GetBuffer().size());
+    EXPECT_EQ(3, infoBuffer.GetBuffer()[0]);
+
+    ASSERT_TRUE(connectBuffer.IsValid());
+    EXPECT_EQ(2, connectBuffer.GetBuffer().size());
+    EXPECT_EQ(3, infoBuffer.GetBuffer()[0]);
+    EXPECT_EQ(0x20, infoBuffer.GetBuffer()[1]);
 }
 
 TEST_F(TestPacketCommand, SimplePacketsBufferInvalid)
 {
-    EXPECT_FALSE(true);
+    PacketInfoResponse infoBuffer({0xFF, 0xFF, 42, 0x03});
+    PacketConnectResponse connectBuffer({0xFF, 0xFF, 77, 0x03, 0x20});
+
+    EXPECT_FALSE(infoBuffer.IsValid());
+    EXPECT_FALSE(connectBuffer.IsValid());
 }

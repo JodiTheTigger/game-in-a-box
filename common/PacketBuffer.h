@@ -28,6 +28,8 @@ class PacketBuffer : public PacketCommand
 {
 public:
     PacketBuffer() : PacketCommand(TheCommand) {}
+    PacketBuffer(std::vector<uint8_t> buffer) : PacketCommand(buffer) {}
+
     virtual ~PacketBuffer() {}
 
     virtual bool IsValid() const override
