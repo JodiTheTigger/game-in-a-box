@@ -35,15 +35,17 @@ public:
         myBuffer.push_back(uint8_t(key >> 16));
         myBuffer.push_back(uint8_t(key >> 8));
         myBuffer.push_back(uint8_t(key >> 0));
-    }
+    }    
+
+    PacketKey(std::vector<uint8_t> buffer) : PacketCommand(buffer) {}
 
     virtual ~PacketKey() {}
 
     virtual bool IsValid() const override
     {
-        if (myBuffer.size() == (PayloadSize + MinimumPacketSize))
+        if (myBuffer.size() >= (PayloadSize + MinimumPacketSize))
         {
-            if (Command() == TheCommand)
+            if (GetCommand() == TheCommand)
             {
                 if (Key() != 0)
                 {
@@ -58,9 +60,9 @@ public:
     uint32_t Key() const
     {
         return  uint32_t(myBuffer[OffsetKey + 0] << 24) |
-                uint32_t(myBuffer[OffsetKey + 2] << 16) |
-                uint32_t(myBuffer[OffsetKey + 3] << 8)  |
-                uint32_t(myBuffer[OffsetKey + 4]);
+                uint32_t(myBuffer[OffsetKey + 1] << 16) |
+                uint32_t(myBuffer[OffsetKey + 2] << 8)  |
+                uint32_t(myBuffer[OffsetKey + 3]);
     }
 
 protected:
