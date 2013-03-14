@@ -178,8 +178,8 @@ TEST_F(TestPacketCommand, SimplePacketsBuffer)
 
     ASSERT_TRUE(connectBuffer.IsValid());
     EXPECT_EQ(2, connectBuffer.GetBuffer().size());
-    EXPECT_EQ(3, infoBuffer.GetBuffer()[0]);
-    EXPECT_EQ(0x20, infoBuffer.GetBuffer()[1]);
+    EXPECT_EQ(3, connectBuffer.GetBuffer()[0]);
+    EXPECT_EQ(0x20, connectBuffer.GetBuffer()[1]);
 }
 
 TEST_F(TestPacketCommand, SimplePacketsBufferInvalid)

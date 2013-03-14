@@ -36,7 +36,10 @@ public:
     {
         if (myBuffer.size() >= MinimumPacketSize)
         {
-            return PacketCommand::IsValid();
+            if (PacketCommand::GetCommand() == TheCommand)
+            {
+                return PacketCommand::IsValid();
+            }
         }
 
         return false;
@@ -54,7 +57,7 @@ public:
     }
 
 protected:
-    static const std::size_t MinimumPacketSize = PacketCommand::MinimumPacketSize + 1;
+    static const std::size_t MinimumPacketSize = PacketCommand::MinimumPacketSize;
     static const std::size_t OffsetPayload = 3;
 };
 
