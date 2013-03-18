@@ -32,7 +32,7 @@ class IStateManager;
 
 class NetworkManager
 {
-    CLASS_NOCOPY_NOASSIGN(NetworkManager);
+    CLASS_NOCOPY_ASSIGN_MOVE(NetworkManager);
    
 public:
     NetworkManager(

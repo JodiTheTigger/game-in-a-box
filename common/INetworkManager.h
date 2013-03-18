@@ -28,7 +28,7 @@
 
 class INetworkManager
 {
-    CLASS_NOCOPY_NOASSIGN(INetworkManager);
+    CLASS_NOCOPY_ASSIGN_MOVE(INetworkManager);
 
 public:
     // Processes all waiting packets.

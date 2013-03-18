@@ -30,7 +30,7 @@
 
 class BitStream : public BitStreamReadOnly
 {
-    CLASS_NOCOPY_NOASSIGN(BitStream)
+    CLASS_NOCOPY_ASSIGN_MOVE(BitStream)
     
 public:
     BitStream(uint32_t initialCapacityInBytes);

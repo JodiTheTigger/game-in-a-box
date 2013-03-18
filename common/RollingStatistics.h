@@ -29,7 +29,7 @@
 
 class RollingStatistics
 {
-    CLASS_NOCOPY_NOASSIGN(RollingStatistics)
+    CLASS_NOCOPY_ASSIGN_MOVE(RollingStatistics)
     
 public:
     RollingStatistics() : RollingStatistics(256) {}

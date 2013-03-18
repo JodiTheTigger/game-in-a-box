@@ -22,10 +22,13 @@
 #define BUILDMACROS_H
 
 // Don't allow copying, I want the compiler to tell me if I'm accidentally doing a copy. 
-// RAM: Effective c++: don't use macros when the compiler can do it. Remove this macro
+// Effective c++: don't use macros when the compiler can do it. Remove this macro
 // and use a baseclass where the copy and assign operator is private (or was that protected, can't remember).
-#define CLASS_NOCOPY_NOASSIGN(CLASSNAME) private: \
+// HOWEVER! Weffc++ doesn't pick up on that so throws warnings. This macro is staying.
+#define CLASS_NOCOPY_ASSIGN_MOVE(CLASSNAME) private: \
     CLASSNAME(const CLASSNAME &) = delete; \
-    CLASSNAME &operator=(const CLASSNAME &) = delete;
+    CLASSNAME &operator=(const CLASSNAME &) = delete; \
+    CLASSNAME(CLASSNAME&&) = delete; \
+    CLASSNAME &operator=(CLASSNAME&&) = delete;
 
 #endif // BUILDMACROS_H

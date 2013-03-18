@@ -37,7 +37,7 @@ class ReflectionManager;
 
 class GameInABoxServer : public IReflected
 {
-    CLASS_NOCOPY_NOASSIGN(GameInABoxServer)    
+    CLASS_NOCOPY_ASSIGN_MOVE(GameInABoxServer)
     REFLECTION_BOILERPLATE(GameInABoxServer)
     
 public:

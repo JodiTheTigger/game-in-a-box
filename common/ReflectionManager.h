@@ -36,7 +36,7 @@ enum class ReflectedType;
 
 class ReflectionManager
 {
-    CLASS_NOCOPY_NOASSIGN(ReflectionManager)
+    CLASS_NOCOPY_ASSIGN_MOVE(ReflectionManager)
     
 public:
     ReflectionManager();

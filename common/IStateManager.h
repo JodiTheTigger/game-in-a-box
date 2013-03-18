@@ -32,7 +32,7 @@ class BitStreamReadOnly;
 
 class IStateManager
 {
-    CLASS_NOCOPY_NOASSIGN(IStateManager);
+    CLASS_NOCOPY_ASSIGN_MOVE(IStateManager);
     
 public:    
     class ClientHandle

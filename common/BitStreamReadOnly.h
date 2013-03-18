@@ -28,7 +28,7 @@
 
 class BitStreamReadOnly
 {    
-    CLASS_NOCOPY_NOASSIGN(BitStreamReadOnly)
+    CLASS_NOCOPY_ASSIGN_MOVE(BitStreamReadOnly)
  
 public:
     BitStreamReadOnly(const std::vector<uint8_t>& sourceBuffer);
