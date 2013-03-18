@@ -139,6 +139,8 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
 
                 // RAM: TODO: Choose myServerInterface and disable all other interfaces please.
                 // RAM: HOW? Means the packet needs to keep track of which interface sent it.
+                // RAM: No it doesn't, the caller knows where the back comes from, just
+                // RAM: communicate with that telling it to close all other interfaces.
             }
             else
             {
@@ -225,7 +227,6 @@ void NetworkManagerClient::PrivateSendState()
             {
                 auto sinceLastPacket = steady_clock::now() - myLastPacketSent;
 
-                // RAM: TODO Why doesn't this line compile?
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod)
                 {
                     if (myState == State::Challenging)
