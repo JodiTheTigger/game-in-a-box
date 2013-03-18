@@ -32,6 +32,15 @@ using namespace std;
 // Class definition!
 class TestDeltaCoder : public ::testing::Test 
 {
+public:
+    TestDeltaCoder()
+        : ::testing::Test()
+        , myMap()
+        , myIdentity()
+        , myFirst()
+    {
+    }
+
     virtual void SetUp()
     {
         // please remove if not used.

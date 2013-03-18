@@ -32,7 +32,8 @@ class ReflectedTester : public IReflected
     
 public:
     ReflectedTester()
-        : myFirst(1)
+        : REFLECTION_INIT_MEMBERS
+        , myFirst(1)
         , mySecond(2)
         , myString1("Meh")
         , myString2("Bah")

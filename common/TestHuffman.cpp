@@ -29,6 +29,14 @@ using namespace std;
 // Class definition!
 class TestHuffman : public ::testing::Test 
 {
+public:
+    TestHuffman()
+        : ::testing::Test()
+        , myTestBuffers()
+    {
+
+    }
+
     virtual void SetUp()
     {
         std::string testPhrase;
@@ -78,7 +86,7 @@ TEST_F(TestHuffman, TestBuffersSingle)
     for (auto buffer : myTestBuffers)
     {
         // generate frequencies
-        array<uint64_t, 256> frequencies = {0};
+        array<uint64_t, 256> frequencies = {{0}};
         
         for (uint8_t item : *buffer)
         {
@@ -104,7 +112,7 @@ TEST_F(TestHuffman, TestBuffersSingle)
 
 TEST_F(TestHuffman, TestBufferFull) 
 {
-    array<uint64_t, 256> frequencies = {0};
+    array<uint64_t, 256> frequencies = {{0}};
     int i;
     int j;
     
@@ -122,19 +130,16 @@ TEST_F(TestHuffman, TestBufferFull)
     
     Huffman toTest(frequencies);
     
-    for (auto buffer : myTestBuffers)
-    {  
-        // Until I have frequencies for all 256 bytes
-        // don't test buffers with other's trees.
-        for (auto bufferToTest : myTestBuffers)
-        {
-            unique_ptr<vector<uint8_t>> encoded;
-            unique_ptr<vector<uint8_t>> decoded;
-            
-            encoded = toTest.Encode(*bufferToTest);
-            decoded = toTest.Decode(*encoded);
-            
-            EXPECT_EQ(*bufferToTest, *decoded);
-        }        
+    // Until I have frequencies for all 256 bytes
+    // don't test buffers with other's trees.
+    for (auto bufferToTest : myTestBuffers)
+    {
+        unique_ptr<vector<uint8_t>> encoded;
+        unique_ptr<vector<uint8_t>> decoded;
+
+        encoded = toTest.Encode(*bufferToTest);
+        decoded = toTest.Decode(*encoded);
+
+        EXPECT_EQ(*bufferToTest, *decoded);
     }
 }
