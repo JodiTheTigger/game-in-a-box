@@ -111,7 +111,7 @@ endif()
 
 # TODO! Move to 1.52.0 for c++11 support.
 FIND_PACKAGE( Boost 1.46.1 COMPONENTS system thread REQUIRED )
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES( SYSTEM ${Boost_INCLUDE_DIR} )
 
 ###############
 # Server 
@@ -120,8 +120,8 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(
-game-in-a-box-server
+add_library(
+game-in-a-box-common
 common/PacketCommand.cpp
 common/PacketChallenge.cpp
 common/PacketChallengeResponse.cpp
@@ -131,21 +131,26 @@ common/NetworkPacketParser.cpp
 common/NetworkManagerServer.cpp
 common/NetworkManagerClient.cpp
 common/GameInABox.cpp
-common/IStateManager.cpp  
-common/Huffman.cpp 
-common/BitStreamReadOnly.cpp 
+common/IStateManager.cpp
+common/Huffman.cpp
+common/BitStreamReadOnly.cpp
 common/BitStream.cpp
 common/AutoComplete.cpp
-common/IReflected.cpp 
-common/ReflectionManager.cpp 
-common/NetworkManager.cpp 
-common/NetworkProvider.cpp 
+common/IReflected.cpp
+common/ReflectionManager.cpp
+common/NetworkManager.cpp
+common/NetworkProvider.cpp
 common/RollingStatistics.cpp
+)
+
+add_executable(
+game-in-a-box-server
 server/GameInABoxServer.cpp 
 server/main.cpp)
 
 set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
-target_link_libraries(game-in-a-box-server pthread ${Boost_LIBRARIES}) 
+set_target_properties(game-in-a-box-common PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
+target_link_libraries(game-in-a-box-server game-in-a-box-common pthread ${Boost_LIBRARIES})
 add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
     
 ###############
@@ -161,38 +166,28 @@ add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-
 # Maybe it only works in windows? Either way, include gmock with the source.
 add_subdirectory(third-party/gmock-1.6.0)
 enable_testing()
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
+include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
 # RAM: TODO: Just reference the game-in-a-box library
 # RAM: TODO: Turn common into a library!
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
-  ${PROJECT_SOURCE_DIR}/common/PacketCommand.cpp
-  ${PROJECT_SOURCE_DIR}/common/PacketChallenge.cpp
-  ${PROJECT_SOURCE_DIR}/common/PacketChallengeResponse.cpp
   ${PROJECT_SOURCE_DIR}/common/TestPackets.cpp
-  ${PROJECT_SOURCE_DIR}/common/GameInABox.cpp
-  ${PROJECT_SOURCE_DIR}/common/IStateManager.cpp  
   ${PROJECT_SOURCE_DIR}/common/TestDeltaCoder.cpp
-  ${PROJECT_SOURCE_DIR}/common/Huffman.cpp
   ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp
-  ${PROJECT_SOURCE_DIR}/common/NetworkProvider.cpp
   ${PROJECT_SOURCE_DIR}/common/TestNetworkProvider.cpp
-  ${PROJECT_SOURCE_DIR}/common/ReflectionManager.cpp
-  ${PROJECT_SOURCE_DIR}/common/IReflected.cpp 
   ${PROJECT_SOURCE_DIR}/common/TestReflectionManager.cpp 
-  ${PROJECT_SOURCE_DIR}/common/TestIReflected.cpp 
-  ${PROJECT_SOURCE_DIR}/common/RollingStatistics.cpp 
-  ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp 
-  ${PROJECT_SOURCE_DIR}/common/BitStreamReadOnly.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestIReflected.cpp
+  ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp
   ${PROJECT_SOURCE_DIR}/common/TestBitStreamReadOnly.cpp
-  ${PROJECT_SOURCE_DIR}/common/BitStream.cpp
   ${PROJECT_SOURCE_DIR}/common/TestBitStream.cpp
-  ${PROJECT_SOURCE_DIR}/common/AutoComplete.cpp
   ${PROJECT_SOURCE_DIR}/common/TestAutoComplete.cpp)
   
+set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
+
 target_link_libraries(
   game-in-a-box-common-tests
+  game-in-a-box-common
   pthread
   gtest
   gtest_main
