@@ -27,6 +27,7 @@
 
 #include "BuildMacros.h"
 
+// TODO: Make this a templated class, and make a std::array
 class RollingStatistics
 {
     CLASS_NOCOPY_ASSIGN_MOVE(RollingStatistics)

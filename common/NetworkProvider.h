@@ -28,6 +28,8 @@ class NetworkPacket;
 
 // RAM: TODO! Turn this into an interface please! support ip4 ip6 and whatever else.
 // RAM: Note: will silently ignore packets that are the wrong type (ipv4 send for ip6 provider)
+// RAM: TODO! Add Network throttling here
+// RAM: TODO! Add Network throttling per destination as well (so global throttle, and per connection)
 class NetworkProvider
 {
 public:
