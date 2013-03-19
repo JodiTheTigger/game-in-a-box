@@ -34,7 +34,10 @@ class IStateManager
 {
     CLASS_NOCOPY_ASSIGN_MOVE(IStateManager);
     
-public:    
+public:
+    // RAM: TODO! Not an interface if it has a sub class, move out
+    // but put into same namespace.
+    // RAM: TODO! namespaces.
     class ClientHandle
     {
     };
