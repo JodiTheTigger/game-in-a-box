@@ -20,9 +20,13 @@
 
 #include "NetworkManagerClientNew.h"
 
+#include <string>
+
 #include "NetworkProvider.h"
 #include "IStateManager.h"
 #include "NetworkPacket.h"
+
+using std::string;
 
 NetworkManagerClientNew::NetworkManagerClientNew(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
@@ -33,6 +37,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myConnectedNetwork(nullptr)
     , myState(State::Idle)
     , myServerKey(0)
+    , myStateHandle()
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
@@ -99,6 +104,36 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
         case State::Connecting:
         {
+            auto packets = myConnectedNetwork->Receive();
+
+            for (auto& packet : packets)
+            {
+                auto connection(NetworkPacketHelper::GetConnectResponsePacket(packet));
+
+                if (connection)
+                {
+                    bool failed;
+                    string failReason;
+                    IStateManager::ClientHandle handle;
+
+                    handle = myStateManager.Connect(connection->GetBuffer(), failed, failReason);
+
+                    if (failed)
+                    {
+                        // wrong game type I assume.
+                        myState = State::FailedConnection;
+                    }
+                    else
+                    {
+                        myStateHandle = handle;
+                        myState = State::WaitingForDelta;
+                    }
+
+                    // Don't support connecting to multilpe servers at the same time.
+                    break;
+                }
+            }
+
             break;
         }
         case State::WaitingForDelta:

@@ -26,6 +26,7 @@
 #include <chrono>
 #include <utility>
 #include "INetworkManager.h"
+#include "IStateManager.h"
 
 // forward delcarations
 class NetworkProvider;
@@ -40,10 +41,12 @@ std::unique_ptr<T> make_unique(Args&&... args)
 
 // RAM: TODO! Move this to it's own class
 # include "NetworkPacket.h"
+#include "PacketSimple.h"
 class NetworkPacketHelper
 {
 public:
     static uint32_t GetKeyFromPacket(NetworkPacket) { return 0; }
+    static std::unique_ptr<PacketConnectResponse> GetConnectResponsePacket(NetworkPacket) { return std::unique_ptr<PacketConnectResponse>(nullptr); }
 };
 
 class NetworkManagerClientNew : public INetworkManager
@@ -80,6 +83,7 @@ private:
 
     State myState;
     uint32_t myServerKey;
+    IStateManager::ClientHandle myStateHandle;
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;
