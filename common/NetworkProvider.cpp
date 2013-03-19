@@ -23,7 +23,7 @@
 
 using namespace std;
 
-std::vector<NetworkPacket> NetworkProvider::Recieve()
+std::vector<NetworkPacket> NetworkProvider::Receive()
 {
     return {};
 }
@@ -33,6 +33,11 @@ void NetworkProvider::Send(std::vector<NetworkPacket>)
 }
 
 void NetworkProvider::Reset()
+{
+
+}
+
+void NetworkProvider::Flush()
 {
 
 }

@@ -28,19 +28,23 @@ class NetworkPacket;
 
 // RAM: TODO! Turn this into an interface please! support ip4 ip6 and whatever else.
 // RAM: Note: will silently ignore packets that are the wrong type (ipv4 send for ip6 provider)
+// RAM: TODO! Add network metrics (bytes per second, send, recieve, rolling stats)
 // RAM: TODO! Add Network throttling here
 // RAM: TODO! Add Network throttling per destination as well (so global throttle, and per connection)
 class NetworkProvider
 {
 public:
     // Non blocking, can return empty array.
-    std::vector<NetworkPacket> Recieve();
+    std::vector<NetworkPacket> Receive();
     
     // Adds the packets to the send queue. consumes the data (move()), non-blocking.
     void Send(std::vector<NetworkPacket> packets);
 
     // Disable and release all sockets and resources, clear all buffers. Reopens the socket.
     void Reset();
+
+    // Blocks until all packets have been sent.
+    void Flush();
 
     // Disable and release all sockets and resources, clear all buffers.
     // Sends are silently ignored, and Recieve will return nothing.
