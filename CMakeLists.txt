@@ -122,6 +122,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(
 game-in-a-box-common
+common/NetworkManagerClientNew.cpp
 common/PacketCommand.cpp
 common/PacketChallenge.cpp
 common/PacketChallengeResponse.cpp
