@@ -38,7 +38,8 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myState(State::Idle)
     , myServerKey(0)
     , myServerAddress()
-    , myStateHandle()
+    , myStateHandle(nullptr)
+    , myFailReason()
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
@@ -48,6 +49,35 @@ NetworkManagerClientNew::NetworkManagerClientNew(
 NetworkManagerClientNew::~NetworkManagerClientNew()
 {
 
+}
+
+
+void NetworkManagerClientNew::Connect(boost::asio::ip::udp::endpoint serverAddress)
+{
+    // reset state please.
+    for (auto& network : myNetworks)
+    {
+        network->Reset();
+    }
+
+    myConnectedNetwork = nullptr;
+
+    myState = State::Challenging;
+    myServerKey = 0;
+    myServerAddress = serverAddress;
+    myStateHandle = nullptr;
+    myFailReason = "";
+
+    myPacketSentCount = 0;
+    myLastPacketSent = std::chrono::steady_clock::time_point();
+
+    // Kick off an OOB send.
+    PrivateSendState();
+}
+
+void NetworkManagerClientNew::Disconnect()
+{
+    Fail("Client disconnected.");
 }
 
 void NetworkManagerClientNew::PrivateProcessIncomming()
@@ -62,12 +92,21 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
             // talking to all interfaces for now.
             for (auto& network : myNetworks)
             {
+                bool exit(false);
+
                 if (!network->IsDisabled())
                 {
                     auto packets = network->Receive();
 
                     for (auto& packet : packets)
                     {
+                        if (NetworkPacketHelper::GetPacketType(packet) == PacketCommand::Command::Disconnect)
+                        {
+                            Fail(NetworkPacketHelper::GetPacketString(packet));
+                            exit = true;
+                            break;
+                        }
+
                         key = NetworkPacketHelper::GetKeyFromPacket(packet);
 
                         if (key != 0)
@@ -82,6 +121,11 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                 {
                     myConnectedNetwork = network.get();
                     myServerAddress = serverAddress;
+                    exit = true;
+                }
+
+                if (exit)
+                {
                     break;
                 }
             }
@@ -122,19 +166,20 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                         bool failed;
                         string failReason;
-                        IStateManager::ClientHandle handle;
+                        IStateManager::ClientHandle* handle;
 
                         handle = myStateManager.Connect(connection->GetBuffer(), failed, failReason);
 
                         if (failed)
                         {
                             // Respond with a failed message please.
+                            // Only one will do, the server can timeout if it misses it.
                             myConnectedNetwork->Send({{
                                   myServerAddress,
                                   PacketDisconnect(failReason).myBuffer}});
 
                             // wrong game type I assume.
-                            myState = State::FailedConnection;
+                            Fail(failReason);
                         }
                         else
                         {
@@ -216,3 +261,14 @@ void NetworkManagerClientNew::PrivateSendState()
     }
 }
 
+void NetworkManagerClientNew::Fail(std::string failReason)
+{
+    for (auto& network : myNetworks)
+    {
+        network->Flush();
+        network->Disable();
+    }
+
+    myFailReason = failReason;
+    myState = State::FailedConnection;
+}

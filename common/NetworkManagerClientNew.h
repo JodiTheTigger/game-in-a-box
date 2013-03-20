@@ -49,6 +49,7 @@ public:
     static uint32_t GetKeyFromPacket(NetworkPacket) { return 0; }
     static std::unique_ptr<PacketConnectResponse> GetConnectResponsePacket(NetworkPacket) { return std::unique_ptr<PacketConnectResponse>(nullptr); }
     static PacketCommand::Command GetPacketType(const NetworkPacket&) { return PacketCommand::Command::Invalid; }
+    static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
 };
 
 class NetworkManagerClientNew : public INetworkManager
@@ -59,6 +60,9 @@ public:
     NetworkManagerClientNew(
             std::vector<std::unique_ptr<NetworkProvider>> networks,
             IStateManager& stateManager);
+
+    void Connect(boost::asio::ip::udp::endpoint serverAddress);
+    void Disconnect();
 
     virtual ~NetworkManagerClientNew();
 
@@ -79,6 +83,8 @@ private:
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
 
+    void Fail(std::string failReason);
+
     std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
     IStateManager& myStateManager;
     NetworkProvider* myConnectedNetwork;
@@ -86,7 +92,8 @@ private:
     State myState;
     uint32_t myServerKey;
     boost::asio::ip::udp::endpoint myServerAddress;
-    IStateManager::ClientHandle myStateHandle;
+    IStateManager::ClientHandle* myStateHandle;
+    std::string myFailReason;
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;
