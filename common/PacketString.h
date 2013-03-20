@@ -22,6 +22,7 @@
 #define PACKETSTRING_H
 
 #include <string>
+#include "PacketCommand.h"
 
 template<PacketCommand::Command TheCommand>
 class PacketString : public PacketCommand
@@ -49,7 +50,7 @@ public:
         return false;
     }
 
-    std::string Message()
+    std::string Message() const
     {
         return std::string(myBuffer.begin() + OffsetPayload, myBuffer.end());
     }
