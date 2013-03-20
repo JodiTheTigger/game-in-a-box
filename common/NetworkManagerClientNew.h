@@ -25,6 +25,7 @@
 #include <memory>
 #include <chrono>
 #include <utility>
+#include <boost/asio/ip/udp.hpp>
 #include "INetworkManager.h"
 #include "IStateManager.h"
 
@@ -47,6 +48,7 @@ class NetworkPacketHelper
 public:
     static uint32_t GetKeyFromPacket(NetworkPacket) { return 0; }
     static std::unique_ptr<PacketConnectResponse> GetConnectResponsePacket(NetworkPacket) { return std::unique_ptr<PacketConnectResponse>(nullptr); }
+    static PacketCommand::Command GetPacketType(const NetworkPacket&) { return PacketCommand::Command::Invalid; }
 };
 
 class NetworkManagerClientNew : public INetworkManager
@@ -83,6 +85,7 @@ private:
 
     State myState;
     uint32_t myServerKey;
+    boost::asio::ip::udp::endpoint myServerAddress;
     IStateManager::ClientHandle myStateHandle;
 
     uint8_t myPacketSentCount;

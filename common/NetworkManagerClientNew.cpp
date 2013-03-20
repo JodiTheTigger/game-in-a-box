@@ -37,6 +37,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myConnectedNetwork(nullptr)
     , myState(State::Idle)
     , myServerKey(0)
+    , myServerAddress()
     , myStateHandle()
     , myPacketSentCount(0)
     , myLastPacketSent()
@@ -56,6 +57,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
         case State::Challenging:
         {
             uint32_t key(0);
+            boost::asio::ip::udp::endpoint serverAddress;
 
             // talking to all interfaces for now.
             for (auto& network : myNetworks)
@@ -70,6 +72,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                         if (key != 0)
                         {
+                            serverAddress = packet.address;
                             break;
                         }
                     }
@@ -78,6 +81,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                 if (key != 0)
                 {
                     myConnectedNetwork = network.get();
+                    myServerAddress = serverAddress;
                     break;
                 }
             }
@@ -108,28 +112,57 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
             for (auto& packet : packets)
             {
-                auto connection(NetworkPacketHelper::GetConnectResponsePacket(packet));
+                bool exit(false);
 
-                if (connection)
+                switch (NetworkPacketHelper::GetPacketType(packet))
                 {
-                    bool failed;
-                    string failReason;
-                    IStateManager::ClientHandle handle;
-
-                    handle = myStateManager.Connect(connection->GetBuffer(), failed, failReason);
-
-                    if (failed)
+                    case PacketCommand::Command::ConnectResponse:
                     {
-                        // wrong game type I assume.
+                        auto connection(NetworkPacketHelper::GetConnectResponsePacket(packet));
+
+                        bool failed;
+                        string failReason;
+                        IStateManager::ClientHandle handle;
+
+                        handle = myStateManager.Connect(connection->GetBuffer(), failed, failReason);
+
+                        if (failed)
+                        {
+                            // Respond with a failed message please.
+                            myConnectedNetwork->Send({{
+                                  myServerAddress,
+                                  PacketDisconnect(failReason).myBuffer}});
+
+                            // wrong game type I assume.
+                            myState = State::FailedConnection;
+                        }
+                        else
+                        {
+                            myStateHandle = handle;
+                            myState = State::WaitingForDelta;
+                        }
+
+                        // Don't support connecting to multilpe servers at the same time.
+                        exit = true;
+                        break;
+                    }
+
+                    case PacketCommand::Command::Disconnect:
+                    {
                         myState = State::FailedConnection;
-                    }
-                    else
-                    {
-                        myStateHandle = handle;
-                        myState = State::WaitingForDelta;
+                        exit = true;
+                        break;
                     }
 
-                    // Don't support connecting to multilpe servers at the same time.
+                    default:
+                    {
+                        // ignore
+                        break;
+                    }
+                }
+
+                if (exit)
+                {
                     break;
                 }
             }
