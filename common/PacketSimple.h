@@ -25,39 +25,10 @@
 #include "PacketBuffer.h"
 #include "PacketString.h"
 
-class PacketInfo : public PacketKey<PacketCommand::Command::Info>
-{
-public:
-    PacketInfo(uint32_t key) : PacketKey<PacketCommand::Command::Info>(key) {}
-    PacketInfo(std::vector<uint8_t> buffer) : PacketKey<PacketCommand::Command::Info>(buffer) {}
-};
-
-class PacketInfoResponse : public PacketBuffer<PacketCommand::Command::InfoResponse>
-{
-public:
-    PacketInfoResponse() : PacketBuffer<PacketCommand::Command::InfoResponse>() {}
-    PacketInfoResponse(std::vector<uint8_t> buffer) : PacketBuffer<PacketCommand::Command::InfoResponse>(buffer) {}
-};
-
-class PacketConnect : public PacketKey<PacketCommand::Command::Connect>
-{
-public:
-    PacketConnect(uint32_t key) : PacketKey<PacketCommand::Command::Connect>(key) {}
-    PacketConnect(std::vector<uint8_t> buffer) : PacketKey<PacketCommand::Command::Connect>(buffer) {}
-};
-
-class PacketConnectResponse : public PacketBuffer<PacketCommand::Command::ConnectResponse>
-{
-public:
-    PacketConnectResponse() : PacketBuffer<PacketCommand::Command::ConnectResponse>() {}
-    PacketConnectResponse(std::vector<uint8_t> buffer) : PacketBuffer<PacketCommand::Command::ConnectResponse>(buffer) {}
-};
-
-class PacketDisconnect : public PacketString<PacketCommand::Command::Disconnect>
-{
-public:
-    PacketDisconnect(std::string message) : PacketString<PacketCommand::Command::Disconnect>(message) {}
-    PacketDisconnect(std::vector<uint8_t> buffer) : PacketString<PacketCommand::Command::Disconnect>(buffer) {}
-};
+using PacketInfo            = PacketKey<PacketCommand::Command::Info>;
+using PacketInfoResponse    = PacketBuffer<PacketCommand::Command::InfoResponse>;
+using PacketConnect         = PacketKey<PacketCommand::Command::Connect>;
+using PacketConnectResponse = PacketBuffer<PacketCommand::Command::ConnectResponse>;
+using PacketDisconnect      = PacketString<PacketCommand::Command::Disconnect>;
 
 #endif // PACKETQUERIESKEY_H
