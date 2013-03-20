@@ -43,6 +43,7 @@ public:
 
     // ----------------------------------------
 
+    // RAM: TODO: Explain wy this is public, or hide it please!
     std::vector<uint8_t> myBuffer;
 
     // ----------------------------------------
