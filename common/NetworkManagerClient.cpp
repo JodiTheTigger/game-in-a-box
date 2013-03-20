@@ -42,7 +42,7 @@ NetworkManagerClient::NetworkManagerClient(
     , myServerInterface(networks.size())
     , myLastPacketSent()
     , myConnectData()
-    , myClientId()
+    , myClientId(nullptr)
     , myPacketSentCount(0)
 {
     for (auto& network : networks)
@@ -62,6 +62,7 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress,
     }
 
     myConnectData = connectData;
+    myClientId = nullptr;
     myState = State::Challenging;
     myKey = 0;
     myServerAddress = serverAddress;
@@ -148,14 +149,14 @@ void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
 
                 if (state)
                 {
-                    IStateManager::ClientHandle newGuy;
+                    //IStateManager::ClientHandle* newGuy;
                     bool failed;
                     string failReason;
                     vector<uint8_t> connectData;
 
                     connectData = ConnectDataGet(packetData);
 
-                    newGuy = state->Connect(connectData, failed, failReason);
+                    /*newGuy = */state->Connect(connectData, failed, failReason);
 
                     if (failed)
                     {                        

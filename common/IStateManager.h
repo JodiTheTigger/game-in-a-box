@@ -40,14 +40,16 @@ public:
     // RAM: TODO! namespaces.
     class ClientHandle
     {
+    protected:
+        ~ClientHandle() {};
     };
 
     IStateManager() {};
     
     uint16_t CurrentStateTick();
     
-    ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
-    void Disconnect(ClientHandle toDisconnect);
+    ClientHandle* Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
+    void Disconnect(ClientHandle* toDisconnect);
 
     void DeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const;
     void DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source);
@@ -59,12 +61,12 @@ protected:
 private:
     virtual uint16_t PrivateCurrentStateTick() = 0;
 
-    virtual IStateManager::ClientHandle PrivateConnect(
+    virtual IStateManager::ClientHandle* PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,
             std::string& failReason) = 0;
 
-    virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;
+    virtual void PrivateDisconnect(ClientHandle* playerToDisconnect) = 0;
     
     virtual void PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const = 0;
     virtual void PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) = 0;

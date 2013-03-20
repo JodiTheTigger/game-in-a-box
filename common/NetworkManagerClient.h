@@ -37,6 +37,8 @@ class NetworkProvider;
 
 class NetworkManagerClient : public NetworkPacketParser, INetworkManager
 {
+    CLASS_NOCOPY_ASSIGN_MOVE(NetworkManagerClient)
+
 public:
     NetworkManagerClient(
             std::vector<std::unique_ptr<NetworkProvider>> networks,
@@ -75,7 +77,7 @@ private:
     size_t myServerInterface;
     std::chrono::steady_clock::time_point myLastPacketSent;
     std::vector<uint8_t> myConnectData; // RAM: TODO: turn to pointer, Free once connected, as nolonger needed.
-    IStateManager::ClientHandle myClientId;
+    IStateManager::ClientHandle* myClientId;
 
     // RAM: TODO: replace type to Count so I don't need to use hungarian notation.
     uint8_t myPacketSentCount;
