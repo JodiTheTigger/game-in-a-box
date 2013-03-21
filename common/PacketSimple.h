@@ -25,6 +25,9 @@
 #include "PacketBuffer.h"
 #include "PacketString.h"
 
+// RAM: TODO! Rename to PacketTypes, fill with all the packetTypes
+// RAM: TODO! Make a Packet namespace. Remove the Packet prefix from everything.
+
 using PacketInfo            = PacketKey<PacketCommand::Command::Info>;
 using PacketInfoResponse    = PacketBuffer<PacketCommand::Command::InfoResponse>;
 using PacketConnect         = PacketKey<PacketCommand::Command::Connect>;
