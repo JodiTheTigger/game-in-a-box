@@ -59,7 +59,8 @@ public:
     static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
     static bool IsDeltaPacket(NetworkPacket&) { return false; }
 
-    void ParsePacket(NetworkPacket&) {};
+    void DefragmentPackets(NetworkPacket&) {};
+    std::vector<NetworkPacket> GetDefragmentedPackets() { return {}; }
 };
 
 class NetworkManagerClientNew : public INetworkManager
@@ -85,7 +86,6 @@ private:
         Idle,
         Challenging,
         Connecting,
-        WaitingForDelta,
         Connected,
         FailedConnection,
     };
@@ -94,6 +94,7 @@ private:
     void PrivateSendState() override;
 
     void Fail(std::string failReason);
+    void ProcessDeltas();
 
     std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
     IStateManager& myStateManager;

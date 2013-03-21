@@ -185,7 +185,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                         else
                         {
                             myStateHandle = handle;
-                            myState = State::WaitingForDelta;
+                            myState = State::Connected;
                         }
 
                         // Don't support connecting to multilpe servers at the same time.
@@ -216,7 +216,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
             break;
         }
 
-        case State::WaitingForDelta:
+        case State::Connected:
         {
             auto packets = myConnectedNetwork->Receive();
 
@@ -227,22 +227,20 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                     // RAM: TODO: Put key into disconnected packet to prevent
                     // disconnected attack by spoofing disconnect message from
                     // server.
+                    // RAM: TODO: Make GetPacketString a GetDisconnectString to typesafe it.
                     Fail(NetworkPacketHelper::GetPacketString(packet));
                     break;
                 }
 
                 if (NetworkPacketHelper::IsDeltaPacket(packet))
                 {
-                    myPacketHelper.ParsePacket(packet);
-                    // RAM: TODO: THE REST! Get packet, check for 0 sequence, add to client, etcetc.
+                    myPacketHelper.DefragmentPackets(packet);
                 }
             }
 
-            break;
-        }
+            // Do the work :-)
+            ProcessDeltas();
 
-        case State::Connected:
-        {
             break;
         }
 
@@ -255,6 +253,9 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
 void NetworkManagerClientNew::PrivateSendState()
 {    
+    // Deal with timeout and resend logic here during
+    // Connection handshaking. Otherwise get the lastest
+    // state from the client and send a delta packet.
     switch (myState)
     {
         case State::Challenging:
@@ -263,10 +264,6 @@ void NetworkManagerClientNew::PrivateSendState()
         }
 
         case State::Connecting:
-        {
-            break;
-        }
-        case State::WaitingForDelta:
         {
             break;
         }
@@ -293,4 +290,12 @@ void NetworkManagerClientNew::Fail(std::string failReason)
 
     myFailReason = failReason;
     myState = State::FailedConnection;
+}
+
+void NetworkManagerClientNew::ProcessDeltas()
+{
+    for (auto packet : myPacketHelper.GetDefragmentedPackets())
+    {
+        // RAM: TODO! hahahahaah. Always defer the real work eh?
+    }
 }
