@@ -41,6 +41,13 @@ std::unique_ptr<T> make_unique(Args&&... args)
 }
 
 // RAM: TODO! Move this to it's own class
+class PacketDelta
+{
+    uint16_t Sequence() { return 0; }
+
+};
+
+// RAM: TODO! Move this to it's own class
 # include "NetworkPacket.h"
 #include "PacketSimple.h"
 class NetworkPacketHelper
@@ -50,6 +57,9 @@ public:
     static std::unique_ptr<PacketConnectResponse> GetConnectResponsePacket(NetworkPacket) { return std::unique_ptr<PacketConnectResponse>(nullptr); }
     static PacketCommand::Command GetPacketType(const NetworkPacket&) { return PacketCommand::Command::Invalid; }
     static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
+    static bool IsDeltaPacket(NetworkPacket&) { return false; }
+
+    void ParsePacket(NetworkPacket&) {};
 };
 
 class NetworkManagerClientNew : public INetworkManager
@@ -94,6 +104,8 @@ private:
     boost::asio::ip::udp::endpoint myServerAddress;
     IStateManager::ClientHandle* myStateHandle;
     std::string myFailReason;
+
+    NetworkPacketHelper myPacketHelper;
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;

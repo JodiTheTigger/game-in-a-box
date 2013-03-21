@@ -40,6 +40,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myServerAddress()
     , myStateHandle(nullptr)
     , myFailReason()
+    , myPacketHelper()
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
@@ -194,7 +195,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                     case PacketCommand::Command::Disconnect:
                     {
-                        myState = State::FailedConnection;
+                        Fail(NetworkPacketHelper::GetPacketString(packet));
                         exit = true;
                         break;
                     }
@@ -214,8 +215,29 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
             break;
         }
+
         case State::WaitingForDelta:
         {
+            auto packets = myConnectedNetwork->Receive();
+
+            for (auto& packet : packets)
+            {
+                if (NetworkPacketHelper::GetPacketType(packet) == PacketCommand::Command::Disconnect)
+                {
+                    // RAM: TODO: Put key into disconnected packet to prevent
+                    // disconnected attack by spoofing disconnect message from
+                    // server.
+                    Fail(NetworkPacketHelper::GetPacketString(packet));
+                    break;
+                }
+
+                if (NetworkPacketHelper::IsDeltaPacket(packet))
+                {
+                    myPacketHelper.ParsePacket(packet);
+                    // RAM: TODO: THE REST! Get packet, check for 0 sequence, add to client, etcetc.
+                }
+            }
+
             break;
         }
 
