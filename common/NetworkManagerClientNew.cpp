@@ -21,12 +21,17 @@
 #include "NetworkManagerClientNew.h"
 
 #include <string>
+#include <chrono>
 
 #include "NetworkProvider.h"
 #include "IStateManager.h"
 #include "NetworkPacket.h"
+#include "PacketChallenge.h"
 
 using std::string;
+using namespace std::chrono;
+
+
 
 NetworkManagerClientNew::NetworkManagerClientNew(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
@@ -70,7 +75,7 @@ void NetworkManagerClientNew::Connect(boost::asio::ip::udp::endpoint serverAddre
     myFailReason = "";
 
     myPacketSentCount = 0;
-    myLastPacketSent = std::chrono::steady_clock::time_point();
+    myLastPacketSent = std::chrono::steady_clock::time_point::min();
 
     // Kick off an OOB send.
     PrivateSendState();
@@ -239,7 +244,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
             }
 
             // Do the work :-)
-            ProcessDeltas();
+            DeltaReceive();
 
             break;
         }
@@ -259,17 +264,51 @@ void NetworkManagerClientNew::PrivateSendState()
     switch (myState)
     {
         case State::Challenging:
-        {
-            break;
-        }
-
         case State::Connecting:
         {
+            if (myPacketSentCount > HandshakeRetries)
+            {
+                std::string failString("Timeout: ");
+
+                if (myState == State::Challenging)
+                {
+                    failString += "Challenge.";
+                }
+                else
+                {
+                    failString += "Connecting.";
+                }
+
+                Fail(failString);
+            }
+            else
+            {
+                auto sinceLastPacket = steady_clock::now() - myLastPacketSent;
+
+                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod)
+                {
+                    // send challenge packet please.
+                    if (myState == State::Challenging)
+                    {
+                        myConnectedNetwork->Send({{
+                              myServerAddress,
+                              PacketChallenge().myBuffer}});
+                    }
+                    else
+                    {
+                        myConnectedNetwork->Send({{
+                              myServerAddress,
+                              PacketConnect(myServerKey).myBuffer}});
+                    }
+                }
+            }
+
             break;
         }
 
         case State::Connected:
         {
+            DeltaSend();
             break;
         }
 
@@ -292,10 +331,17 @@ void NetworkManagerClientNew::Fail(std::string failReason)
     myState = State::FailedConnection;
 }
 
-void NetworkManagerClientNew::ProcessDeltas()
+void NetworkManagerClientNew::DeltaReceive()
 {
     for (auto packet : myPacketHelper.GetDefragmentedPackets())
     {
         // RAM: TODO! hahahahaah. Always defer the real work eh?
     }
 }
+
+void NetworkManagerClientNew::DeltaSend()
+{
+    // RAM: TODO! TODOOOOOOOOOO!
+}
+
+

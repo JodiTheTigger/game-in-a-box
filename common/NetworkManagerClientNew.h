@@ -94,7 +94,8 @@ private:
     void PrivateSendState() override;
 
     void Fail(std::string failReason);
-    void ProcessDeltas();
+    void DeltaReceive();
+    void DeltaSend();
 
     std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
     IStateManager& myStateManager;
