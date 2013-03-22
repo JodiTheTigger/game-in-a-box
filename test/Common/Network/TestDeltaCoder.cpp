@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DeltaCoder.h"
-#include "DeltaMapItem.h"
-#include "gtest/gtest.h"
+#include <Common/Network/DeltaCoder.h>
+#include <Common/Network/DeltaMapItem.h>
+#include <gtest/gtest.h>
 
 #include <string>
 #include <vector>

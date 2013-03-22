@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "NetworkProvider.h"
-#include "gtest/gtest.h"
+#include <Common/Network/NetworkProvider.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 

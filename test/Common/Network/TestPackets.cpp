@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PacketSimple.h"
-#include "PacketChallenge.h"
-#include "PacketChallengeResponse.h"
-#include "gtest/gtest.h"
+#include <Common/Network/PacketSimple.h>
+#include <Common/Network/PacketChallenge.h>
+#include <Common/Network/PacketChallengeResponse.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 

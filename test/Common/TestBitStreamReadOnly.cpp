@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BitStreamReadOnly.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include <Common/BitStreamReadOnly.h>
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
-    
+
     This file is part of Game-in-a-box
 
     Game-in-a-box is free software: you can redistribute it and/or modify
@@ -18,40 +18,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef NETWORKMANAGER_H
-#define NETWORKMANAGER_H
+#ifndef INETWORKMANAGER_H
+#define INETWORKMANAGER_H
 
 #include <memory>
 #include <vector>
-#include "BuildMacros.h"
 
-// forward declarations
-class StateManager;
-class NetworkProvider;
-class IStateManager;
+#include "Common/BuildMacros.h"
 
-class NetworkManager
+class INetworkManager
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(NetworkManager);
-   
+    CLASS_NOCOPY_ASSIGN_MOVE(INetworkManager);
+
 public:
-    NetworkManager(
-        std::vector<std::unique_ptr<NetworkProvider>> networks,
-        std::weak_ptr<IStateManager> stateManager);
-    
     // Processes all waiting packets.
     // -Does connection challenges
     // -Does connectionless packets (challenge, info)
     // -Generates new clients (tells the state manager)
     // -Processes incoming client state
     void ProcessIncomming();
-    
+
     // Sends the network state to all connected clients
     void SendState();
-    
+
+protected:
+    INetworkManager() {};
+    ~INetworkManager();
+
 private:
-    std::weak_ptr<IStateManager> myStateManager;
-    std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
+    virtual void PrivateProcessIncomming() = 0;
+    virtual void PrivateSendState() = 0;
 };
 
-#endif // NETWORKMANAGER_H
+#endif // INETWORKMANAGER_H

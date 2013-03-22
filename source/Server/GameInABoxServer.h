@@ -26,8 +26,8 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "common/BuildMacros.h"
-#include "common/IReflected.h"
+#include "Common/BuildMacros.h"
+#include "Common/IReflected.h"
 
 // forward declarations
 class NetworkProvider;

@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Huffman.h"
-#include "gtest/gtest.h"
+#include <Common/Huffman.h>
+#include <gtest/gtest.h>
 
 #include <string>
 #include <array>

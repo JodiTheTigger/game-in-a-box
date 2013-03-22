@@ -22,7 +22,7 @@
 #include "NetworkPacket.h"
 
 #include "NetworkProvider.h"
-#include "IStateManager.h"
+#include "Common/IStateManager.h"
 
 using namespace std;
 using namespace std::chrono;

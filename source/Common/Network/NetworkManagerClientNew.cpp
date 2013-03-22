@@ -24,7 +24,7 @@
 #include <chrono>
 
 #include "NetworkProvider.h"
-#include "IStateManager.h"
+#include "Common/IStateManager.h"
 #include "NetworkPacket.h"
 #include "PacketChallenge.h"
 

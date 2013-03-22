@@ -27,7 +27,7 @@
 #include <utility>
 #include <boost/asio/ip/udp.hpp>
 #include "INetworkManager.h"
-#include "IStateManager.h"
+#include "Common/IStateManager.h"
 
 // forward delcarations
 class NetworkProvider;

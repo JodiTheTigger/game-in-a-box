@@ -18,9 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RollingStatistics.h"
-#include "gtest/gtest.h"
-
+#include <gtest/gtest.h>
+#include <Common/RollingStatistics.h>
 #include <cmath>
 
 using namespace std;

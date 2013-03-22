@@ -24,11 +24,11 @@
 #include <thread>
 #include <vector>
 
-#include "common/NetworkProvider.h"
-#include "common/NetworkManager.h"
-#include "common/IStateManager.h"
-#include "common/GameInABox.h"
-#include "common/ReflectionManager.h"
+#include "Common/Network/NetworkProvider.h"
+#include "Common/Network/NetworkManager.h"
+#include "Common/IStateManager.h"
+#include "Common/GameInABox.h"
+#include "Common/ReflectionManager.h"
 
 using namespace std;
 using namespace std::chrono;

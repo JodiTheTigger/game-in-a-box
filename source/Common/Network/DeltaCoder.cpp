@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 
-#include "BitStream.h"
+#include <Common/BitStream.h>
 
 using namespace std;
 

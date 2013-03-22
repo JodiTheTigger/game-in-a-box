@@ -19,7 +19,7 @@
 */
 
 #include "NetworkManager.h"
-#include "IStateManager.h"
+#include "Common/IStateManager.h"
 #include "NetworkProvider.h"
 #include "NetworkPacket.h"
 

@@ -118,36 +118,37 @@ INCLUDE_DIRECTORIES( SYSTEM ${Boost_INCLUDE_DIR} )
 ###############    
 # RAM: Debug, get clang to find the bits/c++config.h file!
 include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
 add_library(
 game-in-a-box-common
-common/NetworkManagerClientNew.cpp
-common/PacketCommand.cpp
-common/PacketChallenge.cpp
-common/PacketChallengeResponse.cpp
-common/Sequence.cpp
-common/INetworkManager.cpp
-common/NetworkPacketParser.cpp
-common/NetworkManagerServer.cpp
-common/NetworkManagerClient.cpp
-common/GameInABox.cpp
-common/IStateManager.cpp
-common/Huffman.cpp
-common/BitStreamReadOnly.cpp
-common/BitStream.cpp
-common/AutoComplete.cpp
-common/IReflected.cpp
-common/ReflectionManager.cpp
-common/NetworkManager.cpp
-common/NetworkProvider.cpp
-common/RollingStatistics.cpp
+source/Common/Network/NetworkManagerClientNew.cpp
+source/Common/Network/PacketCommand.cpp
+source/Common/Network/PacketChallenge.cpp
+source/Common/Network/PacketChallengeResponse.cpp
+source/Common/Network/Sequence.cpp
+source/Common/Network/INetworkManager.cpp
+source/Common/Network/NetworkPacketParser.cpp
+source/Common/Network/NetworkManagerServer.cpp
+source/Common/Network/NetworkManagerClient.cpp
+source/Common/GameInABox.cpp
+source/Common/IStateManager.cpp
+source/Common/Huffman.cpp
+source/Common/BitStreamReadOnly.cpp
+source/Common/BitStream.cpp
+source/Common/AutoComplete.cpp
+source/Common/IReflected.cpp
+source/Common/ReflectionManager.cpp
+source/Common/Network/NetworkManager.cpp
+source/Common/Network/NetworkProvider.cpp
+source/Common/RollingStatistics.cpp
 )
 
 add_executable(
 game-in-a-box-server
-server/GameInABoxServer.cpp 
-server/main.cpp)
+source/Server/GameInABoxServer.cpp 
+source/Server/main.cpp)
 
 set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
 set_target_properties(game-in-a-box-common PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
@@ -168,21 +169,21 @@ add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-
 add_subdirectory(third-party/gmock-1.6.0)
 enable_testing()
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
-# RAM: TODO: Just reference the game-in-a-box library
-# RAM: TODO: Turn common into a library!
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
-  ${PROJECT_SOURCE_DIR}/common/TestPackets.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestDeltaCoder.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestHuffman.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestNetworkProvider.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestReflectionManager.cpp 
-  ${PROJECT_SOURCE_DIR}/common/TestIReflected.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestRollingStatistics.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestBitStreamReadOnly.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestBitStream.cpp
-  ${PROJECT_SOURCE_DIR}/common/TestAutoComplete.cpp)
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProvider.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 
+  ${PROJECT_SOURCE_DIR}/test/Common/TestIReflected.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/TestRollingStatistics.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/TestBitStreamReadOnly.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/TestBitStream.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/TestAutoComplete.cpp)
   
 set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
 

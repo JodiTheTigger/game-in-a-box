@@ -27,14 +27,14 @@
 // For the Scratch code
 #include <iostream>
 #include <chrono>
-#include "common/BitStream.h"
 #include <thread>
 #include <string>
+#include "Common/BitStream.h"
 
-#include "common/BuildMacros.h"
+#include "Common/BuildMacros.h"
 
-#include "common/IReflected.h"
-#include "common/AutoComplete.h"
+#include "Common/IReflected.h"
+#include "Common/AutoComplete.h"
 
 // Globals for signal use.
 GameInABoxServer* theGame = nullptr;

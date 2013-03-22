@@ -18,12 +18,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <algorithm>
 
-#include "IReflected.h"
-#include "ReflectionManager.h"
+#include <Common/IReflected.h>
+#include <Common/ReflectionManager.h>
 
 using namespace std;
 

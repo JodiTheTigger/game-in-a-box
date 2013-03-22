@@ -1,7 +1,7 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
-
+    
     This file is part of Game-in-a-box
 
     Game-in-a-box is free software: you can redistribute it and/or modify
@@ -18,36 +18,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef INETWORKMANAGER_H
-#define INETWORKMANAGER_H
+#ifndef NETWORKPACKET_H
+#define NETWORKPACKET_H
 
-#include <memory>
+#include <cstdint>
 #include <vector>
+#include <memory>
+#include <boost/asio/ip/udp.hpp>
 
-#include "BuildMacros.h"
+#include "Common/BuildMacros.h"
 
-class INetworkManager
+class NetworkPacket
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(INetworkManager);
-
 public:
-    // Processes all waiting packets.
-    // -Does connection challenges
-    // -Does connectionless packets (challenge, info)
-    // -Generates new clients (tells the state manager)
-    // -Processes incoming client state
-    void ProcessIncomming();
+    boost::asio::ip::udp::endpoint      address;
+    std::vector<uint8_t>                data;
 
-    // Sends the network state to all connected clients
-    void SendState();
+    NetworkPacket()
+        : address()
+        , data()
+    {
+    }
 
-protected:
-    INetworkManager() {};
-    ~INetworkManager();
+    NetworkPacket(
+            boost::asio::ip::udp::endpoint addressToUse,
+            std::vector<uint8_t> dataToUse)
+        : address(addressToUse)
+        , data(dataToUse)
+    {
+    }
 
-private:
-    virtual void PrivateProcessIncomming() = 0;
-    virtual void PrivateSendState() = 0;
+    NetworkPacket(const NetworkPacket&) = default;
+    NetworkPacket& operator= ( NetworkPacket const &) = default;
 };
 
-#endif // INETWORKMANAGER_H
+#endif // NETWORKPACKET_H

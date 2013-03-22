@@ -18,38 +18,40 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef NETWORKPACKET_H
-#define NETWORKPACKET_H
+#ifndef NETWORKMANAGER_H
+#define NETWORKMANAGER_H
 
-#include <cstdint>
-#include <vector>
 #include <memory>
-#include <boost/asio/ip/udp.hpp>
+#include <vector>
+#include "Common/BuildMacros.h"
 
-#include "BuildMacros.h"
+// forward declarations
+class StateManager;
+class NetworkProvider;
+class IStateManager;
 
-class NetworkPacket
+class NetworkManager
 {
+    CLASS_NOCOPY_ASSIGN_MOVE(NetworkManager);
+   
 public:
-    boost::asio::ip::udp::endpoint      address;
-    std::vector<uint8_t>                data;
-
-    NetworkPacket()
-        : address()
-        , data()
-    {
-    }
-
-    NetworkPacket(
-            boost::asio::ip::udp::endpoint addressToUse,
-            std::vector<uint8_t> dataToUse)
-        : address(addressToUse)
-        , data(dataToUse)
-    {
-    }
-
-    NetworkPacket(const NetworkPacket&) = default;
-    NetworkPacket& operator= ( NetworkPacket const &) = default;
+    NetworkManager(
+        std::vector<std::unique_ptr<NetworkProvider>> networks,
+        std::weak_ptr<IStateManager> stateManager);
+    
+    // Processes all waiting packets.
+    // -Does connection challenges
+    // -Does connectionless packets (challenge, info)
+    // -Generates new clients (tells the state manager)
+    // -Processes incoming client state
+    void ProcessIncomming();
+    
+    // Sends the network state to all connected clients
+    void SendState();
+    
+private:
+    std::weak_ptr<IStateManager> myStateManager;
+    std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
 };
 
-#endif // NETWORKPACKET_H
+#endif // NETWORKMANAGER_H

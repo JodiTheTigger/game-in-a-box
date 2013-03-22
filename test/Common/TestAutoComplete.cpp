@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AutoComplete.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include <Common/AutoComplete.h>
 
 #include <algorithm>
 
