@@ -23,17 +23,22 @@
 
 #include <cstdint>
 
+// RAM: TODO: Template?
 class Sequence
 {
 public:
-    uint16_t value;
-    //bool fragmented;
+    uint16_t Value() { return myValue; }
 
     Sequence() : Sequence(0) {};
-    Sequence(uint8_t newValue) : value(newValue) {};
-    Sequence(const Sequence& other) : value(other.value) {};
+    Sequence(uint16_t newValue) : myValue(newValue) {};
+    Sequence(const Sequence& other) : myValue(other.myValue) {};
 
     bool operator>(const Sequence& other) const;
+    bool operator==(const Sequence& other) const;
+    bool operator<(const Sequence& other) const;
+
+private:
+    uint16_t myValue;
 };
 
 #endif // SEQUENCE_H

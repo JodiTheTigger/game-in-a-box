@@ -174,6 +174,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestSequence.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
