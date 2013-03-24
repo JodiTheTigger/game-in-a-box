@@ -69,6 +69,7 @@ void NetworkManagerClientNew::Connect(boost::asio::ip::udp::endpoint serverAddre
     myConnectedNetwork = nullptr;
 
     myState = State::Challenging;
+    myConnectedNetwork = nullptr;
     myServerKey = 0;
     myServerAddress = serverAddress;
     myStateHandle = nullptr;
