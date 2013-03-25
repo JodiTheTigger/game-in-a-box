@@ -20,7 +20,7 @@
 
 #include "Sequence.h"
 
-bool Sequence::operator>(const Sequence& other) const
+bool Sequence::operator<(const Sequence& other) const
 {
     if (*this == other)
     {
@@ -41,7 +41,7 @@ bool Sequence::operator>(const Sequence& other) const
     }
 }
 
-bool Sequence::operator<(const Sequence& other) const
+bool Sequence::operator>(const Sequence& other) const
 {
     if (*this == other)
     {
@@ -49,7 +49,7 @@ bool Sequence::operator<(const Sequence& other) const
     }
     else
     {
-        return !(*this > other);
+        return !(*this < other);
     }
 }
 
