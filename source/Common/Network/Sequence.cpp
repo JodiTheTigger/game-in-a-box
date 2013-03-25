@@ -22,29 +22,34 @@
 
 bool Sequence::operator>(const Sequence& other) const
 {
-    if (other.myValue > myValue)
+    if (*this == other)
     {
-        // RAM: TODO! Unit test! Fix Maths!
-        return (other.myValue - myValue) < 16000;
+        return false;
     }
     else
     {
-        // RAM: TODO! Unit test! Fix Maths!
-        return (myValue - other.myValue) < 16000;
+        if (other.myValue > myValue)
+        {
+            // RAM: TODO! Unit test! Fix Maths!
+            return (other.myValue - myValue) < (2^15);
+        }
+        else
+        {
+            // RAM: TODO! Unit test! Fix Maths!
+            return (myValue - other.myValue) < (2^15);
+        }
     }
 }
 
 bool Sequence::operator<(const Sequence& other) const
 {
-    if (other.myValue > myValue)
+    if (*this == other)
     {
-        // RAM: TODO! Unit test! Fix Maths!
-        return (other.myValue - myValue) > 16000;
+        return false;
     }
     else
     {
-        // RAM: TODO! Unit test! Fix Maths!
-        return (myValue - other.myValue) > 16000;
+        return !(*this > other);
     }
 }
 

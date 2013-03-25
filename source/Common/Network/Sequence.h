@@ -33,6 +33,7 @@ public:
     Sequence(uint16_t newValue) : myValue(newValue) {};
     Sequence(const Sequence& other) : myValue(other.myValue) {};
 
+    // RAM: TODO: Move outside of class since these can be static.
     bool operator>(const Sequence& other) const;
     bool operator==(const Sequence& other) const;
     bool operator<(const Sequence& other) const;
