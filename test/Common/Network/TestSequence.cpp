@@ -30,7 +30,7 @@ class TestSequence : public ::testing::Test
 
 TEST_F(TestSequence, TestSimpleEqual)
 {
-    for (uint32_t i(0); i < 35535; i++)
+    for (uint32_t i(0); i < ((2^16)-1); i++)
     {
         Sequence a(i);
         Sequence b(i);
@@ -42,7 +42,7 @@ TEST_F(TestSequence, TestSimpleEqual)
 
 TEST_F(TestSequence, TestSimpleGreaterThan)
 {
-    for (uint32_t i(0); i < 35535; i++)
+    for (uint32_t i(0); i < ((2^16)-1); i++)
     {
         Sequence a(i);
         Sequence b(i+1);
@@ -53,7 +53,7 @@ TEST_F(TestSequence, TestSimpleGreaterThan)
 
 TEST_F(TestSequence, TestSimpleLessThan)
 {
-    for (uint32_t i(0); i < 35535; i++)
+    for (uint32_t i(0); i < ((2^16)-1); i++)
     {
         Sequence a(i);
         Sequence b(i+1);
@@ -64,10 +64,10 @@ TEST_F(TestSequence, TestSimpleLessThan)
 
 TEST_F(TestSequence, TestSimpleGreaterThanWraparound)
 {
-    for (uint32_t i(0); i < 35535; i++)
+    for (uint32_t i(0); i < ((2^16)-1); i++)
     {
         Sequence a(i);
-        Sequence b((i+100) % 65536);
+        Sequence b((i+100) % (2^16));
 
         ASSERT_TRUE(a < b);
     }
@@ -75,10 +75,10 @@ TEST_F(TestSequence, TestSimpleGreaterThanWraparound)
 
 TEST_F(TestSequence, TestSimpleLessThanWraparound)
 {
-    for (uint32_t i(0); i < 35535; i++)
+    for (uint32_t i(0); i < ((2^16)-1); i++)
     {
         Sequence a(i);
-        Sequence b((i+100) % 65536);
+        Sequence b((i+100) % (2^16));
 
         ASSERT_TRUE(b < a);
     }
@@ -86,13 +86,39 @@ TEST_F(TestSequence, TestSimpleLessThanWraparound)
 
 TEST_F(TestSequence, TestLessThanEdgeCase)
 {
-    // RAM: TODO
-    EXPECT_TRUE(false);
+    Sequence a(0);
+
+    for (uint32_t i(1); i < ((2^16)-1); i++)
+    {
+        Sequence b(i % (2^16));
+
+        if (i < (2^15))
+        {
+            ASSERT_TRUE(a < b);
+        }
+        else
+        {
+            ASSERT_TRUE(b < a);
+        }
+    }
 }
 
 
 TEST_F(TestSequence, TestGreaterThanEdgeCase)
 {
-    // RAM: TODO
-    EXPECT_TRUE(false);
+    Sequence a(0);
+
+    for (uint32_t i(1); i < ((2^16)-1); i++)
+    {
+        Sequence b(i % (2^16));
+
+        if (i < (2^15))
+        {
+            ASSERT_TRUE(b > a);
+        }
+        else
+        {
+            ASSERT_TRUE(a > b);
+        }
+    }
 }
