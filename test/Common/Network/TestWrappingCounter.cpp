@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Common/Network/Sequence.h>
+#include <Common/Network/WrappingCounter.h>
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -32,8 +32,8 @@ TEST_F(TestSequence, TestSimpleEqual)
 {
     for (uint32_t i(0); i < (1 << 16); i++)
     {
-        Sequence a(i);
-        Sequence b(i);
+        WrappingCounter<uint16_t> a(i);
+        WrappingCounter<uint16_t> b(i);
 
         ASSERT_TRUE(a == b);
     }
@@ -44,8 +44,8 @@ TEST_F(TestSequence, TestSimpleLessThan)
 {
     for (uint32_t i(0); i < (1 << 16); i++)
     {
-        Sequence a(i);
-        Sequence b(i+1);
+        WrappingCounter<uint16_t> a(i);
+        WrappingCounter<uint16_t> b(i+1);
 
         ASSERT_LT(a, b);
     }
@@ -55,8 +55,8 @@ TEST_F(TestSequence, TestSimpleGreaterThan)
 {
     for (uint32_t i(0); i < (1 << 16); i++)
     {
-        Sequence a(i);
-        Sequence b(i+1);
+        WrappingCounter<uint16_t> a(i);
+        WrappingCounter<uint16_t> b(i+1);
 
         ASSERT_GT(b, a);
     }
@@ -66,8 +66,8 @@ TEST_F(TestSequence, TestSimpleGreaterThanWraparound)
 {
     for (uint32_t i(0); i < (1 << 16); i++)
     {
-        Sequence a(i);
-        Sequence b(i+100);
+        WrappingCounter<uint16_t> a(i);
+        WrappingCounter<uint16_t> b(i+100);
 
         ASSERT_GT(b, a);
     }
@@ -77,8 +77,8 @@ TEST_F(TestSequence, TestSimpleLessThanWraparound)
 {
     for (uint32_t i(0); i < (1 << 16); i++)
     {
-        Sequence a(i);
-        Sequence b(i+100);
+        WrappingCounter<uint16_t> a(i);
+        WrappingCounter<uint16_t> b(i+100);
 
         ASSERT_LT(a, b);
     }
@@ -86,11 +86,11 @@ TEST_F(TestSequence, TestSimpleLessThanWraparound)
 
 TEST_F(TestSequence, TestLessThanEdgeCase)
 {
-    Sequence a(0);
+    WrappingCounter<uint16_t> a(0);
 
     for (uint32_t i(1); i < (1 << 16); i++)
     {
-        Sequence b(i);
+        WrappingCounter<uint16_t> b(i);
 
         if (i <= (1 << 15))
         {
@@ -106,11 +106,11 @@ TEST_F(TestSequence, TestLessThanEdgeCase)
 
 TEST_F(TestSequence, TestGreaterThanEdgeCase)
 {
-    Sequence a(0);
+    WrappingCounter<uint16_t> a(0);
 
     for (uint32_t i(1); i < (1 << 16); i++)
     {
-        Sequence b(i);
+        WrappingCounter<uint16_t> b(i);
 
         if (i <= (1 << 15))
         {

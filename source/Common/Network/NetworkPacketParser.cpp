@@ -56,7 +56,7 @@ void NetworkPacketParser::ParsePacket(NetworkPacket &packetData)
             }
             else
             {
-                Sequence sequence;
+                WrappingCounter<uint16_t> sequence;
 
                 sequence = SequenceFromPacket(packetData);
 
@@ -233,9 +233,9 @@ std::vector<NetworkPacket> NetworkPacketParser::PacketFragment(NetworkPacket& wh
     return result;
 }
 
-Sequence NetworkPacketParser::SequenceFromPacket(const NetworkPacket& packetData)
+WrappingCounter<uint16_t> NetworkPacketParser::SequenceFromPacket(const NetworkPacket& packetData)
 {
-    return Sequence((uint16_t) 0x7FFF &
+    return WrappingCounter<uint16_t>((uint16_t) 0x7FFF &
         (((uint16_t) (packetData.data[OffsetSequence]) << 8) ||
         (uint16_t) (packetData.data[OffsetSequence + 0])));
 }

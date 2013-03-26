@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "Sequence.h"
+#include "WrappingCounter.h"
 
 // forward delcarations
 class NetworkPacket;
@@ -106,12 +106,12 @@ private:
     std::vector<NetworkPacket> myFragments;
     uint8_t myFragmentCount;
     uint8_t myFragmentTotal;
-    Sequence myFragmentSequence;
+    WrappingCounter<uint16_t> myFragmentSequence;
 
     virtual void ParseCommand(NetworkPacket& packetData) = 0;
     virtual void ParseDelta(NetworkPacket& packetData) = 0;
 
-    Sequence SequenceFromPacket(const NetworkPacket& packetData);
+    WrappingCounter<uint16_t> SequenceFromPacket(const NetworkPacket& packetData);
 };
 
 #endif // NETWORKMANAGERBASE_H

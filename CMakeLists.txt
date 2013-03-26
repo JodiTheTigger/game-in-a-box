@@ -127,7 +127,6 @@ source/Common/Network/NetworkManagerClientNew.cpp
 source/Common/Network/PacketCommand.cpp
 source/Common/Network/PacketChallenge.cpp
 source/Common/Network/PacketChallengeResponse.cpp
-source/Common/Network/Sequence.cpp
 source/Common/Network/INetworkManager.cpp
 source/Common/Network/NetworkPacketParser.cpp
 source/Common/Network/NetworkManagerServer.cpp
@@ -174,7 +173,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestSequence.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestWrappingCounter.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
