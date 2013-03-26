@@ -30,7 +30,7 @@ class TestSequence : public ::testing::Test
 
 TEST_F(TestSequence, TestSimpleEqual)
 {
-    for (uint32_t i(0); i < ((2^16)-1); i++)
+    for (uint32_t i(0); i < 65535; i++)
     {
         Sequence a(i);
         Sequence b(i);
@@ -40,47 +40,47 @@ TEST_F(TestSequence, TestSimpleEqual)
 }
 
 
-TEST_F(TestSequence, TestSimpleGreaterThan)
+TEST_F(TestSequence, TestSimpleLessThan)
 {
-    for (uint32_t i(0); i < ((2^16)-1); i++)
+    for (uint32_t i(0); i < 65535; i++)
     {
         Sequence a(i);
         Sequence b(i+1);
 
-        ASSERT_TRUE(a < b);
+        ASSERT_LT(a, b);
     }
 }
 
-TEST_F(TestSequence, TestSimpleLessThan)
+TEST_F(TestSequence, TestSimpleGreaterThan)
 {
-    for (uint32_t i(0); i < ((2^16)-1); i++)
+    for (uint32_t i(0); i < 65535; i++)
     {
         Sequence a(i);
         Sequence b(i+1);
 
-        ASSERT_TRUE(b < a);
+        ASSERT_GT(b, a);
     }
 }
 
 TEST_F(TestSequence, TestSimpleGreaterThanWraparound)
 {
-    for (uint32_t i(0); i < ((2^16)-1); i++)
+    for (uint32_t i(0); i < 65535; i++)
     {
         Sequence a(i);
-        Sequence b((i+100) % (2^16));
+        Sequence b(i+100);
 
-        ASSERT_TRUE(a < b);
+        ASSERT_GT(b, a);
     }
 }
 
 TEST_F(TestSequence, TestSimpleLessThanWraparound)
 {
-    for (uint32_t i(0); i < ((2^16)-1); i++)
+    for (uint32_t i(0); i < 65535; i++)
     {
         Sequence a(i);
-        Sequence b((i+100) % (2^16));
+        Sequence b(i+100);
 
-        ASSERT_TRUE(b < a);
+        ASSERT_LT(a, b);
     }
 }
 
@@ -88,17 +88,17 @@ TEST_F(TestSequence, TestLessThanEdgeCase)
 {
     Sequence a(0);
 
-    for (uint32_t i(1); i < ((2^16)-1); i++)
+    for (uint32_t i(1); i < 65535; i++)
     {
-        Sequence b(i % (2^16));
+        Sequence b(i);
 
-        if (i < (2^15))
+        if (i <= 32768)
         {
-            ASSERT_TRUE(a < b);
+            ASSERT_LT(a, b);
         }
         else
         {
-            ASSERT_TRUE(b < a);
+            ASSERT_LT(a, b);
         }
     }
 }
@@ -108,17 +108,17 @@ TEST_F(TestSequence, TestGreaterThanEdgeCase)
 {
     Sequence a(0);
 
-    for (uint32_t i(1); i < ((2^16)-1); i++)
+    for (uint32_t i(1); i < 65535; i++)
     {
-        Sequence b(i % (2^16));
+        Sequence b(i);
 
-        if (i < (2^15))
+        if (i < 32768)
         {
-            ASSERT_TRUE(b > a);
+            ASSERT_GT(b, a);
         }
         else
         {
-            ASSERT_TRUE(a > b);
+            ASSERT_GT(a, b);
         }
     }
 }
