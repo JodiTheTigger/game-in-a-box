@@ -30,19 +30,11 @@ bool Sequence::operator<(const Sequence& other) const
     {
         if (other.myValue > myValue)
         {
-            // RAM: TODO! Unit test! Fix Maths!
-            return (uint16_t(other.myValue - myValue) <= 32768);
+            return (uint16_t(other.myValue - myValue) <= (1 << 15));
         }
         else
         {
-            // RAM: DEBUG
-            //int diff(myValue - other.myValue);
-            //bool result(diff >= 32768);
-
-            // RAM: TODO! Unit test! Fix Maths!
-            //return ((myValue - other.myValue) >= 32768);
-            //return result;
-            return (uint16_t(myValue - other.myValue) >= 32768);
+            return (uint16_t(myValue - other.myValue) > (1 << 15));
         }
     }
 }

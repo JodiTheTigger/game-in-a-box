@@ -30,7 +30,7 @@ class TestSequence : public ::testing::Test
 
 TEST_F(TestSequence, TestSimpleEqual)
 {
-    for (uint32_t i(0); i < 65535; i++)
+    for (uint32_t i(0); i < (1 << 16); i++)
     {
         Sequence a(i);
         Sequence b(i);
@@ -42,7 +42,7 @@ TEST_F(TestSequence, TestSimpleEqual)
 
 TEST_F(TestSequence, TestSimpleLessThan)
 {
-    for (uint32_t i(0); i < 65535; i++)
+    for (uint32_t i(0); i < (1 << 16); i++)
     {
         Sequence a(i);
         Sequence b(i+1);
@@ -53,7 +53,7 @@ TEST_F(TestSequence, TestSimpleLessThan)
 
 TEST_F(TestSequence, TestSimpleGreaterThan)
 {
-    for (uint32_t i(0); i < 65535; i++)
+    for (uint32_t i(0); i < (1 << 16); i++)
     {
         Sequence a(i);
         Sequence b(i+1);
@@ -64,7 +64,7 @@ TEST_F(TestSequence, TestSimpleGreaterThan)
 
 TEST_F(TestSequence, TestSimpleGreaterThanWraparound)
 {
-    for (uint32_t i(0); i < 65535; i++)
+    for (uint32_t i(0); i < (1 << 16); i++)
     {
         Sequence a(i);
         Sequence b(i+100);
@@ -75,7 +75,7 @@ TEST_F(TestSequence, TestSimpleGreaterThanWraparound)
 
 TEST_F(TestSequence, TestSimpleLessThanWraparound)
 {
-    for (uint32_t i(0); i < 65535; i++)
+    for (uint32_t i(0); i < (1 << 16); i++)
     {
         Sequence a(i);
         Sequence b(i+100);
@@ -88,17 +88,17 @@ TEST_F(TestSequence, TestLessThanEdgeCase)
 {
     Sequence a(0);
 
-    for (uint32_t i(1); i < 65535; i++)
+    for (uint32_t i(1); i < (1 << 16); i++)
     {
         Sequence b(i);
 
-        if (i <= 32768)
+        if (i <= (1 << 15))
         {
             ASSERT_LT(a, b);
         }
         else
         {
-            ASSERT_LT(a, b);
+            ASSERT_LT(b, a);
         }
     }
 }
@@ -108,11 +108,11 @@ TEST_F(TestSequence, TestGreaterThanEdgeCase)
 {
     Sequence a(0);
 
-    for (uint32_t i(1); i < 65535; i++)
+    for (uint32_t i(1); i < (1 << 16); i++)
     {
         Sequence b(i);
 
-        if (i < 32768)
+        if (i <= (1 << 15))
         {
             ASSERT_GT(b, a);
         }
