@@ -20,38 +20,38 @@
 
 #include "Sequence.h"
 
-bool Sequence::operator<(const Sequence& other) const
+bool operator<(const Sequence& leftHandSide, const Sequence& rightHandSide)
 {
-    if (*this == other)
+    if (leftHandSide == rightHandSide)
     {
         return false;
     }
     else
     {
-        if (other.myValue > myValue)
+        if (rightHandSide.Value() > leftHandSide.Value())
         {
-            return (uint16_t(other.myValue - myValue) <= (1 << 15));
+            return (uint16_t(rightHandSide.Value() - leftHandSide.Value()) <= (1 << 15));
         }
         else
         {
-            return (uint16_t(myValue - other.myValue) > (1 << 15));
+            return (uint16_t(leftHandSide.Value() - rightHandSide.Value()) > (1 << 15));
         }
     }
 }
 
-bool Sequence::operator>(const Sequence& other) const
+bool operator>(const Sequence& leftHandSide, const Sequence& rightHandSide)
 {
-    if (*this == other)
+    if (leftHandSide == rightHandSide)
     {
         return false;
     }
     else
     {
-        return !(*this < other);
+        return !(leftHandSide < rightHandSide);
     }
 }
 
-bool Sequence::operator==(const Sequence& other) const
+bool operator==(const Sequence& leftHandSide, const Sequence& rightHandSide)
 {
-    return other.myValue == myValue;
+    return leftHandSide.Value() == rightHandSide.Value();
 }

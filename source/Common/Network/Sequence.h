@@ -27,19 +27,18 @@
 class Sequence
 {
 public:
-    uint16_t Value() { return myValue; }
+    uint16_t Value() const { return myValue; }
 
     Sequence() : Sequence(0) {};
     Sequence(uint16_t newValue) : myValue(newValue) {};
     Sequence(const Sequence& other) : myValue(other.myValue) {};
 
-    // RAM: TODO: Move outside of class since these can be static.
-    bool operator>(const Sequence& other) const;
-    bool operator==(const Sequence& other) const;
-    bool operator<(const Sequence& other) const;
-
 private:
     uint16_t myValue;
 };
+
+bool operator>(const Sequence& leftHandSide, const Sequence& rightHandSide);
+bool operator==(const Sequence& leftHandSide, const Sequence& rightHandSide);
+bool operator<(const Sequence& leftHandSide, const Sequence& rightHandSide);
 
 #endif // SEQUENCE_H
