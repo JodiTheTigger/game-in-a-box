@@ -68,11 +68,11 @@ bool operator<(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>&
     {
         if (rightHandSide.Value() > leftHandSide.Value())
         {
-            return (uint16_t(rightHandSide.Value() - leftHandSide.Value()) <= (std::numeric_limits<T>::max() >> 1);
+            return (uint16_t(rightHandSide.Value() - leftHandSide.Value()) <= ((std::numeric_limits<T>::max() >> 1) + 1));
         }
         else
         {
-            return (uint16_t(leftHandSide.Value() - rightHandSide.Value()) > (std::numeric_limits<T>::max() >> 1));
+            return (uint16_t(leftHandSide.Value() - rightHandSide.Value()) > ((std::numeric_limits<T>::max() >> 1) + 1));
         }
     }
 }

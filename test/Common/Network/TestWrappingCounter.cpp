@@ -21,78 +21,92 @@
 #include <Common/Network/WrappingCounter.h>
 #include <gtest/gtest.h>
 
+#include <limits>
+
 using namespace std;
 
-// Class definition!
-class TestSequence : public ::testing::Test
+template <typename T>
+class TestWrappingCounter : public ::testing::Test
 {
+public:
+    typedef WrappingCounter<T> WrapCount;
+
+    enum
+    {
+        maxValue = (uint64_t(std::numeric_limits<T>::max()) + 1),
+        maxValueHalf = ((uint64_t(std::numeric_limits<T>::max()) + 1) >> 1)
+    };
 };
 
-TEST_F(TestSequence, TestSimpleEqual)
+// TYPES I'M TESTING!
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t> TestSequenceTypes;
+TYPED_TEST_CASE(TestWrappingCounter, TestSequenceTypes);
+
+// THE TESTS!
+TYPED_TEST(TestWrappingCounter, TestSimpleEqual)
 {
-    for (uint32_t i(0); i < (1 << 16); i++)
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
     {
-        WrappingCounter<uint16_t> a(i);
-        WrappingCounter<uint16_t> b(i);
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i);
 
         ASSERT_TRUE(a == b);
     }
 }
 
-
-TEST_F(TestSequence, TestSimpleLessThan)
+TYPED_TEST(TestWrappingCounter, TestSimpleLessThan)
 {
-    for (uint32_t i(0); i < (1 << 16); i++)
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
     {
-        WrappingCounter<uint16_t> a(i);
-        WrappingCounter<uint16_t> b(i+1);
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+1);
 
         ASSERT_LT(a, b);
     }
 }
 
-TEST_F(TestSequence, TestSimpleGreaterThan)
+TYPED_TEST(TestWrappingCounter, TestSimpleGreaterThan)
 {
-    for (uint32_t i(0); i < (1 << 16); i++)
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
     {
-        WrappingCounter<uint16_t> a(i);
-        WrappingCounter<uint16_t> b(i+1);
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+1);
 
         ASSERT_GT(b, a);
     }
 }
 
-TEST_F(TestSequence, TestSimpleGreaterThanWraparound)
+TYPED_TEST(TestWrappingCounter, TestSimpleGreaterThanWraparound)
 {
-    for (uint32_t i(0); i < (1 << 16); i++)
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
     {
-        WrappingCounter<uint16_t> a(i);
-        WrappingCounter<uint16_t> b(i+100);
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+100);
 
         ASSERT_GT(b, a);
     }
 }
 
-TEST_F(TestSequence, TestSimpleLessThanWraparound)
+TYPED_TEST(TestWrappingCounter, TestSimpleLessThanWraparound)
 {
-    for (uint32_t i(0); i < (1 << 16); i++)
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
     {
-        WrappingCounter<uint16_t> a(i);
-        WrappingCounter<uint16_t> b(i+100);
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+100);
 
         ASSERT_LT(a, b);
     }
 }
 
-TEST_F(TestSequence, TestLessThanEdgeCase)
+TYPED_TEST(TestWrappingCounter, TestLessThanEdgeCase)
 {
-    WrappingCounter<uint16_t> a(0);
+    typename TestFixture::WrapCount a(0);
 
-    for (uint32_t i(1); i < (1 << 16); i++)
+    for (uint64_t i(1); i < TestFixture::maxValue; i++)
     {
-        WrappingCounter<uint16_t> b(i);
+        typename TestFixture::WrapCount b(i);
 
-        if (i <= (1 << 15))
+        if (i <= TestFixture::maxValueHalf)
         {
             ASSERT_LT(a, b);
         }
@@ -104,15 +118,15 @@ TEST_F(TestSequence, TestLessThanEdgeCase)
 }
 
 
-TEST_F(TestSequence, TestGreaterThanEdgeCase)
+TYPED_TEST(TestWrappingCounter, TestGreaterThanEdgeCase)
 {
-    WrappingCounter<uint16_t> a(0);
+    typename TestFixture::WrapCount a(0);
 
-    for (uint32_t i(1); i < (1 << 16); i++)
+    for (uint64_t i(1); i < TestFixture::maxValue; i++)
     {
-        WrappingCounter<uint16_t> b(i);
+        typename TestFixture::WrapCount b(i);
 
-        if (i <= (1 << 15))
+        if (i <= TestFixture::maxValueHalf)
         {
             ASSERT_GT(b, a);
         }
