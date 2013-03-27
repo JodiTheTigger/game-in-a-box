@@ -22,6 +22,7 @@
 #define WRAPPINGCOUNTER_H
 
 #include <cstdint>
+#include <limits>
 
 template<typename T>
 class WrappingCounter
@@ -67,11 +68,11 @@ bool operator<(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>&
     {
         if (rightHandSide.Value() > leftHandSide.Value())
         {
-            return (uint16_t(rightHandSide.Value() - leftHandSide.Value()) <= (1 << 15));
+            return (uint16_t(rightHandSide.Value() - leftHandSide.Value()) <= (std::numeric_limits<T>::max() >> 1);
         }
         else
         {
-            return (uint16_t(leftHandSide.Value() - rightHandSide.Value()) > (1 << 15));
+            return (uint16_t(leftHandSide.Value() - rightHandSide.Value()) > (std::numeric_limits<T>::max() >> 1));
         }
     }
 }
