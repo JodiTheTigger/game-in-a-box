@@ -336,7 +336,23 @@ void NetworkManagerClientNew::DeltaReceive()
 {
     for (auto packet : myPacketHelper.GetDefragmentedPackets())
     {
+        // Decrypt (XOR based).
+        NetworkPacketHelper::CodeDeltaPacketInPlace(packet, myServerKey);
+
+        // Expand delta
+
+        // Pass to gamestate
+
         // RAM: TODO! hahahahaah. Always defer the real work eh?
+        // RAM: TODO: Parse the packet please.
+        // TODO: Decrypt
+        // TODO: Expand
+        // TODO: Pass to gamestate.
+        // NOTE: nothing too complex for encryption, even more simple than q3.
+        // As someone wanting to hack can. If we want security, use public key
+        // private key to pass a super long seed to a pseudo random generator
+        // that's used to decrypt. Otherwise it's just easily hackable.
+
     }
 }
 
