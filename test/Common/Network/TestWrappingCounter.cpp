@@ -39,18 +39,20 @@ public:
 };
 
 // TYPES I'M TESTING!
-typedef ::testing::Types<uint8_t, uint16_t, uint32_t> TestSequenceTypes;
+// Enabling uint32_t means the test will take about 30 min.
+// typedef ::testing::Types<uint8_t, uint16_t, uint32_t> TestSequenceTypes;
+typedef ::testing::Types<uint8_t, uint16_t> TestSequenceTypes;
 TYPED_TEST_CASE(TestWrappingCounter, TestSequenceTypes);
 
 // THE TESTS!
 TYPED_TEST(TestWrappingCounter, TestSimpleEqual)
-{
-    for (uint64_t i(0); i < TestFixture::maxValue; i++)
+{    
+    for (uint64_t i(0); i < uint64_t(TestFixture::maxValue); i++)
     {
         typename TestFixture::WrapCount a(i);
         typename TestFixture::WrapCount b(i);
 
-        ASSERT_TRUE(a == b);
+        ASSERT_EQ(a, b);
     }
 }
 
