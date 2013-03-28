@@ -42,12 +42,14 @@ void GameInABox::PrivateDisconnect(ClientHandle*)
     // RAM: TODO
 }
 
-void GameInABox::PrivateDeltaGet(uint16_t, uint16_t, uint16_t&, BitStream&) const
+bool GameInABox::PrivateDeltaGet(uint16_t, uint16_t, BitStream&) const
 {
     // RAM: TODO!
+    return false;
 }
 
-void GameInABox::PrivateDeltaSet(uint16_t, uint16_t, BitStreamReadOnly&)
+bool GameInABox::PrivateDeltaSet(uint16_t, uint16_t, BitStreamReadOnly&)
 {
     // RAM: TODO!
+    return false;
 }

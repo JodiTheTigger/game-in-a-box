@@ -24,12 +24,14 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <array>
 #include "BuildMacros.h"
 
 // Forward declarations
 class BitStream;
 class BitStreamReadOnly;
 
+// RAM: TODO! Convert to NVI!
 class IStateManager
 {
     CLASS_NOCOPY_ASSIGN_MOVE(IStateManager);
@@ -45,14 +47,17 @@ public:
     };
 
     IStateManager() {};
+
+    std::array<uint64_t, 256>& GetHuffmanFrequencies() const;
     
     uint16_t CurrentStateTick();
     
     ClientHandle* Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
     void Disconnect(ClientHandle* toDisconnect);
 
-    void DeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const;
-    void DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source);
+    // If true, all ok, if false tickFrom doesn't exist, so use 0 instead.
+    bool DeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const;
+    bool DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source);
 
 protected:
     // Don't delete via base class, use smart pointers or the derived pointer please.
@@ -68,8 +73,8 @@ private:
 
     virtual void PrivateDisconnect(ClientHandle* playerToDisconnect) = 0;
     
-    virtual void PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const = 0;
-    virtual void PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) = 0;
+    virtual bool PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const = 0;
+    virtual bool PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) = 0;
 };
 
 #endif // ISTATEMANAGER_H

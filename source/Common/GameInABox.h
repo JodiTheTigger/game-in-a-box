@@ -40,8 +40,8 @@ private:
 
     void PrivateDisconnect(ClientHandle* playerToDisconnect) override;
     
-    void PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const override;
-    void PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) override;
+    bool PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const override;
+    bool PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) override;
 };
 
 #endif // GAMEINABOX_H

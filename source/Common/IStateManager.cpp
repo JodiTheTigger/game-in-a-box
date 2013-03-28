@@ -42,12 +42,12 @@ void IStateManager::Disconnect(ClientHandle* toDisconnect)
     PrivateDisconnect(toDisconnect);
 }
     
-void IStateManager::DeltaGet(uint16_t tickFrom, uint16_t tickTo, uint16_t& tickFromResult, BitStream& result) const
+bool IStateManager::DeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const
 {
-    PrivateDeltaGet(tickFrom, tickTo, tickFromResult, result);
+    return PrivateDeltaGet(tickFrom, tickTo, result);
 }
 
-void IStateManager::DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source)
+bool IStateManager::DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source)
 {
-    PrivateDeltaSet(tickFrom, tickTo, source);
+    return PrivateDeltaSet(tickFrom, tickTo, source);
 }
