@@ -28,6 +28,7 @@
 #include <boost/asio/ip/udp.hpp>
 #include "INetworkManager.h"
 #include "Common/IStateManager.h"
+#include "Common/Huffman.h"
 
 // forward delcarations
 class NetworkProvider;
@@ -58,8 +59,12 @@ public:
     static PacketCommand::Command GetPacketType(const NetworkPacket&) { return PacketCommand::Command::Invalid; }
     static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
     static bool IsDeltaPacket(NetworkPacket&) { return false; }
+    static void CodeDeltaPacketInPlace(NetworkPacket&, uint32_t) {}
+    static std::vector<uint8_t> GetDeltaPacketRawPayload() { return std::vector<uint8_t>(); }
 
     void DefragmentPackets(NetworkPacket&) {};
+
+    // all packets out of here are valid delta packets.
     std::vector<NetworkPacket> GetDefragmentedPackets() { return {}; }
 };
 
@@ -108,6 +113,7 @@ private:
     std::string myFailReason;
 
     NetworkPacketHelper myPacketHelper;
+    Huffman myCompressor;
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;

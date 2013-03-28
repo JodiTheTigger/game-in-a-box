@@ -22,6 +22,8 @@
 
 #include <string>
 #include <chrono>
+#include <vector>
+#include <memory>
 
 #include "NetworkProvider.h"
 #include "Common/IStateManager.h"
@@ -46,6 +48,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myStateHandle(nullptr)
     , myFailReason()
     , myPacketHelper()
+    , myCompressor(stateManager.GetHuffmanFrequencies())
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
@@ -336,12 +339,26 @@ void NetworkManagerClientNew::DeltaReceive()
 {
     for (auto packet : myPacketHelper.GetDefragmentedPackets())
     {
+        // Bah, I wrote Huffman and Bitstream before I knew about iterators
+        // or streams. This results in lots of copies that arn't really needed.
+        // Need to benchmark to see if the copies matter, and if so, rewrite
+        // to use iterators or streams.
+
         // Decrypt (XOR based).
         NetworkPacketHelper::CodeDeltaPacketInPlace(packet, myServerKey);
 
-        // Expand delta
+        // Get the actual data (1st copy)
+        // Copy would be unneeded if Decompress took iterators.
+        std::vector<uint8_t> payload(NetworkPacketHelper::GetDeltaPacketRawPayload());
 
-        // Pass to gamestate
+        // Decompress (2nd Copy)
+        std::unique_ptr<std::vector<uint8_t>> decompressed;
+        decompressed = move(myCompressor.Decode(payload));
+
+        // Pass to gamestate (which will decompress the delta for us).
+        //myStateManager.DeltaSet();
+
+
 
         // RAM: TODO! hahahahaah. Always defer the real work eh?
         // RAM: TODO: Parse the packet please.
