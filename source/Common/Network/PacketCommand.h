@@ -24,6 +24,8 @@
 #include <cstdint>
 #include <vector>
 
+// RAM: Is this a normal class, base class, an interface, or an implementation class
+// TODO: Make up your mind and implement it!
 class PacketCommand
 {
 public:    
@@ -41,6 +43,8 @@ public:
         Disconnect
     };
 
+    // RAM: TODO: If making a base class we need a public constructor please.
+
     // ----------------------------------------
 
     // RAM: TODO: Explain wy this is public, or hide it please!
@@ -53,6 +57,8 @@ public:
     // ----------------------------------------
 
     PacketCommand::Command GetCommand() const;
+
+    // RAM: TODO: NVI Pattern please, make PrivateIsValid()
     virtual bool IsValid() const = 0;
 
 protected:
