@@ -127,6 +127,7 @@ source/Common/Network/NetworkManagerClientNew.cpp
 source/Common/Network/PacketCommand.cpp
 source/Common/Network/PacketChallenge.cpp
 source/Common/Network/PacketChallengeResponse.cpp
+source/Common/Network/PacketDelta.cpp
 source/Common/Network/INetworkManager.cpp
 source/Common/Network/NetworkPacketParser.cpp
 source/Common/Network/NetworkManagerServer.cpp
