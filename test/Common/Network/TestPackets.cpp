@@ -21,16 +21,17 @@
 #include <Common/Network/PacketSimple.h>
 #include <Common/Network/PacketChallenge.h>
 #include <Common/Network/PacketChallengeResponse.h>
+#include <Common/Network/PacketDelta.h>
 #include <gtest/gtest.h>
 
 using namespace std;
 
 // Class definition!
-class TestPacketCommand : public ::testing::Test
+class TestPackets : public ::testing::Test
 {
 };
 
-TEST_F(TestPacketCommand, ChallengeFromEmptyData)
+TEST_F(TestPackets, ChallengeFromEmptyData)
 {
     PacketCommand::Command typeResult;
 
@@ -42,7 +43,7 @@ TEST_F(TestPacketCommand, ChallengeFromEmptyData)
     EXPECT_FALSE(challenge.IsValid());
 }
 
-TEST_F(TestPacketCommand, Challenge)
+TEST_F(TestPackets, Challenge)
 {
     PacketCommand::Command typeResult;
 
@@ -54,7 +55,7 @@ TEST_F(TestPacketCommand, Challenge)
     EXPECT_TRUE(challenge.IsValid());
 }
 
-TEST_F(TestPacketCommand, ChallengeFromNotACommand)
+TEST_F(TestPackets, ChallengeFromNotACommand)
 {
     PacketCommand::Command typeResult;
 
@@ -67,7 +68,7 @@ TEST_F(TestPacketCommand, ChallengeFromNotACommand)
 }
 
 
-TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadLength)
+TEST_F(TestPackets, ChallengeFromValidDataInvalidChallengeBadLength)
 {
     PacketCommand::Command typeResult;
 
@@ -79,7 +80,7 @@ TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadLength)
     EXPECT_FALSE(challenge.IsValid());
 }
 
-TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadData)
+TEST_F(TestPackets, ChallengeFromValidDataInvalidChallengeBadData)
 {
     PacketCommand::Command typeResult;
     PacketChallenge source;
@@ -95,7 +96,7 @@ TEST_F(TestPacketCommand, ChallengeFromValidDataInvalidChallengeBadData)
     EXPECT_FALSE(challenge.IsValid());
 }
 
-TEST_F(TestPacketCommand, ChallengeFromValidData)
+TEST_F(TestPackets, ChallengeFromValidData)
 {
     PacketCommand::Command typeResult;
     PacketChallenge source;
@@ -108,7 +109,7 @@ TEST_F(TestPacketCommand, ChallengeFromValidData)
     EXPECT_TRUE(challenge.IsValid());
 }
 
-TEST_F(TestPacketCommand, ChallengeResponseCreation)
+TEST_F(TestPackets, ChallengeResponseCreation)
 {
     PacketChallengeResponse source(13, 0x12345678);
 
@@ -117,14 +118,14 @@ TEST_F(TestPacketCommand, ChallengeResponseCreation)
     EXPECT_TRUE(source.IsValid());
 }
 
-TEST_F(TestPacketCommand, ChallengeResponseCreationZeroKeyInvalid)
+TEST_F(TestPackets, ChallengeResponseCreationZeroKeyInvalid)
 {
     PacketChallengeResponse source(0, 0x12345678);
 
     EXPECT_FALSE(source.IsValid());
 }
 
-TEST_F(TestPacketCommand, ChallengeResponseFromValidDataInvalidChallengeBadLength)
+TEST_F(TestPackets, ChallengeResponseFromValidDataInvalidChallengeBadLength)
 {
     PacketCommand::Command typeResult;
 
@@ -137,7 +138,7 @@ TEST_F(TestPacketCommand, ChallengeResponseFromValidDataInvalidChallengeBadLengt
     EXPECT_FALSE(challengeResponse.IsValid());
 }
 
-TEST_F(TestPacketCommand, SimplePacketsKey)
+TEST_F(TestPackets, SimplePacketsKey)
 {
     PacketInfo      info(12345678);
     PacketConnect   connect(87654321);
@@ -149,7 +150,7 @@ TEST_F(TestPacketCommand, SimplePacketsKey)
     EXPECT_EQ(87654321, connect.Key());
 }
 
-TEST_F(TestPacketCommand, SimplePacketsKeyInvalid)
+TEST_F(TestPackets, SimplePacketsKeyInvalid)
 {
     PacketInfo      info(0);
     PacketConnect   connect(0);
@@ -158,7 +159,7 @@ TEST_F(TestPacketCommand, SimplePacketsKeyInvalid)
     EXPECT_FALSE(connect.IsValid());
 }
 
-TEST_F(TestPacketCommand, SimplePacketsBuffer)
+TEST_F(TestPackets, SimplePacketsBuffer)
 {
     PacketInfoResponse info;
     PacketConnectResponse connect;
@@ -182,11 +183,28 @@ TEST_F(TestPacketCommand, SimplePacketsBuffer)
     EXPECT_EQ(0x20, connectBuffer.GetBuffer()[1]);
 }
 
-TEST_F(TestPacketCommand, SimplePacketsBufferInvalid)
+TEST_F(TestPackets, SimplePacketsBufferInvalid)
 {
     PacketInfoResponse infoBuffer({0xFF, 0xFF, 42, 0x03});
     PacketConnectResponse connectBuffer({0xFF, 0xFF, 77, 0x03, 0x20});
 
     EXPECT_FALSE(infoBuffer.IsValid());
     EXPECT_FALSE(connectBuffer.IsValid());
+}
+
+TEST_F(TestPackets, DeltaEmpty)
+{
+    PacketDelta empty;
+
+    EXPECT_FALSE(empty.IsValid());
+    EXPECT_FALSE(empty.HasClientId());
+    EXPECT_EQ(0, empty.GetBase());
+    EXPECT_EQ(0, empty.GetSequence());
+    EXPECT_EQ(0, empty.TakeBuffer().size());
+}
+
+TEST_F(TestPackets, DeltaAnotherTest)
+{
+    // RAM: TODO!
+    EXPECT_TRUE(false);
 }

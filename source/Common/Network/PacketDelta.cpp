@@ -22,37 +22,92 @@
 
 
 
-PacketDelta::PacketDelta(std::vector<uint8_t> )
+PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
+    : myBuffer(rawData)
 {
-    // RAM: TODO!
 }
 
 WrappingCounter<uint16_t> PacketDelta::GetSequence()
 {
-    // RAM: TODO!
-    return WrappingCounter<uint16_t>();
+    if (IsValid())
+    {
+        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequenceAck) & MaskIsServerPacket);
+    }
+    else
+    {
+        return WrappingCounter<uint16_t>(0);
+    }
 }
 
 WrappingCounter<uint16_t> PacketDelta::GetBase()
 {
-    // RAM: TODO!
-    return WrappingCounter<uint16_t>();
+    if (IsValid())
+    {
+        uint16_t base(GetUint16(myBuffer, OffsetSequenceAck) & MaskIsServerPacket);
+
+        return WrappingCounter<uint16_t>(base - (myBuffer[OffsetDeltaBaseAndFlags] & MaskDeltaBase));
+    }
+    else
+    {
+        return WrappingCounter<uint16_t>(0);
+    }
 }
 
 bool PacketDelta::IsValid() const
 {
-    // RAM: TODO!
-    return false;
+    bool result(false);
+
+    if (myBuffer.size() >= MinimumPacketSizeCommon)
+    {
+        if ((myBuffer[0] != 0xFF) && (myBuffer[1] != 0xFF))
+        {
+            // high byte first.
+            if (0 == (myBuffer[OffsetSequenceAck] & MaskTopByteIsServerPacket))
+            {
+                // top bit set of ack == server packet
+                if (myBuffer.size() >= MinimumPacketSizeServer)
+                {
+                    result = true;
+                }
+            }
+            else
+            {
+                if (myBuffer.size() >= MinimumPacketSizeClient)
+                {
+                    result = true;
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 bool PacketDelta::HasClientId() const
 {
-    // RAM TODO!
-    return false;
+    if (IsValid())
+    {
+        return (0 == (myBuffer[OffsetSequenceAck] & MaskTopByteIsServerPacket));
+    }
+    else
+    {
+        return false;
+    }
 }
 
 uint16_t PacketDelta::ClientId() const
 {
-    // RAM: TODO!
-    return 0;
+    if (HasClientId())
+    {
+        return GetUint16(myBuffer, OffsetClientId);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+uint16_t PacketDelta::GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset)
+{
+    return uint16_t(buffer[offset]) |  uint16_t(buffer[offset + 1]);
 }

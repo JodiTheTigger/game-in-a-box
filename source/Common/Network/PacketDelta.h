@@ -37,14 +37,26 @@ public:
     bool IsValid() const;
     bool HasClientId() const;
     uint16_t ClientId() const;
+    std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
+
+    // TODO: once we have namespaces, take this out of the class.
+    static uint16_t GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset);
 
 private:
-    static const std::size_t MinimumPacketSize = 3;
     static const std::size_t OffsetSequenceAck = 2;
     static const std::size_t OffsetDeltaBaseAndFlags = 4;
     static const std::size_t OffsetClientId = 5;
-    static const std::size_t OffsetDataClient = 6;
+    static const std::size_t OffsetDataClient = 7;
     static const std::size_t OffsetDataServer = 5;
+    static const std::size_t MinimumPacketSizeClient = OffsetDataClient;
+    static const std::size_t MinimumPacketSizeServer = OffsetDataServer;
+    static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeServer;
+    static const uint8_t MaskDeltaBase = ((1 << 6) - 1);
+    static const uint8_t MaskTopByteIsServerPacket = 0x80;
+    static const uint16_t MaskIsServerPacket = MaskTopByteIsServerPacket << 8;
+    static const uint16_t MaskSequenceAck = MaskIsServerPacket - 1;
+
+    std::vector<uint8_t> myBuffer;
 };
 
 #endif // PACKETDELTA_H
