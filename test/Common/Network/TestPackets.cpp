@@ -198,9 +198,44 @@ TEST_F(TestPackets, DeltaEmpty)
 
     EXPECT_FALSE(empty.IsValid());
     EXPECT_FALSE(empty.HasClientId());
-    EXPECT_EQ(0, empty.GetBase());
     EXPECT_EQ(0, empty.GetSequence());
+    EXPECT_EQ(0, empty.GetSequenceAck());
+    EXPECT_EQ(0, empty.GetSequenceAckBase());
     EXPECT_EQ(0, empty.TakeBuffer().size());
+}
+
+TEST_F(TestPackets, DeltaNoDataClient)
+{
+    uint16_t clientId(4);
+
+    PacketDelta toTest(
+                WrappingCounter<uint16_t>(1),
+                WrappingCounter<uint16_t>(2),
+                3,
+                &clientId,
+                std::vector<uint8_t>());
+
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_TRUE(toTest.HasClientId());
+    EXPECT_EQ(1, toTest.GetSequence());
+    EXPECT_EQ(2, toTest.GetSequenceAck());
+    EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
+    EXPECT_EQ(4, toTest.ClientId());
+    EXPECT_EQ(7, toTest.TakeBuffer().size());
+}
+
+
+TEST_F(TestPackets, DeltaNoDataServer)
+{
+    PacketDelta toTest(2,4,6,nullptr,{});
+
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_EQ(2, toTest.GetSequence());
+    EXPECT_EQ(4, toTest.GetSequenceAck());
+    EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0, toTest.ClientId());
+    EXPECT_EQ(5, toTest.TakeBuffer().size());
 }
 
 TEST_F(TestPackets, DeltaAnotherTest)

@@ -31,8 +31,16 @@ public:
     PacketDelta() : PacketDelta(std::vector<uint8_t>()) {}
     PacketDelta(std::vector<uint8_t> rawData);
 
+    PacketDelta(
+            WrappingCounter<uint16_t> sequence,
+            WrappingCounter<uint16_t> sequenceAck,
+            uint8_t sequenceAckDelta,
+            uint16_t* clientId,
+            std::vector<uint8_t> deltaPayload);
+
     WrappingCounter<uint16_t> GetSequence();
-    WrappingCounter<uint16_t> GetBase();
+    WrappingCounter<uint16_t> GetSequenceAck();
+    WrappingCounter<uint16_t> GetSequenceAckBase();
 
     bool IsValid() const;
     bool HasClientId() const;
@@ -40,10 +48,14 @@ public:
     std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
     // TODO: once we have namespaces, take this out of the class.
+    // Hmm, couldn't we just use streams for this somehow?
     static uint16_t GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset);
+    static void Push(std::vector<uint8_t>& buffer, uint16_t data);
 
 private:
+    static const std::size_t OffsetSequence = 0;
     static const std::size_t OffsetSequenceAck = 2;
+    static const std::size_t OffsetIsServerFlags = 2;
     static const std::size_t OffsetDeltaBaseAndFlags = 4;
     static const std::size_t OffsetClientId = 5;
     static const std::size_t OffsetDataClient = 7;

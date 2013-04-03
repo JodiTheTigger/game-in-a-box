@@ -27,11 +27,44 @@ PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
 {
 }
 
+PacketDelta::PacketDelta(
+        WrappingCounter<uint16_t> sequence,
+        WrappingCounter<uint16_t> sequenceAck,
+        uint8_t sequenceAckDelta,
+        uint16_t* clientId,
+        std::vector<uint8_t> deltaPayload)
+    : PacketDelta()
+{
+    if (clientId != nullptr)
+    {
+        myBuffer.reserve(MinimumPacketSizeClient + deltaPayload.size());
+    }
+    else
+    {
+        myBuffer.reserve(MinimumPacketSizeServer + deltaPayload.size());
+    }
+
+    Push(myBuffer, sequence.Value());
+    Push(myBuffer, sequenceAck.Value());
+    myBuffer.push_back(sequenceAckDelta & MaskDeltaBase);
+
+    if (clientId != nullptr)
+    {
+        Push(myBuffer, *clientId);
+    }
+    else
+    {
+        myBuffer[OffsetIsServerFlags] |= MaskTopByteIsServerPacket;
+    }
+
+    myBuffer.insert( myBuffer.end(), deltaPayload.begin(), deltaPayload.end() );
+}
+
 WrappingCounter<uint16_t> PacketDelta::GetSequence()
 {
     if (IsValid())
     {
-        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequenceAck) & MaskIsServerPacket);
+        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequence));
     }
     else
     {
@@ -39,11 +72,23 @@ WrappingCounter<uint16_t> PacketDelta::GetSequence()
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetBase()
+WrappingCounter<uint16_t> PacketDelta::GetSequenceAck()
 {
     if (IsValid())
     {
-        uint16_t base(GetUint16(myBuffer, OffsetSequenceAck) & MaskIsServerPacket);
+        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequenceAck) & MaskSequenceAck);
+    }
+    else
+    {
+        return WrappingCounter<uint16_t>(0);
+    }
+}
+
+WrappingCounter<uint16_t> PacketDelta::GetSequenceAckBase()
+{
+    if (IsValid())
+    {
+        uint16_t base(GetUint16(myBuffer, OffsetSequenceAck) & MaskSequenceAck);
 
         return WrappingCounter<uint16_t>(base - (myBuffer[OffsetDeltaBaseAndFlags] & MaskDeltaBase));
     }
@@ -52,7 +97,6 @@ WrappingCounter<uint16_t> PacketDelta::GetBase()
         return WrappingCounter<uint16_t>(0);
     }
 }
-
 bool PacketDelta::IsValid() const
 {
     bool result(false);
@@ -62,17 +106,17 @@ bool PacketDelta::IsValid() const
         if ((myBuffer[0] != 0xFF) && (myBuffer[1] != 0xFF))
         {
             // high byte first.
-            if (0 == (myBuffer[OffsetSequenceAck] & MaskTopByteIsServerPacket))
+            if (0 == (myBuffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
             {
                 // top bit set of ack == server packet
-                if (myBuffer.size() >= MinimumPacketSizeServer)
+                if (myBuffer.size() >= MinimumPacketSizeClient)
                 {
                     result = true;
                 }
             }
             else
             {
-                if (myBuffer.size() >= MinimumPacketSizeClient)
+                if (myBuffer.size() >= MinimumPacketSizeServer)
                 {
                     result = true;
                 }
@@ -87,7 +131,7 @@ bool PacketDelta::HasClientId() const
 {
     if (IsValid())
     {
-        return (0 == (myBuffer[OffsetSequenceAck] & MaskTopByteIsServerPacket));
+        return (0 == (myBuffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket));
     }
     else
     {
@@ -109,5 +153,12 @@ uint16_t PacketDelta::ClientId() const
 
 uint16_t PacketDelta::GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset)
 {
-    return uint16_t(buffer[offset]) |  uint16_t(buffer[offset + 1]);
+    return (uint16_t(buffer[offset]) << 8) |  uint16_t(buffer[offset + 1]);
+}
+
+void PacketDelta::Push(std::vector<uint8_t>& buffer, uint16_t data)
+{
+    // sets the iterator before incrementing it.
+    buffer.push_back(uint8_t(data >> 8));
+    buffer.push_back(uint8_t(data & 0xFF));
 }
