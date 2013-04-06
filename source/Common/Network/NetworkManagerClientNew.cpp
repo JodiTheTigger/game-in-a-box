@@ -29,6 +29,8 @@
 #include "Common/IStateManager.h"
 #include "NetworkPacket.h"
 #include "PacketChallenge.h"
+#include "PacketDelta.h"
+#include "Common/BitStreamReadOnly.h"
 
 using std::string;
 using namespace std::chrono;
@@ -49,6 +51,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myFailReason()
     , myPacketHelper()
     , myCompressor(stateManager.GetHuffmanFrequencies())
+    , myLastSequenceProcessed(0)
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
@@ -77,6 +80,8 @@ void NetworkManagerClientNew::Connect(boost::asio::ip::udp::endpoint serverAddre
     myServerAddress = serverAddress;
     myStateHandle = nullptr;
     myFailReason = "";
+
+    myLastSequenceProcessed = Sequence(0);
 
     myPacketSentCount = 0;
     myLastPacketSent = std::chrono::steady_clock::time_point::min();
@@ -337,39 +342,66 @@ void NetworkManagerClientNew::Fail(std::string failReason)
 
 void NetworkManagerClientNew::DeltaReceive()
 {
+    PacketDelta mostRecent;
+    Sequence latestSequence(myLastSequenceProcessed);
+
+    // first, get the most recent packet.
     for (auto packet : myPacketHelper.GetDefragmentedPackets())
     {
+        PacketDelta delta(packet.data);
+
+        if (delta.IsValid())
+        {
+            if (delta.GetSequence() > latestSequence)
+            {
+                mostRecent = delta;
+                latestSequence = delta.GetSequence();
+            }
+        }
+    }
+
+    if (mostRecent.IsValid())
+    {
+        // First copy
+        std::vector<uint8_t> payload(mostRecent.GetPayload());
+
         // Bah, I wrote Huffman and Bitstream before I knew about iterators
         // or streams. This results in lots of copies that arn't really needed.
         // Need to benchmark to see if the copies matter, and if so, rewrite
         // to use iterators or streams.
 
         // Decrypt (XOR based).
-        NetworkPacketHelper::CodeDeltaPacketInPlace(packet, myServerKey);
-
-        // Get the actual data (1st copy)
-        // Copy would be unneeded if Decompress took iterators.
-        std::vector<uint8_t> payload(NetworkPacketHelper::GetDeltaPacketRawPayload());
+        NetworkPacketHelper::CodeBufferInPlace(
+                    payload,
+                    myServerKey,
+                    mostRecent.GetSequence().Value(),
+                    mostRecent.GetSequenceAck().Value());
 
         // Decompress (2nd Copy)
-        std::unique_ptr<std::vector<uint8_t>> decompressed;
-        decompressed = move(myCompressor.Decode(payload));
-
-        // Pass to gamestate (which will decompress the delta for us).
-        //myStateManager.DeltaSet();
-
-
-
-        // RAM: TODO! hahahahaah. Always defer the real work eh?
-        // RAM: TODO: Parse the packet please.
-        // TODO: Decrypt
-        // TODO: Expand
-        // TODO: Pass to gamestate.
         // NOTE: nothing too complex for encryption, even more simple than q3.
         // As someone wanting to hack can. If we want security, use public key
         // private key to pass a super long seed to a pseudo random generator
         // that's used to decrypt. Otherwise it's just easily hackable.
+        std::unique_ptr<std::vector<uint8_t>> decompressed;
+        decompressed = move(myCompressor.Decode(payload));
 
+        // Pass to gamestate (which will decompress the delta itself).
+        BitStreamReadOnly payloadBitstream(payload);
+        bool accepted(myStateManager.DeltaSet(
+                          mostRecent.GetSequenceBase().Value(),
+                          mostRecent.GetSequence().Value(),
+                          payloadBitstream));
+
+        if (accepted)
+        {
+            myLastSequenceProcessed = latestSequence;
+        }
+        else
+        {
+            // Gamestate can't delta, as it's too old or
+            // some other reason, need update from zero please.
+            myLastSequenceProcessed = Sequence(0);
+        }
     }
 }
 

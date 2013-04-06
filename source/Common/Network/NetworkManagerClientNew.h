@@ -29,6 +29,7 @@
 #include "INetworkManager.h"
 #include "Common/IStateManager.h"
 #include "Common/Huffman.h"
+#include "WrappingCounter.h"
 
 // forward delcarations
 class NetworkProvider;
@@ -42,13 +43,6 @@ std::unique_ptr<T> make_unique(Args&&... args)
 }
 
 // RAM: TODO! Move this to it's own class
-class PacketDelta
-{
-    uint16_t Sequence() { return 0; }
-
-};
-
-// RAM: TODO! Move this to it's own class
 # include "NetworkPacket.h"
 #include "PacketSimple.h"
 class NetworkPacketHelper
@@ -59,14 +53,16 @@ public:
     static PacketCommand::Command GetPacketType(const NetworkPacket&) { return PacketCommand::Command::Invalid; }
     static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
     static bool IsDeltaPacket(NetworkPacket&) { return false; }
-    static void CodeDeltaPacketInPlace(NetworkPacket&, uint32_t) {}
-    static std::vector<uint8_t> GetDeltaPacketRawPayload() { return std::vector<uint8_t>(); }
+    static void CodeBufferInPlace(std::vector<uint8_t>&, uint32_t, uint32_t, uint32_t) {}
 
     void DefragmentPackets(NetworkPacket&) {};
 
     // all packets out of here are valid delta packets.
     std::vector<NetworkPacket> GetDefragmentedPackets() { return {}; }
 };
+
+// RAM: Where to put this?
+using Sequence = WrappingCounter<uint16_t>;
 
 class NetworkManagerClientNew : public INetworkManager
 {
@@ -114,6 +110,8 @@ private:
 
     NetworkPacketHelper myPacketHelper;
     Huffman myCompressor;
+
+    Sequence myLastSequenceProcessed;
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;
