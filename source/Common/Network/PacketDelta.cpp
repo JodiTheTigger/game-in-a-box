@@ -72,19 +72,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequence()
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetSequenceAck()
-{
-    if (IsValid())
-    {
-        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequenceAck) & MaskSequenceAck);
-    }
-    else
-    {
-        return WrappingCounter<uint16_t>(0);
-    }
-}
-
-WrappingCounter<uint16_t> PacketDelta::GetSequenceAckBase()
+WrappingCounter<uint16_t> PacketDelta::GetSequenceBase()
 {
     if (IsValid())
     {
@@ -97,6 +85,19 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceAckBase()
         return WrappingCounter<uint16_t>(0);
     }
 }
+
+WrappingCounter<uint16_t> PacketDelta::GetSequenceAck()
+{
+    if (IsValid())
+    {
+        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequenceAck) & MaskSequenceAck);
+    }
+    else
+    {
+        return WrappingCounter<uint16_t>(0);
+    }
+}
+
 bool PacketDelta::IsValid() const
 {
     bool result(false);

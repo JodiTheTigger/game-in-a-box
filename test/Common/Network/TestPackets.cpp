@@ -200,7 +200,7 @@ TEST_F(TestPackets, DeltaEmpty)
     EXPECT_FALSE(empty.HasClientId());
     EXPECT_EQ(0, empty.GetSequence());
     EXPECT_EQ(0, empty.GetSequenceAck());
-    EXPECT_EQ(0, empty.GetSequenceAckBase());
+    EXPECT_EQ(0, empty.GetSequenceBase());
     EXPECT_EQ(0, empty.TakeBuffer().size());
     EXPECT_EQ(0, empty.GetPayload().size());
 }
@@ -220,7 +220,7 @@ TEST_F(TestPackets, DeltaNoDataClient)
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
     EXPECT_EQ(7, toTest.TakeBuffer().size());
     EXPECT_EQ(0, toTest.GetPayload().size());
@@ -235,7 +235,7 @@ TEST_F(TestPackets, DeltaNoDataServer)
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0xFFFE, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
     EXPECT_EQ(5, toTest.TakeBuffer().size());
     EXPECT_EQ(0, toTest.GetPayload().size());
@@ -251,7 +251,7 @@ TEST_F(TestPackets, DeltaSimpleServer)
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0xFFFE, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
     EXPECT_EQ(9, toTest.TakeBuffer().size());
     EXPECT_FALSE(toTest.IsValid());
@@ -275,7 +275,7 @@ TEST_F(TestPackets, DeltaSimpleClient)
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
     EXPECT_EQ(11, toTest.TakeBuffer().size());
     EXPECT_FALSE(toTest.IsValid());
@@ -295,7 +295,7 @@ TEST_F(TestPackets, DeltaEncodeDecodeServer)
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0xFFFE, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
     EXPECT_EQ(9, toTest.TakeBuffer().size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
@@ -320,7 +320,7 @@ TEST_F(TestPackets, DeltaEncodeDecodeClient)
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
     EXPECT_EQ(11, toTest.TakeBuffer().size());
     EXPECT_FALSE(toTest.IsValid());

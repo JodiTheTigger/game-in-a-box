@@ -39,8 +39,8 @@ public:
             std::vector<uint8_t> deltaPayload);
 
     WrappingCounter<uint16_t> GetSequence();
+    WrappingCounter<uint16_t> GetSequenceBase();
     WrappingCounter<uint16_t> GetSequenceAck();
-    WrappingCounter<uint16_t> GetSequenceAckBase();
 
     bool IsValid() const;
     bool HasClientId() const;
