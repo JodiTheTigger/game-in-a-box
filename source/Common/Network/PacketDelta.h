@@ -45,6 +45,7 @@ public:
     bool IsValid() const;
     bool HasClientId() const;
     uint16_t ClientId() const;
+    std::vector<uint8_t> GetPayload();
     std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
     // TODO: once we have namespaces, take this out of the class.

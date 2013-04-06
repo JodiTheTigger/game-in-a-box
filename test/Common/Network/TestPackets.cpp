@@ -22,7 +22,7 @@
 #include <Common/Network/PacketChallenge.h>
 #include <Common/Network/PacketChallengeResponse.h>
 #include <Common/Network/PacketDelta.h>
-#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 using namespace std;
 
@@ -202,6 +202,7 @@ TEST_F(TestPackets, DeltaEmpty)
     EXPECT_EQ(0, empty.GetSequenceAck());
     EXPECT_EQ(0, empty.GetSequenceAckBase());
     EXPECT_EQ(0, empty.TakeBuffer().size());
+    EXPECT_EQ(0, empty.GetPayload().size());
 }
 
 TEST_F(TestPackets, DeltaNoDataClient)
@@ -222,6 +223,7 @@ TEST_F(TestPackets, DeltaNoDataClient)
     EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
     EXPECT_EQ(4, toTest.ClientId());
     EXPECT_EQ(7, toTest.TakeBuffer().size());
+    EXPECT_EQ(0, toTest.GetPayload().size());
 }
 
 
@@ -236,10 +238,92 @@ TEST_F(TestPackets, DeltaNoDataServer)
     EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
     EXPECT_EQ(0, toTest.ClientId());
     EXPECT_EQ(5, toTest.TakeBuffer().size());
+    EXPECT_EQ(0, toTest.GetPayload().size());
 }
 
-TEST_F(TestPackets, DeltaAnotherTest)
+TEST_F(TestPackets, DeltaSimpleServer)
 {
-    // RAM: TODO!
-    EXPECT_TRUE(false);
+    PacketDelta toTest(2,4,6,nullptr,{1,2,3,4});
+    std::vector<uint8_t> payload(toTest.GetPayload());
+
+
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_EQ(2, toTest.GetSequence());
+    EXPECT_EQ(4, toTest.GetSequenceAck());
+    EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0, toTest.ClientId());
+    EXPECT_EQ(5, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
+    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
+}
+
+TEST_F(TestPackets, DeltaSimpleClient)
+{
+    uint16_t clientId(4);
+
+    PacketDelta toTest(
+                WrappingCounter<uint16_t>(1),
+                WrappingCounter<uint16_t>(2),
+                3,
+                &clientId,
+                {1,2,3,4});
+
+    std::vector<uint8_t> payload(toTest.GetPayload());
+
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_TRUE(toTest.HasClientId());
+    EXPECT_EQ(1, toTest.GetSequence());
+    EXPECT_EQ(2, toTest.GetSequenceAck());
+    EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
+    EXPECT_EQ(4, toTest.ClientId());
+    EXPECT_EQ(7, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
+    EXPECT_EQ(0, toTest.GetPayload().size());
+    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
+}
+
+TEST_F(TestPackets, DeltaEncodeDecodeServer)
+{
+    PacketDelta source(2,4,6,nullptr,{1,2,3,4});
+    PacketDelta toTest(source.TakeBuffer());
+
+    std::vector<uint8_t> payload(toTest.GetPayload());
+
+    EXPECT_FALSE(source.IsValid());
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_EQ(2, toTest.GetSequence());
+    EXPECT_EQ(4, toTest.GetSequenceAck());
+    EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
+    EXPECT_EQ(0, toTest.ClientId());
+    EXPECT_EQ(5, toTest.TakeBuffer().size());
+    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
+}
+
+TEST_F(TestPackets, DeltaEncodeDecodeClient)
+{
+    uint16_t clientId(4);
+
+    PacketDelta source(
+                WrappingCounter<uint16_t>(1),
+                WrappingCounter<uint16_t>(2),
+                3,
+                &clientId,
+                {1,2,3,4});
+
+    PacketDelta toTest(source.TakeBuffer());
+    std::vector<uint8_t> payload(toTest.GetPayload());
+
+    EXPECT_FALSE(source.IsValid());
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_TRUE(toTest.HasClientId());
+    EXPECT_EQ(1, toTest.GetSequence());
+    EXPECT_EQ(2, toTest.GetSequenceAck());
+    EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
+    EXPECT_EQ(4, toTest.ClientId());
+    EXPECT_EQ(7, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
+    EXPECT_EQ(0, toTest.GetPayload().size());
+    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }

@@ -151,6 +151,25 @@ uint16_t PacketDelta::ClientId() const
     }
 }
 
+std::vector<uint8_t> PacketDelta::GetPayload()
+{
+    if (IsValid())
+    {
+        if (HasClientId())
+        {
+            return std::vector<uint8_t>(myBuffer.begin() + OffsetDataClient, myBuffer.end());
+        }
+        else
+        {
+            return std::vector<uint8_t>(myBuffer.begin() + OffsetDataServer, myBuffer.end());
+        }
+    }
+    else
+    {
+        return std::vector<uint8_t>();
+    }
+}
+
 uint16_t PacketDelta::GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset)
 {
     return (uint16_t(buffer[offset]) << 8) |  uint16_t(buffer[offset + 1]);
