@@ -253,7 +253,7 @@ TEST_F(TestPackets, DeltaSimpleServer)
     EXPECT_EQ(4, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
     EXPECT_EQ(0, toTest.ClientId());
-    EXPECT_EQ(5, toTest.TakeBuffer().size());
+    EXPECT_EQ(9, toTest.TakeBuffer().size());
     EXPECT_FALSE(toTest.IsValid());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }
@@ -277,7 +277,7 @@ TEST_F(TestPackets, DeltaSimpleClient)
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
     EXPECT_EQ(4, toTest.ClientId());
-    EXPECT_EQ(7, toTest.TakeBuffer().size());
+    EXPECT_EQ(11, toTest.TakeBuffer().size());
     EXPECT_FALSE(toTest.IsValid());
     EXPECT_EQ(0, toTest.GetPayload().size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
@@ -297,7 +297,7 @@ TEST_F(TestPackets, DeltaEncodeDecodeServer)
     EXPECT_EQ(4, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFE, toTest.GetSequenceAckBase());
     EXPECT_EQ(0, toTest.ClientId());
-    EXPECT_EQ(5, toTest.TakeBuffer().size());
+    EXPECT_EQ(9, toTest.TakeBuffer().size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }
 
@@ -322,7 +322,7 @@ TEST_F(TestPackets, DeltaEncodeDecodeClient)
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFF, toTest.GetSequenceAckBase());
     EXPECT_EQ(4, toTest.ClientId());
-    EXPECT_EQ(7, toTest.TakeBuffer().size());
+    EXPECT_EQ(11, toTest.TakeBuffer().size());
     EXPECT_FALSE(toTest.IsValid());
     EXPECT_EQ(0, toTest.GetPayload().size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
