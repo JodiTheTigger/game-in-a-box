@@ -52,6 +52,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myPacketHelper()
     , myCompressor(stateManager.GetHuffmanFrequencies())
     , myLastSequenceProcessed(0)
+    , myLastSequenceAcked(0)
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
@@ -82,6 +83,7 @@ void NetworkManagerClientNew::Connect(boost::asio::ip::udp::endpoint serverAddre
     myFailReason = "";
 
     myLastSequenceProcessed = Sequence(0);
+    myLastSequenceAcked = Sequence(0);
 
     myPacketSentCount = 0;
     myLastPacketSent = std::chrono::steady_clock::time_point::min();
@@ -402,11 +404,25 @@ void NetworkManagerClientNew::DeltaReceive()
             // some other reason, need update from zero please.
             myLastSequenceProcessed = Sequence(0);
         }
+
+        // Now see what the last packet the other end has got.
+        myLastSequenceAcked = mostRecent.GetSequenceAck();
     }
 }
 
 void NetworkManagerClientNew::DeltaSend()
 {
+    //BitStream payloadBitstream;
+
+    // bool DeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const;
+
+    //bool isOk(myStateManager.DeltaGet(myLastSequenceAcked.Value(), latest, payloadBitstream));
+
+    // who owns the largest sequence number? network or state? -> State.
+    // Who owns the largest delta distance? network or state? -> State.
+
+    //if ()
+
     // RAM: TODO! TODOOOOOOOOOO!
 }
 
