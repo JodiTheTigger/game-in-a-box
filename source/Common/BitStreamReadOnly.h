@@ -28,6 +28,9 @@
 
 class BitStreamReadOnly
 {    
+    // RAM: TODO! No need to disallow, as this is
+    // just a decorator, and doesn't own the buffer
+    // anyway.
     CLASS_NOCOPY_ASSIGN_MOVE(BitStreamReadOnly)
  
 public:
