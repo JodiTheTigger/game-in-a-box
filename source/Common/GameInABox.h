@@ -31,17 +31,25 @@ public:
     virtual ~GameInABox() {};
     
 private:
-    uint16_t PrivateCurrentStateTick() override;
-
     IStateManager::ClientHandle* PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,
             std::string& failReason) override;
 
     void PrivateDisconnect(ClientHandle* playerToDisconnect) override;
-    
-    bool PrivateDeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const override;
-    bool PrivateDeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source) override;
+        
+    virtual void PrivateDeltaGet(
+            const ClientHandle& client,
+            Sequence& tickTo,
+            Sequence& tickFrom,
+            Sequence lastTickAcked,
+            BitStream& result) const override;
+
+    virtual void PrivateDeltaSet(
+            const ClientHandle& client,
+            Sequence tickTo,
+            Sequence tickFrom,
+            BitStreamReadOnly& source) override;
 };
 
 #endif // GAMEINABOX_H

@@ -27,11 +27,6 @@ IStateManager::~IStateManager()
     // Nothing for now.
 }
 
-uint16_t IStateManager::CurrentStateTick()
-{
-    return PrivateCurrentStateTick();
-}
-
 IStateManager::ClientHandle* IStateManager::Connect(std::vector<uint8_t> connectData, bool& fail, std::string &failReason)
 {
     return PrivateConnect(connectData, fail, failReason);
@@ -41,13 +36,22 @@ void IStateManager::Disconnect(ClientHandle* toDisconnect)
 {
     PrivateDisconnect(toDisconnect);
 }
-    
-bool IStateManager::DeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const
+
+void IStateManager::DeltaGet(
+        const ClientHandle& client,
+        Sequence& tickTo,
+        Sequence& tickFrom,
+        Sequence lastTickAcked,
+        BitStream& result) const
 {
-    return PrivateDeltaGet(tickFrom, tickTo, result);
+    PrivateDeltaGet(client, tickTo, tickFrom, lastTickAcked, result);
 }
 
-bool IStateManager::DeltaSet(uint16_t tickFrom, uint16_t tickTo, BitStreamReadOnly& source)
+void IStateManager::DeltaSet(
+        const ClientHandle& client,
+        Sequence tickTo,
+        Sequence tickFrom,
+        BitStreamReadOnly& source)
 {
-    return PrivateDeltaSet(tickFrom, tickTo, source);
+    PrivateDeltaSet(client, tickTo, tickFrom, source);
 }

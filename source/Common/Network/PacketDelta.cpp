@@ -20,8 +20,6 @@
 
 #include "PacketDelta.h"
 
-
-
 PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
     : myBuffer(rawData)
 {

@@ -21,7 +21,7 @@
 #ifndef PACKETDELTA_H
 #define PACKETDELTA_H
 
-#include "WrappingCounter.h"
+#include "Common/WrappingCounter.h"
 
 #include <vector>
 

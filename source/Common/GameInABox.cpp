@@ -20,12 +20,6 @@
 
 #include "GameInABox.h"
 
-uint16_t GameInABox::PrivateCurrentStateTick()
-{
-    // RAM: TODO!
-    return 0;
-}
-
 IStateManager::ClientHandle* GameInABox::PrivateConnect(
         std::vector<uint8_t>,
         bool& fail,
@@ -42,14 +36,22 @@ void GameInABox::PrivateDisconnect(ClientHandle*)
     // RAM: TODO
 }
 
-bool GameInABox::PrivateDeltaGet(uint16_t, uint16_t, BitStream&) const
+
+void GameInABox::PrivateDeltaGet(
+        const ClientHandle&,
+        Sequence&,
+        Sequence&,
+        Sequence,
+        BitStream&) const
 {
     // RAM: TODO!
-    return false;
 }
 
-bool GameInABox::PrivateDeltaSet(uint16_t, uint16_t, BitStreamReadOnly&)
+void GameInABox::PrivateDeltaSet(
+        const ClientHandle&,
+        Sequence,
+        Sequence,
+        BitStreamReadOnly&)
 {
     // RAM: TODO!
-    return false;
 }

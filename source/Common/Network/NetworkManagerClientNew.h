@@ -29,7 +29,7 @@
 #include "INetworkManager.h"
 #include "Common/IStateManager.h"
 #include "Common/Huffman.h"
-#include "WrappingCounter.h"
+#include "Common/WrappingCounter.h"
 
 // forward delcarations
 class NetworkProvider;
@@ -60,9 +60,6 @@ public:
     // all packets out of here are valid delta packets.
     std::vector<NetworkPacket> GetDefragmentedPackets() { return {}; }
 };
-
-// RAM: Where to put this?
-using Sequence = WrappingCounter<uint16_t>;
 
 class NetworkManagerClientNew : public INetworkManager
 {
@@ -112,6 +109,7 @@ private:
     Huffman myCompressor;
 
     Sequence myLastSequenceProcessed;
+    Sequence myLastSequenceAcked;
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;

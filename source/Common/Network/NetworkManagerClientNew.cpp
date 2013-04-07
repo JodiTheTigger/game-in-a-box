@@ -35,8 +35,6 @@
 using std::string;
 using namespace std::chrono;
 
-
-
 NetworkManagerClientNew::NetworkManagerClientNew(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
         IStateManager& stateManager)
@@ -376,6 +374,7 @@ void NetworkManagerClientNew::DeltaReceive()
         NetworkPacketHelper::CodeBufferInPlace(
                     payload,
                     myServerKey,
+                    // RAM: TODO: Mayve just pass in a uint16_t buffer instead?
                     mostRecent.GetSequence().Value(),
                     mostRecent.GetSequenceAck().Value());
 
@@ -389,21 +388,11 @@ void NetworkManagerClientNew::DeltaReceive()
 
         // Pass to gamestate (which will decompress the delta itself).
         BitStreamReadOnly payloadBitstream(payload);
-        bool accepted(myStateManager.DeltaSet(
-                          mostRecent.GetSequenceBase().Value(),
-                          mostRecent.GetSequence().Value(),
-                          payloadBitstream));
-
-        if (accepted)
-        {
-            myLastSequenceProcessed = latestSequence;
-        }
-        else
-        {
-            // Gamestate can't delta, as it's too old or
-            // some other reason, need update from zero please.
-            myLastSequenceProcessed = Sequence(0);
-        }
+        myStateManager.DeltaSet(
+            *myStateHandle,
+            mostRecent.GetSequence().Value(),
+            mostRecent.GetSequenceBase().Value(),
+            payloadBitstream);
 
         // Now see what the last packet the other end has got.
         myLastSequenceAcked = mostRecent.GetSequenceAck();
@@ -413,13 +402,13 @@ void NetworkManagerClientNew::DeltaReceive()
 void NetworkManagerClientNew::DeltaSend()
 {
     //BitStream payloadBitstream;
+    //uint16_t
 
     // bool DeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const;
 
     //bool isOk(myStateManager.DeltaGet(myLastSequenceAcked.Value(), latest, payloadBitstream));
 
     // who owns the largest sequence number? network or state? -> State.
-    // Who owns the largest delta distance? network or state? -> State.
 
     //if ()
 

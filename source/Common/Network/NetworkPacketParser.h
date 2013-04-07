@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "WrappingCounter.h"
+#include "Common/WrappingCounter.h"
 
 // forward delcarations
 class NetworkPacket;
