@@ -30,6 +30,7 @@
 #include "NetworkPacket.h"
 #include "PacketChallenge.h"
 #include "PacketDelta.h"
+#include "Common/BitStream.h"
 #include "Common/BitStreamReadOnly.h"
 
 using std::string;
@@ -47,6 +48,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myServerAddress()
     , myStateHandle(nullptr)
     , myFailReason()
+    , myClientId(0)
     , myPacketHelper()
     , myCompressor(stateManager.GetHuffmanFrequencies())
     , myLastSequenceProcessed(0)
@@ -401,18 +403,37 @@ void NetworkManagerClientNew::DeltaReceive()
 
 void NetworkManagerClientNew::DeltaSend()
 {
-    //BitStream payloadBitstream;
-    //uint16_t
+    // RAM: TODO: How to find max size in advance?
+    BitStream payloadBitstream(65535);
+    Sequence from;
+    Sequence to;
 
-    // bool DeltaGet(uint16_t tickFrom, uint16_t tickTo, BitStream& result) const;
+    myStateManager.DeltaGet(
+                *myStateHandle,
+                to,
+                from,
+                myLastSequenceAcked,
+                payloadBitstream);
 
-    //bool isOk(myStateManager.DeltaGet(myLastSequenceAcked.Value(), latest, payloadBitstream));
+    // ignore if the delta distance is greater than 255, as we
+    // store the distance as a byte.
+    uint16_t distance(to.Value() - from.Value());
+    if (distance < 256)
+    {
+        PacketDelta delta(
+                from,
+                myLastSequenceProcessed,
+                uint8_t(distance),
+                &myClientId,
+                *(payloadBitstream.TakeBuffer()));
 
-    // who owns the largest sequence number? network or state? -> State.
+        // Fragment (if needed)
+        auto packets(NetworkPacketHelper::FragmentDelta(myServerAddress, delta));
 
-    //if ()
-
-    // RAM: TODO! TODOOOOOOOOOO!
+        // send
+        myConnectedNetwork->Send(packets);
+    }
+    // RAM: TODO: else {Error Message in debug}
 }
 
 

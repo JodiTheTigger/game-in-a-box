@@ -43,8 +43,9 @@ std::unique_ptr<T> make_unique(Args&&... args)
 }
 
 // RAM: TODO! Move this to it's own class
-# include "NetworkPacket.h"
+#include "NetworkPacket.h"
 #include "PacketSimple.h"
+#include "PacketDelta.h"
 class NetworkPacketHelper
 {
 public:
@@ -54,6 +55,7 @@ public:
     static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
     static bool IsDeltaPacket(NetworkPacket&) { return false; }
     static void CodeBufferInPlace(std::vector<uint8_t>&, uint32_t, uint32_t, uint32_t) {}
+    static std::vector<NetworkPacket> FragmentDelta(boost::asio::ip::udp::endpoint, PacketDelta&) { return std::vector<NetworkPacket>(); }
 
     void DefragmentPackets(NetworkPacket&) {};
 
@@ -104,6 +106,7 @@ private:
     boost::asio::ip::udp::endpoint myServerAddress;
     IStateManager::ClientHandle* myStateHandle;
     std::string myFailReason;
+    uint16_t myClientId;
 
     NetworkPacketHelper myPacketHelper;
     Huffman myCompressor;
