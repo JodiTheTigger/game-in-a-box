@@ -46,7 +46,7 @@ PacketDelta::PacketDelta(
 
     Push(myBuffer, sequence.Value());
     Push(myBuffer, sequenceAck.Value());
-    myBuffer.push_back(sequenceAckDelta & MaskDeltaBase);
+    myBuffer.push_back(sequenceAckDelta);
 
     if (clientId != nullptr)
     {
@@ -78,7 +78,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceBase()
     {
         uint16_t base(GetUint16(myBuffer, OffsetSequenceAck) & MaskSequenceAck);
 
-        return WrappingCounter<uint16_t>(base - (myBuffer[OffsetDeltaBaseAndFlags] & MaskDeltaBase));
+        return WrappingCounter<uint16_t>(base - myBuffer[OffsetDeltaBase]);
     }
     else
     {

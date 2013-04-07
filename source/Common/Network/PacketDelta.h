@@ -57,17 +57,13 @@ private:
     static const std::size_t OffsetSequence = 0;
     static const std::size_t OffsetSequenceAck = 2;
     static const std::size_t OffsetIsServerFlags = 2;
-    static const std::size_t OffsetDeltaBaseAndFlags = 4;
+    static const std::size_t OffsetDeltaBase = 4;
     static const std::size_t OffsetClientId = 5;
     static const std::size_t OffsetDataClient = 7;
     static const std::size_t OffsetDataServer = 5;
     static const std::size_t MinimumPacketSizeClient = OffsetDataClient;
     static const std::size_t MinimumPacketSizeServer = OffsetDataServer;
     static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeServer;
-
-    // TODO! GameState owns the maximum Delta Distance, not network.
-    // Deal with this!
-    static const uint8_t MaskDeltaBase = ((1 << 6) - 1);
     static const uint8_t MaskTopByteIsServerPacket = 0x80;
     static const uint16_t MaskIsServerPacket = MaskTopByteIsServerPacket << 8;
     static const uint16_t MaskSequenceAck = MaskIsServerPacket - 1;
