@@ -54,6 +54,8 @@ public:
     static void Push(std::vector<uint8_t>& buffer, uint16_t data);
 
 private:
+    // RAM: TODO! Some of this is shared with PacketCommand.
+    // Duplicate code is error code. Fix!
     static const std::size_t OffsetSequence = 0;
     static const std::size_t OffsetSequenceAck = 2;
     static const std::size_t OffsetIsServerFlags = 2;
