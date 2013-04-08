@@ -124,7 +124,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 add_library(
 game-in-a-box-common
 source/Common/Network/PacketHelper.cpp
-source/Common/Network/PacketDefragmenter.cpp
+source/Common/Network/PacketDeltaDefragmenter.cpp
 source/Common/Network/NetworkManagerClientNew.cpp
 source/Common/Network/PacketCommand.cpp
 source/Common/Network/PacketChallenge.cpp

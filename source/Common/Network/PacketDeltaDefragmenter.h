@@ -18,16 +18,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETDEFRAGMENTER_H
-#define PACKETDEFRAGMENTER_H
+#ifndef PACKETDELTADEFRAGMENTER_H
+#define PACKETDELTADEFRAGMENTER_H
 
 #include <vector>
 #include "NetworkPacket.h"
 
-class PacketDefragmenter
+class PacketDeltaDefragmenter
 {
 public:
-    PacketDefragmenter();
+    PacketDeltaDefragmenter();
 
     void AddPacket(NetworkPacket&);
     std::vector<NetworkPacket> GetDefragmentedPackets();
@@ -35,4 +35,4 @@ public:
 private:
 };
 
-#endif // PACKETDEFRAGMENTER_H
+#endif // PACKETDELTADEFRAGMENTER_H

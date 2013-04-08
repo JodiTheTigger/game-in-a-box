@@ -18,13 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketDefragmenter.h"
+#include "PacketDeltaDefragmenter.h"
 
-PacketDefragmenter::PacketDefragmenter()
+PacketDeltaDefragmenter::PacketDeltaDefragmenter()
 {
 }
 
-void PacketDefragmenter::AddPacket(NetworkPacket&)
+void PacketDeltaDefragmenter::AddPacket(NetworkPacket&)
 {
     /* Copy pasted from old file NetworkPacketParser.cpp
     if (myEncodingDetails == PacketEncoding::FromServer)
@@ -71,7 +71,7 @@ void PacketDefragmenter::AddPacket(NetworkPacket&)
 */
 }
 
-std::vector<NetworkPacket> PacketDefragmenter::GetDefragmentedPackets()
+std::vector<NetworkPacket> PacketDeltaDefragmenter::GetDefragmentedPackets()
 {
     return std::vector<NetworkPacket>();
 }
