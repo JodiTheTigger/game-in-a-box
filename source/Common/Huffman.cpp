@@ -23,6 +23,7 @@
 #include <queue>
 #include <stdexcept>
 #include <map>
+#include <string>
 
 #include "BitStream.h"
 
@@ -75,8 +76,10 @@ void Huffman::GenerateCanonicalEncodeMap()
     
     for (int i = 0; i < 256; i++)
     {
-        auto node = myEncodeMap[i];
-        sorted[node.bits][i] = (uint8_t) i;
+		uint8_t asByte(static_cast<uint8_t>(i));
+
+        auto node = myEncodeMap[asByte];
+        sorted[node.bits][asByte] = asByte;
     }
     
     code = 0;
@@ -89,11 +92,15 @@ void Huffman::GenerateCanonicalEncodeMap()
         {
             continue;
         }
+
+		// wont be larger than 255 as we defined it to be from 0 to 255 
+		// a.
+		uint8_t bitCount(static_cast<uint8_t>(bits));
         
-        for (auto mapItem : sorted[bits])
+        for (auto mapItem : sorted[bitCount])
         {
-            myEncodeMap[sorted[bits][mapItem.first]].bits = bits;
-            myEncodeMap[sorted[bits][mapItem.first]].value = code;
+            myEncodeMap[sorted[bitCount][mapItem.first]].bits = bitCount;
+            myEncodeMap[sorted[bitCount][mapItem.first]].value = code;
             
             code++;
         }
@@ -101,9 +108,9 @@ void Huffman::GenerateCanonicalEncodeMap()
         code = (code << 1);
     }    
     
-    // finally, the EOF marker
+    // finally, the EOF marker (can be > 255, hence why not uint8_t).
     myEofMarker.value = code;
-    myEofMarker.bits = bits;
+    myEofMarker.bits = static_cast<uint8_t>(bits);
 }
 
 void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits prefix)
@@ -156,7 +163,7 @@ std::vector<uint16_t> Huffman::GetXBitBytesStartingWith(uint16_t startValue, uin
                 
         startValue <<= (totalBitSize - bitSize);
         
-        for (int i = 0; i < count; i++)
+        for (uint16_t i = 0; i < count; i++)
         {
             result.push_back(startValue | i);
         }
@@ -193,7 +200,7 @@ void Huffman::GenerateDecodeMap()
         else
         {
             point = myEofMarker;
-            result = myEofValue;
+            result = Huffman::EofValue;
         }
         
         // not used? ok.
@@ -300,7 +307,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
         
         if (codeWord.value < 256)
         {
-            result->push_back(codeWord.value);
+            result->push_back(static_cast<uint8_t>(codeWord.value));
             inBuffer.Rewind(9 - codeWord.bits);
         }        
         else
@@ -308,13 +315,13 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
             uint8_t bitsRead;
             uint8_t index;
             
-            if (codeWord.value == myEofValue)
+            if (codeWord.value == Huffman::EofValue)
             {
                 // EOF marker!
                 break;
             }
             
-            index = codeWord.value - 256;
+            index = static_cast<uint8_t>(codeWord.value - 256);
             
             // The second decode map is 7 bits, so read that many.
             bitsRead = 7;
@@ -322,14 +329,22 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
             bits9 = inBuffer.PullU8(bitsRead);            
             codeWord = myDecodeMap[index][bits9];
             
-            if (codeWord.value == myEofValue)
+            if (codeWord.value == Huffman::EofValue)
             {
                 // EOF marker!
                 break;
             }
-            
-            result->push_back(codeWord.value);
-            inBuffer.Rewind(7 - codeWord.bits);
+
+			if (codeWord.value < 256)
+			{            
+				result->push_back(static_cast<uint8_t>(codeWord.value));
+				inBuffer.Rewind(7 - codeWord.bits);
+			}
+			else
+			{
+				// Ugh.
+				throw std::logic_error("Second round codeWord.value is bigger than a uint8_t. No idea what happend, but it's wrong.");
+			}
         }
     }
     

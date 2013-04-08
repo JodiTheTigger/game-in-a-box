@@ -40,7 +40,7 @@ public:
     
 private:
     // Not 0xFFFF as it gives me +1 wraparound bugs
-    const uint16_t myEofValue = 0xFFFE;
+    static const uint16_t EofValue = 0xFFFE;
     
     // Class fails if the max code is greater than 16 bits.
     struct ValueAndBits
@@ -83,7 +83,7 @@ private:
             , myLeft(left)
             , myRight(right)
         {
-        }        
+        }   
     };
     
     class NodeLeaf : public Node
@@ -106,7 +106,13 @@ private:
             {
                 // If the frequencies are the same, give precedence to
                 // leaf nodes as they represent more common values.
-                return (dynamic_cast<const NodeLeaf*>(left) != nullptr);               
+				// I was only doing a single compare with the left node, 
+				// but that breaks stick weak ordering.
+                return 
+					(
+						(dynamic_cast<const NodeLeaf*>(left) != nullptr) &&
+						(dynamic_cast<const NodeLeaf*>(right) == nullptr)
+					);               
             }
             else
             {
