@@ -40,7 +40,7 @@ public:
     
 private:
     // Not 0xFFFF as it gives me +1 wraparound bugs
-    const uint16_t myEofValue = 0xFFFE;
+    static const uint16_t EofValue = 0xFFFE;
     
     // Class fails if the max code is greater than 16 bits.
     struct ValueAndBits

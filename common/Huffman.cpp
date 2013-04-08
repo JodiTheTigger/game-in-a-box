@@ -23,6 +23,7 @@
 #include <queue>
 #include <stdexcept>
 #include <map>
+#include <string>
 
 #include "BitStream.h"
 
@@ -193,7 +194,7 @@ void Huffman::GenerateDecodeMap()
         else
         {
             point = myEofMarker;
-            result = myEofValue;
+            result = Huffman::EofValue;
         }
         
         // not used? ok.
@@ -300,7 +301,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
         
         if (codeWord.value < 256)
         {
-            result->push_back(codeWord.value);
+            result->push_back(static_cast<uint8_t>(codeWord.value));
             inBuffer.Rewind(9 - codeWord.bits);
         }        
         else
@@ -308,7 +309,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
             uint8_t bitsRead;
             uint8_t index;
             
-            if (codeWord.value == myEofValue)
+            if (codeWord.value == Huffman::EofValue)
             {
                 // EOF marker!
                 break;
@@ -322,14 +323,22 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
             bits9 = inBuffer.PullU8(bitsRead);            
             codeWord = myDecodeMap[index][bits9];
             
-            if (codeWord.value == myEofValue)
+            if (codeWord.value == Huffman::EofValue)
             {
                 // EOF marker!
                 break;
             }
-            
-            result->push_back(codeWord.value);
-            inBuffer.Rewind(7 - codeWord.bits);
+
+			if (codeWord.value < 256)
+			{            
+				result->push_back(static_cast<uint8_t>(codeWord.value));
+				inBuffer.Rewind(7 - codeWord.bits);
+			}
+			else
+			{
+				// Ugh.
+				throw std::logic_error("Second round codeWord.value is bigger than a uint8_t. No idea what happend, but it's wrong.");
+			}
         }
     }
     
