@@ -68,14 +68,21 @@ check_cxx_compiler_flag(-Werror HAS_WERROR)
 # CMAKE doesn't support spefifying the toolset yet, so the user has to
 # Manually do it!
 # http://blogs.msdn.com/b/vcblog/archive/2012/11/02/visual-c-c-11-and-the-future-of-c.aspx
-if (MSVC12)
+# ARGH! MSVC12 is actually MSVC11!
+if (MSVC11)
+	# We require cmake "-T" option to support C++11 platform in VS2012
+	# This was added in CMAKE 2.8.11. This has to be set by the user, not us.
+	# But I'm using nightly builds to test as 2.8.11 isn't released yet :-/
+	# cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
+	
+	if(NOT CMAKE_GENERATOR_TOOLSET MATCHES "v120_CTP_Nov2012")
+		message(FATAL_ERROR "MSVC needs C++11 features, please run cmake with the command parameter '-T v120_CTP_Nov2012' or configure the cache entry CMAKE_GENERATOR_TOOLSET to 'v120_CTP_Nov2012'.")
+	endif()	
+	
 	set(HAS_MSCPP true)
 	
-	# Bah, can't get this to work either. Have to do it manually.
+	# gtest and gmock need 10 deep VARIADIC template functions.
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_VARIADIC_MAX=10")
-	
-	# Maybe this will work someday (doesn't work in 2.8.11)
-	set(CMAKE_VS_PLATFORM_TOOLSET "v120_CTP_Nov2012")
 endif()
 
 # apply compiler options
