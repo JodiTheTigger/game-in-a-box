@@ -88,14 +88,14 @@ private:
             Sequence& tickTo,
             Sequence& tickFrom,
             Sequence lastTickAcked,
-            BitStream& result) const;
+            BitStream& result) const = 0;
 
     // may be ignored by the game state or not, we don't care.
     virtual void PrivateDeltaSet(
             const ClientHandle& client,
             Sequence tickTo,
             Sequence tickFrom,
-            BitStreamReadOnly& source);
+            BitStreamReadOnly& source) = 0;
 };
 
 #endif // ISTATEMANAGER_H
