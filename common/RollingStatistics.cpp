@@ -23,7 +23,7 @@
 #include <cmath>
 #include <algorithm>
 
-// ARGH! MSVC WART! Need to have a pre-compiled header to put all the warts into
+// RAM: TODO! ARGH! MSVC WART! Need to have a pre-compiled header to put all the warts into
 // but for now, this will have to do.
 #ifdef _MSC_VER
 #define roundf(dbl) dbl >= 0.0 ? (int)(dbl + 0.5) : ((dbl - (double)(int)dbl) <= -0.5 ? (int)dbl : (int)(dbl - 0.5))
@@ -83,8 +83,8 @@ void RollingStatistics::Calculate()
         sorted.push_back(toCopy);
     }
     
-    myAverage = bigSum / sorted.size();
-    mySum = (float) bigSum;
+    myAverage = static_cast<float>(bigSum / sorted.size());
+    mySum = static_cast<float>(bigSum);
     
     // 2.
     bigVariance = 0;
@@ -92,16 +92,16 @@ void RollingStatistics::Calculate()
     {
         bigVariance += (toVariance - myAverage) * (toVariance - myAverage);
     }
-    myVariance = bigVariance / mySamples->size();
-    myStandardDeviation = sqrt(bigVariance / mySamples->size());
+    myVariance = static_cast<float>(bigVariance / mySamples->size());
+    myStandardDeviation = static_cast<float>(std::sqrt(bigVariance / mySamples->size()));
     
     // 3.
     sort(sorted.begin(), sorted.end());
     myMin = sorted.front();
     myMax = sorted.back();
     
-    myQuartile25 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.25)];
-    myQuartile75 = sorted[(uint32_t) roundf((sorted.size() - 1) * 0.75)];
+    myQuartile25 = sorted[static_cast<uint32_t>(roundf((sorted.size() - 1) * 0.25))];
+    myQuartile75 = sorted[static_cast<uint32_t>(roundf((sorted.size() - 1) * 0.75))];
     
     if (sorted.size() == 1)
     {
@@ -111,8 +111,8 @@ void RollingStatistics::Calculate()
     {
         if ((sorted.size() % 2) == 0)
         {
-            myMedian = sorted[sorted.size() / 2] * 0.5;
-            myMedian += sorted[(sorted.size() / 2) - 1] * 0.5;
+            myMedian = sorted[sorted.size() / 2] * 0.5f;
+            myMedian += sorted[(sorted.size() / 2) - 1] * 0.5f;
         }
         else
         {

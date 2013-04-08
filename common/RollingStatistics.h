@@ -56,7 +56,7 @@ public:
 private:
     std::unique_ptr<std::deque<float>> mySamples;
     
-    float mySampleSizeMaximum;
+    std::size_t mySampleSizeMaximum;
     float mySum;
     float myAverage;
     float myMedian;

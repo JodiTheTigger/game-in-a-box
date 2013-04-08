@@ -83,7 +83,7 @@ private:
             , myLeft(left)
             , myRight(right)
         {
-        }        
+        }   
     };
     
     class NodeLeaf : public Node
