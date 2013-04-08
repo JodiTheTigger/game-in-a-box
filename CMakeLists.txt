@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 include(CheckCXXCompilerFlag)
-project(game-in-a-box CXX)
+project(game-in-a-box C CXX)
 
 ###############
 # Prerequisites 
@@ -66,8 +66,8 @@ check_cxx_compiler_flag(-Werror HAS_WERROR)
 # OK, so MSVC12 is needed for c++11 but doesn't support it without the
 # November 2012 CTP as the platform toolset.
 # CMAKE doesn't support spefifying the toolset yet, so the user has to
-# Manually do it!
 # http://blogs.msdn.com/b/vcblog/archive/2012/11/02/visual-c-c-11-and-the-future-of-c.aspx
+# Manually do it!
 # ARGH! MSVC12 is actually MSVC11!
 if (MSVC11)
 	# We require cmake "-T" option to support C++11 platform in VS2012
@@ -144,6 +144,9 @@ add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-
 # yikes! that wasted a day of my life. Doesn't work as it can't find a make target
 # Maybe it only works in windows? Either way, include gmock with the source.
 
+# Uses threads in Linuxland
+FIND_PACKAGE ( Threads )
+
 add_subdirectory(third-party/gmock-1.6.0/gtest)
 enable_testing()
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
@@ -161,7 +164,7 @@ ADD_EXECUTABLE(
   
 target_link_libraries(
   game-in-a-box-common-tests
-  pthread
+  ${CMAKE_THREAD_LIBS_INIT}
   gtest
   gtest_main)
   
