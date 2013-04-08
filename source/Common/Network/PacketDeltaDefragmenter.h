@@ -22,15 +22,15 @@
 #define PACKETDELTADEFRAGMENTER_H
 
 #include <vector>
-#include "NetworkPacket.h"
+#include "PacketDelta.h"
 
 class PacketDeltaDefragmenter
 {
 public:
     PacketDeltaDefragmenter();
 
-    void AddPacket(NetworkPacket&);
-    std::vector<NetworkPacket> GetDefragmentedPackets();
+    void AddPacket(PacketDelta);
+    std::vector<PacketDelta> GetDefragmentedPackets();
 
 private:
 };

@@ -126,6 +126,38 @@ bool PacketDelta::IsValid() const
     return result;
 }
 
+
+bool PacketDelta::IsFragmented() const
+{
+    if (IsValid())
+    {
+        return (0 != (myBuffer[OffsetIsFragmented] & MaskTopByteIsFragmented));
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool PacketDelta::IsLastFragment() const
+{
+    if (IsFragmented())
+    {
+        // RAM: TODO!
+        return false;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+uint8_t PacketDelta::FragmentId() const
+{
+    // RAM: TODO!
+    return 0;
+}
+
 bool PacketDelta::HasClientId() const
 {
     if (IsValid())

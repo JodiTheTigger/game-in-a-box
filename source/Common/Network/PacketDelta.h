@@ -42,9 +42,15 @@ public:
     WrappingCounter<uint16_t> GetSequenceBase();
     WrappingCounter<uint16_t> GetSequenceAck();
 
-    bool IsValid() const;
+    bool IsValid() const;    
+
+    bool IsFragmented() const;
+    bool IsLastFragment() const;
+    uint8_t FragmentId() const;
+
     bool HasClientId() const;
     uint16_t ClientId() const;
+
     std::vector<uint8_t> GetPayload();
     std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
@@ -54,9 +60,8 @@ public:
     static void Push(std::vector<uint8_t>& buffer, uint16_t data);
 
 private:
-    // RAM: TODO! Some of this is shared with PacketCommand.
-    // Duplicate code is error code. Fix!
     static const std::size_t OffsetSequence = 0;
+    static const std::size_t OffsetIsFragmented = OffsetSequence;
     static const std::size_t OffsetSequenceAck = 2;
     static const std::size_t OffsetIsServerFlags = 2;
     static const std::size_t OffsetDeltaBase = 4;
@@ -67,6 +72,7 @@ private:
     static const std::size_t MinimumPacketSizeServer = OffsetDataServer;
     static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeServer;
     static const uint8_t MaskTopByteIsServerPacket = 0x80;
+    static const uint8_t MaskTopByteIsFragmented = 0x80;
     static const uint16_t MaskIsServerPacket = MaskTopByteIsServerPacket << 8;
     static const uint16_t MaskSequenceAck = MaskIsServerPacket - 1;
 

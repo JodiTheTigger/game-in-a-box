@@ -197,6 +197,11 @@ TEST_F(TestPackets, DeltaEmpty)
     PacketDelta empty;
 
     EXPECT_FALSE(empty.IsValid());
+
+    EXPECT_FALSE(empty.IsFragmented());
+    EXPECT_FALSE(empty.IsLastFragment());
+    EXPECT_EQ(0, empty.FragmentId());
+
     EXPECT_FALSE(empty.HasClientId());
     EXPECT_EQ(0, empty.GetSequence());
     EXPECT_EQ(0, empty.GetSequenceAck());
@@ -217,6 +222,11 @@ TEST_F(TestPackets, DeltaNoDataClient)
                 std::vector<uint8_t>());
 
     EXPECT_TRUE(toTest.IsValid());
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_FALSE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
+
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
@@ -232,6 +242,11 @@ TEST_F(TestPackets, DeltaNoDataServer)
     PacketDelta toTest(2,4,6,nullptr,{});
 
     EXPECT_TRUE(toTest.IsValid());
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_FALSE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
+
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
@@ -248,6 +263,11 @@ TEST_F(TestPackets, DeltaSimpleServer)
 
 
     EXPECT_TRUE(toTest.IsValid());
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_FALSE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
+
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
@@ -272,6 +292,11 @@ TEST_F(TestPackets, DeltaSimpleClient)
     std::vector<uint8_t> payload(toTest.GetPayload());
 
     EXPECT_TRUE(toTest.IsValid());
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_FALSE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
+
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
@@ -291,6 +316,11 @@ TEST_F(TestPackets, DeltaEncodeDecodeServer)
     std::vector<uint8_t> payload(toTest.GetPayload());
 
     EXPECT_FALSE(source.IsValid());
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_FALSE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
+
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
@@ -316,6 +346,11 @@ TEST_F(TestPackets, DeltaEncodeDecodeClient)
     std::vector<uint8_t> payload(toTest.GetPayload());
 
     EXPECT_FALSE(source.IsValid());
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_FALSE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
+
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());

@@ -24,7 +24,7 @@ PacketDeltaDefragmenter::PacketDeltaDefragmenter()
 {
 }
 
-void PacketDeltaDefragmenter::AddPacket(NetworkPacket&)
+void PacketDeltaDefragmenter::AddPacket(PacketDelta)
 {
     /* Copy pasted from old file NetworkPacketParser.cpp
     if (myEncodingDetails == PacketEncoding::FromServer)
@@ -71,9 +71,9 @@ void PacketDeltaDefragmenter::AddPacket(NetworkPacket&)
 */
 }
 
-std::vector<NetworkPacket> PacketDeltaDefragmenter::GetDefragmentedPackets()
+std::vector<PacketDelta> PacketDeltaDefragmenter::GetDefragmentedPackets()
 {
-    return std::vector<NetworkPacket>();
+    return std::vector<PacketDelta>();
 }
 
 
