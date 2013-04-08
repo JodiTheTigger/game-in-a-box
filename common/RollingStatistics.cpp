@@ -48,12 +48,15 @@ RollingStatistics::RollingStatistics(uint32_t rollingBufferSizeInSamples)
 
 void RollingStatistics::AddSample(float value)
 {
-    if (mySamples->size() == mySampleSizeMaximum)
-    {
-        mySamples->pop_back();
-    }
-    
-    mySamples->push_front(value);
+	if (mySampleSizeMaximum != 0)
+	{
+		if (mySamples->size() == mySampleSizeMaximum)
+		{
+			mySamples->pop_back();
+		}    
+
+		mySamples->push_front(value);
+	}
 }
 
 void RollingStatistics::Calculate()
