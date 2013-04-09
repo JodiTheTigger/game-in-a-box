@@ -38,6 +38,13 @@ public:
             uint16_t* clientId,
             std::vector<uint8_t> deltaPayload);
 
+    PacketDelta(
+            PacketDelta toFragment,
+            std::size_t maxPacketSize,
+            uint8_t fragmentId);
+
+    PacketDelta(std::vector<PacketDelta> fragments);
+
     WrappingCounter<uint16_t> GetSequence();
     WrappingCounter<uint16_t> GetSequenceBase();
     WrappingCounter<uint16_t> GetSequenceAck();
@@ -78,6 +85,7 @@ private:
     static const std::size_t OffsetFragmentId = 2;
     static const std::size_t OffsetFragmentPayload = 3;
     static const std::size_t MinimumPacketSizeFragment = OffsetFragmentPayload;
+    static const uint8_t MaskIsLastFragment = 0x80;
 
     static const uint8_t MaskTopByteIsServerPacket = 0x80;
     static const uint8_t MaskTopByteIsFragmented = 0x80;

@@ -58,6 +58,95 @@ PacketDelta::PacketDelta(
     myBuffer.insert( myBuffer.end(), deltaPayload.begin(), deltaPayload.end() );
 }
 
+PacketDelta::PacketDelta(
+        PacketDelta toFragment,
+        std::size_t maxPacketSize,
+        uint8_t fragmentId)
+    : PacketDelta()
+{
+    if (
+            toFragment.IsValid() &&
+            (!toFragment.IsFragmented()) &&
+            (fragmentId < MaskIsLastFragment)
+       )
+    {
+        std::size_t start;
+        std::size_t count;
+
+        count = (maxPacketSize - OffsetFragmentPayload);
+        start = OffsetSequenceAck + fragmentId * count;
+
+        // Past the end?
+        if (start <= toFragment.Size())
+        {
+            // last packet?
+            if ((start + count) >= toFragment.Size())
+            {
+                fragmentId |= MaskIsLastFragment;
+                count = toFragment.Size() - start;
+            }
+
+            myBuffer.reserve(count + OffsetFragmentPayload);
+
+            // write out the sequence and fragment id
+            Push(myBuffer, toFragment.GetSequence().Value());
+            myBuffer.push_back(fragmentId);
+
+            std::copy(
+                toFragment.myBuffer.begin() + start,
+                toFragment.myBuffer.begin() + count,
+                back_inserter(myBuffer));
+        }
+    }
+}
+
+PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
+    : PacketDelta()
+{
+    if (
+            (!fragments.empty()) &&
+            (fragments.size() < MaskIsLastFragment)
+       )
+    {
+        // reserve space.
+        std::vector<uint8_t> buffer(2 + (fragments.size() * (fragments[0].Size() - OffsetFragmentPayload)));
+        WrappingCounter<uint16_t> fragmentSequence(fragments[0].GetSequence());
+        //uint8_t lastFragment(0);
+        bool isValid(true);
+
+        // ARGH: TODO: 1) all valid and fragments, 2) all same sequence, 3) no duplicate fragment ids, 4) all fragments there.
+
+        // quick verify.
+        for (auto& fragment : fragments)
+        {
+            if (!fragment.IsValid())
+            {
+                isValid = false;
+                break;
+            }
+
+            if (!fragment.IsFragmented())
+            {
+                isValid = false;
+                break;
+            }
+
+            if (fragment.GetSequence() != fragmentSequence)
+            {
+                isValid = false;
+                break;
+            }
+
+            // RAM: TODO: check for dupliates, then join up.
+        }
+
+        if (isValid)
+        {
+            std::swap(myBuffer, buffer);
+        }
+    }
+}
+
 WrappingCounter<uint16_t> PacketDelta::GetSequence()
 {
     if (IsValid())
@@ -161,8 +250,14 @@ bool PacketDelta::IsLastFragment() const
 
 uint8_t PacketDelta::FragmentId() const
 {
-    // RAM: TODO!
-    return 0;
+    if (IsValid() && IsFragmented())
+    {
+        return myBuffer[OffsetFragmentId] & MaskIsLastFragment;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 bool PacketDelta::HasClientId() const
