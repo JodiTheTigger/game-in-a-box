@@ -33,7 +33,7 @@
 class BitStream;
 class BitStreamReadOnly;
 
-// RAM: Where to put this?
+// RAM: Where to put this? Not here as DeltaPacket.h uses it! Need types header!
 using Sequence = WrappingCounter<uint16_t>;
 
 // RAM: TODO! Convert to NVI!
