@@ -27,12 +27,26 @@
 class PacketDeltaDefragmenter
 {
 public:
+    static std::vector<PacketDelta> FragmentPacket(PacketDelta toFragment);
+
     PacketDeltaDefragmenter();
 
     void AddPacket(PacketDelta);
     std::vector<PacketDelta> GetDefragmentedPackets();
 
-private:
+private:    
+    static const std::size_t MtuIp4 = 576;
+    static const std::size_t MtuIp6 = 1280;
+    static const std::size_t MtuEthernetV2 = 1500;
+    static const std::size_t MtuEthernetLlcSnapPppoe = 1492;
+
+    static const std::size_t SizeMaxMtu = MtuEthernetLlcSnapPppoe;
+    static const std::size_t SizeIpHeaderMinimum = 20;
+    static const std::size_t SizeUdpHeader = 8;
+
+    static const std::size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
+    // RAM: Needed? static const std::size_t SizeMaxDeltaPayloadFragmented = SizeMaxPacketSize - OffsetFragmentPayload;
+    // RAM: Needed? static const std::size_t SizeMaxDeltaPayloadTotal = SizeMaxDeltaPayloadFragmented * ((1 << 7) - 1);
 };
 
 #endif // PACKETDELTADEFRAGMENTER_H

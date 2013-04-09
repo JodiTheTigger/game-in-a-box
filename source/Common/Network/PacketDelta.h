@@ -51,6 +51,7 @@ public:
     bool HasClientId() const;
     uint16_t ClientId() const;
 
+    std::size_t Size() { return myBuffer.size(); }
     std::vector<uint8_t> GetPayload();
     std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
@@ -60,6 +61,7 @@ public:
     static void Push(std::vector<uint8_t>& buffer, uint16_t data);
 
 private:
+    // No, I'm not going to use a struct to determine offsets.
     static const std::size_t OffsetSequence = 0;
     static const std::size_t OffsetIsFragmented = OffsetSequence;
     static const std::size_t OffsetSequenceAck = 2;
@@ -71,6 +73,12 @@ private:
     static const std::size_t MinimumPacketSizeClient = OffsetDataClient;
     static const std::size_t MinimumPacketSizeServer = OffsetDataServer;
     static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeServer;
+
+    // Fragmented packets
+    static const std::size_t OffsetFragmentId = 2;
+    static const std::size_t OffsetFragmentPayload = 3;
+    static const std::size_t MinimumPacketSizeFragment = OffsetFragmentPayload;
+
     static const uint8_t MaskTopByteIsServerPacket = 0x80;
     static const uint8_t MaskTopByteIsFragmented = 0x80;
     static const uint16_t MaskIsServerPacket = MaskTopByteIsServerPacket << 8;

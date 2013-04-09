@@ -122,6 +122,13 @@ bool PacketDelta::IsValid() const
             }
         }
     }
+    else
+    {
+        if (myBuffer.size() >= MinimumPacketSizeFragment)
+        {
+            result = (0 != (myBuffer[OffsetIsFragmented] & MaskTopByteIsFragmented));
+        }
+    }
 
     return result;
 }

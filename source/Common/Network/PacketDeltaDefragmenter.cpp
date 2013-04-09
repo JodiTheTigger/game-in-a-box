@@ -24,6 +24,19 @@ PacketDeltaDefragmenter::PacketDeltaDefragmenter()
 {
 }
 
+std::vector<PacketDelta> PacketDeltaDefragmenter::FragmentPacket(PacketDelta)
+{
+    std::vector<PacketDelta> result;
+ /*
+    if (toFragment.IsValid())
+    {
+        if (toFragment.HasClientId())
+        if (toFragment.myBuffer.size() - PacketDelta::)
+    }
+    */
+    return result;
+}
+
 void PacketDeltaDefragmenter::AddPacket(PacketDelta)
 {
     /* Copy pasted from old file NetworkPacketParser.cpp

@@ -201,6 +201,7 @@ TEST_F(TestPackets, DeltaEmpty)
     EXPECT_FALSE(empty.IsFragmented());
     EXPECT_FALSE(empty.IsLastFragment());
     EXPECT_EQ(0, empty.FragmentId());
+    EXPECT_EQ(0, empty.Size());
 
     EXPECT_FALSE(empty.HasClientId());
     EXPECT_EQ(0, empty.GetSequence());
@@ -226,6 +227,7 @@ TEST_F(TestPackets, DeltaNoDataClient)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
+    EXPECT_NE(0, toTest.Size());
 
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
@@ -246,6 +248,7 @@ TEST_F(TestPackets, DeltaNoDataServer)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
+    EXPECT_NE(0, toTest.Size());
 
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
@@ -267,6 +270,7 @@ TEST_F(TestPackets, DeltaSimpleServer)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
+    EXPECT_NE(0, toTest.Size());
 
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
@@ -296,6 +300,7 @@ TEST_F(TestPackets, DeltaSimpleClient)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
+    EXPECT_NE(0, toTest.Size());
 
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
@@ -320,6 +325,7 @@ TEST_F(TestPackets, DeltaEncodeDecodeServer)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
+    EXPECT_NE(0, toTest.Size());
 
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_FALSE(toTest.HasClientId());
@@ -350,6 +356,7 @@ TEST_F(TestPackets, DeltaEncodeDecodeClient)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
+    EXPECT_NE(0, toTest.Size());
 
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_TRUE(toTest.HasClientId());
