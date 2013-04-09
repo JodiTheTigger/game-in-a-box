@@ -27,13 +27,26 @@ PacketDeltaDefragmenter::PacketDeltaDefragmenter()
 std::vector<PacketDelta> PacketDeltaDefragmenter::FragmentPacket(PacketDelta)
 {
     std::vector<PacketDelta> result;
- /*
+/*
     if (toFragment.IsValid())
     {
-        if (toFragment.HasClientId())
-        if (toFragment.myBuffer.size() - PacketDelta::)
+        if (toFragment.Size() > SizeMaxPacketSize)
+        {
+            if (toFragment.Size() <= SizeMaxDeltaPayloadTotal)
+            {
+                // RAM: TODO!
+            }
+            else
+            {
+                // RAM: TODO: too big! Log, error, message. Just note it somehow.
+            }
+        }
+        else
+        {
+            result.push_back(toFragment);
+        }
     }
-    */
+*/
     return result;
 }
 

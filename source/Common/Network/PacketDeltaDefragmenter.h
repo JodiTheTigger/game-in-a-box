@@ -45,8 +45,17 @@ private:
     static const std::size_t SizeUdpHeader = 8;
 
     static const std::size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
-    // RAM: Needed? static const std::size_t SizeMaxDeltaPayloadFragmented = SizeMaxPacketSize - OffsetFragmentPayload;
-    // RAM: Needed? static const std::size_t SizeMaxDeltaPayloadTotal = SizeMaxDeltaPayloadFragmented * ((1 << 7) - 1);
+
+    // RAM: TODO: calculate the acutal max payload size, therefore the max gamestate size?
+
+    // RAM: TODO: These two are owned by PacketDelta, don't duplicate. Fix.
+    //static const std::size_t OffsetDeltaPacketStart = OffsetSequenceAck;
+    //static const std::size_t OffsetFragmentPayload = 3;
+
+    //static const std::size_t SizeDeltaPacketFragmentHeader = OffsetFragmentPayload;
+    //static const std::size_t OffsetDeltaPacketStart = OffsetSequenceAck;
+    //static const std::size_t SizeMaxDeltaPayloadFragmented = SizeMaxPacketSize - SizeDeltaPacketFragmentHeader;
+    //static const std::size_t SizeMaxDeltaPayloadTotal = SizeMaxDeltaPayloadFragmented * ((1 << 7) - 1);
 };
 
 #endif // PACKETDELTADEFRAGMENTER_H
