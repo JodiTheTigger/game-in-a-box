@@ -56,6 +56,17 @@ TYPED_TEST(TestWrappingCounter, TestSimpleEqual)
     }
 }
 
+TYPED_TEST(TestWrappingCounter, TestSimpleNotEqual)
+{
+    for (uint64_t i(0); i < uint64_t(TestFixture::maxValue); i++)
+    {
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+42);
+
+        ASSERT_NE(a, b);
+    }
+}
+
 TYPED_TEST(TestWrappingCounter, TestSimpleEqualAgainstUint64)
 {
     for (uint64_t i(0); i < uint64_t(TestFixture::maxValue); i++)

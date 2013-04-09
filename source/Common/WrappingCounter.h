@@ -45,6 +45,12 @@ bool operator==(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>
 }
 
 template<typename T>
+bool operator!=(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
+{
+    return !(leftHandSide.Value() == rightHandSide.Value());
+}
+
+template<typename T>
 bool operator==(const WrappingCounter<T>& leftHandSide, uint64_t rightHandSide)
 {
     return leftHandSide.Value() == rightHandSide;
