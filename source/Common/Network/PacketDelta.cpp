@@ -205,7 +205,7 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetSequence()
+WrappingCounter<uint16_t> PacketDelta::GetSequence() const
 {
     if (IsValid())
     {
@@ -217,7 +217,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequence()
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetSequenceBase()
+WrappingCounter<uint16_t> PacketDelta::GetSequenceBase() const
 {
     if (IsValid())
     {
@@ -231,7 +231,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceBase()
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetSequenceAck()
+WrappingCounter<uint16_t> PacketDelta::GetSequenceAck() const
 {
     if (IsValid())
     {
@@ -341,7 +341,7 @@ uint16_t PacketDelta::ClientId() const
     }
 }
 
-std::vector<uint8_t> PacketDelta::GetPayload()
+std::vector<uint8_t> PacketDelta::GetPayload() const
 {
     if (IsValid())
     {

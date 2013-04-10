@@ -45,9 +45,9 @@ public:
 
     PacketDelta(std::vector<PacketDelta> fragments);
 
-    WrappingCounter<uint16_t> GetSequence();
-    WrappingCounter<uint16_t> GetSequenceBase();
-    WrappingCounter<uint16_t> GetSequenceAck();
+    WrappingCounter<uint16_t> GetSequence() const;
+    WrappingCounter<uint16_t> GetSequenceBase() const;
+    WrappingCounter<uint16_t> GetSequenceAck() const;
 
     bool IsValid() const;    
 
@@ -58,8 +58,8 @@ public:
     bool HasClientId() const;
     uint16_t ClientId() const;
 
-    std::size_t Size() { return myBuffer.size(); }
-    std::vector<uint8_t> GetPayload();
+    std::size_t Size() const { return myBuffer.size(); }
+    std::vector<uint8_t> GetPayload() const;
     std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
     // TODO: once we have namespaces, take this out of the class.
