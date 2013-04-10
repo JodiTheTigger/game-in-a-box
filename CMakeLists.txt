@@ -189,6 +189,7 @@ ADD_EXECUTABLE(
   game-in-a-box-common-tests
   ${PROJECT_SOURCE_DIR}/test/Common/TestWrappingCounter.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProvider.cpp
