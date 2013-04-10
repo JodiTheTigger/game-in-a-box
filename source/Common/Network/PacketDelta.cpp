@@ -70,32 +70,41 @@ PacketDelta::PacketDelta(
             (fragmentId < MaskIsLastFragment)
        )
     {
-        std::size_t start;
-        std::size_t count;
-
-        count = (maxPacketSize - OffsetFragmentPayload);
-        start = OffsetSequenceAck + fragmentId * count;
-
-        // Past the end?
-        if (start <= toFragment.Size())
+        // test it needs fragmenting
+        if (toFragment.Size() < maxPacketSize)
         {
-            // last packet?
-            if ((start + count) >= toFragment.Size())
+            // just copy, no fragmentation needed.
+            myBuffer = toFragment.myBuffer;
+        }
+        else
+        {
+            std::size_t start;
+            std::size_t count;
+
+            count = (maxPacketSize - OffsetFragmentPayload);
+            start = OffsetSequenceAck + fragmentId * count;
+
+            // Past the end?
+            if (start <= toFragment.Size())
             {
-                fragmentId |= MaskIsLastFragment;
-                count = toFragment.Size() - start;
+                // last packet?
+                if ((start + count) >= toFragment.Size())
+                {
+                    fragmentId |= MaskIsLastFragment;
+                    count = toFragment.Size() - start;
+                }
+
+                myBuffer.reserve(count + OffsetFragmentPayload);
+
+                // write out the sequence and fragment id
+                Push(myBuffer, toFragment.GetSequence().Value());
+                myBuffer.push_back(fragmentId);
+
+                std::copy(
+                    toFragment.myBuffer.begin() + start,
+                    toFragment.myBuffer.begin() + count,
+                    back_inserter(myBuffer));
             }
-
-            myBuffer.reserve(count + OffsetFragmentPayload);
-
-            // write out the sequence and fragment id
-            Push(myBuffer, toFragment.GetSequence().Value());
-            myBuffer.push_back(fragmentId);
-
-            std::copy(
-                toFragment.myBuffer.begin() + start,
-                toFragment.myBuffer.begin() + count,
-                back_inserter(myBuffer));
         }
     }
 }
