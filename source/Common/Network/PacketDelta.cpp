@@ -67,7 +67,8 @@ PacketDelta::PacketDelta(
     if (
             toFragment.IsValid() &&
             (!toFragment.IsFragmented()) &&
-            (fragmentId < MaskIsLastFragment)
+            (fragmentId < MaskIsLastFragment) &&
+            (maxPacketSize > MinimumPacketSizeFragment)
        )
     {
         // test it needs fragmenting
