@@ -108,41 +108,90 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
             (fragments.size() < MaskIsLastFragment)
        )
     {
-        // reserve space.
-        std::vector<uint8_t> buffer(2 + (fragments.size() * (fragments[0].Size() - OffsetFragmentPayload)));
-        WrappingCounter<uint16_t> fragmentSequence(fragments[0].GetSequence());
-        //uint8_t lastFragment(0);
-        bool isValid(true);
+        std::vector<PacketDelta*> sorted(fragments.size());
 
-        // ARGH: TODO: 1) all valid and fragments, 2) all same sequence, 3) no duplicate fragment ids, 4) all fragments there.
-
-        // quick verify.
+        // deduplicate
         for (auto& fragment : fragments)
         {
-            if (!fragment.IsValid())
+            if (sorted[fragment.FragmentId()] == nullptr)
             {
-                isValid = false;
-                break;
+                sorted[fragment.FragmentId()] = &fragment;
             }
-
-            if (!fragment.IsFragmented())
-            {
-                isValid = false;
-                break;
-            }
-
-            if (fragment.GetSequence() != fragmentSequence)
-            {
-                isValid = false;
-                break;
-            }
-
-            // RAM: TODO: check for dupliates, then join up.
         }
 
-        if (isValid)
+        if (sorted[0] != nullptr)
         {
-            std::swap(myBuffer, buffer);
+            if (sorted[0]->IsValid())
+            {
+                std::size_t maxFragmentSize(sorted[0]->Size() - OffsetFragmentPayload);
+                std::vector<uint8_t> buffer(2 + (sorted.size() * maxFragmentSize));
+                WrappingCounter<uint16_t> fragmentSequence(sorted[0]->GetSequence());
+                uint8_t lastFragment(255);
+                bool isValid(true);
+
+                // copy the sequqnce to the buffer
+                // (IsValid() so we assume the size is > 2).
+                buffer[0] = sorted[0]->myBuffer[0];
+                buffer[1] = sorted[0]->myBuffer[1];
+
+                // verify and join.
+                for (auto& fragment : sorted)
+                {
+                    if (fragment == nullptr)
+                    {
+                        isValid = false;
+                        break;
+                    }
+
+                    if (!fragment->IsValid())
+                    {
+                        isValid = false;
+                        break;
+                    }
+
+                    if (!fragment->IsFragmented())
+                    {
+                        isValid = false;
+                        break;
+                    }
+
+                    if (fragment->GetSequence() != fragmentSequence)
+                    {
+                        isValid = false;
+                        break;
+                    }
+
+                    // last fragment id?
+                    if (fragment->IsLastFragment())
+                    {
+                        if (lastFragment != 255)
+                        {
+                            // wtf? two last fragments?
+                            isValid = false;
+                            break;
+                        }
+                        else
+                        {
+                            lastFragment = fragment->FragmentId();
+                        }
+                    }
+
+                    std::copy(
+                        fragment->myBuffer.begin() + OffsetFragmentPayload,
+                        fragment->myBuffer.end(),
+                        buffer.begin() + 2 + (fragment->FragmentId() * maxFragmentSize));
+                }
+
+                if (sorted.size() != std::size_t((lastFragment + 1)))
+                {
+                    isValid = false;
+                }
+
+                if (isValid)
+                {
+                    std::swap(myBuffer, buffer);
+                }
+            }
         }
     }
 }
@@ -239,8 +288,7 @@ bool PacketDelta::IsLastFragment() const
 {
     if (IsFragmented())
     {
-        // RAM: TODO!
-        return false;
+        return ((myBuffer[OffsetFragmentId] & MaskIsLastFragment) != 0);
     }
     else
     {
