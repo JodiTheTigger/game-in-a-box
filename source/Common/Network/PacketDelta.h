@@ -43,6 +43,20 @@ public:
             std::size_t maxPacketSize,
             uint8_t fragmentId);
 
+    // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
+    // Should be non static non method, but since it compares a non-public member, I'll keep it as a member.
+    inline bool operator==(const PacketDelta& other) const {return this->myBuffer == other.myBuffer; }
+    inline bool operator!=(const PacketDelta& other) const {return !operator==(other);}
+    inline bool operator< (const PacketDelta& other) const {return (this->myBuffer < other.myBuffer);}
+    inline bool operator> (const PacketDelta& other) const {return (this->myBuffer > other.myBuffer);}
+    inline bool operator<=(const PacketDelta& other) const {return !operator>(other);}
+    inline bool operator>=(const PacketDelta& other) const {return !operator<(other);}
+
+    // Returns a valid delta only if all fragments to once sequence are supplied.
+    // If different sequencies supplied interleaved, returns the last sequenced delta.
+    // Even if complete delta could be made, won't be valid if it's interleaved with
+    // a newer sequenced delta fragment (that isn't complete).
+    // Ignores non-fragmented packets.
     PacketDelta(std::vector<PacketDelta> fragments);
 
     WrappingCounter<uint16_t> GetSequence() const;
