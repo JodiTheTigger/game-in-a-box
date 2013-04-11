@@ -285,3 +285,83 @@ TEST_F(TestPacketDelta, Fragments)
     EXPECT_TRUE(toTest2.IsLastFragment());
     EXPECT_EQ(toTest2.Size(), 3 + ((delta8BytePayloadServer.Size() - 2) - 7));
 }
+
+TEST_F(TestPacketDelta, DefragmentEmpty)
+{
+    auto buffer = std::vector<PacketDelta>();
+    PacketDelta toTest(buffer);
+
+    TestEmpty(toTest);
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
+}
+
+TEST_F(TestPacketDelta, DefragmentSingleNotFragmented)
+{
+    auto buffer = std::vector<PacketDelta>(1, delta8BytePayloadServer);
+
+    PacketDelta toTest(buffer);
+
+    TestEmpty(toTest);
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
+}
+
+TEST_F(TestPacketDelta, DefragmentMultipleNotFragmented)
+{
+    auto buffer = std::vector<PacketDelta>(3, delta8BytePayloadServer);
+
+    PacketDelta toTest(buffer);
+
+    TestEmpty(toTest);
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
+}
+
+TEST_F(TestPacketDelta, DefragmentTooMany)
+{
+    PacketDelta fragment(delta8BytePayloadServer, 10, 0);
+
+    auto buffer = std::vector<PacketDelta>(128, fragment);
+
+    PacketDelta toTest(buffer);
+
+    TestEmpty(toTest);
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
+}
+
+TEST_F(TestPacketDelta, DefragmentSimple)
+{
+    std::vector<PacketDelta> fragments;
+
+    // Oh comon, this is c++11, do this using lambdas or iterators or something.
+    uint8_t count(0);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+        fragments.push_back(result);
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+TEST_F(TestPacketDelta, DefragmentFragmentNoFragmentedFragments)
+{
+    // expect not fragmented item to be ignored.
+    // TODO!
+    EXPECT_TRUE(false);
+}
+
+TEST_F(TestPacketDelta, DefragmentSequenceInterleavedNotComplete)
+{
+    // send complete delta fragments, but interleaved with once
+    // of a newer sequence, should be invalid returned.
+    // TODO!
+    EXPECT_TRUE(false);
+}
+
