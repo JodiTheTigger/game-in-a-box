@@ -79,7 +79,6 @@ private:
     static const std::size_t OffsetDataServer = 5;
     static const std::size_t MinimumPacketSizeClient = OffsetDataClient;
     static const std::size_t MinimumPacketSizeServer = OffsetDataServer;
-    static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeServer;
 
     // Fragmented packets
     static const std::size_t OffsetFragmentId = 2;
@@ -91,6 +90,8 @@ private:
     static const uint8_t MaskTopByteIsFragmented = 0x80;
     static const uint16_t MaskIsServerPacket = MaskTopByteIsServerPacket << 8;
     static const uint16_t MaskSequenceAck = MaskIsServerPacket - 1;
+
+    static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeFragment;
 
     std::vector<uint8_t> myBuffer;
 };
