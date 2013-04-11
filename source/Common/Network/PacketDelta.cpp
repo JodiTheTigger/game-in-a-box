@@ -126,8 +126,9 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
         // deduplicate
         for (auto& fragment : fragments)
         {
-            if (sorted[fragment.FragmentId()] == nullptr)
+            if (fragment.IsFragmented())
             {
+                // take the last duplicate.
                 sorted[fragment.FragmentId()] = &fragment;
             }
         }
