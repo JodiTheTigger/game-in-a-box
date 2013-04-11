@@ -246,13 +246,42 @@ TEST_F(TestPacketDelta, FragmentEmpty)
     EXPECT_EQ(0, toTest.TakeBuffer().size());
 }
 
-TEST_F(TestPacketDelta, FragmentZeroMaxSize)
+TEST_F(TestPacketDelta, FragmentIdPastEnd)
 {
-    /*
-    PacketDelta toTest(PacketDelta(), 0, 0);
+    PacketDelta toTest(delta8BytePayloadServer, 4, 100);
 
     TestEmpty(toTest);
     EXPECT_EQ(0, toTest.TakeBuffer().size());
-    */
-    // RAM: TODO!
+}
+
+TEST_F(TestPacketDelta, FragmentNotFragmented)
+{
+    PacketDelta toTest(delta8BytePayloadServer, 1024, 0);
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_EQ(toTest.Size(), delta8BytePayloadServer.Size());
+}
+
+TEST_F(TestPacketDelta, Fragments)
+{
+    PacketDelta toTest1(delta8BytePayloadServer, 10, 0);
+    PacketDelta toTest2(delta8BytePayloadServer, 10, 1);
+    std::vector<uint8_t> payload1(toTest1.GetPayload());
+    std::vector<uint8_t> payload2(toTest2.GetPayload());
+
+    // first
+    EXPECT_TRUE(toTest1.IsValid());
+    EXPECT_TRUE(toTest1.IsFragmented());
+    EXPECT_EQ(0, toTest1.FragmentId());
+    EXPECT_FALSE(toTest1.IsLastFragment());
+    EXPECT_EQ(toTest1.Size(), 10);
+    EXPECT_EQ(7, payload1.size());
+
+    // second
+    EXPECT_TRUE(toTest2.IsValid());
+    EXPECT_TRUE(toTest2.IsFragmented());
+    EXPECT_EQ(1, toTest2.FragmentId());
+    EXPECT_TRUE(toTest2.IsLastFragment());
+    EXPECT_EQ(toTest2.Size(), 3 + ((delta8BytePayloadServer.Size() - 2) - 7));
 }
