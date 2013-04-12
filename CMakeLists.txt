@@ -179,7 +179,7 @@ add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-
 # yikes! that wasted a day of my life. Doesn't work as it can't find a make target
 # Maybe it only works in windows? Either way, include gmock with the source.
 
-add_subdirectory(third-party/gmock-1.6.0/gtest)
+add_subdirectory(third-party/gmock-1.6.0)
 enable_testing()
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
