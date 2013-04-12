@@ -351,17 +351,61 @@ TEST_F(TestPacketDelta, DefragmentSimple)
 }
 
 TEST_F(TestPacketDelta, DefragmentFragmentNoFragmentedFragments)
-{
-    // expect not fragmented item to be ignored.
-    // TODO!
-    EXPECT_TRUE(false);
+{    
+    std::vector<PacketDelta> fragments;
+
+    // Oh comon, this is c++11, do this using lambdas or iterators or something.
+    uint8_t count(0);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+        fragments.push_back(result);
+
+        // throw in a normal packet, should be ignored when defragged.
+        if (count == 0)
+        {
+            fragments.push_back({2,4,6,nullptr,{2,4,6,8,10,12,14,18}});
+        }
+
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
 }
 
 TEST_F(TestPacketDelta, DefragmentSequenceInterleavedNotComplete)
 {
     // send complete delta fragments, but interleaved with once
     // of a newer sequence, should be invalid returned.
-    // TODO!
-    EXPECT_TRUE(false);
+    std::vector<PacketDelta> fragments;
+    PacketDelta second({2,4,6,nullptr,{2,4,6,8,10,12,14,18}}, 8, 0);
+    PacketDelta first(PacketDelta(delta8BytePayloadServer, 8, 1));
+
+    fragments.push_back(first);
+    fragments.push_back(second);
+
+    uint8_t count(1);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+        fragments.push_back(result);
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+    TestEmpty(toTest);
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
 }
 

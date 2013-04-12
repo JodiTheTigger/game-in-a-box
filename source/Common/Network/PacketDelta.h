@@ -103,7 +103,9 @@ private:
     static const uint8_t MaskTopByteIsServerPacket = 0x80;
     static const uint8_t MaskTopByteIsFragmented = 0x80;
     static const uint16_t MaskIsServerPacket = MaskTopByteIsServerPacket << 8;
+    static const uint16_t MaskIsFragmented = MaskTopByteIsFragmented << 8;
     static const uint16_t MaskSequenceAck = MaskIsServerPacket - 1;
+    static const uint16_t MaskSequence = MaskIsFragmented - 1;
 
     static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeFragment;
 

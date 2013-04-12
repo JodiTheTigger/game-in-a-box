@@ -116,10 +116,7 @@ PacketDelta::PacketDelta(
 PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
     : PacketDelta()
 {
-    if (
-            (!fragments.empty()) &&
-            (fragments.size() < MaskIsLastFragment)
-       )
+    if (!fragments.empty())
     {
         std::vector<PacketDelta*> sorted(fragments.size());
 
@@ -133,77 +130,74 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
             }
         }
 
-        if (sorted[0] != nullptr)
+        if (sorted.size() < MaskIsLastFragment)
         {
-            if (sorted[0]->IsValid())
+            if (sorted[0] != nullptr)
             {
-                std::size_t maxFragmentSize(sorted[0]->Size() - OffsetFragmentPayload);
-                std::vector<uint8_t> buffer(2 + (sorted.size() * maxFragmentSize));
-                WrappingCounter<uint16_t> fragmentSequence(sorted[0]->GetSequence());
-                uint8_t lastFragment(255);
-                bool isValid(true);
-
-                // copy the sequqnce to the buffer
-                // (IsValid() so we assume the size is > 2).
-                buffer[0] = sorted[0]->myBuffer[0];
-                buffer[1] = sorted[0]->myBuffer[1];
-
-                // verify and join.
-                for (auto& fragment : sorted)
+                if (sorted[0]->IsValid())
                 {
-                    if (fragment == nullptr)
-                    {
-                        isValid = false;
-                        break;
-                    }
+                    std::size_t maxFragmentSize(sorted[0]->Size() - OffsetFragmentPayload);
+                    std::size_t bufferSize(2 + (sorted.size() * maxFragmentSize));
+                    std::vector<uint8_t> buffer;
+                    WrappingCounter<uint16_t> fragmentSequence(sorted[0]->GetSequence());
+                    uint8_t lastFragment(255);
+                    bool isValid(true);
 
-                    if (!fragment->IsValid())
-                    {
-                        isValid = false;
-                        break;
-                    }
+                    buffer.reserve(bufferSize);
 
-                    if (!fragment->IsFragmented())
-                    {
-                        isValid = false;
-                        break;
-                    }
+                    // copy the sequence to the buffer
+                    // (IsValid() so we assume the size is > 2).
+                    Push(buffer, fragmentSequence.Value());
 
-                    if (fragment->GetSequence() != fragmentSequence)
+                    // verify and join.
+                    for (auto& fragment : sorted)
                     {
-                        isValid = false;
-                        break;
-                    }
-
-                    // last fragment id?
-                    if (fragment->IsLastFragment())
-                    {
-                        if (lastFragment != 255)
+                        if (fragment == nullptr)
                         {
-                            // wtf? two last fragments?
                             isValid = false;
                             break;
                         }
-                        else
+
+                        if (!fragment->IsValid())
+                        {
+                            isValid = false;
+                            break;
+                        }
+
+                        if (!fragment->IsFragmented())
+                        {
+                            isValid = false;
+                            break;
+                        }
+
+                        if (fragment->GetSequence() != fragmentSequence)
+                        {
+                            isValid = false;
+                            break;
+                        }
+
+                        std::copy(
+                            fragment->myBuffer.begin() + OffsetFragmentPayload,
+                            fragment->myBuffer.end(),
+                            back_inserter(buffer));
+
+                        // last fragment id?
+                        if (fragment->IsLastFragment())
                         {
                             lastFragment = fragment->FragmentId();
+                            break;
                         }
                     }
 
-                    std::copy(
-                        fragment->myBuffer.begin() + OffsetFragmentPayload,
-                        fragment->myBuffer.end(),
-                        buffer.begin() + 2 + (fragment->FragmentId() * maxFragmentSize));
-                }
+                    if (sorted.size() != std::size_t((lastFragment + 1)))
+                    {
+                        isValid = false;
+                    }
 
-                if (sorted.size() != std::size_t((lastFragment + 1)))
-                {
-                    isValid = false;
-                }
-
-                if (isValid)
-                {
-                    std::swap(myBuffer, buffer);
+                    if (isValid)
+                    {
+                        std::swap(myBuffer, buffer);
+                    }
                 }
             }
         }
@@ -214,7 +208,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequence() const
 {
     if (IsValid())
     {
-        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequence));
+        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequence) & MaskSequence);
     }
     else
     {
