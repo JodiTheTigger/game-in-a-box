@@ -18,9 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketSimple.h>
-#include <Common/Network/PacketChallenge.h>
-#include <Common/Network/PacketChallengeResponse.h>
 #include <Common/Network/PacketDelta.h>
 #include <gmock/gmock.h>
 
