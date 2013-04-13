@@ -21,85 +21,61 @@
 #include "PacketDeltaDefragmenter.h"
 
 PacketDeltaDefragmenter::PacketDeltaDefragmenter()
+    : myFragments()
+    , myCurrentSequence()
 {
 }
 
-std::vector<PacketDelta> PacketDeltaDefragmenter::FragmentPacket(PacketDelta)
+std::vector<PacketDelta> PacketDeltaDefragmenter::FragmentPacket(PacketDelta toFragment)
 {
     std::vector<PacketDelta> result;
-/*
-    if (toFragment.IsValid())
+    bool keepGoing(true);
+    uint8_t count(0);
+
+    while (keepGoing)
     {
-        if (toFragment.Size() > SizeMaxPacketSize)
+        PacketDelta fragment(toFragment, SizeMaxPacketSize, count++);
+
+        if ((count == 255) || (!fragment.IsValid()))
         {
-            if (toFragment.Size() <= SizeMaxDeltaPayloadTotal)
-            {
-                // RAM: TODO!
-            }
-            else
-            {
-                // RAM: TODO: too big! Log, error, message. Just note it somehow.
-            }
+            keepGoing = false;
         }
         else
         {
-            result.push_back(toFragment);
+            result.push_back(fragment);
         }
     }
-*/
+
     return result;
 }
 
-void PacketDeltaDefragmenter::AddPacket(PacketDelta)
+void PacketDeltaDefragmenter::AddPacket(PacketDelta fragmentToAdd)
 {
-    /* Copy pasted from old file NetworkPacketParser.cpp
-    if (myEncodingDetails == PacketEncoding::FromServer)
+    if (fragmentToAdd.IsFragmented())
     {
-        uint8_t fragmentId;
-
-        fragmentId = packetData.data[OffsetFragmentId];
-
-        // deal with the fragment.
-        if (fragmentId & 0x80)
+        if (myCurrentSequence < fragmentToAdd.GetSequence())
         {
-            fragmentId &= 0x7F;
-            myFragmentTotal = fragmentId + 1;
+            myFragments.clear();
         }
 
-        // watch out for packets out of range
-        if (myFragmentCount < myFragmentTotal)
+        if (myFragments.empty())
         {
-            // don't count duplicates
-            if (myFragments[fragmentId].data.size() == 0)
+            myCurrentSequence = fragmentToAdd.GetSequence();
+            myFragments.push_back(fragmentToAdd);
+        }
+        else
+        {
+            if (myCurrentSequence == fragmentToAdd.GetSequence())
             {
-                ++myFragmentCount;
-            }
-
-            myFragments[fragmentId] = move(packetData);
-
-            // got them all?
-            if (myFragmentCount == myFragmentTotal)
-            {
-                NetworkPacket notFragmented;
-
-                notFragmented = PacketDefragment(myFragments);
-
-                // clean up
-                myFragmentCount = 0;
-                myFragmentTotal = 0;
-                myFragments.clear();
-
-                // Not fragmented, yippie.
-                ParseDelta(notFragmented);
+                myFragments.push_back(fragmentToAdd);
             }
         }
     }
-*/
 }
 
-std::vector<PacketDelta> PacketDeltaDefragmenter::GetDefragmentedPackets()
+PacketDelta PacketDeltaDefragmenter::GetDefragmentedPacket()
 {
-    return std::vector<PacketDelta>();
+    return PacketDelta(myFragments);
 }
 
 

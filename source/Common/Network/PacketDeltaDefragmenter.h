@@ -31,8 +31,9 @@ public:
 
     PacketDeltaDefragmenter();
 
-    void AddPacket(PacketDelta);
-    std::vector<PacketDelta> GetDefragmentedPackets();
+    // ignores packets that aren't fragmented.
+    void AddPacket(PacketDelta fragmentToAdd);
+    PacketDelta GetDefragmentedPacket();
 
 private:    
     static const std::size_t MtuIp4 = 576;
@@ -46,16 +47,8 @@ private:
 
     static const std::size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
 
-    // RAM: TODO: calculate the acutal max payload size, therefore the max gamestate size?
-
-    // RAM: TODO: These two are owned by PacketDelta, don't duplicate. Fix.
-    //static const std::size_t OffsetDeltaPacketStart = OffsetSequenceAck;
-    //static const std::size_t OffsetFragmentPayload = 3;
-
-    //static const std::size_t SizeDeltaPacketFragmentHeader = OffsetFragmentPayload;
-    //static const std::size_t OffsetDeltaPacketStart = OffsetSequenceAck;
-    //static const std::size_t SizeMaxDeltaPayloadFragmented = SizeMaxPacketSize - SizeDeltaPacketFragmentHeader;
-    //static const std::size_t SizeMaxDeltaPayloadTotal = SizeMaxDeltaPayloadFragmented * ((1 << 7) - 1);
+    std::vector<PacketDelta> myFragments;
+    WrappingCounter<uint16_t> myCurrentSequence;
 };
 
 #endif // PACKETDELTADEFRAGMENTER_H
