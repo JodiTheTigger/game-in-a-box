@@ -71,43 +71,49 @@ PacketDelta::PacketDelta(
             (maxPacketSize > MinimumPacketSizeFragment)
        )
     {
-        // test it needs fragmenting
-        if (toFragment.Size() < maxPacketSize)
-        {
-            // just copy, no fragmentation needed.
-            myBuffer = toFragment.myBuffer;
-        }
-        else
-        {
-            std::size_t start;
-            std::size_t count;
+        std::size_t maxSize((maxPacketSize - MinimumPacketSizeFragment) * (MaskIsLastFragment - 1));
 
-            count = (maxPacketSize - OffsetFragmentPayload);
-            start = OffsetSequenceAck + fragmentId * count;
-
-            // Past the end?
-            if (start <= toFragment.Size())
+        // too big to fit?
+        if ((toFragment.Size() - OffsetSequenceAck) <= maxSize)
+        {
+            // test it needs fragmenting
+            if (toFragment.Size() < maxPacketSize)
             {
-                // last packet?
-                if ((start + count) >= toFragment.Size())
+                // just copy, no fragmentation needed.
+                myBuffer = toFragment.myBuffer;
+            }
+            else
+            {
+                std::size_t start;
+                std::size_t count;
+
+                count = (maxPacketSize - OffsetFragmentPayload);
+                start = OffsetSequenceAck + fragmentId * count;
+
+                // Past the end?
+                if (start <= toFragment.Size())
                 {
-                    fragmentId |= MaskIsLastFragment;
-                    count = toFragment.Size() - start;
+                    // last packet?
+                    if ((start + count) >= toFragment.Size())
+                    {
+                        fragmentId |= MaskIsLastFragment;
+                        count = toFragment.Size() - start;
+                    }
+
+                    myBuffer.reserve(count + OffsetFragmentPayload);
+
+                    // write out the sequence and fragment id
+                    Push(myBuffer, toFragment.GetSequence().Value());
+                    myBuffer.push_back(fragmentId);
+
+                    // it's a fragment!
+                    myBuffer[OffsetSequence] |= MaskTopByteIsFragmented;
+
+                    std::copy(
+                        toFragment.myBuffer.begin() + start,
+                        toFragment.myBuffer.begin() + start + count,
+                        back_inserter(myBuffer));
                 }
-
-                myBuffer.reserve(count + OffsetFragmentPayload);
-
-                // write out the sequence and fragment id
-                Push(myBuffer, toFragment.GetSequence().Value());
-                myBuffer.push_back(fragmentId);
-
-                // it's a fragment!
-                myBuffer[OffsetSequence] |= MaskTopByteIsFragmented;
-
-                std::copy(
-                    toFragment.myBuffer.begin() + start,
-                    toFragment.myBuffer.begin() + start + count,
-                    back_inserter(myBuffer));
             }
         }
     }
@@ -140,7 +146,6 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
                     std::size_t bufferSize(2 + (sorted.size() * maxFragmentSize));
                     std::vector<uint8_t> buffer;
                     WrappingCounter<uint16_t> fragmentSequence(sorted[0]->GetSequence());
-                    uint8_t lastFragment(255);
                     bool isValid(true);
 
                     buffer.reserve(bufferSize);
@@ -184,16 +189,12 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
                         // last fragment id?
                         if (fragment->IsLastFragment())
                         {
-                            lastFragment = fragment->FragmentId();
                             break;
                         }
                     }
 
-                    if (sorted.size() != std::size_t((lastFragment + 1)))
-                    {
-                        isValid = false;
-                    }
-
+                    // any holes in the list (missing fragments) will be caught in the
+                    // iterator due to the fragment pointer being nullptr.
                     if (isValid)
                     {
                         std::swap(myBuffer, buffer);

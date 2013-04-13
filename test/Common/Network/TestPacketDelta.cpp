@@ -327,6 +327,14 @@ TEST_F(TestPacketDelta, DefragmentTooMany)
     EXPECT_EQ(0, toTest.TakeBuffer().size());
 }
 
+TEST_F(TestPacketDelta, DefragmentTooBig)
+{
+    PacketDelta toTest({2,4,6,nullptr,vector<uint8_t>(1024*256, 44)}, 1500, 0);
+
+    TestEmpty(toTest);
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
+}
+
 TEST_F(TestPacketDelta, DefragmentSimple)
 {
     std::vector<PacketDelta> fragments;
@@ -348,6 +356,53 @@ TEST_F(TestPacketDelta, DefragmentSimple)
     PacketDelta toTest(fragments);
 
     EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+TEST_F(TestPacketDelta, DefragmentOutOfOrder)
+{
+    std::vector<PacketDelta> fragments;
+
+    uint8_t count(3);
+    while (count < 4)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        fragments.push_back(result);
+        count--;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+
+TEST_F(TestPacketDelta, DefragmentSimpleMissingOne)
+{
+    std::vector<PacketDelta> fragments;
+
+    // Oh comon, this is c++11, do this using lambdas or iterators or something.
+    uint8_t count(0);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+
+        // miss a fragment.
+        if (count != 1)
+        {
+            fragments.push_back(result);
+        }
+
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+    TestEmpty(toTest);
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
 }
 
 TEST_F(TestPacketDelta, DefragmentFragmentNoFragmentedFragments)
@@ -382,11 +437,11 @@ TEST_F(TestPacketDelta, DefragmentFragmentNoFragmentedFragments)
 
 TEST_F(TestPacketDelta, DefragmentSequenceInterleavedNotComplete)
 {
-    // send complete delta fragments, but interleaved with once
+    // send complete delta fragments, but interleaved with one
     // of a newer sequence, should be invalid returned.
     std::vector<PacketDelta> fragments;
+    PacketDelta first(PacketDelta(delta8BytePayloadServer, 8, 0));
     PacketDelta second({2,4,6,nullptr,{2,4,6,8,10,12,14,18}}, 8, 0);
-    PacketDelta first(PacketDelta(delta8BytePayloadServer, 8, 1));
 
     fragments.push_back(first);
     fragments.push_back(second);
