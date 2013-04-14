@@ -18,17 +18,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketDelta.h>
+#include <Common/Network/PacketDeltaFragmentManager.h>
 #include <gmock/gmock.h>
 
 using namespace std;
 
 // Class definition!
-class TestPacketDeltaDefragmenter : public ::testing::Test
+class TestPacketDeltaFragmentManager : public ::testing::Test
 {
 public:
-    TestPacketDeltaDefragmenter()
-        : delta8BytePayloadServer(
+    TestPacketDeltaFragmentManager()
+        : delta4kBytePayloadServerSequence22(
+              WrappingCounter<uint16_t>(22),
+              WrappingCounter<uint16_t>(2),
+              3,
+              nullptr,
+              std::vector<uint8_t>(4096,33))
+        , delta4kBytePayloadServerSequence44(
+              WrappingCounter<uint16_t>(44),
+              WrappingCounter<uint16_t>(22),
+              22,
+              nullptr,
+              std::vector<uint8_t>(4096,35))
+        , delta8BytePayloadServer(
               WrappingCounter<uint16_t>(1),
               WrappingCounter<uint16_t>(2),
               3,
@@ -37,27 +49,91 @@ public:
     {
     }
 
-    void TestEmpty(const PacketDelta& toTest)
-    {
-        EXPECT_FALSE(toTest.IsValid());
-
-        EXPECT_FALSE(toTest.IsFragmented());
-        EXPECT_FALSE(toTest.IsLastFragment());
-        EXPECT_EQ(0, toTest.FragmentId());
-        EXPECT_EQ(0, toTest.Size());
-
-        EXPECT_FALSE(toTest.HasClientId());
-        EXPECT_EQ(0, toTest.GetSequence());
-        EXPECT_EQ(0, toTest.GetSequenceAck());
-        EXPECT_EQ(0, toTest.GetSequenceBase());
-        EXPECT_EQ(0, toTest.GetPayload().size());
-    }
-
+    PacketDelta delta4kBytePayloadServerSequence22;
+    PacketDelta delta4kBytePayloadServerSequence44;
     PacketDelta delta8BytePayloadServer;
 };
 
-TEST_F(TestPacketDeltaDefragmenter, Empty)
+TEST_F(TestPacketDeltaFragmentManager, FragmentNothingReturnsNothing)
 {
-    // RAM: TODO!
-    EXPECT_TRUE(false);
+    std::vector<PacketDelta> testResult(
+                PacketDeltaFragmentManager::FragmentPacket(PacketDelta()));
+
+    EXPECT_EQ(testResult.size(), 0);
+}
+
+TEST_F(TestPacketDeltaFragmentManager, FragmentSmallReturnsNotFragmented)
+{
+    std::vector<PacketDelta> testResult(
+                PacketDeltaFragmentManager::FragmentPacket(delta8BytePayloadServer));
+
+    ASSERT_EQ(testResult.size(), 1);
+    EXPECT_EQ(testResult[0], delta8BytePayloadServer);
+}
+
+TEST_F(TestPacketDeltaFragmentManager, LargeGetsFragmentedCorrectlyAndInOrder)
+{
+    std::vector<PacketDelta> testResult(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22));
+
+    ASSERT_GT(testResult.size(), 1);
+
+    // make sure they are all valid and the fragment id is as expected.
+    // Also tests the returned values are sorted by fragmentId asending.
+    PacketDelta* last(nullptr);
+    uint8_t count(0);
+    for (auto& fragment : testResult)
+    {
+        EXPECT_TRUE(fragment.IsValid());
+        EXPECT_TRUE(fragment.IsFragmented());
+        EXPECT_EQ(fragment.FragmentId(), count);
+        count++;
+        last = &fragment;
+    }
+
+    // expect the last packet is recognised as such
+    ASSERT_NE(last, nullptr);
+    EXPECT_TRUE(last->IsLastFragment());
+}
+
+TEST_F(TestPacketDeltaFragmentManager, EmptyReturnsInvalid)
+{
+    PacketDeltaFragmentManager toTest;
+    PacketDelta testResult(toTest.GetDefragmentedPacket());
+
+    EXPECT_FALSE(testResult.IsValid());
+}
+
+TEST_F(TestPacketDeltaFragmentManager, AddNothing)
+{
+    PacketDeltaFragmentManager toTest;
+
+    // shouldn't crash
+    toTest.AddPacket(PacketDelta());
+}
+
+TEST_F(TestPacketDeltaFragmentManager, AddNotFragmentedReturnsInvalid)
+{
+    PacketDeltaFragmentManager toTest;
+
+    toTest.AddPacket(delta8BytePayloadServer);
+
+    PacketDelta testResult(toTest.GetDefragmentedPacket());
+    EXPECT_FALSE(testResult.IsValid());
+}
+
+TEST_F(TestPacketDeltaFragmentManager, FragmentDefragment)
+{
+    std::vector<PacketDelta> halfWay(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22));
+
+    PacketDeltaFragmentManager toTest;
+
+    for (auto fragment : halfWay)
+    {
+        toTest.AddPacket(fragment);
+    }
+
+    PacketDelta testResult(toTest.GetDefragmentedPacket());
+    EXPECT_EQ(testResult, delta4kBytePayloadServerSequence22);
 }
