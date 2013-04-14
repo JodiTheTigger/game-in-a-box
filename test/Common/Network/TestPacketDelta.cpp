@@ -23,6 +23,8 @@
 
 using namespace std;
 
+// RAM: TODO! Copy, assignment and move tests.
+
 // Class definition!
 class TestPacketDelta : public ::testing::Test
 {
