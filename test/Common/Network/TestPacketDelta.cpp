@@ -37,6 +37,11 @@ public:
     {
     }
 
+    // RAM: TODO! Only need to test this once! Remove!
+    // One test, one assert (to a degree). It's bad
+    // unit tests that test more than one thing in a test
+    // as it's already tested, and makes changing the code
+    // a pain as you have to change some many tests instead of one.
     void TestEmpty(const PacketDelta& toTest)
     {
         EXPECT_FALSE(toTest.IsValid());

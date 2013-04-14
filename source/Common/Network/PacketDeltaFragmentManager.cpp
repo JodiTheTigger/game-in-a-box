@@ -18,15 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketDeltaDefragmenter.h"
+#include "PacketDeltaFragmentManager.h"
 
-PacketDeltaDefragmenter::PacketDeltaDefragmenter()
+PacketDeltaFragmentManager::PacketDeltaFragmentManager()
     : myFragments()
     , myCurrentSequence()
 {
 }
 
-std::vector<PacketDelta> PacketDeltaDefragmenter::FragmentPacket(PacketDelta toFragment)
+std::vector<PacketDelta> PacketDeltaFragmentManager::FragmentPacket(PacketDelta toFragment)
 {
     std::vector<PacketDelta> result;
     bool keepGoing(true);
@@ -49,7 +49,7 @@ std::vector<PacketDelta> PacketDeltaDefragmenter::FragmentPacket(PacketDelta toF
     return result;
 }
 
-void PacketDeltaDefragmenter::AddPacket(PacketDelta fragmentToAdd)
+void PacketDeltaFragmentManager::AddPacket(PacketDelta fragmentToAdd)
 {
     if (fragmentToAdd.IsFragmented())
     {
@@ -73,7 +73,7 @@ void PacketDeltaDefragmenter::AddPacket(PacketDelta fragmentToAdd)
     }
 }
 
-PacketDelta PacketDeltaDefragmenter::GetDefragmentedPacket()
+PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket()
 {
     return PacketDelta(myFragments);
 }

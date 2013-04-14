@@ -18,18 +18,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETDELTADEFRAGMENTER_H
-#define PACKETDELTADEFRAGMENTER_H
+#ifndef PACKETDELTAFRAGENTMANAGER_H
+#define PACKETDELTAFRAGENTMANAGER_H
 
 #include <vector>
 #include "PacketDelta.h"
 
-class PacketDeltaDefragmenter
+class PacketDeltaFragmentManager
 {
 public:
     static std::vector<PacketDelta> FragmentPacket(PacketDelta toFragment);
 
-    PacketDeltaDefragmenter();
+    PacketDeltaFragmentManager();
 
     // ignores packets that aren't fragmented.
     void AddPacket(PacketDelta fragmentToAdd);
@@ -51,4 +51,4 @@ private:
     WrappingCounter<uint16_t> myCurrentSequence;
 };
 
-#endif // PACKETDELTADEFRAGMENTER_H
+#endif // PACKETDELTAFRAGENTMANAGER_H

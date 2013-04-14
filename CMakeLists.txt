@@ -134,7 +134,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 add_library(
 game-in-a-box-common
 source/Common/Network/PacketHelper.cpp
-source/Common/Network/PacketDeltaDefragmenter.cpp
+source/Common/Network/PacketDeltaFragmentManager.cpp
 source/Common/Network/NetworkManagerClientNew.cpp
 source/Common/Network/PacketCommand.cpp
 source/Common/Network/PacketChallenge.cpp
@@ -190,7 +190,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/TestWrappingCounter.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaDefragmenter.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProvider.cpp
