@@ -24,6 +24,11 @@
 #include <vector>
 #include "PacketDelta.h"
 
+// Fragments and defragments packets of a fixed size
+// of PacketDeltaFragmentManager::SizeMaxPacketSize.
+// If we need to generalise this, turn it into a template
+// with the packet size a template parameter so that the static
+// function uses the generalised fragment size as well.
 class PacketDeltaFragmentManager
 {
 public:
