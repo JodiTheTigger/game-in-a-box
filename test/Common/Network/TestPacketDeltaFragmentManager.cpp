@@ -137,3 +137,51 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragment)
     PacketDelta testResult(toTest.GetDefragmentedPacket());
     EXPECT_EQ(testResult, delta4kBytePayloadServerSequence22);
 }
+
+TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentOldThenNew)
+{
+    std::vector<PacketDelta> halfWayOld(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22));
+    std::vector<PacketDelta> halfWayNew(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44));
+
+    PacketDeltaFragmentManager toTest;
+
+    for (auto fragment : halfWayOld)
+    {
+        toTest.AddPacket(fragment);
+    }
+
+    for (auto fragment : halfWayNew)
+    {
+        toTest.AddPacket(fragment);
+    }
+
+    // always expect the older one.
+    PacketDelta testResult(toTest.GetDefragmentedPacket());
+    EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
+}
+
+TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewTheOld)
+{
+    std::vector<PacketDelta> halfWayOld(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22));
+    std::vector<PacketDelta> halfWayNew(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44));
+
+    PacketDeltaFragmentManager toTest;
+
+    for (auto fragment : halfWayNew)
+    {
+        toTest.AddPacket(fragment);
+    }
+
+    for (auto fragment : halfWayOld)
+    {
+        toTest.AddPacket(fragment);
+    }
+
+    // always expect the older one.
+    PacketDelta testResult(toTest.GetDefragmentedPacket());
+    EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
+}
