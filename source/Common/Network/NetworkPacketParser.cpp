@@ -98,7 +98,7 @@ void NetworkPacketParser::ParsePacket(NetworkPacket &packetData)
                         if (myFragmentCount < myFragmentTotal)
                         {
                             // don't count duplicates
-                            if (myFragments[fragmentId].data.size() == 0)
+                            if (myFragments[fragmentId].data.empty())
                             {
                                 ++myFragmentCount;
                             }
