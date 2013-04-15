@@ -77,7 +77,7 @@ PacketDelta::PacketDelta(
         if ((toFragment.Size() - OffsetSequenceAck) <= maxSize)
         {
             // test it needs fragmenting
-            if (toFragment.Size() < maxPacketSize)
+            if ((toFragment.Size() < maxPacketSize) && (fragmentId == 0))
             {
                 // just copy, no fragmentation needed.
                 myBuffer = toFragment.myBuffer;
