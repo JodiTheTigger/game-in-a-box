@@ -28,6 +28,8 @@
 class PacketDelta
 {
 public:
+    static bool IsPacketDelta(const std::vector<uint8_t>& buffer);
+
     PacketDelta() : PacketDelta(std::vector<uint8_t>()) {}
     PacketDelta(std::vector<uint8_t> rawData);
 

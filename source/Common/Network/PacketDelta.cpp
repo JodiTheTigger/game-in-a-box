@@ -20,6 +20,62 @@
 
 #include "PacketDelta.h"
 
+
+bool PacketDelta::IsPacketDelta(const std::vector<uint8_t>& buffer)
+{
+    bool result(false);
+
+    if (!buffer.empty())
+    {
+        if (buffer.size() >= MinimumPacketSizeCommon)
+        {
+            if ((buffer[0] != 0xFF) && (buffer[1] != 0xFF))
+            {
+                // Fragmented?
+                if ((buffer[OffsetSequence] & MaskTopByteIsFragmented) != 0)
+                {
+                    // zero payload fragment is invalid.
+                    if (buffer.size() > MinimumPacketSizeFragment)
+                    {
+                        result = true;
+                    }
+                }
+                else
+                {
+                    if (buffer.size() >= MinimumPacketSizeServer)
+                    {
+                        // high byte first.
+                        if (0 == (buffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
+                        {
+                            // top bit set of ack == server packet
+                            if (buffer.size() >= MinimumPacketSizeClient)
+                            {
+                                result = true;
+                            }
+                        }
+                        else
+                        {
+                            if (buffer.size() >= MinimumPacketSizeServer)
+                            {
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (buffer.size() >= MinimumPacketSizeFragment)
+            {
+                result = (0 != (buffer[OffsetIsFragmented] & MaskTopByteIsFragmented));
+            }
+        }
+    }
+
+    return result;
+}
+
 PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
     : myBuffer(rawData)
 {
@@ -245,54 +301,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceAck() const
 
 bool PacketDelta::IsValid() const
 {
-    bool result(false);
-
-    if (myBuffer.size() >= MinimumPacketSizeCommon)
-    {
-        if ((myBuffer[0] != 0xFF) && (myBuffer[1] != 0xFF))
-        {
-            // Fragmented?
-            if ((myBuffer[OffsetSequence] & MaskTopByteIsFragmented) != 0)
-            {
-                // zero payload fragment is invalid.
-                if (myBuffer.size() > MinimumPacketSizeFragment)
-                {
-                    result = true;
-                }
-            }
-            else
-            {
-                if (myBuffer.size() >= MinimumPacketSizeServer)
-                {
-                    // high byte first.
-                    if (0 == (myBuffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
-                    {
-                        // top bit set of ack == server packet
-                        if (myBuffer.size() >= MinimumPacketSizeClient)
-                        {
-                            result = true;
-                        }
-                    }
-                    else
-                    {
-                        if (myBuffer.size() >= MinimumPacketSizeServer)
-                        {
-                            result = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        if (myBuffer.size() >= MinimumPacketSizeFragment)
-        {
-            result = (0 != (myBuffer[OffsetIsFragmented] & MaskTopByteIsFragmented));
-        }
-    }
-
-    return result;
+    return IsPacketDelta(myBuffer);
 }
 
 
