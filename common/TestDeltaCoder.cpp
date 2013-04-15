@@ -149,7 +149,7 @@ TEST_F(TestDeltaCoder, RandomStates)
 {
     minstd_rand generator;
     uniform_int_distribution<uint32_t> even;
-    uniform_int_distribution<uint32_t> even100(0,100);
+    uniform_int_distribution<uint32_t> even100(0,99);
     
     vector<DeltaTester> states;
             
@@ -160,9 +160,9 @@ TEST_F(TestDeltaCoder, RandomStates)
     for (int i = 0; i < 100; i++)
     {
         states.push_back(DeltaTester(
-            (uint32_t) even(generator) & 0xFF,
-            (uint32_t) even(generator) & 0x3FFFF,
-            ((float) even(generator)) / 37.0f));
+            uint32_t(even(generator) & 0xFF),
+            uint32_t(even(generator) & 0x3FFFF),
+            float(even(generator)) / 37.0f));
     }
     
     for (int i = 0; i < 1000; i++)
@@ -175,11 +175,17 @@ TEST_F(TestDeltaCoder, RandomStates)
         
         from = even100(generator);
         to = even100(generator);
-        
+
         myCoder.DeltaEncode(&(states[from]), states[to], stream);
         myCoder.DeltaDecode(&(states[from]), result, stream);
                 
-        EXPECT_EQ(states[to].first, result.first);
+        EXPECT_EQ(states[to].first, result.first)
+                << "From:" << ::testing::PrintToString(from)
+                << " To: " << ::testing::PrintToString(to)
+                << " i: " << i
+                << "\nstate from: " << ::testing::PrintToString(states[from])
+                << "\nstate to  : " << ::testing::PrintToString(states[to])
+                << "\nresult    : " << ::testing::PrintToString(result);
         EXPECT_EQ(states[to].second, result.second);
         EXPECT_EQ(states[to].waitWhat, result.waitWhat);
     }
