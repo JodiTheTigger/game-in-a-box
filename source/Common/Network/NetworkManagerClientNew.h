@@ -30,6 +30,7 @@
 #include "Common/IStateManager.h"
 #include "Common/Huffman.h"
 #include "Common/WrappingCounter.h"
+#include "PacketDeltaFragmentManager.h"
 
 // forward delcarations
 class NetworkProvider;
@@ -53,14 +54,7 @@ public:
     static std::unique_ptr<PacketConnectResponse> GetConnectResponsePacket(NetworkPacket) { return std::unique_ptr<PacketConnectResponse>(nullptr); }
     static PacketCommand::Command GetPacketType(const NetworkPacket&) { return PacketCommand::Command::Invalid; }
     static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
-    static bool IsDeltaPacket(NetworkPacket&) { return false; }
     static void CodeBufferInPlace(std::vector<uint8_t>&, uint32_t, uint32_t, uint32_t) {}
-    static std::vector<NetworkPacket> FragmentDelta(boost::asio::ip::udp::endpoint, PacketDelta&) { return std::vector<NetworkPacket>(); }
-
-    void DefragmentPackets(NetworkPacket&) {};
-
-    // all packets out of here are valid delta packets.
-    std::vector<NetworkPacket> GetDefragmentedPackets() { return {}; }
 };
 
 class NetworkManagerClientNew : public INetworkManager
@@ -108,7 +102,7 @@ private:
     std::string myFailReason;
     uint16_t myClientId;
 
-    NetworkPacketHelper myPacketHelper;
+    PacketDeltaFragmentManager myDeltaHelper;
     Huffman myCompressor;
 
     Sequence myLastSequenceProcessed;
