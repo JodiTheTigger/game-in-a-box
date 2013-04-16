@@ -33,7 +33,7 @@ public:
     // Oh, yea, and namespaces please!
     enum class Command : uint8_t
     {
-        Invalid = 0,
+        Unrecognised = 0,
         Challenge,
         ChallengeResponse,
         Info,
@@ -42,6 +42,8 @@ public:
         ConnectResponse,
         Disconnect
     };
+
+    static PacketCommand::Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
 
     // RAM: TODO: If making a base class we need a public constructor please.
 
@@ -56,7 +58,7 @@ public:
 
     // ----------------------------------------
 
-    PacketCommand::Command GetCommand() const;
+    PacketCommand::Command GetCommand() const { return GetCommand(myBuffer); }
 
     // RAM: TODO: NVI Pattern please, make PrivateIsValid()
     virtual bool IsValid() const = 0;

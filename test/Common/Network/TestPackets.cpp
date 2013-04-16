@@ -39,7 +39,7 @@ TEST_F(TestPackets, ChallengeFromEmptyData)
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Invalid, typeResult);
+    EXPECT_EQ(PacketCommand::Command::Unrecognised, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
@@ -63,7 +63,7 @@ TEST_F(TestPackets, ChallengeFromNotACommand)
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Invalid, typeResult);
+    EXPECT_EQ(PacketCommand::Command::Unrecognised, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 

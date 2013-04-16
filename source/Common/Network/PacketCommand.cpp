@@ -36,20 +36,21 @@ PacketCommand::~PacketCommand()
 {
 }
 
-PacketCommand::Command PacketCommand::GetCommand() const
+
+PacketCommand::Command PacketCommand::GetCommand(const std::vector<uint8_t>& bufferToCheck)
 {
-    if (myBuffer.size() >= MinimumPacketSize)
+    if (bufferToCheck.size() >= MinimumPacketSize)
     {
-        if ((myBuffer[0] == 0xFF) && (myBuffer[1] == 0xFF))
+        if ((bufferToCheck[0] == 0xFF) && (bufferToCheck[1] == 0xFF))
         {
-            return static_cast<Command>(myBuffer[OffsetCommand]);
+            return static_cast<Command>(bufferToCheck[OffsetCommand]);
         }
     }
 
-    return Command::Invalid;
+    return Command::Unrecognised;
 }
 
 bool PacketCommand::IsValid() const
 {
-    return (GetCommand() != Command::Invalid);
+    return (GetCommand() != Command::Unrecognised);
 }
