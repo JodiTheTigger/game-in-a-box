@@ -50,10 +50,6 @@ std::unique_ptr<T> make_unique(Args&&... args)
 class NetworkPacketHelper
 {
 public:
-    static uint32_t GetKeyFromPacket(NetworkPacket) { return 0; }
-    static std::unique_ptr<PacketConnectResponse> GetConnectResponsePacket(NetworkPacket) { return std::unique_ptr<PacketConnectResponse>(nullptr); }
-    static PacketCommand::Command GetPacketType(const NetworkPacket&) { return PacketCommand::Command::Invalid; }
-    static std::string GetPacketString(NetworkPacket) { return "TODO: Fix stub function"; }
     static void CodeBufferInPlace(std::vector<uint8_t>&, uint32_t, uint32_t, uint32_t) {}
 };
 

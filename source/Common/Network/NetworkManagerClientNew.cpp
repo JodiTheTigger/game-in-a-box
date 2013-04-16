@@ -29,6 +29,7 @@
 #include "Common/IStateManager.h"
 #include "NetworkPacket.h"
 #include "PacketChallenge.h"
+#include "PacketChallengeResponse.h"
 #include "PacketDelta.h"
 #include "Common/BitStream.h"
 #include "Common/BitStreamReadOnly.h"
@@ -116,15 +117,32 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                     auto packets = network->Receive();
 
                     for (auto& packet : packets)
-                    {
-                        if (NetworkPacketHelper::GetPacketType(packet) == PacketCommand::Command::Disconnect)
-                        {
-                            Fail(NetworkPacketHelper::GetPacketString(packet));
-                            exit = true;
-                            break;
-                        }
+                    {                        
+                        PacketCommand::Command commandType(PacketCommand::GetCommand(packet.data));
 
-                        key = NetworkPacketHelper::GetKeyFromPacket(packet);
+                        if (commandType == PacketCommand::Command::Disconnect)
+                        {
+                            PacketDisconnect disconnect(packet.data);
+
+                            if (disconnect.IsValid())
+                            {
+                                Fail(disconnect.Message());
+                                exit = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (commandType == PacketCommand::Command::ChallengeResponse)
+                            {
+                                PacketChallengeResponse response(packet.data);
+
+                                if (response.IsValid())
+                                {
+                                    key = response.Key();
+                                }
+                            }
+                        }
 
                         if (key != 0)
                         {
@@ -175,44 +193,53 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
             {
                 bool exit(false);
 
-                switch (NetworkPacketHelper::GetPacketType(packet))
+                switch (PacketCommand::GetCommand(packet.data))
                 {
                     case PacketCommand::Command::ConnectResponse:
                     {
-                        auto connection(NetworkPacketHelper::GetConnectResponsePacket(packet));
+                        PacketConnectResponse connection(packet.data);
 
-                        bool failed;
-                        string failReason;
-                        IStateManager::ClientHandle* handle;
-
-                        handle = myStateManager.Connect(connection->GetBuffer(), failed, failReason);
-
-                        if (failed)
+                        if (connection.IsValid())
                         {
-                            // Respond with a failed message please.
-                            // Only one will do, the server can timeout if it misses it.
-                            myConnectedNetwork->Send({{
-                                  myServerAddress,
-                                  PacketDisconnect(failReason).myBuffer}});
+                            bool failed;
+                            string failReason;
+                            IStateManager::ClientHandle* handle;
 
-                            // wrong game type I assume.
-                            Fail(failReason);
-                        }
-                        else
-                        {
-                            myStateHandle = handle;
-                            myState = State::Connected;
+                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
+
+                            if (failed)
+                            {
+                                // Respond with a failed message please.
+                                // Only one will do, the server can timeout if it misses it.
+                                myConnectedNetwork->Send({{
+                                      myServerAddress,
+                                      PacketDisconnect(failReason).myBuffer}});
+
+                                Fail(failReason);
+                            }
+                            else
+                            {
+                                myStateHandle = handle;
+                                myState = State::Connected;
+                            }
+
+                            // Don't support connecting to multilpe servers at the same time.
+                            exit = true;
                         }
 
-                        // Don't support connecting to multilpe servers at the same time.
-                        exit = true;
                         break;
                     }
 
                     case PacketCommand::Command::Disconnect:
                     {
-                        Fail(NetworkPacketHelper::GetPacketString(packet));
-                        exit = true;
+                        PacketDisconnect disconnect(packet.data);
+
+                        if (disconnect.IsValid())
+                        {
+                            Fail(disconnect.Message());
+                            exit = true;
+                        }
+
                         break;
                     }
 
@@ -238,14 +265,18 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
             for (auto& packet : packets)
             {
-                if (NetworkPacketHelper::GetPacketType(packet) == PacketCommand::Command::Disconnect)
+                if (PacketCommand::GetCommand(packet.data) == PacketCommand::Command::Disconnect)
                 {
+                    PacketDisconnect disconnect(packet.data);
+
                     // RAM: TODO: Put key into disconnected packet to prevent
                     // disconnected attack by spoofing disconnect message from
                     // server.
-                    // RAM: TODO: Make GetPacketString a GetDisconnectString to typesafe it.
-                    Fail(NetworkPacketHelper::GetPacketString(packet));
-                    break;
+                    if (disconnect.IsValid())
+                    {
+                        Fail(disconnect.Message());
+                        break;
+                    }
                 }
 
                 if (PacketDelta::IsPacketDelta(packet.data))
@@ -358,12 +389,13 @@ void NetworkManagerClientNew::DeltaReceive()
             // First copy
             std::vector<uint8_t> payload(delta.GetPayload());
 
-            // Bah, I wrote Huffman and Bitstream before I knew about iterators
-            // or streams. This results in lots of copies that arn't really needed.
-            // Need to benchmark to see if the copies matter, and if so, rewrite
-            // to use iterators or streams.
-
             // Decrypt (XOR based).
+            // NOTE: nothing too complex for encryption, even more simple than q3.
+            // As someone wanting to hack can. If we want security, use public key
+            // private key to pass a super long seed to a pseudo random generator
+            // that's used to decrypt. Otherwise it's just easily hackable.
+            // Reason for excryption in the fist place is to prevent easy man-in-the-middle
+            // attacks to control someone else's connection.
             NetworkPacketHelper::CodeBufferInPlace(
                         payload,
                         myServerKey,
@@ -371,11 +403,12 @@ void NetworkManagerClientNew::DeltaReceive()
                         delta.GetSequence().Value(),
                         delta.GetSequenceAck().Value());
 
+            // Bah, I wrote Huffman and Bitstream before I knew about iterators
+            // or streams. This results in lots of copies that arn't really needed.
+            // Need to benchmark to see if the copies matter, and if so, rewrite
+            // to use iterators or streams.
+
             // Decompress (2nd Copy)
-            // NOTE: nothing too complex for encryption, even more simple than q3.
-            // As someone wanting to hack can. If we want security, use public key
-            // private key to pass a super long seed to a pseudo random generator
-            // that's used to decrypt. Otherwise it's just easily hackable.
             std::unique_ptr<std::vector<uint8_t>> decompressed;
             decompressed = move(myCompressor.Decode(payload));
 
