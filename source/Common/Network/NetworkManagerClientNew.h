@@ -37,21 +37,12 @@ class NetworkProvider;
 class IStateManager;
 
 // RAM: LOL, std forgot about this one
+/* RAM: MOVE OUT
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args)
 {
     return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-// RAM: TODO! Move this to it's own class
-#include "NetworkPacket.h"
-#include "PacketSimple.h"
-#include "PacketDelta.h"
-class NetworkPacketHelper
-{
-public:
-    static void CodeBufferInPlace(std::vector<uint8_t>&, uint32_t, uint32_t, uint32_t) {}
-};
+}*/
 
 class NetworkManagerClientNew : public INetworkManager
 {

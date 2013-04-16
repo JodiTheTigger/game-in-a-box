@@ -33,6 +33,8 @@
 #include "PacketDelta.h"
 #include "Common/BitStream.h"
 #include "Common/BitStreamReadOnly.h"
+#include "PacketSimple.h"
+#include "XorCode.h"
 
 using std::string;
 using namespace std::chrono;
@@ -396,12 +398,14 @@ void NetworkManagerClientNew::DeltaReceive()
             // that's used to decrypt. Otherwise it's just easily hackable.
             // Reason for excryption in the fist place is to prevent easy man-in-the-middle
             // attacks to control someone else's connection.
+            XorCode(payload.begin(), payload.end(), {/* RAM TODO! */});
+            /*
             NetworkPacketHelper::CodeBufferInPlace(
                         payload,
                         myServerKey,
                         // RAM: TODO: Mayve just pass in a uint16_t buffer instead?
                         delta.GetSequence().Value(),
-                        delta.GetSequenceAck().Value());
+                        delta.GetSequenceAck().Value());*/
 
             // Bah, I wrote Huffman and Bitstream before I knew about iterators
             // or streams. This results in lots of copies that arn't really needed.

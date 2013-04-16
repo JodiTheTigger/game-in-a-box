@@ -144,6 +144,7 @@ source/Common/Network/INetworkManager.cpp
 source/Common/Network/NetworkPacketParser.cpp
 source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/NetworkManagerClient.cpp
+source/Common/Network/XorCode.cpp
 source/Common/GameInABox.cpp
 source/Common/IStateManager.cpp
 source/Common/Huffman.cpp
