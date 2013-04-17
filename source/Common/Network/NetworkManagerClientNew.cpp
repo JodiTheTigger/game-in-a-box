@@ -382,9 +382,6 @@ void NetworkManagerClientNew::DeltaReceive()
     PacketDelta delta(myDeltaHelper.GetDefragmentedPacket());
     Sequence latestSequence(myLastSequenceProcessed);
 
-    // RAM: DEBUG
-    auto fred = make_unique<PacketDelta>(std::vector<uint8_t>());
-
     if (delta.IsValid())
     {
         if (delta.GetSequence() > latestSequence)
