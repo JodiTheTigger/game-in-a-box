@@ -36,14 +36,6 @@
 class NetworkProvider;
 class IStateManager;
 
-// RAM: LOL, std forgot about this one
-/* RAM: MOVE OUT
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args)
-{
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}*/
-
 class NetworkManagerClientNew : public INetworkManager
 {
     CLASS_NOCOPY_ASSIGN_MOVE(NetworkManagerClientNew)
