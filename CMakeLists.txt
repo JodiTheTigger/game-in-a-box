@@ -144,7 +144,6 @@ source/Common/Network/INetworkManager.cpp
 source/Common/Network/NetworkPacketParser.cpp
 source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/NetworkManagerClient.cpp
-source/Common/Network/XorCode.cpp
 source/Common/GameInABox.cpp
 source/Common/IStateManager.cpp
 source/Common/Huffman.cpp
@@ -193,6 +192,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProvider.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 

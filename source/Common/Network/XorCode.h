@@ -34,6 +34,19 @@ template<class Uint8tIterator,
 void XorCode(
         Uint8tIterator begin,
         Uint8tIterator end,
-        const std::vector<uint8_t>& toCodeAgainst);
+        const std::vector<uint8_t>& toCodeAgainst)
+{
+    if (!toCodeAgainst.empty())
+    {
+        std::size_t codeSize(toCodeAgainst.size());
+        std::size_t index(0);
+
+        for (auto i(begin); i != end; i++)
+        {
+            *i = *i ^ toCodeAgainst[index];
+            index = (index + 1) % codeSize;
+        }
+    }
+}
 
 #endif // XORCODE_H
