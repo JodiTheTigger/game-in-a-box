@@ -193,6 +193,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestBufferSerialisation.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProvider.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 
