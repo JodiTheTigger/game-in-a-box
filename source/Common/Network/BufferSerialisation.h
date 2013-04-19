@@ -39,20 +39,20 @@ namespace
 {
 // Big endian random access
 template <typename Iterator>
-void Push(uint8_t value, Iterator buffer, std::random_access_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint8_t value, std::random_access_iterator_tag, BigEndian)
 {
     buffer[0] = value;
 }
 
 template <typename Iterator>
-void Push(uint16_t value, Iterator buffer, std::random_access_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint16_t value, std::random_access_iterator_tag, BigEndian)
 {
     buffer[0] = uint8_t(value >> 8);
     buffer[1] = uint8_t(value);
 }
 
 template <typename Iterator>
-void Push(uint32_t value, Iterator buffer, std::random_access_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint32_t value, std::random_access_iterator_tag, BigEndian)
 {
     buffer[0] = uint8_t(value >> 24);
     buffer[1] = uint8_t(value >> 16);
@@ -61,23 +61,23 @@ void Push(uint32_t value, Iterator buffer, std::random_access_iterator_tag, BigE
 }
 
 template <typename Iterator>
-uint8_t Pull(uint8_t, Iterator buffer, std::random_access_iterator_tag, BigEndian)
+void Pull(Iterator buffer, uint8_t& result, std::random_access_iterator_tag, BigEndian)
 {
-    return buffer[0];
+    result = buffer[0];
 }
 
 template <typename Iterator>
-uint16_t Pull(uint16_t, Iterator buffer, std::random_access_iterator_tag, BigEndian)
+void Pull(Iterator buffer, uint16_t& result, std::random_access_iterator_tag, BigEndian)
 {
-    return uint16_t(
+    result = uint16_t(
             (buffer[0] << 8) |
             buffer[1]);
 }
 
 template <typename Iterator>
-uint32_t Pull(uint32_t, Iterator buffer, std::random_access_iterator_tag, BigEndian)
+void Pull(Iterator buffer, uint32_t& result, std::random_access_iterator_tag, BigEndian)
 {
-    return uint32_t(
+    result = uint32_t(
             (buffer[0] << 24) |
             (buffer[1] << 16) |
             (buffer[2] << 8) |
@@ -86,20 +86,20 @@ uint32_t Pull(uint32_t, Iterator buffer, std::random_access_iterator_tag, BigEnd
 
 // Big endian general
 template <typename Iterator>
-void Push(uint8_t value, Iterator buffer, std::forward_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint8_t value, std::forward_iterator_tag, BigEndian)
 {
     *buffer = value;
 }
 
 template <typename Iterator>
-void Push(uint16_t value, Iterator buffer, std::forward_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint16_t value, std::forward_iterator_tag, BigEndian)
 {
     *buffer++ = uint8_t(value >> 8);
     *buffer++ = uint8_t(value);
 }
 
 template <typename Iterator>
-void Push(uint32_t value, Iterator buffer, std::forward_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint32_t value, std::forward_iterator_tag, BigEndian)
 {
     *buffer++ = uint8_t(value >> 24);
     *buffer++ = uint8_t(value >> 16);
@@ -108,23 +108,23 @@ void Push(uint32_t value, Iterator buffer, std::forward_iterator_tag, BigEndian)
 }
 
 template <typename Iterator>
-uint8_t Pull(uint8_t, Iterator buffer, std::input_iterator_tag, BigEndian)
+void Pull(Iterator buffer, uint8_t& result, std::input_iterator_tag, BigEndian)
 {
-    return *buffer;
+    result = *buffer;
 }
 
 template <typename Iterator>
-uint16_t Pull(uint16_t, Iterator buffer, std::input_iterator_tag, BigEndian)
+void Pull(Iterator buffer, uint16_t& result, std::input_iterator_tag, BigEndian)
 {
-    return uint16_t(
+    result = uint16_t(
             (*buffer++ << 8) |
             *buffer);
 }
 
 template <typename Iterator>
-uint32_t Pull(uint32_t, Iterator buffer, std::input_iterator_tag, BigEndian)
+void Pull(Iterator buffer, uint32_t& result, std::input_iterator_tag, BigEndian)
 {
-    return uint32_t(
+    result = uint32_t(
             (*buffer++ << 24) |
             (*buffer++ << 16) |
             (*buffer++ << 8) |
@@ -136,18 +136,18 @@ uint32_t Pull(uint32_t, Iterator buffer, std::input_iterator_tag, BigEndian)
 // =======================
 // Interface
 // =======================
-template <typename Datum, typename Iterator>
-void Push(Datum value, Iterator start)
+template <typename Iterator, typename Datum>
+void Push(Iterator start, Datum value)
 {
     typedef typename std::iterator_traits<Iterator>::iterator_category category;
-    return Push(value, start, category(), BigEndian());
+    Push(start, value, category(), BigEndian());
 }
 
-template <typename Datum, typename Iterator>
-Datum Pull(Iterator start)
+template <typename Iterator, typename Datum>
+void Pull(Iterator start, Datum& value)
 {
     typedef typename std::iterator_traits<Iterator>::iterator_category category;
-    return Pull(Datum(), start, category(), BigEndian());
+    Pull(start, value, category(), BigEndian());
 }
 
 #endif // BUFFERSERIALISATION_H
