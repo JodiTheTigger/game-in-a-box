@@ -86,20 +86,20 @@ void Pull(Iterator buffer, uint32_t& result, std::random_access_iterator_tag, Bi
 
 // Big endian general
 template <typename Iterator>
-void Push(Iterator buffer, uint8_t value, std::forward_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint8_t value, std::output_iterator_tag, BigEndian)
 {
     *buffer = value;
 }
 
 template <typename Iterator>
-void Push(Iterator buffer, uint16_t value, std::forward_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint16_t value, std::output_iterator_tag, BigEndian)
 {
     *buffer++ = uint8_t(value >> 8);
     *buffer++ = uint8_t(value);
 }
 
 template <typename Iterator>
-void Push(Iterator buffer, uint32_t value, std::forward_iterator_tag, BigEndian)
+void Push(Iterator buffer, uint32_t value, std::output_iterator_tag, BigEndian)
 {
     *buffer++ = uint8_t(value >> 24);
     *buffer++ = uint8_t(value >> 16);

@@ -75,13 +75,7 @@ TYPED_TEST(TestBufferSerialisation, PushPullRandomVector)
     typename TestFixture::DataType result(0);
     std::back_insert_iterator<std::vector<uint8_t>> writer(buffer);
 
-
-    // RAM: FIX! Have to make space in array before push will work as the iterators don't
-    // create new items and I can't get the back insterter to work.
-    EXPECT_TRUE(false);
-    buffer.push_back(0);
-
-    Push(buffer.begin(), typename TestFixture::DataType(TestFixture::maxValue - 24));
+    Push(writer, typename TestFixture::DataType(TestFixture::maxValue - 24));
     Pull(buffer.begin(), result);
 
     EXPECT_EQ(result, TestFixture::maxValue - 24);
