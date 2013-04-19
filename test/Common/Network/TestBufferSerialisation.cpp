@@ -22,23 +22,67 @@
 #include <Common/Network/BufferSerialisation.h>
 #include <gmock/gmock.h>
 
+#include <limits>
+#include <vector>
+#include <array>
+#include <list>
+
 using namespace std;
 
-// Class definition!
+template <typename T>
 class TestBufferSerialisation : public ::testing::Test
 {
+public:
+    typedef T DataType;
 
+    enum
+    {
+        maxValue = (uint64_t(std::numeric_limits<T>::max()) + 1),
+        maxValueHalf = ((uint64_t(std::numeric_limits<T>::max()) + 1) >> 1)
+    };
 };
 
-TEST_F(TestBufferSerialisation, EmptyBufferEmptyKey)
+// TYPES I'M TESTING!
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t> TestSequenceTypes;
+TYPED_TEST_CASE(TestBufferSerialisation, TestSequenceTypes);
+
+// TESTS
+TYPED_TEST(TestBufferSerialisation, PushPullRandomArray)
+{
+    std::array<uint8_t, 64> buffer;
+    typename TestFixture::DataType result(0);
+
+    Push(buffer.data(), typename TestFixture::DataType(TestFixture::maxValue - 24));
+    Pull(buffer.data(), result);
+
+    EXPECT_EQ(result, TestFixture::maxValue - 24);
+}
+
+TYPED_TEST(TestBufferSerialisation, PushPullRandomCArray)
+{
+    uint8_t buffer[64];
+    typename TestFixture::DataType result(0);
+
+    Push(buffer, typename TestFixture::DataType(TestFixture::maxValue - 24));
+    Pull(buffer, result);
+
+    EXPECT_EQ(result, TestFixture::maxValue - 24);
+}
+
+TYPED_TEST(TestBufferSerialisation, PushPullRandomVector)
 {
     std::vector<uint8_t> buffer;
+    typename TestFixture::DataType result(0);
+    std::back_insert_iterator<std::vector<uint8_t>> writer(buffer);
 
-    // will it compile without problem (No)
-    //Push(uint8_t(8), buffer);
-    //Push(uint16_t(16), buffer);
-    //Push(uint32_t(32), buffer);
 
-    // no execptions expected;
+    // RAM: FIX! Have to make space in array before push will work as the iterators don't
+    // create new items and I can't get the back insterter to work.
     EXPECT_TRUE(false);
+    buffer.push_back(0);
+
+    Push(buffer.begin(), typename TestFixture::DataType(TestFixture::maxValue - 24));
+    Pull(buffer.begin(), result);
+
+    EXPECT_EQ(result, TestFixture::maxValue - 24);
 }
