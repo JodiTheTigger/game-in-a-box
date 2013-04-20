@@ -24,6 +24,7 @@
 #include <chrono>
 #include <vector>
 #include <memory>
+#include <array>
 
 #include "NetworkProvider.h"
 #include "Common/IStateManager.h"
@@ -35,6 +36,7 @@
 #include "Common/BitStreamReadOnly.h"
 #include "PacketSimple.h"
 #include "XorCode.h"
+#include "BufferSerialisation.h"
 
 using std::string;
 using namespace std::chrono;
@@ -398,7 +400,13 @@ void NetworkManagerClientNew::DeltaReceive()
             // that's used to decrypt. Otherwise it's just easily hackable.
             // Reason for excryption in the fist place is to prevent easy man-in-the-middle
             // attacks to control someone else's connection.
-            XorCode(payload.begin(), payload.end(), {/* RAM TODO! */});
+            std::vector<uint8_t> code(4);
+            std::vector<uint8_t> codeKey(4);
+            Push(codeKey.begin(), myServerKey);
+            Push(code.begin(), delta.GetSequence().Value());
+            Push(code.begin() + 2, delta.GetSequenceAck().Value());
+            XorCode(code.begin(), code.end(), codeKey);
+            XorCode(payload.begin(), payload.end(), code);
             /*
             NetworkPacketHelper::CodeBufferInPlace(
                         payload,
