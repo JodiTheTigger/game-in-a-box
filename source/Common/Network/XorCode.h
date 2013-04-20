@@ -25,6 +25,8 @@
 #include <vector>
 #include <type_traits>
 
+// TODO! Support std::array
+
 // Only allow uint8_t iterators by checking that the iterator
 // type (T::value_type) is a uint8_t.
 template<class Uint8tIterator,
