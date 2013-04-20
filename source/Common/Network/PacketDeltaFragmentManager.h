@@ -39,6 +39,8 @@ public:
     PacketDeltaFragmentManager();
 
     // ignores packets that aren't fragmented.
+    // RAM: TODO! Class isn't useful, need to take all packets, fragmented or not
+    // and return a delta with the most recent defragmented packet.
     void AddPacket(PacketDelta fragmentToAdd);
     PacketDelta GetDefragmentedPacket();
 
