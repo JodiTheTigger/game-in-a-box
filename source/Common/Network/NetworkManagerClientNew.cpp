@@ -285,8 +285,6 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                 if (PacketDelta::IsPacketDelta(packet.data))
                 {
-                    // RAM: TODO! AddPacket ignores non-fragmented packets!
-                    // RAM: deal with it!
                     myDeltaHelper.AddPacket(PacketDelta(packet.data));
                 }
             }
@@ -407,13 +405,6 @@ void NetworkManagerClientNew::DeltaReceive()
             Push(code.begin() + 2, delta.GetSequenceAck().Value());
             XorCode(code.begin(), code.end(), codeKey);
             XorCode(payload.begin(), payload.end(), code);
-            /*
-            NetworkPacketHelper::CodeBufferInPlace(
-                        payload,
-                        myServerKey,
-                        // RAM: TODO: Mayve just pass in a uint16_t buffer instead?
-                        delta.GetSequence().Value(),
-                        delta.GetSequenceAck().Value());*/
 
             // Bah, I wrote Huffman and Bitstream before I knew about iterators
             // or streams. This results in lots of copies that arn't really needed.
