@@ -63,13 +63,6 @@ private:
         FailedConnection,
     };
 
-    void PrivateProcessIncomming() override;
-    void PrivateSendState() override;
-
-    void Fail(std::string failReason);
-    void DeltaReceive();
-    void DeltaSend();
-
     std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
     IStateManager& myStateManager;
     NetworkProvider* myConnectedNetwork;
@@ -89,6 +82,13 @@ private:
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;
+
+    void PrivateProcessIncomming() override;
+    void PrivateSendState() override;
+
+    void Fail(std::string failReason);
+    void DeltaReceive();
+    void DeltaSend();
 };
 
 #endif // NETWORKMANAGERCLIENTNEW_H
