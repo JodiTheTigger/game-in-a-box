@@ -38,9 +38,8 @@ public:
 
     PacketDeltaFragmentManager();
 
-    // ignores packets that aren't fragmented.
-    // RAM: TODO! Class isn't useful, need to take all packets, fragmented or not
-    // and return a delta with the most recent defragmented packet.
+    // Takes both fragmented and non-fragmented packets
+    // returns the most recent complete packet.
     void AddPacket(PacketDelta fragmentToAdd);
     PacketDelta GetDefragmentedPacket();
 
@@ -57,6 +56,7 @@ private:
     static const std::size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
 
     std::vector<PacketDelta> myFragments;
+    PacketDelta myComplete;
     WrappingCounter<uint16_t> myCurrentSequence;
 };
 

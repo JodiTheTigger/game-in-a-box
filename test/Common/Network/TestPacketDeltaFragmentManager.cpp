@@ -112,14 +112,14 @@ TEST_F(TestPacketDeltaFragmentManager, AddNothing)
     toTest.AddPacket(PacketDelta());
 }
 
-TEST_F(TestPacketDeltaFragmentManager, AddNotFragmentedReturnsInvalid)
+TEST_F(TestPacketDeltaFragmentManager, AddNotFragmentedReturnsValid)
 {
     PacketDeltaFragmentManager toTest;
 
     toTest.AddPacket(delta8BytePayloadServer);
 
     PacketDelta testResult(toTest.GetDefragmentedPacket());
-    EXPECT_FALSE(testResult.IsValid());
+    EXPECT_TRUE(testResult.IsValid());
 }
 
 TEST_F(TestPacketDeltaFragmentManager, FragmentDefragment)
@@ -162,7 +162,7 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentOldThenNew)
     EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
 }
 
-TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewTheOld)
+TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOld)
 {
     std::vector<PacketDelta> halfWayOld(
                 PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22));
@@ -181,7 +181,52 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewTheOld)
         toTest.AddPacket(fragment);
     }
 
-    // always expect the older one.
+    // always expect the highest sequence.
     PacketDelta testResult(toTest.GetDefragmentedPacket());
     EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
+}
+
+TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentOldThenNewComplete)
+{
+    std::vector<PacketDelta> halfWayNew(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44));
+
+    PacketDeltaFragmentManager toTest;
+
+    toTest.AddPacket(delta8BytePayloadServer);
+
+    for (auto fragment : halfWayNew)
+    {
+        toTest.AddPacket(fragment);
+    }
+
+    // always expect the highest sequence.
+    PacketDelta testResult(toTest.GetDefragmentedPacket());
+    EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
+}
+
+TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOldComplete)
+{
+    std::vector<PacketDelta> halfWayNew(
+                PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44));
+
+    PacketDelta delta8BytePayloadServer66(
+                  WrappingCounter<uint16_t>(66),
+                  WrappingCounter<uint16_t>(2),
+                  3,
+                  nullptr,
+                  {1,2,3,4,5,6,7,8});
+
+    PacketDeltaFragmentManager toTest;
+
+    toTest.AddPacket(delta8BytePayloadServer66);
+
+    for (auto fragment : halfWayNew)
+    {
+        toTest.AddPacket(fragment);
+    }
+
+    // always expect the highest sequence.
+    PacketDelta testResult(toTest.GetDefragmentedPacket());
+    EXPECT_EQ(testResult, delta8BytePayloadServer66);
 }

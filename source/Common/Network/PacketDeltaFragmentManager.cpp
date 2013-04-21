@@ -22,6 +22,7 @@
 
 PacketDeltaFragmentManager::PacketDeltaFragmentManager()
     : myFragments()
+    , myComplete()
     , myCurrentSequence()
 {
 }
@@ -51,13 +52,13 @@ std::vector<PacketDelta> PacketDeltaFragmentManager::FragmentPacket(PacketDelta 
 
 void PacketDeltaFragmentManager::AddPacket(PacketDelta fragmentToAdd)
 {
+    if (myCurrentSequence < fragmentToAdd.GetSequence())
+    {
+        myFragments.clear();
+    }
+
     if (fragmentToAdd.IsFragmented())
     {
-        if (myCurrentSequence < fragmentToAdd.GetSequence())
-        {
-            myFragments.clear();
-        }
-
         if (myFragments.empty())
         {
             myCurrentSequence = fragmentToAdd.GetSequence();
@@ -71,11 +72,36 @@ void PacketDeltaFragmentManager::AddPacket(PacketDelta fragmentToAdd)
             }
         }
     }
+    else
+    {
+        myComplete = fragmentToAdd;
+    }
 }
 
 PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket()
 {
-    return PacketDelta(myFragments);
+    PacketDelta defragmented(myFragments);
+
+    if (defragmented.IsValid())
+    {
+        if (myComplete.IsValid())
+        {
+            if (defragmented.GetSequence() > myComplete.GetSequence())
+            {
+                myComplete = defragmented;
+            }
+            else
+            {
+                // leave alone.
+            }
+        }
+        else
+        {
+            myComplete = defragmented;
+        }
+    }
+
+    return myComplete;
 }
 
 
