@@ -33,7 +33,10 @@ template<class Uint8tIterator,
          class CodeArrayType,
          class = typename std::enable_if<
              std::is_same<typename Uint8tIterator::value_type, std::uint8_t>::value>
-         ::type>
+         ::type,
+        class = typename std::enable_if<
+            std::is_same<typename CodeArrayType::value_type, std::uint8_t>::value>
+        ::type>
 void XorCode(
         Uint8tIterator begin,
         Uint8tIterator end,
