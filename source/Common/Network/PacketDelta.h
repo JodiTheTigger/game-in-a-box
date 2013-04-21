@@ -45,11 +45,15 @@ public:
             std::size_t maxPacketSize,
             uint8_t fragmentId);
 
-    // Returns a valid delta only if all fragments to once sequence are supplied.
+    // Returns a valid delta only if all fragments to one sequence are supplied.
     // If different sequencies supplied interleaved, returns the last sequenced delta.
     // Even if complete delta could be made, won't be valid if it's interleaved with
     // a newer sequenced delta fragment (that isn't complete).
     // Ignores non-fragmented packets.
+    // NOTE: Buffer can be corrupted if someone spoofs the "last packet" with an
+    // in correct packet size. Fix by sending the actual total packet length
+    // along with the current packet length start with each packet (for 65k max
+    // that's an extra 3 bytes header overhead per packet.)
     PacketDelta(std::vector<PacketDelta> fragments);
 
     // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
