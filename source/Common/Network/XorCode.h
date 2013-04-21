@@ -30,22 +30,23 @@
 // Only allow uint8_t iterators by checking that the iterator
 // type (T::value_type) is a uint8_t.
 template<class Uint8tIterator,
+         class CodeArrayType,
          class = typename std::enable_if<
              std::is_same<typename Uint8tIterator::value_type, std::uint8_t>::value>
          ::type>
 void XorCode(
         Uint8tIterator begin,
         Uint8tIterator end,
-        const std::vector<uint8_t>& toCodeAgainst)
+        const CodeArrayType& toCodeAgainst)
 {
     if (!toCodeAgainst.empty())
     {
         std::size_t codeSize(toCodeAgainst.size());
         std::size_t index(0);
 
-        for (auto i(begin); i != end; i++)
+        for (; begin != end; begin++)
         {
-            *i = *i ^ toCodeAgainst[index];
+            *begin = *begin ^ toCodeAgainst[index];
             index = (index + 1) % codeSize;
         }
     }

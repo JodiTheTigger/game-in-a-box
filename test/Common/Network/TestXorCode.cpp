@@ -21,6 +21,9 @@
 #include <Common/Network/XorCode.h>
 #include <gmock/gmock.h>
 
+#include <vector>
+#include <array>
+
 using namespace std;
 using Bytes = std::vector<uint8_t>;
 
@@ -71,6 +74,22 @@ TEST_F(TestXorCode, FullCodeDecode)
 
     EXPECT_EQ(toTest, Bytes(8,11));
 }
+
+TEST_F(TestXorCode, FullCodeDecodeArray)
+{
+    Bytes toTest(8,11);
+    std::array<uint8_t, 4> codes;
+    codes[0] = 42;
+    codes[1] = 42;
+    codes[2] = 42;
+    codes[3] = 42;
+
+    XorCode(begin(toTest), end(toTest), codes);
+    XorCode(begin(toTest), end(toTest), codes);
+
+    EXPECT_EQ(toTest, Bytes(8,11));
+}
+
 
 TEST_F(TestXorCode, PartialCode)
 {
