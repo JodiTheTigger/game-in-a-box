@@ -30,6 +30,7 @@ class TestWrappingCounter : public ::testing::Test
 {
 public:
     typedef WrappingCounter<T> WrapCount;
+    typedef T Datum;
 
     enum
     {
@@ -77,6 +78,60 @@ TYPED_TEST(TestWrappingCounter, TestSimpleEqualAgainstUint64)
     }
 }
 
+TYPED_TEST(TestWrappingCounter, TestSimpleAdd)
+{
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
+    {
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+1);
+        typename TestFixture::WrapCount c(i+i+1);
+
+        ASSERT_EQ(a + b, c);
+    }
+}
+
+TYPED_TEST(TestWrappingCounter, TestSimpleSubtract)
+{
+    typename TestFixture::WrapCount c(1);
+
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
+    {
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+1);
+
+        ASSERT_EQ(b - a, c);
+    }
+}
+
+TYPED_TEST(TestWrappingCounter, TestSimpleAddAssign)
+{
+    typename TestFixture::Datum toDelta(100);
+
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
+    {
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount c(i + 100);
+
+        a += toDelta;
+
+        ASSERT_EQ(a, c);
+    }
+}
+
+TYPED_TEST(TestWrappingCounter, TestSimpleSubtractAssign)
+{
+    typename TestFixture::Datum toDelta(100);
+
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
+    {
+        typename TestFixture::WrapCount a(i + 100);
+        typename TestFixture::WrapCount b(i);
+
+        a -= toDelta;
+
+        ASSERT_EQ(a, b);
+    }
+}
 
 TYPED_TEST(TestWrappingCounter, TestSimpleLessThan)
 {

@@ -29,6 +29,7 @@ class WrappingCounter
 {
 public:
     T Value() const { return myValue; }
+    T& Value() { return myValue; }
 
     WrappingCounter() : WrappingCounter(0) {};
     WrappingCounter(T newValue) : myValue(newValue) {}
@@ -38,6 +39,36 @@ private:
     T myValue;
 };
 
+// Maths
+template<typename T>
+T operator-(const WrappingCounter<T> &leftHandSide, const WrappingCounter<T> &rightHandSide)
+{
+    // Expecting overflow wraparound.
+    return T(leftHandSide.Value() - rightHandSide.Value());
+}
+
+template<typename T>
+T operator+(const WrappingCounter<T> &leftHandSide, const WrappingCounter<T> &rightHandSide)
+{
+    // Expecting overflow wraparound.
+    return T(leftHandSide.Value() + rightHandSide.Value());
+}
+
+template<typename T>
+WrappingCounter<T>& operator+=(WrappingCounter<T>& leftHandSide, const T rightHandSide)
+{
+    leftHandSide.Value() += rightHandSide;
+    return leftHandSide;
+}
+
+template<typename T>
+WrappingCounter<T>& operator-=(WrappingCounter<T>& leftHandSide, const T rightHandSide)
+{
+    leftHandSide.Value() -= rightHandSide;
+    return leftHandSide;
+}
+
+// Boolean Maths
 template<typename T>
 bool operator==(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
 {
@@ -63,6 +94,26 @@ bool operator==(uint64_t leftHandSide, const WrappingCounter<T>& rightHandSide)
 }
 
 template<typename T>
+bool operator<(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
+{
+    if (leftHandSide == rightHandSide)
+    {
+        return false;
+    }
+    else
+    {
+        if (rightHandSide.Value() > leftHandSide.Value())
+        {
+            return ((rightHandSide - leftHandSide) <= ((std::numeric_limits<T>::max() >> 1) + 1));
+        }
+        else
+        {
+            return ((leftHandSide - rightHandSide) > ((std::numeric_limits<T>::max() >> 1) + 1));
+        }
+    }
+}
+
+template<typename T>
 bool operator>(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
 {
     if (leftHandSide == rightHandSide)
@@ -74,26 +125,5 @@ bool operator>(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>&
         return !(leftHandSide < rightHandSide);
     }
 }
-
-template<typename T>
-bool operator<(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
-{
-    if (leftHandSide == rightHandSide)
-    {
-        return false;
-    }
-    else
-    {
-        if (rightHandSide.Value() > leftHandSide.Value())
-        {
-            return (T(rightHandSide.Value() - leftHandSide.Value()) <= ((std::numeric_limits<T>::max() >> 1) + 1));
-        }
-        else
-        {
-            return (T(leftHandSide.Value() - rightHandSide.Value()) > ((std::numeric_limits<T>::max() >> 1) + 1));
-        }
-    }
-}
-
 
 #endif // WRAPPINGCOUNTER_H
