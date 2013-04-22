@@ -50,6 +50,7 @@ NetworkManagerClientNew::NetworkManagerClientNew(
     , myConnectedNetwork(nullptr)
     , myState(State::Idle)
     , myServerKey(0)
+    , myServerKeyAsABuffer()
     , myServerAddress()
     , myStateHandle(nullptr)
     , myFailReason()
@@ -183,6 +184,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                 // set key and change state
                 myServerKey = key;
+                Push(myServerKeyAsABuffer.data(), myServerKey);
                 myState = State::Connecting;
             }
 
@@ -273,8 +275,8 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                 {
                     PacketDisconnect disconnect(packet.data);
 
-                    // RAM: TODO: Put key into disconnected packet to prevent
-                    // disconnected attack by spoofing disconnect message from
+                    // RAM: TODO: Put key into disconnected packet to prevent easy
+                    // disconnected attacks by spoofing disconnect message from
                     // server.
                     if (disconnect.IsValid())
                     {
@@ -399,11 +401,9 @@ void NetworkManagerClientNew::DeltaReceive()
             // Reason for excryption in the fist place is to prevent easy man-in-the-middle
             // attacks to control someone else's connection.
             std::vector<uint8_t> code(4);
-            std::vector<uint8_t> codeKey(4);
-            Push(codeKey.begin(), myServerKey);
             Push(code.begin(), delta.GetSequence().Value());
             Push(code.begin() + 2, delta.GetSequenceAck().Value());
-            XorCode(code.begin(), code.end(), codeKey);
+            XorCode(code.begin(), code.end(), myServerKeyAsABuffer);
             XorCode(payload.begin(), payload.end(), code);
 
             // Bah, I wrote Huffman and Bitstream before I knew about iterators
@@ -445,8 +445,7 @@ void NetworkManagerClientNew::DeltaSend()
 
     // ignore if the delta distance is greater than 255, as we
     // store the distance as a byte.
-    // RAM: TODO! operator overload as this wont work for wraparound!!!
-    uint16_t distance(to.Value() - from.Value());
+    uint16_t distance(to - from);
     if (distance < 256)
     {
         PacketDelta delta(

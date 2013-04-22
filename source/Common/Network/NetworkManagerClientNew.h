@@ -22,6 +22,7 @@
 #define NETWORKMANAGERCLIENTNEW_H
 
 #include <vector>
+#include <array>
 #include <memory>
 #include <chrono>
 #include <utility>
@@ -69,6 +70,7 @@ private:
 
     State myState;
     uint32_t myServerKey;
+    std::array<uint8_t,4> myServerKeyAsABuffer;
     boost::asio::ip::udp::endpoint myServerAddress;
     IStateManager::ClientHandle* myStateHandle;
     std::string myFailReason;
