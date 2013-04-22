@@ -79,11 +79,13 @@ public:
     uint16_t ClientId() const;
 
     std::size_t Size() const { return myBuffer.size(); }
-    std::vector<uint8_t> GetPayload() const;
     std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
-    // TODO: once we have namespaces, take this out of the class.
-    // Hmm, couldn't we just use streams for this somehow?
+    // Not guaranteed to be valid, make sure you include a checksum or something
+    // in your payload to validate it. Will not be larger than 65535 bytes (2^16 - 1).
+    std::vector<uint8_t> GetPayload() const;
+
+    // TODO: REMOVE! Use BufferSerialisation.h instead.
     static uint16_t GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset);
     static void Push(std::vector<uint8_t>& buffer, uint16_t data);
 
