@@ -25,6 +25,8 @@
 #include <vector>
 #include <type_traits>
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // TODO! Support std::array as the iterators!
 
 // Only allow uint8_t iterators by checking that the iterator
@@ -54,5 +56,7 @@ void XorCode(
         }
     }
 }
+
+}}} // namespace
 
 #endif // XORCODE_H

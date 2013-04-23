@@ -22,6 +22,9 @@
 #include <gmock/gmock.h>
 
 using namespace std;
+using GameInABox::Common::WrappingCounter;
+
+namespace GameInABox { namespace Common { namespace Network {
 
 // Class definition!
 class TestPacketDeltaFragmentManager : public ::testing::Test
@@ -230,3 +233,5 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOldComplete)
     PacketDelta testResult(toTest.GetDefragmentedPacket());
     EXPECT_EQ(testResult, delta8BytePayloadServer66);
 }
+
+}}} // namespace

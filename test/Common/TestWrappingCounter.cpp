@@ -25,6 +25,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common {
+
 template <typename T>
 class TestWrappingCounter : public ::testing::Test
 {
@@ -215,3 +217,5 @@ TYPED_TEST(TestWrappingCounter, TestGreaterThanEdgeCase)
         }
     }
 }
+
+}} // namespace

@@ -22,6 +22,8 @@
 #include "BitStream.h"
 #include "BitStreamReadOnly.h"
 
+using namespace GameInABox::Common;
+
 IStateManager::~IStateManager()
 {
     // Nothing for now.

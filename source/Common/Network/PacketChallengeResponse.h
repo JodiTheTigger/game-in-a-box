@@ -25,6 +25,8 @@
 
 #include "PacketKey.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 class PacketChallengeResponse : public PacketKey<PacketCommand::Command::ChallengeResponse>
 {
 public:
@@ -39,5 +41,7 @@ private:
     static const std::size_t PayloadSize = PacketKey::PayloadSize;
     static const std::size_t OffsetVersion = PacketKey::OffsetKey + 4;
 };
+
+}}} // namespace
 
 #endif // PACKETCHALLENGERESPONSE_H

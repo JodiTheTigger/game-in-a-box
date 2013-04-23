@@ -26,6 +26,8 @@
 
 #include "Common/BuildMacros.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 class INetworkManager
 {
     CLASS_NOCOPY_ASSIGN_MOVE(INetworkManager);
@@ -49,5 +51,7 @@ private:
     virtual void PrivateProcessIncomming() = 0;
     virtual void PrivateSendState() = 0;
 };
+
+}}} // namespace
 
 #endif // INETWORKMANAGER_H

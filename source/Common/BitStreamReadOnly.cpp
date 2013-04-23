@@ -20,6 +20,8 @@
 
 #include "BitStreamReadOnly.h"
 
+using namespace GameInABox::Common;
+
 BitStreamReadOnly::BitStreamReadOnly(const std::vector< uint8_t >& sourceBuffer)
     : mySourceBuffer(&sourceBuffer)
     , myBitIndex(0) 

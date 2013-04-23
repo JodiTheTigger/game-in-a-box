@@ -23,6 +23,8 @@
 
 #include <vector>
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // forward references
 class NetworkPacket;
 
@@ -51,5 +53,7 @@ public:
     void Disable();
     bool IsDisabled();
 };
+
+}}} // namespace
 
 #endif // NETWORKPROVIDER_H

@@ -27,6 +27,8 @@
 #include <queue>
 #include <deque>
 
+namespace GameInABox { namespace Common {
+
 class AutoComplete
 {
 public:
@@ -60,5 +62,7 @@ private:
     std::vector<std::string>    GetTails() const;
     bool                        IsLeaf() const;        
 };
+
+}} // namespace
 
 #endif // AUTOCOMPLETE_H

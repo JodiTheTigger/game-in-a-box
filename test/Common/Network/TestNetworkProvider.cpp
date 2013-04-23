@@ -23,6 +23,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // Class definition!
 class TestNetworkProvider : public ::testing::Test 
 {
@@ -33,3 +35,5 @@ TEST_F(TestNetworkProvider, GetPacketNoData)
     // RAM: TODO!
     //EXPECT_FALSE(true);  
 }
+
+}}} // namespace

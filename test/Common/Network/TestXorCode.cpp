@@ -27,6 +27,8 @@
 using namespace std;
 using Bytes = std::vector<uint8_t>;
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // Class definition!
 class TestXorCode : public ::testing::Test
 {
@@ -122,3 +124,5 @@ TEST_F(TestXorCode, PartialCodeDecode32000)
 
     EXPECT_EQ(toTest, Bytes(32000,11));
 }
+
+}}} // namespace

@@ -30,6 +30,8 @@
 // therefore I cannot use a forward reference.
 #include "ReflectionKey.h"
 
+namespace GameInABox { namespace Common {
+
 // Reflection notes:
 // =================
 // class ReflectionKey;
@@ -228,5 +230,6 @@ private:   \
 ,reflectionNamesStringVariable()  \
 ,reflectionNamesMethods()         \
 
+}} // namespace
 
 #endif // IREFLECTED_H

@@ -27,6 +27,8 @@
 
 #include "BuildMacros.h"
 
+namespace GameInABox { namespace Common {
+
 // TODO: Make this a templated class, and make a std::array
 class RollingStatistics
 {
@@ -68,5 +70,7 @@ private:
     float myVariance;
     float myStandardDeviation;
 };
+
+}} // namespace
 
 #endif // ROLLINGSTATISTICS_H

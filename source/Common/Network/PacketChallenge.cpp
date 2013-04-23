@@ -24,6 +24,7 @@
 #include <iterator>
 
 using namespace std;
+using namespace GameInABox::Common::Network;
 
 const std::string PacketChallenge::ChallengeMessage = "Why, Hello there.";
 

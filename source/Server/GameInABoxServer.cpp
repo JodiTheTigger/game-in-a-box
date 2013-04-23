@@ -27,11 +27,14 @@
 #include "Common/Network/NetworkProvider.h"
 #include "Common/Network/NetworkManager.h"
 #include "Common/IStateManager.h"
-#include "Common/GameInABox.h"
+#include "Common/GameSimple.h"
 #include "Common/ReflectionManager.h"
 
 using namespace std;
 using namespace std::chrono;
+using namespace GameInABox::Common;
+using namespace GameInABox::Server;
+using namespace GameInABox::Common::Network;
 
 GameInABoxServer::GameInABoxServer(int32_t, uint8_t**)
 : REFLECTION_INIT_MEMBERS
@@ -69,8 +72,8 @@ void GameInABoxServer::Run()
     uint32_t timeDeltaInMs;
     
     // startup
-    // Can have different game types, for now choose GameInABox.
-    myGame = shared_ptr<IStateManager>(new GameInABox());
+    // Can have different game types, for now choose GameSimple.
+    myGame = shared_ptr<IStateManager>(new GameSimple());
     myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
     
     // RAM: TODO!

@@ -29,6 +29,8 @@
 
 #include "BuildMacros.h"
 
+namespace GameInABox { namespace Common {
+
 // forward declarations
 class IReflected;
 class ReflectionKey;
@@ -68,5 +70,7 @@ private:
         std::shared_ptr<IReflected>& reflected, 
         ReflectionKey& key) const;
 };
+
+}} // namespace
 
 #endif // REFLECTIONMANAGER_H

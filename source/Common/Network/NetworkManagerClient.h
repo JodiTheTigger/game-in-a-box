@@ -31,6 +31,8 @@
 #include "INetworkManager.h"
 #include "Common/IStateManager.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // forward delcarations
 class NetworkPacket;
 class NetworkProvider;
@@ -92,5 +94,7 @@ private:
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
 };
+
+}}} // namespace
 
 #endif // NETWORKMANAGERCLIENT_H

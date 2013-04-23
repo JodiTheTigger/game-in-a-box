@@ -24,6 +24,8 @@
 #include <cstdint>
 #include <vector>
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // RAM: Is this a normal class, base class, an interface, or an implementation class
 // TODO: Make up your mind and implement it!
 class PacketCommand
@@ -70,5 +72,7 @@ protected:
     PacketCommand(std::vector<uint8_t> fromBuffer);
     PacketCommand(Command command);
 };
+
+}}} // namespace
 
 #endif // PACKETCOMMAND_H

@@ -26,20 +26,21 @@
 #include <memory>
 #include <array>
 
-#include "NetworkProvider.h"
 #include "Common/IStateManager.h"
+#include "Common/BitStream.h"
+#include "Common/BitStreamReadOnly.h"
+#include "NetworkProvider.h"
 #include "NetworkPacket.h"
 #include "PacketChallenge.h"
 #include "PacketChallengeResponse.h"
 #include "PacketDelta.h"
-#include "Common/BitStream.h"
-#include "Common/BitStreamReadOnly.h"
 #include "PacketSimple.h"
 #include "XorCode.h"
 #include "BufferSerialisation.h"
 
 using std::string;
 using namespace std::chrono;
+using namespace GameInABox::Common::Network;
 
 NetworkManagerClientNew::NetworkManagerClientNew(
         std::vector<std::unique_ptr<NetworkProvider>> networks,

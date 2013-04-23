@@ -24,6 +24,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common {
+
 // Class definition!
 class TestRollingStatistics : public ::testing::Test 
 {
@@ -205,3 +207,5 @@ TEST_F(TestRollingStatistics, EntryPastMax)
     EXPECT_EQ(1, stats.GetVariance());
     EXPECT_EQ(1, stats.GetStandardDeviation());
 }
+
+}} // namespace

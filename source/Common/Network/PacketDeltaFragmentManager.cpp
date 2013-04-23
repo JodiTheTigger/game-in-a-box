@@ -20,6 +20,8 @@
 
 #include "PacketDeltaFragmentManager.h"
 
+using namespace GameInABox::Common::Network;
+
 PacketDeltaFragmentManager::PacketDeltaFragmentManager()
     : myFragments()
     , myComplete()

@@ -23,6 +23,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace GameInABox::Common;
 
 // AutoComplete Notes:
 // ===================

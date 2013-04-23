@@ -28,6 +28,8 @@
 
 #include "Common/BuildMacros.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 class NetworkPacket
 {
 public:
@@ -51,5 +53,7 @@ public:
     NetworkPacket(const NetworkPacket&) = default;
     NetworkPacket& operator= ( NetworkPacket const &) = default;
 };
+
+}}} // namespace
 
 #endif // NETWORKPACKET_H

@@ -26,6 +26,7 @@
 
 using namespace std;
 using namespace std::chrono;
+using namespace GameInABox::Common::Network;
 
 // I don't understand constexpr
 constexpr std::chrono::milliseconds NetworkManagerClient::HandshakeRetryPeriod;

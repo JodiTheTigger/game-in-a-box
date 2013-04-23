@@ -33,9 +33,11 @@
 #include "Common/WrappingCounter.h"
 #include "PacketDeltaFragmentManager.h"
 
-// forward delcarations
-class NetworkProvider;
+namespace GameInABox { namespace Common {
 class IStateManager;
+
+namespace Network {
+class NetworkProvider;
 
 class NetworkManagerClientNew : public INetworkManager
 {
@@ -92,5 +94,7 @@ private:
     void DeltaReceive();
     void DeltaSend();
 };
+
+}}} // namespace
 
 #endif // NETWORKMANAGERCLIENTNEW_H

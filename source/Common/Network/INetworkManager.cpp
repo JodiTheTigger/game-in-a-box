@@ -20,6 +20,8 @@
 
 #include "INetworkManager.h"
 
+using namespace GameInABox::Common::Network;
+
 INetworkManager::~INetworkManager()
 {
     // Nothing.

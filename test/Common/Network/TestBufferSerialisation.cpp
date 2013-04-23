@@ -29,6 +29,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common { namespace Network {
+
 template <typename T>
 class TestBufferSerialisation : public ::testing::Test
 {
@@ -80,3 +82,5 @@ TYPED_TEST(TestBufferSerialisation, PushPullRandomVector)
 
     EXPECT_EQ(result, TestFixture::maxValue - 24);
 }
+
+}}} // namespace

@@ -23,6 +23,8 @@
 
 #include "PacketCommand.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 template<PacketCommand::Command TheCommand>
 class PacketBuffer : public PacketCommand
 {
@@ -60,5 +62,7 @@ protected:
     static const std::size_t MinimumPacketSize = PacketCommand::MinimumPacketSize;
     static const std::size_t OffsetPayload = 3;
 };
+
+}}} // namespace
 
 #endif // PACKETBUFFER_H

@@ -24,6 +24,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common {
+
 // I really should just use google mock.
 class ReflectedTester : public IReflected
 {
@@ -227,3 +229,5 @@ TEST_F(TestIReflected, TestOutOfBounds)
     EXPECT_EQ(string1, "Meh");  
     EXPECT_EQ(string2, "Bah"); 
 }
+
+}} // namespace

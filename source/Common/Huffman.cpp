@@ -28,6 +28,7 @@
 #include "BitStream.h"
 
 using namespace std;
+using namespace GameInABox::Common;
 
 Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
     : myEncodeMap()

@@ -22,6 +22,7 @@
 #include "NetworkPacket.h"
 
 using namespace std;
+using namespace GameInABox::Common::Network;
 
 std::vector<NetworkPacket> NetworkProvider::Receive()
 {

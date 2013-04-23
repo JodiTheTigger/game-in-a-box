@@ -25,6 +25,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common {
+
 // Class definition!
 class TestAutoComplete : public ::testing::Test 
 {
@@ -234,3 +236,5 @@ TEST_F(TestAutoComplete, SimpleAutocompleteTests)
     EXPECT_EQ("OneWordInList.RealHappy", toTest.GetMatchList("OneWordInList.Re")[0]);
     EXPECT_EQ("OneWordInList.RealHappy", toTest.GetMatchList("OneWordInList.Real")[0]);
 }
+
+}} // namespace

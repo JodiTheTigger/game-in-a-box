@@ -24,6 +24,8 @@
 #include <cstdint>
 #include <limits>
 
+namespace GameInABox { namespace Common {
+
 template<typename T>
 class WrappingCounter
 {
@@ -125,5 +127,7 @@ bool operator>(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>&
         return !(leftHandSide < rightHandSide);
     }
 }
+
+}} // namespace
 
 #endif // WRAPPINGCOUNTER_H

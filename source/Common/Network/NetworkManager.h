@@ -25,10 +25,11 @@
 #include <vector>
 #include "Common/BuildMacros.h"
 
-// forward declarations
-class StateManager;
-class NetworkProvider;
+namespace GameInABox { namespace Common {
 class IStateManager;
+
+namespace Network {
+class NetworkProvider;
 
 class NetworkManager
 {
@@ -53,5 +54,7 @@ private:
     std::weak_ptr<IStateManager> myStateManager;
     std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
 };
+
+}}} // namespace
 
 #endif // NETWORKMANAGER_H

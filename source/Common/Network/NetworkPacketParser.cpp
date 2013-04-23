@@ -24,7 +24,8 @@
 #include "NetworkPacket.h"
 
 using namespace std;
-
+using namespace GameInABox::Common;
+using namespace GameInABox::Common::Network;
 
 // Challenge packet needs to be larger than the challenge response
 // so that the server cannot be used for udp return address amplifation attacks.

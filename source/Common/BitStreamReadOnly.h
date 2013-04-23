@@ -26,6 +26,8 @@
 #include <cstdint>
 #include <vector>
 
+namespace GameInABox { namespace Common {
+
 class BitStreamReadOnly
 {    
     // RAM: TODO! No need to disallow, as this is
@@ -55,5 +57,7 @@ private:
     const std::vector<uint8_t>* mySourceBuffer;
     uint64_t myBitIndex;
 };
+
+}} // namespace
 
 #endif // BITSTREAMREADONLY_H

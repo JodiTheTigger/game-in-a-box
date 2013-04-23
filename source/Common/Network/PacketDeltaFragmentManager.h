@@ -24,6 +24,8 @@
 #include <vector>
 #include "PacketDelta.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // Fragments and defragments packets of a fixed size
 // of PacketDeltaFragmentManager::SizeMaxPacketSize.
 // If we need to generalise this, turn it into a template
@@ -59,5 +61,7 @@ private:
     PacketDelta myComplete;
     WrappingCounter<uint16_t> myCurrentSequence;
 };
+
+}}} // namespace
 
 #endif // PACKETDELTAFRAGENTMANAGER_H

@@ -25,6 +25,8 @@
 #include <type_traits>
 #include <iterator>
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // =======================
 // Interface at the bottom
 // =======================
@@ -149,5 +151,7 @@ void Pull(Iterator start, Datum& value)
     typedef typename std::iterator_traits<Iterator>::iterator_category category;
     Pull(start, value, category(), BigEndian());
 }
+
+}}} // namespace
 
 #endif // BUFFERSERIALISATION_H

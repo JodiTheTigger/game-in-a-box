@@ -23,6 +23,8 @@
 
 #include <memory>
 
+namespace GameInABox { namespace Common {
+
 // ReflectionKey notes:
 // =================
 // class ReflectionKey;
@@ -60,5 +62,7 @@ public:
 private:
     std::shared_ptr<ReflectionKeyPrivate> myPimpl;
 };
+
+}} // namespace
 
 #endif // IREFLECTIONKEY_H

@@ -23,6 +23,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common {
+
 // Class definition!
 class TestBitStream : public ::testing::Test 
 {
@@ -257,3 +259,5 @@ TEST_F(TestBitStream, Huffman12BitsBug)
   EXPECT_EQ(0x80, (*result)[4]);
 
 }
+
+}} // namespace

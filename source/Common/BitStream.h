@@ -28,6 +28,8 @@
 #include "BuildMacros.h"
 #include "BitStreamReadOnly.h"
 
+namespace GameInABox { namespace Common {
+
 class BitStream : public BitStreamReadOnly
 {
     CLASS_NOCOPY_ASSIGN_MOVE(BitStream)
@@ -54,5 +56,7 @@ private:
     uint64_t myCurrentBitCount;
 
 };
+
+}} // namespace
 
 #endif // BITSTREAM_H

@@ -30,12 +30,18 @@
 #include "Common/IReflected.h"
 
 // forward declarations
-class NetworkProvider;
-class NetworkManager;
+namespace GameInABox { namespace Common {
 class IStateManager;
 class ReflectionManager;
 
-class GameInABoxServer : public IReflected
+namespace Network {
+class NetworkProvider;
+class NetworkManager;
+}}}
+
+namespace GameInABox { namespace Server {
+
+class GameInABoxServer : public GameInABox::Common::IReflected
 {
     CLASS_NOCOPY_ASSIGN_MOVE(GameInABoxServer)
     REFLECTION_BOILERPLATE(GameInABoxServer)
@@ -65,13 +71,15 @@ private:
     uint16_t myPeriodNetworkSendInMs;
     
     // my pretties
-    std::shared_ptr<NetworkProvider> myNetworkSource;
-    std::shared_ptr<NetworkManager> myNetworkState;
-    std::shared_ptr<IStateManager> myGame;
+    std::shared_ptr<GameInABox::Common::Network::NetworkProvider> myNetworkSource;
+    std::shared_ptr<GameInABox::Common::Network::NetworkManager> myNetworkState;
+    std::shared_ptr<GameInABox::Common::IStateManager> myGame;
     
-    std::unique_ptr<ReflectionManager> myMirror;
+    std::unique_ptr<GameInABox::Common::ReflectionManager> myMirror;
     
     void InitReflection() override;    
 };
+
+}} // namespace
 
 #endif // GAMEINABOXSERVER_H

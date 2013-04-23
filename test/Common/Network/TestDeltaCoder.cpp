@@ -28,6 +28,9 @@
 #include <random>
 
 using namespace std;
+using namespace GameInABox::Common;
+
+namespace GameInABox { namespace Common { namespace Network {
 
 // Class definition!
 class TestDeltaCoder : public ::testing::Test 
@@ -199,3 +202,5 @@ TEST_F(TestDeltaCoder, RandomStates)
         EXPECT_EQ(states[to].waitWhat, result.waitWhat);
     }
 }
+
+}}} // namespace

@@ -21,6 +21,7 @@
 #include "PacketCommand.h"
 
 using namespace std;
+using namespace GameInABox::Common::Network;
 
 PacketCommand::PacketCommand(std::vector<uint8_t> fromBuffer)
     : myBuffer(fromBuffer)

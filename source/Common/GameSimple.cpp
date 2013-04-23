@@ -18,9 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "GameInABox.h"
+#include "GameSimple.h"
 
-IStateManager::ClientHandle* GameInABox::PrivateConnect(
+using namespace GameInABox::Common;
+
+IStateManager::ClientHandle* GameSimple::PrivateConnect(
         std::vector<uint8_t>,
         bool& fail,
         std::string&)
@@ -31,13 +33,13 @@ IStateManager::ClientHandle* GameInABox::PrivateConnect(
     return nullptr;
 }
 
-void GameInABox::PrivateDisconnect(ClientHandle*)
+void GameSimple::PrivateDisconnect(ClientHandle*)
 {
     // RAM: TODO
 }
 
 
-void GameInABox::PrivateDeltaGet(
+void GameSimple::PrivateDeltaGet(
         const ClientHandle&,
         Sequence&,
         Sequence&,
@@ -47,7 +49,7 @@ void GameInABox::PrivateDeltaGet(
     // RAM: TODO!
 }
 
-void GameInABox::PrivateDeltaSet(
+void GameSimple::PrivateDeltaSet(
         const ClientHandle&,
         Sequence,
         Sequence,

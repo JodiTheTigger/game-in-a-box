@@ -26,6 +26,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common {
+
 // Class definition!
 class TestHuffman : public ::testing::Test 
 {
@@ -143,3 +145,5 @@ TEST_F(TestHuffman, TestBufferFull)
         EXPECT_EQ(*bufferToTest, *decoded);
     }
 }
+
+}} // namespace

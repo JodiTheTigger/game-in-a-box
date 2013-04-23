@@ -25,6 +25,8 @@
 #include "PacketBuffer.h"
 #include "PacketString.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // RAM: TODO! Rename to PacketTypes, fill with all the packetTypes
 // RAM: TODO! Make a Packet namespace. Remove the Packet prefix from everything.
 
@@ -33,5 +35,7 @@ using PacketInfoResponse    = PacketBuffer<PacketCommand::Command::InfoResponse>
 using PacketConnect         = PacketKey<PacketCommand::Command::Connect>;
 using PacketConnectResponse = PacketBuffer<PacketCommand::Command::ConnectResponse>;
 using PacketDisconnect      = PacketString<PacketCommand::Command::Disconnect>;
+
+}}} // namespace
 
 #endif // PACKETQUERIESKEY_H

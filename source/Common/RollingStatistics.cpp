@@ -30,6 +30,7 @@
 #endif
 
 using namespace std;
+using namespace GameInABox::Common;
 
 RollingStatistics::RollingStatistics(uint32_t rollingBufferSizeInSamples)
     : mySamples(new deque<float>())

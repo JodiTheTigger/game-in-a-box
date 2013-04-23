@@ -29,6 +29,8 @@
 
 #include "WrappingCounter.h"
 
+namespace GameInABox { namespace Common {
+
 // Forward declarations
 class BitStream;
 class BitStreamReadOnly;
@@ -97,5 +99,7 @@ private:
             Sequence tickFrom,
             BitStreamReadOnly& source) = 0;
 };
+
+}} // namespace
 
 #endif // ISTATEMANAGER_H

@@ -25,6 +25,8 @@
 
 #include <vector>
 
+namespace GameInABox { namespace Common { namespace Network {
+
 class PacketDelta
 {
 public:
@@ -119,5 +121,7 @@ private:
 
     std::vector<uint8_t> myBuffer;
 };
+
+}}} // namespace
 
 #endif // PACKETDELTA_H

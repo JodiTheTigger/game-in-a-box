@@ -20,6 +20,8 @@
 
 #include "PacketChallengeResponse.h"
 
+using namespace GameInABox::Common::Network;
+
 PacketChallengeResponse::PacketChallengeResponse(uint8_t version, uint32_t key)
     : PacketKey(key)
 {

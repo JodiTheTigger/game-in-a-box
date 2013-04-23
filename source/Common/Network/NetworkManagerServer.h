@@ -30,6 +30,8 @@
 #include "INetworkManager.h"
 #include "NetworkPacket.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // forward declarations
 class NetworkPacket;
 
@@ -78,5 +80,7 @@ private:
     // RAM: TODO: Is this the best storage for the use?
     std::map<ClientKey, Challenger> myClients;
 };
+
+}}} // namespace
 
 #endif // NETWORKMANAGERSERVER_H

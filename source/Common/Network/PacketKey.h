@@ -23,6 +23,8 @@
 
 #include "PacketCommand.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 template<PacketCommand::Command TheCommand>
 class PacketKey : public PacketCommand
 {
@@ -69,5 +71,7 @@ protected:
     static const std::size_t PayloadSize = 4;
     static const std::size_t OffsetKey = 3;
 };
+
+}}} // namespace
 
 #endif // PACKETKEY_H

@@ -36,6 +36,9 @@
 #include "Common/IReflected.h"
 #include "Common/AutoComplete.h"
 
+using namespace GameInABox::Server;
+using namespace GameInABox::Common;
+
 // Globals for signal use.
 GameInABoxServer* theGame = nullptr;
 

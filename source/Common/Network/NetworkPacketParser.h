@@ -26,6 +26,8 @@
 
 #include "Common/WrappingCounter.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // forward delcarations
 class NetworkPacket;
 
@@ -113,5 +115,7 @@ private:
 
     WrappingCounter<uint16_t> SequenceFromPacket(const NetworkPacket& packetData);
 };
+
+}}} // namespace
 
 #endif // NETWORKMANAGERBASE_H

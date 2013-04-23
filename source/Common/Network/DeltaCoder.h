@@ -38,9 +38,10 @@
 // Argh Includes
 #include "DeltaMapItem.h"
 
-// forward declaration
+namespace GameInABox { namespace Common {
 class BitStreamReadOnly;
 class BitStream;
+namespace Network {
 
 template<class OBJECT>
 class DeltaCoder
@@ -71,6 +72,8 @@ private:
     const bool myResearchEncodeZeros;
     const bool myResearchEncodeXorDeltas;
 };
+
+}}} // namespace
 
 // The only downside of templates
 #include "DeltaCoder.cpp"

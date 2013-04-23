@@ -22,8 +22,11 @@
 #include <gmock/gmock.h>
 
 using namespace std;
+using GameInABox::Common::WrappingCounter;
 
 // RAM: TODO! Copy, assignment and move tests.
+
+namespace GameInABox { namespace Common { namespace Network {
 
 // Class definition!
 class TestPacketDelta : public ::testing::Test
@@ -468,3 +471,4 @@ TEST_F(TestPacketDelta, DefragmentSequenceInterleavedNotComplete)
     EXPECT_EQ(0, toTest.TakeBuffer().size());
 }
 
+}}} // namespace

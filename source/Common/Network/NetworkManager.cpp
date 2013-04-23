@@ -25,6 +25,7 @@
 
 using namespace std;
 using namespace boost::asio::ip;
+using namespace GameInABox::Common::Network;
 
 NetworkManager::NetworkManager(
         std::vector<std::unique_ptr<NetworkProvider>> networks,

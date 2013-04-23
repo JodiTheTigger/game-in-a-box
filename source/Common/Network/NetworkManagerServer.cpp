@@ -21,6 +21,7 @@
 #include "NetworkManagerServer.h"
 
 using namespace std;
+using namespace GameInABox::Common::Network;
 
 NetworkManagerServer::NetworkManagerServer()
     : NetworkPacketParser(PacketEncoding::FromClient)

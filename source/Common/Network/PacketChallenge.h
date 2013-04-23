@@ -23,6 +23,8 @@
 
 #include "PacketString.h"
 
+namespace GameInABox { namespace Common { namespace Network {
+
 class PacketChallenge : public PacketString<PacketCommand::Command::Challenge>
 {
 public:
@@ -33,5 +35,7 @@ public:
 private:
     static const std::string ChallengeMessage;
 };
+
+}}} // namespace
 
 #endif // PACKETCHALLENGE_H

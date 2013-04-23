@@ -26,6 +26,8 @@
 
 using namespace std;
 
+namespace GameInABox { namespace Common { namespace Network {
+
 // Class definition!
 class TestPackets : public ::testing::Test
 {
@@ -191,3 +193,5 @@ TEST_F(TestPackets, SimplePacketsBufferInvalid)
     EXPECT_FALSE(infoBuffer.IsValid());
     EXPECT_FALSE(connectBuffer.IsValid());
 }
+
+}}} // namespace

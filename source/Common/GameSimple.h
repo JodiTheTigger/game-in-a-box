@@ -24,11 +24,13 @@
 #include <cstdint>
 #include "IStateManager.h"
 
-class GameInABox : public IStateManager
+namespace GameInABox { namespace Common {
+
+class GameSimple : public IStateManager
 {
 public:
-    GameInABox() {};
-    virtual ~GameInABox() {};
+    GameSimple() {};
+    virtual ~GameSimple() {};
     
 private:
     IStateManager::ClientHandle* PrivateConnect(
@@ -51,5 +53,7 @@ private:
             Sequence tickFrom,
             BitStreamReadOnly& source) override;
 };
+
+}} // namespace
 
 #endif // GAMEINABOX_H

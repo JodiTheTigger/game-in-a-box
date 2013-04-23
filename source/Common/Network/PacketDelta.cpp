@@ -20,6 +20,8 @@
 
 #include "PacketDelta.h"
 
+using namespace GameInABox::Common;
+using namespace GameInABox::Common::Network;
 
 bool PacketDelta::IsPacketDelta(const std::vector<uint8_t>& buffer)
 {

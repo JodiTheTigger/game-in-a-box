@@ -22,6 +22,9 @@
 
 #include <utility>
 
+using namespace GameInABox::Common;
+
+namespace GameInABox { namespace Common {
 // NOTES:
 //   I could have used std::pair for ReflectionKeyPrivate, but I wanted the Type() and 
 //   Index() accessors as opposed to first and second from std::pair.
@@ -65,6 +68,8 @@ private:
     const ReflectedType myType;
     const uint8_t myIndexIntoType;
 };
+
+}} // namespace
 
 ReflectionKey::ReflectionKey() : ReflectionKey(nullptr)
 {
