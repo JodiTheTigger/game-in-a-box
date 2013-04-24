@@ -26,7 +26,7 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-template<PacketCommand::Command TheCommand>
+template<Command TheCommand>
 class PacketString : public PacketCommand
 {
 public:

@@ -124,9 +124,9 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                     for (auto& packet : packets)
                     {                        
-                        PacketCommand::Command commandType(PacketCommand::GetCommand(packet.data));
+                        Command commandType(PacketCommand::GetCommand(packet.data));
 
-                        if (commandType == PacketCommand::Command::Disconnect)
+                        if (commandType == Command::Disconnect)
                         {
                             PacketDisconnect disconnect(packet.data);
 
@@ -139,7 +139,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                         }
                         else
                         {
-                            if (commandType == PacketCommand::Command::ChallengeResponse)
+                            if (commandType == Command::ChallengeResponse)
                             {
                                 PacketChallengeResponse response(packet.data);
 
@@ -202,7 +202,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                 switch (PacketCommand::GetCommand(packet.data))
                 {
-                    case PacketCommand::Command::ConnectResponse:
+                    case Command::ConnectResponse:
                     {
                         PacketConnectResponse connection(packet.data);
 
@@ -220,7 +220,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                                 // Only one will do, the server can timeout if it misses it.
                                 myConnectedNetwork->Send({{
                                       myServerAddress,
-                                      PacketDisconnect(failReason).myBuffer}});
+                                      PacketDisconnect(failReason).TakeBuffer()}});
 
                                 Fail(failReason);
                             }
@@ -230,14 +230,14 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
                                 myState = State::Connected;
                             }
 
-                            // Don't support connecting to multilpe servers at the same time.
+                            // Don't support connecting to multiple servers at the same time.
                             exit = true;
                         }
 
                         break;
                     }
 
-                    case PacketCommand::Command::Disconnect:
+                    case Command::Disconnect:
                     {
                         PacketDisconnect disconnect(packet.data);
 
@@ -272,7 +272,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
             for (auto& packet : packets)
             {
-                if (PacketCommand::GetCommand(packet.data) == PacketCommand::Command::Disconnect)
+                if (PacketCommand::GetCommand(packet.data) == Command::Disconnect)
                 {
                     PacketDisconnect disconnect(packet.data);
 
@@ -341,13 +341,13 @@ void NetworkManagerClientNew::PrivateSendState()
                     {
                         myConnectedNetwork->Send({{
                               myServerAddress,
-                              PacketChallenge().myBuffer}});
+                              PacketChallenge().TakeBuffer()}});
                     }
                     else
                     {
                         myConnectedNetwork->Send({{
                               myServerAddress,
-                              PacketConnect(myServerKey).myBuffer}});
+                              PacketConnect(myServerKey).TakeBuffer()}});
                     }
                 }
             }

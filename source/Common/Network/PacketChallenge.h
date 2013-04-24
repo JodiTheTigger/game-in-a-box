@@ -25,7 +25,7 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketChallenge : public PacketString<PacketCommand::Command::Challenge>
+class PacketChallenge : public PacketString<Command::Challenge>
 {
 public:
     PacketChallenge();

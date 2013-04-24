@@ -35,79 +35,78 @@ class TestPackets : public ::testing::Test
 
 TEST_F(TestPackets, ChallengeFromEmptyData)
 {
-    PacketCommand::Command typeResult;
+    Command typeResult;
 
     PacketChallenge challenge = PacketChallenge(vector<uint8_t>());
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Unrecognised, typeResult);
+    EXPECT_EQ(Command::Unrecognised, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
 TEST_F(TestPackets, Challenge)
 {
-    PacketCommand::Command typeResult;
+    Command typeResult;
 
     PacketChallenge challenge;
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
+    EXPECT_EQ(Command::Challenge, typeResult);
     EXPECT_TRUE(challenge.IsValid());
 }
 
 TEST_F(TestPackets, ChallengeFromNotACommand)
 {
-    PacketCommand::Command typeResult;
+    Command typeResult;
 
     PacketChallenge challenge = PacketChallenge({0xFF, 0x01, 0x02, 0x03});
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Unrecognised, typeResult);
+    EXPECT_EQ(Command::Unrecognised, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
 
 TEST_F(TestPackets, ChallengeFromValidDataInvalidChallengeBadLength)
 {
-    PacketCommand::Command typeResult;
+    Command typeResult;
 
-    PacketChallenge challenge = PacketChallenge({0xFF, 0xFF, uint8_t(PacketCommand::Command::Challenge), 0x03});
+    PacketChallenge challenge = PacketChallenge({0xFF, 0xFF, uint8_t(Command::Challenge), 0x03});
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
+    EXPECT_EQ(Command::Challenge, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
 TEST_F(TestPackets, ChallengeFromValidDataInvalidChallengeBadData)
 {
-    PacketCommand::Command typeResult;
-    PacketChallenge source;
+    Command typeResult;
 
     // make it invalid.
-    source.myBuffer[source.myBuffer.size() - 2] = 0;
-
-    PacketChallenge challenge = PacketChallenge(source.myBuffer);
+    auto buffer = PacketChallenge().TakeBuffer();
+    buffer[buffer.size() - 2] = 0;
+    PacketChallenge challenge(buffer);
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
+    EXPECT_EQ(Command::Challenge, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
 TEST_F(TestPackets, ChallengeFromValidData)
 {
-    PacketCommand::Command typeResult;
+    Command typeResult;
     PacketChallenge source;
 
-    PacketChallenge challenge = PacketChallenge(source.myBuffer);
+    PacketChallenge challenge = PacketChallenge(source.TakeBuffer());
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::Challenge, typeResult);
+    EXPECT_EQ(Command::Challenge, typeResult);
     EXPECT_TRUE(challenge.IsValid());
 }
 
@@ -129,14 +128,14 @@ TEST_F(TestPackets, ChallengeResponseCreationZeroKeyInvalid)
 
 TEST_F(TestPackets, ChallengeResponseFromValidDataInvalidChallengeBadLength)
 {
-    PacketCommand::Command typeResult;
+    Command typeResult;
 
     PacketChallengeResponse challengeResponse =
-            PacketChallengeResponse({0xFF, 0xFF, uint8_t(PacketCommand::Command::ChallengeResponse), 0x03});
+            PacketChallengeResponse({0xFF, 0xFF, uint8_t(Command::ChallengeResponse), 0x03});
 
     typeResult = challengeResponse.GetCommand();
 
-    EXPECT_EQ(PacketCommand::Command::ChallengeResponse, typeResult);
+    EXPECT_EQ(Command::ChallengeResponse, typeResult);
     EXPECT_FALSE(challengeResponse.IsValid());
 }
 
@@ -166,8 +165,8 @@ TEST_F(TestPackets, SimplePacketsBuffer)
     PacketInfoResponse info;
     PacketConnectResponse connect;
 
-    PacketInfoResponse infoBuffer({0xFF, 0xFF, uint8_t(PacketCommand::Command::InfoResponse), 0x03});
-    PacketConnectResponse connectBuffer({0xFF, 0xFF, uint8_t(PacketCommand::Command::ConnectResponse), 0x03, 0x20});
+    PacketInfoResponse infoBuffer({0xFF, 0xFF, uint8_t(Command::InfoResponse), 0x03});
+    PacketConnectResponse connectBuffer({0xFF, 0xFF, uint8_t(Command::ConnectResponse), 0x03, 0x20});
 
     ASSERT_TRUE(info.IsValid());
     EXPECT_EQ(0, info.GetBuffer().size());

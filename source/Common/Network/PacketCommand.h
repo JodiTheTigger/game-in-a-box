@@ -26,51 +26,38 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// RAM: Is this a normal class, base class, an interface, or an implementation class
-// TODO: Make up your mind and implement it!
+enum class Command : uint8_t
+{
+    Unrecognised = 0,
+    Challenge,
+    ChallengeResponse,
+    Info,
+    InfoResponse,
+    Connect,
+    ConnectResponse,
+    Disconnect
+};
+
 class PacketCommand
 {
-public:    
-    // RAM: TODO: Should this be a sub-class, or just a normal class in the same namespace?
-    // Oh, yea, and namespaces please!
-    enum class Command : uint8_t
-    {
-        Unrecognised = 0,
-        Challenge,
-        ChallengeResponse,
-        Info,
-        InfoResponse,
-        Connect,
-        ConnectResponse,
-        Disconnect
-    };
+public:
+    static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
 
-    static PacketCommand::Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
-
-    // RAM: TODO: If making a base class we need a public constructor please.
-
-    // ----------------------------------------
-
-    // RAM: TODO: Explain wy this is public, or hide it please!
-    std::vector<uint8_t> myBuffer;
-
-    // ----------------------------------------
-
+    PacketCommand(std::vector<uint8_t> fromBuffer);
+    PacketCommand(Command command);
     virtual ~PacketCommand();
 
-    // ----------------------------------------
+    Command GetCommand() const { return GetCommand(myBuffer); }
+    virtual bool IsValid() const;
 
-    PacketCommand::Command GetCommand() const { return GetCommand(myBuffer); }
-
-    // RAM: TODO: NVI Pattern please, make PrivateIsValid()
-    virtual bool IsValid() const = 0;
+    std::size_t Size() const { return myBuffer.size(); }
+    std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
 protected:
     static const std::size_t MinimumPacketSize = 3;
     static const std::size_t OffsetCommand = 2;
 
-    PacketCommand(std::vector<uint8_t> fromBuffer);
-    PacketCommand(Command command);
+    std::vector<uint8_t> myBuffer;
 };
 
 }}} // namespace

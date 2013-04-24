@@ -27,7 +27,7 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketChallengeResponse : public PacketKey<PacketCommand::Command::ChallengeResponse>
+class PacketChallengeResponse : public PacketKey<Command::ChallengeResponse>
 {
 public:
     PacketChallengeResponse(uint8_t version, uint32_t key);

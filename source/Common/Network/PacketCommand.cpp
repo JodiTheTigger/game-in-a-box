@@ -37,8 +37,7 @@ PacketCommand::~PacketCommand()
 {
 }
 
-
-PacketCommand::Command PacketCommand::GetCommand(const std::vector<uint8_t>& bufferToCheck)
+Command PacketCommand::GetCommand(const std::vector<uint8_t>& bufferToCheck)
 {
     if (bufferToCheck.size() >= MinimumPacketSize)
     {
