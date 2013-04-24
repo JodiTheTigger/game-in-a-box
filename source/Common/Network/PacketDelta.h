@@ -22,12 +22,13 @@
 #define PACKETDELTA_H
 
 #include "Common/WrappingCounter.h"
+#include "Packet.h"
 
 #include <vector>
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketDelta
+class PacketDelta : public Packet
 {
 public:
     static bool IsPacketDelta(const std::vector<uint8_t>& buffer);
@@ -58,6 +59,13 @@ public:
     // that's an extra 3 bytes header overhead per packet.)
     PacketDelta(std::vector<PacketDelta> fragments);
 
+    // Rule of 5 (class contents are just one vector, so use defaults).
+    PacketDelta(const PacketDelta&) = default;
+    PacketDelta(PacketDelta&&) = default;
+    PacketDelta& operator=(const PacketDelta&) = default;
+    PacketDelta& operator=(PacketDelta&&) = default;
+    virtual ~PacketDelta() {}
+
     // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
     // Should be non static non method, but since it compares a non-public member, I'll keep it as a member.
     inline bool operator==(const PacketDelta& other) const {return this->myBuffer == other.myBuffer; }
@@ -79,9 +87,6 @@ public:
 
     bool HasClientId() const;
     uint16_t ClientId() const;
-
-    std::size_t Size() const { return myBuffer.size(); }
-    std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
 
     // Not guaranteed to be valid, make sure you include a checksum or something
     // in your payload to validate it. Will not be larger than 65535 bytes (2^16 - 1).
@@ -119,8 +124,6 @@ private:
     static const uint16_t MaskSequence = MaskIsFragmented - 1;
 
     static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeFragment;
-
-    std::vector<uint8_t> myBuffer;
 };
 
 }}} // namespace

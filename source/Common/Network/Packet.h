@@ -51,7 +51,6 @@ public:
     Packet(Packet&&) = default;
     Packet& operator=(const Packet&) = default;
     Packet& operator=(Packet&&) = default;
-
     virtual ~Packet();
 
     Command GetCommand() const { return GetCommand(myBuffer); }
