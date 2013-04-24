@@ -21,16 +21,16 @@
 #ifndef PACKETKEY_H
 #define PACKETKEY_H
 
-#include "PacketCommand.h"
+#include "Packet.h"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketKey : public PacketCommand
+class PacketKey : public Packet
 {
 public:
     PacketKey(uint32_t key)
-        : PacketCommand(TheCommand)
+        : Packet(TheCommand)
     {
         // High byte first.
         myBuffer.push_back(uint8_t(key >> 24));
@@ -39,7 +39,7 @@ public:
         myBuffer.push_back(uint8_t(key >> 0));
     }    
 
-    PacketKey(std::vector<uint8_t> buffer) : PacketCommand(buffer) {}
+    PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
     virtual ~PacketKey() {}
 

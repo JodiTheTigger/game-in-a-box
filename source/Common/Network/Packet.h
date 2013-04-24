@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETCOMMAND_H
-#define PACKETCOMMAND_H
+#ifndef Packet_H
+#define Packet_H
 
 #include <cstdint>
 #include <vector>
@@ -38,21 +38,21 @@ enum class Command : uint8_t
     Disconnect
 };
 
-class PacketCommand
+class Packet
 {
 public:
     static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
 
-    PacketCommand() : PacketCommand(std::vector<uint8_t>()) {}
-    PacketCommand(std::vector<uint8_t> fromBuffer);
-    PacketCommand(Command command);
+    Packet() : Packet(std::vector<uint8_t>()) {}
+    Packet(std::vector<uint8_t> fromBuffer);
+    Packet(Command command);
 
-    PacketCommand(const PacketCommand&) = default;
-    PacketCommand(PacketCommand&&) = default;
-    PacketCommand& operator=(const PacketCommand&) = default;
-    PacketCommand& operator=(PacketCommand&&) = default;
+    Packet(const Packet&) = default;
+    Packet(Packet&&) = default;
+    Packet& operator=(const Packet&) = default;
+    Packet& operator=(Packet&&) = default;
 
-    virtual ~PacketCommand();
+    virtual ~Packet();
 
     Command GetCommand() const { return GetCommand(myBuffer); }
     virtual bool IsValid() const;
@@ -69,4 +69,4 @@ protected:
 
 }}} // namespace
 
-#endif // PACKETCOMMAND_H
+#endif // Packet_H

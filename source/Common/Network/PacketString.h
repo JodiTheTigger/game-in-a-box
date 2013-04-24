@@ -22,20 +22,20 @@
 #define PACKETSTRING_H
 
 #include <string>
-#include "PacketCommand.h"
+#include "Packet.h"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketString : public PacketCommand
+class PacketString : public Packet
 {
 public:
-    PacketString(std::string message) : PacketCommand(TheCommand)
+    PacketString(std::string message) : Packet(TheCommand)
     {
         copy(message.begin(), message.end(), back_inserter(myBuffer));
     }
 
-    PacketString(std::vector<uint8_t> buffer) : PacketCommand(buffer) {}
+    PacketString(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
     virtual ~PacketString() {}
 
@@ -43,9 +43,9 @@ public:
     {
         if (myBuffer.size() >= MinimumPacketSize)
         {
-            if (PacketCommand::GetCommand() == TheCommand)
+            if (Packet::GetCommand() == TheCommand)
             {
-                return PacketCommand::IsValid();
+                return Packet::IsValid();
             }
         }
 
@@ -58,7 +58,7 @@ public:
     }
 
 protected:
-    static const std::size_t MinimumPacketSize = PacketCommand::MinimumPacketSize;
+    static const std::size_t MinimumPacketSize = Packet::MinimumPacketSize;
     static const std::size_t OffsetPayload = 3;
 };
 

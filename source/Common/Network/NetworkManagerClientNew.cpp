@@ -124,7 +124,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
                     for (auto& packet : packets)
                     {                        
-                        Command commandType(PacketCommand::GetCommand(packet.data));
+                        Command commandType(Packet::GetCommand(packet.data));
 
                         if (commandType == Command::Disconnect)
                         {
@@ -200,7 +200,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
             {
                 bool exit(false);
 
-                switch (PacketCommand::GetCommand(packet.data))
+                switch (Packet::GetCommand(packet.data))
                 {
                     case Command::ConnectResponse:
                     {
@@ -272,7 +272,7 @@ void NetworkManagerClientNew::PrivateProcessIncomming()
 
             for (auto& packet : packets)
             {
-                if (PacketCommand::GetCommand(packet.data) == Command::Disconnect)
+                if (Packet::GetCommand(packet.data) == Command::Disconnect)
                 {
                     PacketDisconnect disconnect(packet.data);
 

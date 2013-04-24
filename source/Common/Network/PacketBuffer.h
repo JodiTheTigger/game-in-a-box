@@ -21,16 +21,16 @@
 #ifndef PACKETBUFFER_H
 #define PACKETBUFFER_H
 
-#include "PacketCommand.h"
+#include "Packet.h"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketBuffer : public PacketCommand
+class PacketBuffer : public Packet
 {
 public:
-    PacketBuffer() : PacketCommand(TheCommand) {}
-    PacketBuffer(std::vector<uint8_t> buffer) : PacketCommand(buffer) {}
+    PacketBuffer() : Packet(TheCommand) {}
+    PacketBuffer(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
     virtual ~PacketBuffer() {}
 
@@ -38,9 +38,9 @@ public:
     {
         if (myBuffer.size() >= MinimumPacketSize)
         {
-            if (PacketCommand::GetCommand() == TheCommand)
+            if (Packet::GetCommand() == TheCommand)
             {
-                return PacketCommand::IsValid();
+                return Packet::IsValid();
             }
         }
 
@@ -59,7 +59,7 @@ public:
     }
 
 protected:
-    static const std::size_t MinimumPacketSize = PacketCommand::MinimumPacketSize;
+    static const std::size_t MinimumPacketSize = Packet::MinimumPacketSize;
     static const std::size_t OffsetPayload = 3;
 };
 

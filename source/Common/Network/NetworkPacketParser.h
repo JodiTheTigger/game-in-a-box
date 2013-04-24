@@ -41,7 +41,7 @@ class NetworkPacketParser
     void ParsePacket(NetworkPacket& packetData);
 
 protected:
-    // RAM: Remove: Most are now contained within PacketCommand and
+    // RAM: Remove: Most are now contained within Packet and
     // It's derivitives.
     static const std::size_t MinimumPacketSize = 3;
     static const std::size_t MinimumPacketSizeFromClient = MinimumPacketSize + 2;
@@ -71,7 +71,7 @@ protected:
 
     static const std::vector<uint8_t> ChallengePacket;
 
-    // RAM: TODO: Remove, it's moved to PacketCommand.
+    // RAM: TODO: Remove, it's moved to Packet.
     enum class Command : uint8_t
     {
         Invalid = 0,

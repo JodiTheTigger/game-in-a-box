@@ -136,7 +136,7 @@ game-in-a-box-common
 source/Common/Network/PacketHelper.cpp
 source/Common/Network/PacketDeltaFragmentManager.cpp
 source/Common/Network/NetworkManagerClientNew.cpp
-source/Common/Network/PacketCommand.cpp
+source/Common/Network/Packet.cpp
 source/Common/Network/PacketChallenge.cpp
 source/Common/Network/PacketChallengeResponse.cpp
 source/Common/Network/PacketDelta.cpp

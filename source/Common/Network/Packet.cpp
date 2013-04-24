@@ -18,26 +18,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketCommand.h"
+#include "Packet.h"
 
 using namespace std;
 using namespace GameInABox::Common::Network;
 
-PacketCommand::PacketCommand(std::vector<uint8_t> fromBuffer)
+Packet::Packet(std::vector<uint8_t> fromBuffer)
     : myBuffer(fromBuffer)
 {
 }
 
-PacketCommand::PacketCommand(Command command)
-    : PacketCommand({0xFF, 0xFF, uint8_t(command)})
+Packet::Packet(Command command)
+    : Packet({0xFF, 0xFF, uint8_t(command)})
 {
 }
 
-PacketCommand::~PacketCommand()
+Packet::~Packet()
 {
 }
 
-Command PacketCommand::GetCommand(const std::vector<uint8_t>& bufferToCheck)
+Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
 {
     if (bufferToCheck.size() >= MinimumPacketSize)
     {
@@ -50,7 +50,7 @@ Command PacketCommand::GetCommand(const std::vector<uint8_t>& bufferToCheck)
     return Command::Unrecognised;
 }
 
-bool PacketCommand::IsValid() const
+bool Packet::IsValid() const
 {
     return (GetCommand() != Command::Unrecognised);
 }
