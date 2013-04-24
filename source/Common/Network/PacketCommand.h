@@ -43,8 +43,15 @@ class PacketCommand
 public:
     static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
 
+    PacketCommand() : PacketCommand(std::vector<uint8_t>()) {}
     PacketCommand(std::vector<uint8_t> fromBuffer);
     PacketCommand(Command command);
+
+    PacketCommand(const PacketCommand&) = default;
+    PacketCommand(PacketCommand&&) = default;
+    PacketCommand& operator=(const PacketCommand&) = default;
+    PacketCommand& operator=(PacketCommand&&) = default;
+
     virtual ~PacketCommand();
 
     Command GetCommand() const { return GetCommand(myBuffer); }
