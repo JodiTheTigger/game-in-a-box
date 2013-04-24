@@ -85,6 +85,7 @@ public:
 
     // Not guaranteed to be valid, make sure you include a checksum or something
     // in your payload to validate it. Will not be larger than 65535 bytes (2^16 - 1).
+    // RAM: TODO: Explain 65535 byte limit.
     std::vector<uint8_t> GetPayload() const;
 
     // TODO: REMOVE! Use BufferSerialisation.h instead.

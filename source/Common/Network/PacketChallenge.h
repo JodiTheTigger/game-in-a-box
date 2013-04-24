@@ -31,7 +31,7 @@ public:
     PacketChallenge();
     PacketChallenge(std::vector<uint8_t> buffer) : PacketString(buffer) {}
     virtual ~PacketChallenge();
-    virtual bool IsValid() const;
+    virtual bool IsValid() const override;
 private:
     static const std::string ChallengeMessage;
 };
