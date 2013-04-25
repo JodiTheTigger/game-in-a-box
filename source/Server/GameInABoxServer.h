@@ -36,7 +36,7 @@ class ReflectionManager;
 
 namespace Network {
 class NetworkProvider;
-class NetworkManager;
+class INetworkManager;
 }}}
 
 namespace GameInABox { namespace Server {
@@ -72,7 +72,7 @@ private:
     
     // my pretties
     std::shared_ptr<GameInABox::Common::Network::NetworkProvider> myNetworkSource;
-    std::shared_ptr<GameInABox::Common::Network::NetworkManager> myNetworkState;
+    std::shared_ptr<GameInABox::Common::Network::INetworkManager> myNetworkState;
     std::shared_ptr<GameInABox::Common::IStateManager> myGame;
     
     std::unique_ptr<GameInABox::Common::ReflectionManager> myMirror;

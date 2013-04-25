@@ -133,15 +133,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
 add_library(
 game-in-a-box-common
-source/Common/Network/PacketHelper.cpp
 source/Common/Network/PacketDeltaFragmentManager.cpp
-source/Common/Network/NetworkManagerClientNew.cpp
 source/Common/Network/Packet.cpp
 source/Common/Network/PacketChallenge.cpp
 source/Common/Network/PacketChallengeResponse.cpp
 source/Common/Network/PacketDelta.cpp
 source/Common/Network/INetworkManager.cpp
-source/Common/Network/NetworkPacketParser.cpp
 source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/NetworkManagerClient.cpp
 source/Common/GameSimple.cpp
@@ -152,7 +149,6 @@ source/Common/BitStream.cpp
 source/Common/AutoComplete.cpp
 source/Common/IReflected.cpp
 source/Common/ReflectionManager.cpp
-source/Common/Network/NetworkManager.cpp
 source/Common/Network/NetworkProvider.cpp
 source/Common/RollingStatistics.cpp
 )

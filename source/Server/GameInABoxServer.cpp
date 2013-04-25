@@ -25,7 +25,8 @@
 #include <vector>
 
 #include "Common/Network/NetworkProvider.h"
-#include "Common/Network/NetworkManager.h"
+#include "Common/Network/INetworkManager.h"
+#include "Common/Network/NetworkManagerServer.h"
 #include "Common/IStateManager.h"
 #include "Common/GameSimple.h"
 #include "Common/ReflectionManager.h"
@@ -77,7 +78,9 @@ void GameInABoxServer::Run()
     myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
     
     // RAM: TODO!
-    myNetworkState = shared_ptr<NetworkManager>(new NetworkManager(vector<unique_ptr<NetworkProvider>>(), myGame));
+    // RAM: use make_shared!
+    //myNetworkState = shared_ptr<INetworkManager>(
+    //            new NetworkManagerServer(vector<unique_ptr<NetworkProvider>>(), myGame));
     
     // register
     

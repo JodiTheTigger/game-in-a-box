@@ -26,7 +26,6 @@
 #include <map>
 #include <boost/asio/ip/udp.hpp>
 
-#include "NetworkPacketParser.h"
 #include "INetworkManager.h"
 #include "NetworkPacket.h"
 
@@ -35,7 +34,7 @@ namespace GameInABox { namespace Common { namespace Network {
 // forward declarations
 class NetworkPacket;
 
-class NetworkManagerServer : public NetworkPacketParser, INetworkManager
+class NetworkManagerServer : public INetworkManager
 {
 public:
     NetworkManagerServer();
@@ -69,10 +68,6 @@ private:
         boost::asio::ip::address address{};
         uint16_t linkId{};
     };
-
-
-    void ParseCommand(NetworkPacket& packetData) override;
-    void ParseDelta(NetworkPacket& packetData) override;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;

@@ -21,42 +21,40 @@
 #ifndef NETWORKMANAGERCLIENT_H
 #define NETWORKMANAGERCLIENT_H
 
-#include <memory>
 #include <vector>
-#include <boost/asio/ip/udp.hpp>
+#include <array>
+#include <memory>
 #include <chrono>
-#include <string>
-
-#include "NetworkPacketParser.h"
+#include <utility>
+#include <boost/asio/ip/udp.hpp>
 #include "INetworkManager.h"
 #include "Common/IStateManager.h"
+#include "Common/Huffman.h"
+#include "Common/WrappingCounter.h"
+#include "PacketDeltaFragmentManager.h"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Common {
+class IStateManager;
 
-// forward delcarations
-class NetworkPacket;
+namespace Network {
 class NetworkProvider;
 
-class NetworkManagerClient : public NetworkPacketParser, INetworkManager
+class NetworkManagerClient : public INetworkManager
 {
     CLASS_NOCOPY_ASSIGN_MOVE(NetworkManagerClient)
 
 public:
     NetworkManagerClient(
             std::vector<std::unique_ptr<NetworkProvider>> networks,
-            std::weak_ptr<IStateManager> stateManager);
+            IStateManager& stateManager);
 
-    virtual ~NetworkManagerClient() {}
+    void Connect(boost::asio::ip::udp::endpoint serverAddress);
+    void Disconnect();
 
-    void Connect(
-            boost::asio::ip::udp::endpoint serverAddress,
-            std::vector<uint8_t> connectData);
-
-    bool IsConnected();
-    bool IsFailed();
+    virtual ~NetworkManagerClient();
 
 private:
-    static const uint8_t HandshakeRetries = 5;
+    static constexpr uint8_t HandshakeRetries{5};
     static constexpr std::chrono::milliseconds HandshakeRetryPeriod{1000};
 
     enum class State
@@ -65,34 +63,36 @@ private:
         Challenging,
         Connecting,
         Connected,
-        Failed
-    };    
+        FailedConnection,
+    };
 
-    std::weak_ptr<IStateManager> myStateManager;
     std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
+    IStateManager& myStateManager;
+    NetworkProvider* myConnectedNetwork;
 
     State myState;
-
-    // RAM: Todo, make into it's own type for type checking at compile time.
-    uint32_t myKey;
+    uint32_t myServerKey;
+    std::array<uint8_t,4> myServerKeyAsABuffer;
     boost::asio::ip::udp::endpoint myServerAddress;
-    size_t myServerInterface;
-    std::chrono::steady_clock::time_point myLastPacketSent;
-    std::vector<uint8_t> myConnectData; // RAM: TODO: turn to pointer, Free once connected, as nolonger needed.
-    IStateManager::ClientHandle* myClientId;
+    IStateManager::ClientHandle* myStateHandle;
+    std::string myFailReason;
+    uint16_t myClientId;
 
-    // RAM: TODO: replace type to Count so I don't need to use hungarian notation.
+    PacketDeltaFragmentManager myDeltaHelper;
+    Huffman myCompressor;
+
+    Sequence myLastSequenceProcessed;
+    Sequence myLastSequenceAcked;
+
     uint8_t myPacketSentCount;
-
-    void SendChallengePacket();
-    void SendConnectPacket();
-    void SendDisconnectPacket(std::string reason);
-
-    void ParseCommand(NetworkPacket& packetData) override;
-    void ParseDelta(NetworkPacket& packetData) override;
+    std::chrono::steady_clock::time_point myLastPacketSent;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
+
+    void Fail(std::string failReason);
+    void DeltaReceive();
+    void DeltaSend();
 };
 
 }}} // namespace

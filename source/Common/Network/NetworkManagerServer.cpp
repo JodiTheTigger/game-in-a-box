@@ -24,8 +24,7 @@ using namespace std;
 using namespace GameInABox::Common::Network;
 
 NetworkManagerServer::NetworkManagerServer()
-    : NetworkPacketParser(PacketEncoding::FromClient)
-    , INetworkManager()
+    : INetworkManager()
     , myClients()
 {
 }
@@ -33,16 +32,6 @@ NetworkManagerServer::NetworkManagerServer()
 NetworkManagerServer::~NetworkManagerServer()
 {
 
-}
-
-void NetworkManagerServer::ParseCommand(NetworkPacket &)
-{
-    // TODO!
-}
-
-void NetworkManagerServer::ParseDelta(NetworkPacket &)
-{
-    // TODO!
 }
 
 void NetworkManagerServer::PrivateProcessIncomming()

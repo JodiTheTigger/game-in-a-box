@@ -19,211 +19,316 @@
 */
 
 #include "NetworkManagerClient.h"
-#include "NetworkPacket.h"
 
-#include "NetworkProvider.h"
+#include <string>
+#include <chrono>
+#include <vector>
+#include <memory>
+#include <array>
+
 #include "Common/IStateManager.h"
+#include "Common/BitStream.h"
+#include "Common/BitStreamReadOnly.h"
+#include "NetworkProvider.h"
+#include "NetworkPacket.h"
+#include "PacketChallenge.h"
+#include "PacketChallengeResponse.h"
+#include "PacketDelta.h"
+#include "PacketSimple.h"
+#include "XorCode.h"
+#include "BufferSerialisation.h"
 
-using namespace std;
+using std::string;
 using namespace std::chrono;
 using namespace GameInABox::Common::Network;
 
-// I don't understand constexpr
-constexpr std::chrono::milliseconds NetworkManagerClient::HandshakeRetryPeriod;
-
 NetworkManagerClient::NetworkManagerClient(
         std::vector<std::unique_ptr<NetworkProvider>> networks,
-        std::weak_ptr<IStateManager> stateManager)
-    : NetworkPacketParser(PacketEncoding::FromServer)
+        IStateManager& stateManager)
+    : INetworkManager()
+    , myNetworks(move(networks))
     , myStateManager(stateManager)
-    , myNetworks()
+    , myConnectedNetwork(nullptr)
     , myState(State::Idle)
-    , myKey(0)
+    , myServerKey(0)
+    , myServerKeyAsABuffer()
     , myServerAddress()
-    , myServerInterface(networks.size())
-    , myLastPacketSent()
-    , myConnectData()
-    , myClientId(nullptr)
+    , myStateHandle(nullptr)
+    , myFailReason()
+    , myClientId(0)
+    , myDeltaHelper()
+    , myCompressor(stateManager.GetHuffmanFrequencies())
+    , myLastSequenceProcessed(0)
+    , myLastSequenceAcked(0)
     , myPacketSentCount(0)
+    , myLastPacketSent()
 {
-    for (auto& network : networks)
-    {
-        if (network)
-        {
-            myNetworks.push_back(move(network));
-        }
-    }
+
 }
 
-void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress, std::vector<uint8_t> connectData)
+NetworkManagerClient::~NetworkManagerClient()
 {
-    for(auto& network : myNetworks)
+
+}
+
+
+void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
+{
+    // reset state please.
+    for (auto& network : myNetworks)
     {
         network->Reset();
     }
 
-    myConnectData = connectData;
-    myClientId = nullptr;
+    myConnectedNetwork = nullptr;
+
     myState = State::Challenging;
-    myKey = 0;
+    myConnectedNetwork = nullptr;
+    myServerKey = 0;
     myServerAddress = serverAddress;
+    myStateHandle = nullptr;
+    myFailReason = "";
+
+    myLastSequenceProcessed = Sequence(0);
+    myLastSequenceAcked = Sequence(0);
+
     myPacketSentCount = 0;
-    myServerInterface = myNetworks.size();
-    SendChallengePacket();
+    myLastPacketSent = std::chrono::steady_clock::time_point::min();
+
+    // Kick off an OOB send.
+    PrivateSendState();
 }
 
-bool NetworkManagerClient::IsConnected()
+void NetworkManagerClient::Disconnect()
 {
-    return myState==State::Connected;
+    Fail("Client disconnected.");
 }
 
-bool NetworkManagerClient::IsFailed()
+void NetworkManagerClient::PrivateProcessIncomming()
 {
-    return myState==State::Failed;
-}
-
-void NetworkManagerClient::SendChallengePacket()
-{
-    // send over all compatible interfaces
-    for (auto& network : myNetworks)
-    {
-        std::vector<NetworkPacket> packetToSend;
-
-        packetToSend.emplace_back(myServerAddress, ChallengePacket);
-
-        network->Send(packetToSend);
-        myPacketSentCount++;
-        myLastPacketSent = steady_clock::now();
-    }
-}
-
-void NetworkManagerClient::SendConnectPacket()
-{
-    std::vector<NetworkPacket> packetToSend;
-
-    packetToSend.emplace_back(myServerAddress, ChallengePacket);
-
-    myNetworks[myServerInterface]->Send(packetToSend);
-    myPacketSentCount++;
-    myLastPacketSent = steady_clock::now();
-}
-
-void NetworkManagerClient::SendDisconnectPacket(std::string)
-{
-    std::vector<NetworkPacket> packetToSend;
-
-    // RAM: TODO
-    //packetToSend.push_back({myServerAddress, ChallengePacket});
-
-    myNetworks[myServerInterface]->Send(packetToSend);
-
-    myState = State::Failed;
-}
-
-void NetworkManagerClient::ParseCommand(NetworkPacket &packetData)
-{    
     switch (myState)
     {
-        case State::Connecting:
         case State::Challenging:
         {
-            Command command;
+            uint32_t key(0);
+            boost::asio::ip::udp::endpoint serverAddress;
 
-            command = Command(packetData.data[OffsetCommand]);
-
-            if (command == Command::ChallengeResponse)
+            // talking to all interfaces for now.
+            for (auto& network : myNetworks)
             {
-                myKey = KeyGet(packetData);
-                myState = State::Connecting;
+                bool exit(false);
 
-                myPacketSentCount = 0;
-                SendConnectPacket();
-
-                // RAM: TODO: Choose myServerInterface and disable all other interfaces please.
-                // RAM: HOW? Means the packet needs to keep track of which interface sent it.
-                // RAM: No it doesn't, the caller knows where the back comes from, just
-                // RAM: communicate with that telling it to close all other interfaces.
-            }
-            else
-            {
-                auto state = myStateManager.lock();
-
-                if (state)
+                if (!network->IsDisabled())
                 {
-                    //IStateManager::ClientHandle* newGuy;
-                    bool failed;
-                    string failReason;
-                    vector<uint8_t> connectData;
+                    auto packets = network->Receive();
 
-                    connectData = ConnectDataGet(packetData);
-
-                    /*newGuy = */state->Connect(connectData, failed, failReason);
-
-                    if (failed)
+                    for (auto& packet : packets)
                     {                        
-                        // Noooooo!
-                        SendDisconnectPacket(failReason);
-                    }
-                    else
-                    {
-                        myState = State::Connected;
-                        myConnectData.clear();
+                        Command commandType(Packet::GetCommand(packet.data));
+
+                        if (commandType == Command::Disconnect)
+                        {
+                            PacketDisconnect disconnect(packet.data);
+
+                            if (disconnect.IsValid())
+                            {
+                                Fail(disconnect.Message());
+                                exit = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (commandType == Command::ChallengeResponse)
+                            {
+                                PacketChallengeResponse response(packet.data);
+
+                                if (response.IsValid())
+                                {
+                                    key = response.Key();
+                                }
+                            }
+                        }
+
+                        if (key != 0)
+                        {
+                            serverAddress = packet.address;
+                            break;
+                        }
                     }
                 }
-                else
+
+                if (key != 0)
                 {
-                    // I'm in bad shape, tell the server I'm disconnecting.                    
-                    SendDisconnectPacket("State Manager is a nullptr.");
+                    myConnectedNetwork = network.get();
+                    myServerAddress = serverAddress;
+                    exit = true;
+                }
+
+                if (exit)
+                {
+                    break;
                 }
             }
+
+            // Level up?
+            if (myConnectedNetwork != nullptr)
+            {
+                // disable all other networks
+                for (auto& network : myNetworks)
+                {
+                    if (network.get() != myConnectedNetwork)
+                    {
+                        network->Disable();
+                    }
+                }
+
+                // set key and change state
+                myServerKey = key;
+                Push(myServerKeyAsABuffer.data(), myServerKey);
+                myState = State::Connecting;
+            }
+
+            break;
+        }
+
+        case State::Connecting:
+        {
+            auto packets = myConnectedNetwork->Receive();
+
+            for (auto& packet : packets)
+            {
+                bool exit(false);
+
+                switch (Packet::GetCommand(packet.data))
+                {
+                    case Command::ConnectResponse:
+                    {
+                        PacketConnectResponse connection(packet.data);
+
+                        if (connection.IsValid())
+                        {
+                            bool failed;
+                            string failReason;
+                            IStateManager::ClientHandle* handle;
+
+                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
+
+                            if (failed)
+                            {
+                                // Respond with a failed message please.
+                                // Only one will do, the server can timeout if it misses it.
+                                myConnectedNetwork->Send({{
+                                      myServerAddress,
+                                      PacketDisconnect(failReason).TakeBuffer()}});
+
+                                Fail(failReason);
+                            }
+                            else
+                            {
+                                myStateHandle = handle;
+                                myState = State::Connected;
+                            }
+
+                            // Don't support connecting to multiple servers at the same time.
+                            exit = true;
+                        }
+
+                        break;
+                    }
+
+                    case Command::Disconnect:
+                    {
+                        PacketDisconnect disconnect(packet.data);
+
+                        if (disconnect.IsValid())
+                        {
+                            Fail(disconnect.Message());
+                            exit = true;
+                        }
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        // ignore
+                        break;
+                    }
+                }
+
+                if (exit)
+                {
+                    break;
+                }
+            }
+
+            break;
+        }
+
+        case State::Connected:
+        {
+            auto packets = myConnectedNetwork->Receive();
+
+            for (auto& packet : packets)
+            {
+                if (Packet::GetCommand(packet.data) == Command::Disconnect)
+                {
+                    PacketDisconnect disconnect(packet.data);
+
+                    // RAM: TODO: Put key into disconnected packet to prevent easy
+                    // disconnected attacks by spoofing disconnect message from
+                    // server.
+                    if (disconnect.IsValid())
+                    {
+                        Fail(disconnect.Message());
+                        break;
+                    }
+                }
+
+                if (PacketDelta::IsPacketDelta(packet.data))
+                {
+                    myDeltaHelper.AddPacket(PacketDelta(packet.data));
+                }
+            }
+
+            // Do the work :-)
+            DeltaReceive();
 
             break;
         }
 
         default:
         {
-            // NADA
             break;
         }
     }
 }
 
-void NetworkManagerClient::ParseDelta(NetworkPacket &)
-{
-    // Ignore if not connected
-    if (myState == State::Connected)
-    {
-        // RAM: TODO: Parse the packet please.
-        // TODO: Decrypt
-        // TODO: Expand
-        // TODO: Pass to gamestate.
-    }
-    else
-    {
-        SendDisconnectPacket("I am not connected!");
-    }
-}
-
-void NetworkManagerClient::PrivateProcessIncomming()
-{    
-    if ((myState != State::Idle) && (myState != State::Failed))
-    {
-        // TODO!
-    }
-}
-
 void NetworkManagerClient::PrivateSendState()
-{
+{    
+    // Deal with timeout and resend logic here during
+    // Connection handshaking. Otherwise get the lastest
+    // state from the client and send a delta packet.
     switch (myState)
     {
-        case State::Connecting:
         case State::Challenging:
+        case State::Connecting:
         {
             if (myPacketSentCount > HandshakeRetries)
             {
-                // RAM: TODO: do state clean up on fail or connect?
-                // Put cleanup into once function please.
-                SendDisconnectPacket("Server Timeout");
+                std::string failString("Timeout: ");
+
+                if (myState == State::Challenging)
+                {
+                    failString += "Challenge.";
+                }
+                else
+                {
+                    failString += "Connecting.";
+                }
+
+                Fail(failString);
             }
             else
             {
@@ -231,13 +336,18 @@ void NetworkManagerClient::PrivateSendState()
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod)
                 {
+                    // send challenge packet please.
                     if (myState == State::Challenging)
                     {
-                        SendChallengePacket();
+                        myConnectedNetwork->Send({{
+                              myServerAddress,
+                              PacketChallenge().TakeBuffer()}});
                     }
                     else
                     {
-                        SendConnectPacket();
+                        myConnectedNetwork->Send({{
+                              myServerAddress,
+                              PacketConnect(myServerKey).TakeBuffer()}});
                     }
                 }
             }
@@ -245,16 +355,119 @@ void NetworkManagerClient::PrivateSendState()
             break;
         }
 
-        //case State::Connected:
-        //{
-            // RAM: TODO!
-        //    break;
-        //}
+        case State::Connected:
+        {
+            DeltaSend();
+            break;
+        }
 
         default:
         {
-            // Nothing!
             break;
         }
     }
 }
+
+void NetworkManagerClient::Fail(std::string failReason)
+{
+    for (auto& network : myNetworks)
+    {
+        network->Flush();
+        network->Disable();
+    }
+
+    myFailReason = failReason;
+    myState = State::FailedConnection;
+}
+
+void NetworkManagerClient::DeltaReceive()
+{
+    PacketDelta delta(myDeltaHelper.GetDefragmentedPacket());
+    Sequence latestSequence(myLastSequenceProcessed);
+
+    if (delta.IsValid())
+    {
+        if (delta.GetSequence() > latestSequence)
+        {
+            latestSequence = delta.GetSequence();
+
+            // First copy
+            std::vector<uint8_t> payload(delta.GetPayload());
+
+            // Decrypt (XOR based).
+            // NOTE: nothing too complex for encryption, even more simple than q3.
+            // As someone wanting to hack can. If we want security, use public key
+            // private key to pass a super long seed to a pseudo random generator
+            // that's used to decrypt. Otherwise it's just easily hackable.
+            // Reason for excryption in the fist place is to prevent easy man-in-the-middle
+            // attacks to control someone else's connection.
+            std::vector<uint8_t> code(4);
+            Push(code.begin(), delta.GetSequence().Value());
+            Push(code.begin() + 2, delta.GetSequenceAck().Value());
+            XorCode(code.begin(), code.end(), myServerKeyAsABuffer);
+            XorCode(payload.begin(), payload.end(), code);
+
+            // Bah, I wrote Huffman and Bitstream before I knew about iterators
+            // or streams. This results in lots of copies that arn't really needed.
+            // Need to benchmark to see if the copies matter, and if so, rewrite
+            // to use iterators or streams.
+
+            // Decompress (2nd Copy)
+            std::unique_ptr<std::vector<uint8_t>> decompressed;
+            decompressed = move(myCompressor.Decode(payload));
+
+            // Pass to gamestate (which will decompress the delta itself).
+            BitStreamReadOnly payloadBitstream(payload);
+            myStateManager.DeltaSet(
+                *myStateHandle,
+                delta.GetSequence().Value(),
+                delta.GetSequenceBase().Value(),
+                payloadBitstream);
+
+            // Now see what the last packet the other end has got.
+            myLastSequenceAcked = delta.GetSequenceAck();
+        }
+    }
+}
+
+void NetworkManagerClient::DeltaSend()
+{
+    // RAM: TODO: How to find max size in advance?
+    BitStream payloadBitstream(65535);
+    Sequence from;
+    Sequence to;
+
+    myStateManager.DeltaGet(
+                *myStateHandle,
+                to,
+                from,
+                myLastSequenceAcked,
+                payloadBitstream);
+
+    // ignore if the delta distance is greater than 255, as we
+    // store the distance as a byte.
+    uint16_t distance(to - from);
+    if (distance < 256)
+    {
+        PacketDelta delta(
+                from,
+                myLastSequenceProcessed,
+                uint8_t(distance),
+                &myClientId,
+                *(payloadBitstream.TakeBuffer()));
+
+        // Fragment (if needed)
+        std::vector<NetworkPacket> packets;
+        auto fragments(PacketDeltaFragmentManager::FragmentPacket(delta));
+        for (auto& fragment : fragments)
+        {
+            packets.emplace_back(myServerAddress, fragment.TakeBuffer());
+        }
+
+        // send
+        myConnectedNetwork->Send(packets);
+    }
+    // RAM: TODO: else {Error Message in debug}
+}
+
+
