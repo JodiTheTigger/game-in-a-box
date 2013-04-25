@@ -18,37 +18,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "NetworkProvider.h"
+#include "INetworkProvider.h"
 #include "NetworkPacket.h"
 
 using namespace std;
 using namespace GameInABox::Common::Network;
 
-std::vector<NetworkPacket> NetworkProvider::Receive()
+std::vector<NetworkPacket> INetworkProvider::Receive()
 {
-    return {};
+    return PrivateReceive();
 }
 
-void NetworkProvider::Send(std::vector<NetworkPacket>)
+void INetworkProvider::Send(std::vector<NetworkPacket> packets)
 {
+    PrivateSend(packets);
 }
 
-void NetworkProvider::Reset()
+void INetworkProvider::Reset()
 {
-
+    PrivateReset();
 }
 
-void NetworkProvider::Flush()
+void INetworkProvider::Flush()
 {
-
+    PrivateFlush();
 }
 
-void NetworkProvider::Disable()
+void INetworkProvider::Disable()
 {
-
+    PrivateDisable();
 }
 
-bool NetworkProvider::IsDisabled()
+bool INetworkProvider::IsDisabled() const
 {
-    return true;
+    return PrivateIsDisabled();
 }

@@ -37,7 +37,7 @@ namespace GameInABox { namespace Common {
 class IStateManager;
 
 namespace Network {
-class NetworkProvider;
+class INetworkProvider;
 
 class NetworkManagerClient : public INetworkManager
 {
@@ -45,7 +45,7 @@ class NetworkManagerClient : public INetworkManager
 
 public:
     NetworkManagerClient(
-            std::vector<std::unique_ptr<NetworkProvider>> networks,
+            std::vector<std::unique_ptr<INetworkProvider>> networks,
             IStateManager& stateManager);
 
     void Connect(boost::asio::ip::udp::endpoint serverAddress);
@@ -66,9 +66,9 @@ private:
         FailedConnection,
     };
 
-    std::vector<std::unique_ptr<NetworkProvider>> myNetworks;
+    std::vector<std::unique_ptr<INetworkProvider>> myNetworks;
     IStateManager& myStateManager;
-    NetworkProvider* myConnectedNetwork;
+    INetworkProvider* myConnectedNetwork;
 
     State myState;
     uint32_t myServerKey;

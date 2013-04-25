@@ -35,7 +35,7 @@ class IStateManager;
 class ReflectionManager;
 
 namespace Network {
-class NetworkProvider;
+class INetworkProvider;
 class INetworkManager;
 }}}
 
@@ -71,7 +71,7 @@ private:
     uint16_t myPeriodNetworkSendInMs;
     
     // my pretties
-    std::shared_ptr<GameInABox::Common::Network::NetworkProvider> myNetworkSource;
+    std::shared_ptr<GameInABox::Common::Network::INetworkProvider> myNetworkSource;
     std::shared_ptr<GameInABox::Common::Network::INetworkManager> myNetworkState;
     std::shared_ptr<GameInABox::Common::IStateManager> myGame;
     

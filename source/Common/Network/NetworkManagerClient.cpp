@@ -29,7 +29,7 @@
 #include "Common/IStateManager.h"
 #include "Common/BitStream.h"
 #include "Common/BitStreamReadOnly.h"
-#include "NetworkProvider.h"
+#include "INetworkProvider.h"
 #include "NetworkPacket.h"
 #include "PacketChallenge.h"
 #include "PacketChallengeResponse.h"
@@ -43,7 +43,7 @@ using namespace std::chrono;
 using namespace GameInABox::Common::Network;
 
 NetworkManagerClient::NetworkManagerClient(
-        std::vector<std::unique_ptr<NetworkProvider>> networks,
+        std::vector<std::unique_ptr<INetworkProvider>> networks,
         IStateManager& stateManager)
     : INetworkManager()
     , myNetworks(move(networks))

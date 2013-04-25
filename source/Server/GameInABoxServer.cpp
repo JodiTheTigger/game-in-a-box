@@ -24,7 +24,7 @@
 #include <thread>
 #include <vector>
 
-#include "Common/Network/NetworkProvider.h"
+#include "Common/Network/INetworkProvider.h"
 #include "Common/Network/INetworkManager.h"
 #include "Common/Network/NetworkManagerServer.h"
 #include "Common/IStateManager.h"
@@ -75,7 +75,9 @@ void GameInABoxServer::Run()
     // startup
     // Can have different game types, for now choose GameSimple.
     myGame = shared_ptr<IStateManager>(new GameSimple());
-    myNetworkSource = shared_ptr<NetworkProvider>(new NetworkProvider());
+
+    // RAM: TODO
+    myNetworkSource = shared_ptr<INetworkProvider>();
     
     // RAM: TODO!
     // RAM: use make_shared!

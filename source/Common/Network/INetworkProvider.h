@@ -22,24 +22,29 @@
 #define NETWORKPROVIDER_H
 
 #include <vector>
+#include "Common/BuildMacros.h"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 // forward references
 class NetworkPacket;
 
-// RAM: TODO! Turn this into an interface please! support ip4 ip6 and whatever else.
-// RAM: Note: will silently ignore packets that are the wrong type (ipv4 send for ip6 provider)
 // RAM: TODO! Add network metrics (bytes per second, send, recieve, rolling stats)
 // RAM: TODO! Add Network throttling here
 // RAM: TODO! Add Network throttling per destination as well (so global throttle, and per connection)
-class NetworkProvider
+class INetworkProvider
 {
+    CLASS_NOCOPY_ASSIGN_MOVE(INetworkProvider);
+
 public:
+    INetworkProvider() = default;
+    virtual ~INetworkProvider() = default;
+
     // Non blocking, can return empty array.
     std::vector<NetworkPacket> Receive();
     
     // Adds the packets to the send queue. consumes the data (move()), non-blocking.
+    // Will ignore packets that are the wrong type (ipv4 send for ip6 provider).
     void Send(std::vector<NetworkPacket> packets);
 
     // Disable and release all sockets and resources, clear all buffers. Reopens the socket.
@@ -51,7 +56,15 @@ public:
     // Disable and release all sockets and resources, clear all buffers.
     // Sends are silently ignored, and Recieve will return nothing.
     void Disable();
-    bool IsDisabled();
+    bool IsDisabled() const;
+
+private:
+    virtual std::vector<NetworkPacket> PrivateReceive() = 0;
+    virtual void PrivateSend(std::vector<NetworkPacket> packets) = 0;
+    virtual void PrivateReset() = 0;
+    virtual void PrivateFlush() = 0;
+    virtual void PrivateDisable() = 0;
+    virtual bool PrivateIsDisabled() const= 0;
 };
 
 }}} // namespace

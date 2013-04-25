@@ -149,7 +149,7 @@ source/Common/BitStream.cpp
 source/Common/AutoComplete.cpp
 source/Common/IReflected.cpp
 source/Common/ReflectionManager.cpp
-source/Common/Network/NetworkProvider.cpp
+source/Common/Network/INetworkProvider.cpp
 source/Common/RollingStatistics.cpp
 )
 
@@ -191,7 +191,6 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestBufferSerialisation.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProvider.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 
   ${PROJECT_SOURCE_DIR}/test/Common/TestIReflected.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestRollingStatistics.cpp
