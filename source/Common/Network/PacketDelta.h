@@ -64,7 +64,7 @@ public:
     PacketDelta(PacketDelta&&) = default;
     PacketDelta& operator=(const PacketDelta&) = default;
     PacketDelta& operator=(PacketDelta&&) = default;
-    virtual ~PacketDelta() {}
+    virtual ~PacketDelta() = default;
 
     // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
     // Should be non static non method, but since it compares a non-public member, I'll keep it as a member.
