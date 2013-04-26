@@ -80,8 +80,8 @@ public:
 
     ReflectedType ReflectionType(const ReflectionKey& key) const;
 
-    // RAM: TODO! No longer needed to be public, fix.
-    virtual ~IReflected() {};
+protected:
+    ~IReflected() = default;
     
 private:
     bool myPrivateReflectionHasDoneInit;

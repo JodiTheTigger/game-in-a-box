@@ -41,7 +41,7 @@ class INetworkManager;
 
 namespace GameInABox { namespace Server {
 
-class GameInABoxServer : public GameInABox::Common::IReflected
+class GameInABoxServer final : public GameInABox::Common::IReflected
 {
     CLASS_NOCOPY_ASSIGN_MOVE(GameInABoxServer)
     REFLECTION_BOILERPLATE(GameInABoxServer)

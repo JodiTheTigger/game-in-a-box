@@ -83,7 +83,7 @@ int main(int argc, char** argv)
     
     // make the game
     theGame = new GameInABoxServer(argc, (uint8_t**)argv);
-    
+
     // Register linux signal handlers
     signal(SIGHUP, SignalSigHup);
     signal(SIGINT, SignalSigInt);
