@@ -19,7 +19,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <Common/BitStreamReadOnly.h>
+#include <Common/BitStreamReadOnly.hpp>
 
 using namespace std;
 

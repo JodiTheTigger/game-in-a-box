@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "NetworkManagerServer.h"
+#include "NetworkManagerServer.hpp"
 
 using namespace std;
 using namespace GameInABox::Common::Network;

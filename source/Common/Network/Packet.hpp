@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef Packet_H
-#define Packet_H
+#ifndef PACKET_H
+#define PACKET_H
 
 #include <cstdint>
 #include <vector>
@@ -68,4 +68,4 @@ protected:
 
 }}} // namespace
 
-#endif // Packet_H
+#endif // PACKET_H

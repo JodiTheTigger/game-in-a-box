@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Common/Network/XorCode.h>
+#include <Common/Network/XorCode.hpp>
 #include <gmock/gmock.h>
 
 #include <vector>

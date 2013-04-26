@@ -19,7 +19,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <Common/IReflected.h>
+#include <Common/IReflected.hpp>
 #include <algorithm>
 
 using namespace std;

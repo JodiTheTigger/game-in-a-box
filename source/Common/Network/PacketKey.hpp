@@ -18,50 +18,60 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETSTRING_H
-#define PACKETSTRING_H
+#ifndef PACKETKEY_H
+#define PACKETKEY_H
 
-#include <string>
-#include "Packet.h"
+#include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketString : public Packet
+class PacketKey : public Packet
 {
 public:
-    PacketString(std::string message) : Packet(TheCommand)
+    PacketKey(uint32_t key)
+        : Packet(TheCommand)
     {
-        copy(message.begin(), message.end(), back_inserter(myBuffer));
-    }
+        // High byte first.
+        myBuffer.push_back(uint8_t(key >> 24));
+        myBuffer.push_back(uint8_t(key >> 16));
+        myBuffer.push_back(uint8_t(key >> 8));
+        myBuffer.push_back(uint8_t(key >> 0));
+    }    
 
-    PacketString(std::vector<uint8_t> buffer) : Packet(buffer) {}
+    PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
-    virtual ~PacketString() {}
+    virtual ~PacketKey() {}
 
     virtual bool IsValid() const override
     {
-        if (myBuffer.size() >= MinimumPacketSize)
+        if (myBuffer.size() >= (PayloadSize + MinimumPacketSize))
         {
-            if (Packet::GetCommand() == TheCommand)
+            if (GetCommand() == TheCommand)
             {
-                return Packet::IsValid();
+                if (Key() != 0)
+                {
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    std::string Message() const
+    uint32_t Key() const
     {
-        return std::string(myBuffer.begin() + OffsetPayload, myBuffer.end());
+        return  uint32_t(myBuffer[OffsetKey + 0] << 24) |
+                uint32_t(myBuffer[OffsetKey + 1] << 16) |
+                uint32_t(myBuffer[OffsetKey + 2] << 8)  |
+                uint32_t(myBuffer[OffsetKey + 3]);
     }
 
 protected:
-    static const std::size_t MinimumPacketSize = Packet::MinimumPacketSize;
-    static const std::size_t OffsetPayload = 3;
+    static const std::size_t PayloadSize = 4;
+    static const std::size_t OffsetKey = 3;
 };
 
 }}} // namespace
 
-#endif // PACKETSTRING_H
+#endif // PACKETKEY_H

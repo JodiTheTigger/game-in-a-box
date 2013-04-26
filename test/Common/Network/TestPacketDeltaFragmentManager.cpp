@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketDeltaFragmentManager.h>
+#include <Common/Network/PacketDeltaFragmentManager.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;

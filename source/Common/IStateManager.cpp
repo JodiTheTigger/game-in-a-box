@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "IStateManager.h"
-#include "BitStream.h"
-#include "BitStreamReadOnly.h"
+#include "IStateManager.hpp"
+#include "BitStream.hpp"
+#include "BitStreamReadOnly.hpp"
 
 using namespace GameInABox::Common;
 

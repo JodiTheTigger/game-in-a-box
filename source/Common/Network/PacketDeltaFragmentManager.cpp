@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketDeltaFragmentManager.h"
+#include "PacketDeltaFragmentManager.hpp"
 
 using namespace GameInABox::Common::Network;
 

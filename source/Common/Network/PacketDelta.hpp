@@ -21,8 +21,8 @@
 #ifndef PACKETDELTA_H
 #define PACKETDELTA_H
 
-#include "Common/WrappingCounter.h"
-#include "Packet.h"
+#include "Common/WrappingCounter.hpp"
+#include "Packet.hpp"
 
 #include <vector>
 

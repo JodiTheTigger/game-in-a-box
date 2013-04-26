@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "BitStreamReadOnly.h"
+#include "BitStreamReadOnly.hpp"
 
 using namespace GameInABox::Common;
 

@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketDelta.h"
+#include "PacketDelta.hpp"
 
 using namespace GameInABox::Common;
 using namespace GameInABox::Common::Network;

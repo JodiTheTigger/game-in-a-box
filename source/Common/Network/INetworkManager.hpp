@@ -24,7 +24,7 @@
 #include <memory>
 #include <vector>
 
-#include "Common/BuildMacros.h"
+#include "Common/BuildMacros.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 

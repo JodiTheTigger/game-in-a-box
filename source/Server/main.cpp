@@ -19,7 +19,7 @@
 */
 
 #include <cstdint>
-#include "GameInABoxServer.h"
+#include "GameInABoxServer.hpp"
 
 // Linux
 #include <signal.h>
@@ -29,12 +29,12 @@
 #include <chrono>
 #include <thread>
 #include <string>
-#include "Common/BitStream.h"
+#include "Common/BitStream.hpp"
 
-#include "Common/BuildMacros.h"
+#include "Common/BuildMacros.hpp"
 
-#include "Common/IReflected.h"
-#include "Common/AutoComplete.h"
+#include "Common/IReflected.hpp"
+#include "Common/AutoComplete.hpp"
 
 using namespace GameInABox::Server;
 using namespace GameInABox::Common;

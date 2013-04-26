@@ -27,11 +27,11 @@
 #include <chrono>
 #include <utility>
 #include <boost/asio/ip/udp.hpp>
-#include "INetworkManager.h"
-#include "Common/IStateManager.h"
-#include "Common/Huffman.h"
-#include "Common/WrappingCounter.h"
-#include "PacketDeltaFragmentManager.h"
+#include "INetworkManager.hpp"
+#include "Common/IStateManager.hpp"
+#include "Common/Huffman.hpp"
+#include "Common/WrappingCounter.hpp"
+#include "PacketDeltaFragmentManager.hpp"
 
 namespace GameInABox { namespace Common {
 class IStateManager;

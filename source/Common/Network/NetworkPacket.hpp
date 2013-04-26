@@ -1,7 +1,7 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
-
+    
     This file is part of Game-in-a-box
 
     Game-in-a-box is free software: you can redistribute it and/or modify
@@ -18,30 +18,42 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETCHALLENGERESPONSE_H
-#define PACKETCHALLENGERESPONSE_H
+#ifndef NETWORKPACKET_H
+#define NETWORKPACKET_H
 
 #include <cstdint>
+#include <vector>
+#include <memory>
+#include <boost/asio/ip/udp.hpp>
 
-#include "PacketKey.h"
+#include "Common/BuildMacros.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketChallengeResponse : public PacketKey<Command::ChallengeResponse>
+class NetworkPacket
 {
 public:
-    PacketChallengeResponse(uint8_t version, uint32_t key);
-    PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
-    virtual ~PacketChallengeResponse();
+    boost::asio::ip::udp::endpoint      address;
+    std::vector<uint8_t>                data;
 
-    virtual bool IsValid() const override;
-    uint8_t Version() const;
+    NetworkPacket()
+        : address()
+        , data()
+    {
+    }
 
-private:
-    static const std::size_t PayloadSize = PacketKey::PayloadSize;
-    static const std::size_t OffsetVersion = PacketKey::OffsetKey + 4;
+    NetworkPacket(
+            boost::asio::ip::udp::endpoint addressToUse,
+            std::vector<uint8_t> dataToUse)
+        : address(addressToUse)
+        , data(dataToUse)
+    {
+    }
+
+    NetworkPacket(const NetworkPacket&) = default;
+    NetworkPacket& operator= ( NetworkPacket const &) = default;
 };
 
 }}} // namespace
 
-#endif // PACKETCHALLENGERESPONSE_H
+#endif // NETWORKPACKET_H

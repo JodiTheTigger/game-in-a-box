@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketChallengeResponse.h"
+#include "PacketChallengeResponse.hpp"
 
 using namespace GameInABox::Common::Network;
 

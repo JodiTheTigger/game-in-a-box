@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "INetworkManager.h"
+#include "INetworkManager.hpp"
 
 using namespace GameInABox::Common::Network;
 

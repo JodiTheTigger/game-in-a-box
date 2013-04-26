@@ -25,7 +25,7 @@
 #include <memory>
 #include <deque>
 
-#include "BuildMacros.h"
+#include "BuildMacros.hpp"
 
 namespace GameInABox { namespace Common {
 

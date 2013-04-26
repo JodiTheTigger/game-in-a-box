@@ -18,60 +18,51 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETKEY_H
-#define PACKETKEY_H
+#ifndef PACKETBUFFER_H
+#define PACKETBUFFER_H
 
-#include "Packet.h"
+#include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketKey : public Packet
+class PacketBuffer : public Packet
 {
 public:
-    PacketKey(uint32_t key)
-        : Packet(TheCommand)
-    {
-        // High byte first.
-        myBuffer.push_back(uint8_t(key >> 24));
-        myBuffer.push_back(uint8_t(key >> 16));
-        myBuffer.push_back(uint8_t(key >> 8));
-        myBuffer.push_back(uint8_t(key >> 0));
-    }    
+    PacketBuffer() : Packet(TheCommand) {}
+    PacketBuffer(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
-    PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
-
-    virtual ~PacketKey() {}
+    virtual ~PacketBuffer() {}
 
     virtual bool IsValid() const override
     {
-        if (myBuffer.size() >= (PayloadSize + MinimumPacketSize))
+        if (myBuffer.size() >= MinimumPacketSize)
         {
-            if (GetCommand() == TheCommand)
+            if (Packet::GetCommand() == TheCommand)
             {
-                if (Key() != 0)
-                {
-                    return true;
-                }
+                return Packet::IsValid();
             }
         }
 
         return false;
     }
 
-    uint32_t Key() const
+    std::vector<uint8_t> GetBuffer()
     {
-        return  uint32_t(myBuffer[OffsetKey + 0] << 24) |
-                uint32_t(myBuffer[OffsetKey + 1] << 16) |
-                uint32_t(myBuffer[OffsetKey + 2] << 8)  |
-                uint32_t(myBuffer[OffsetKey + 3]);
+        std::vector<uint8_t> result;
+
+        result.reserve(myBuffer.size() - OffsetPayload);
+
+        result.assign(myBuffer.begin() + OffsetPayload, myBuffer.end());
+
+        return result;
     }
 
 protected:
-    static const std::size_t PayloadSize = 4;
-    static const std::size_t OffsetKey = 3;
+    static const std::size_t MinimumPacketSize = Packet::MinimumPacketSize;
+    static const std::size_t OffsetPayload = 3;
 };
 
 }}} // namespace
 
-#endif // PACKETKEY_H
+#endif // PACKETBUFFER_H

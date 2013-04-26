@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/DeltaCoder.h>
-#include <Common/Network/DeltaMapItem.h>
+#include <Common/Network/DeltaCoder.hpp>
+#include <Common/Network/DeltaMapItem.hpp>
 #include <gtest/gtest.h>
 
 #include <string>

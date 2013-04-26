@@ -25,9 +25,9 @@
 #include <vector>
 #include <string>
 #include <array>
-#include "BuildMacros.h"
+#include "BuildMacros.hpp"
 
-#include "WrappingCounter.h"
+#include "WrappingCounter.hpp"
 
 namespace GameInABox { namespace Common {
 

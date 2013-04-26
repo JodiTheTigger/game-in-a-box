@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "Packet.h"
+#include "Packet.hpp"
 
 using namespace std;
 using namespace GameInABox::Common::Network;

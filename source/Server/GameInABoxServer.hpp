@@ -26,8 +26,8 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "Common/BuildMacros.h"
-#include "Common/IReflected.h"
+#include "Common/BuildMacros.hpp"
+#include "Common/IReflected.hpp"
 
 // forward declarations
 namespace GameInABox { namespace Common {

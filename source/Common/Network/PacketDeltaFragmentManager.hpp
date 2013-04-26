@@ -22,7 +22,7 @@
 #define PACKETDELTAFRAGENTMANAGER_H
 
 #include <vector>
-#include "PacketDelta.h"
+#include "PacketDelta.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 

@@ -26,8 +26,8 @@
 #include <map>
 #include <boost/asio/ip/udp.hpp>
 
-#include "INetworkManager.h"
-#include "NetworkPacket.h"
+#include "INetworkManager.hpp"
+#include "NetworkPacket.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 

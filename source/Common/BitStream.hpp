@@ -25,8 +25,8 @@
 #include <vector>
 #include <memory>
 
-#include "BuildMacros.h"
-#include "BitStreamReadOnly.h"
+#include "BuildMacros.hpp"
+#include "BitStreamReadOnly.hpp"
 
 namespace GameInABox { namespace Common {
 

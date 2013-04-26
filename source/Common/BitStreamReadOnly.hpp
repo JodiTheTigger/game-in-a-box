@@ -21,7 +21,7 @@
 #ifndef BITSTREAMREADONLY_H
 #define BITSTREAMREADONLY_H
 
-#include "BuildMacros.h"
+#include "BuildMacros.hpp"
 
 #include <cstdint>
 #include <vector>

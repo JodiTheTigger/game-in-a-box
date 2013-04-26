@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "ReflectionManager.h"
-#include "IReflected.h"
+#include "ReflectionManager.hpp"
+#include "IReflected.hpp"
 
 // NOTES: 
 //   I've benchmarked using map:find vs [] for accessing elements. [] is faster up to

@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketDelta.h>
+#include <Common/Network/PacketDelta.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;

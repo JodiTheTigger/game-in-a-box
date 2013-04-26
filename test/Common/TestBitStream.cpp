@@ -19,7 +19,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <Common/BitStream.h>
+#include <Common/BitStream.hpp>
 
 using namespace std;
 

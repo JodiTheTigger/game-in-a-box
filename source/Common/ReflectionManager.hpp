@@ -27,7 +27,7 @@
 #include <vector>
 #include <tuple>
 
-#include "BuildMacros.h"
+#include "BuildMacros.hpp"
 
 namespace GameInABox { namespace Common {
 

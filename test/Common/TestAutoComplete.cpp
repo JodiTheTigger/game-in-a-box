@@ -19,7 +19,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <Common/AutoComplete.h>
+#include <Common/AutoComplete.hpp>
 
 #include <algorithm>
 

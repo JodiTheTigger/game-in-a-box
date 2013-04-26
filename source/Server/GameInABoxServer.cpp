@@ -18,18 +18,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "GameInABoxServer.h"
+#include "GameInABoxServer.hpp"
 
 #include <chrono>
 #include <thread>
 #include <vector>
 
-#include "Common/Network/INetworkProvider.h"
-#include "Common/Network/INetworkManager.h"
-#include "Common/Network/NetworkManagerServer.h"
-#include "Common/IStateManager.h"
-#include "Common/GameSimple.h"
-#include "Common/ReflectionManager.h"
+#include "Common/Network/INetworkProvider.hpp"
+#include "Common/Network/INetworkManager.hpp"
+#include "Common/Network/NetworkManagerServer.hpp"
+#include "Common/IStateManager.hpp"
+#include "Common/GameSimple.hpp"
+#include "Common/ReflectionManager.hpp"
 
 using namespace std;
 using namespace std::chrono;

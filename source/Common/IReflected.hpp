@@ -28,7 +28,7 @@
 
 // I want ReflectionKey values for my interface,
 // therefore I cannot use a forward reference.
-#include "ReflectionKey.h"
+#include "ReflectionKey.hpp"
 
 namespace GameInABox { namespace Common {
 

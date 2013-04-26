@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "Huffman.h"
+#include "Huffman.hpp"
 
 #include <queue>
 #include <stdexcept>
 #include <map>
 #include <string>
 
-#include "BitStream.h"
+#include "BitStream.hpp"
 
 using namespace std;
 using namespace GameInABox::Common;

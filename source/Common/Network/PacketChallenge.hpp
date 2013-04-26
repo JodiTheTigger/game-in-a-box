@@ -18,51 +18,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETBUFFER_H
-#define PACKETBUFFER_H
+#ifndef PACKETCHALLENGE_H
+#define PACKETCHALLENGE_H
 
-#include "Packet.h"
+#include "PacketString.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-template<Command TheCommand>
-class PacketBuffer : public Packet
+class PacketChallenge : public PacketString<Command::Challenge>
 {
 public:
-    PacketBuffer() : Packet(TheCommand) {}
-    PacketBuffer(std::vector<uint8_t> buffer) : Packet(buffer) {}
-
-    virtual ~PacketBuffer() {}
-
-    virtual bool IsValid() const override
-    {
-        if (myBuffer.size() >= MinimumPacketSize)
-        {
-            if (Packet::GetCommand() == TheCommand)
-            {
-                return Packet::IsValid();
-            }
-        }
-
-        return false;
-    }
-
-    std::vector<uint8_t> GetBuffer()
-    {
-        std::vector<uint8_t> result;
-
-        result.reserve(myBuffer.size() - OffsetPayload);
-
-        result.assign(myBuffer.begin() + OffsetPayload, myBuffer.end());
-
-        return result;
-    }
-
-protected:
-    static const std::size_t MinimumPacketSize = Packet::MinimumPacketSize;
-    static const std::size_t OffsetPayload = 3;
+    PacketChallenge();
+    PacketChallenge(std::vector<uint8_t> buffer) : PacketString(buffer) {}
+    virtual ~PacketChallenge();
+    virtual bool IsValid() const override;
+private:
+    static const std::string ChallengeMessage;
 };
 
 }}} // namespace
 
-#endif // PACKETBUFFER_H
+#endif // PACKETCHALLENGE_H

@@ -36,7 +36,7 @@
 #include <memory>
 
 // Argh Includes
-#include "DeltaMapItem.h"
+#include "DeltaMapItem.hpp"
 
 namespace GameInABox { namespace Common {
 class BitStreamReadOnly;

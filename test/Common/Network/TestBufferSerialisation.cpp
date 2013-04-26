@@ -19,7 +19,7 @@
 */
 
 
-#include <Common/Network/BufferSerialisation.h>
+#include <Common/Network/BufferSerialisation.hpp>
 #include <gmock/gmock.h>
 
 #include <limits>

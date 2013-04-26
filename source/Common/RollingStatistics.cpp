@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RollingStatistics.h"
+#include "RollingStatistics.hpp"
 #include <vector>
 #include <cmath>
 #include <algorithm>

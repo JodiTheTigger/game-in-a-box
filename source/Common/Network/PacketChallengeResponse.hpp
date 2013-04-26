@@ -18,24 +18,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETCHALLENGE_H
-#define PACKETCHALLENGE_H
+#ifndef PACKETCHALLENGERESPONSE_H
+#define PACKETCHALLENGERESPONSE_H
 
-#include "PacketString.h"
+#include <cstdint>
+
+#include "PacketKey.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketChallenge : public PacketString<Command::Challenge>
+class PacketChallengeResponse : public PacketKey<Command::ChallengeResponse>
 {
 public:
-    PacketChallenge();
-    PacketChallenge(std::vector<uint8_t> buffer) : PacketString(buffer) {}
-    virtual ~PacketChallenge();
+    PacketChallengeResponse(uint8_t version, uint32_t key);
+    PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
+    virtual ~PacketChallengeResponse();
+
     virtual bool IsValid() const override;
+    uint8_t Version() const;
+
 private:
-    static const std::string ChallengeMessage;
+    static const std::size_t PayloadSize = PacketKey::PayloadSize;
+    static const std::size_t OffsetVersion = PacketKey::OffsetKey + 4;
 };
 
 }}} // namespace
 
-#endif // PACKETCHALLENGE_H
+#endif // PACKETCHALLENGERESPONSE_H

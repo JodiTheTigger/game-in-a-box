@@ -22,7 +22,7 @@
 #define GAMEINABOX_H
 
 #include <cstdint>
-#include "IStateManager.h"
+#include "IStateManager.hpp"
 
 namespace GameInABox { namespace Common {
 

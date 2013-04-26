@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "NetworkManagerClient.h"
+#include "NetworkManagerClient.hpp"
 
 #include <string>
 #include <chrono>
@@ -26,17 +26,17 @@
 #include <memory>
 #include <array>
 
-#include "Common/IStateManager.h"
-#include "Common/BitStream.h"
-#include "Common/BitStreamReadOnly.h"
-#include "INetworkProvider.h"
-#include "NetworkPacket.h"
-#include "PacketChallenge.h"
-#include "PacketChallengeResponse.h"
-#include "PacketDelta.h"
-#include "PacketSimple.h"
-#include "XorCode.h"
-#include "BufferSerialisation.h"
+#include "Common/IStateManager.hpp"
+#include "Common/BitStream.hpp"
+#include "Common/BitStreamReadOnly.hpp"
+#include "INetworkProvider.hpp"
+#include "NetworkPacket.hpp"
+#include "PacketChallenge.hpp"
+#include "PacketChallengeResponse.hpp"
+#include "PacketDelta.hpp"
+#include "PacketSimple.hpp"
+#include "XorCode.hpp"
+#include "BufferSerialisation.hpp"
 
 using std::string;
 using namespace std::chrono;

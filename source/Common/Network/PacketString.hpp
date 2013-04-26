@@ -1,7 +1,7 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
-    
+
     This file is part of Game-in-a-box
 
     Game-in-a-box is free software: you can redistribute it and/or modify
@@ -18,42 +18,50 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef NETWORKPACKET_H
-#define NETWORKPACKET_H
+#ifndef PACKETSTRING_H
+#define PACKETSTRING_H
 
-#include <cstdint>
-#include <vector>
-#include <memory>
-#include <boost/asio/ip/udp.hpp>
-
-#include "Common/BuildMacros.h"
+#include <string>
+#include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class NetworkPacket
+template<Command TheCommand>
+class PacketString : public Packet
 {
 public:
-    boost::asio::ip::udp::endpoint      address;
-    std::vector<uint8_t>                data;
-
-    NetworkPacket()
-        : address()
-        , data()
+    PacketString(std::string message) : Packet(TheCommand)
     {
+        copy(message.begin(), message.end(), back_inserter(myBuffer));
     }
 
-    NetworkPacket(
-            boost::asio::ip::udp::endpoint addressToUse,
-            std::vector<uint8_t> dataToUse)
-        : address(addressToUse)
-        , data(dataToUse)
+    PacketString(std::vector<uint8_t> buffer) : Packet(buffer) {}
+
+    virtual ~PacketString() {}
+
+    virtual bool IsValid() const override
     {
+        if (myBuffer.size() >= MinimumPacketSize)
+        {
+            if (Packet::GetCommand() == TheCommand)
+            {
+                return Packet::IsValid();
+            }
+        }
+
+        return false;
     }
 
-    NetworkPacket(const NetworkPacket&) = default;
-    NetworkPacket& operator= ( NetworkPacket const &) = default;
+    std::string Message() const
+    {
+        return std::string(myBuffer.begin() + OffsetPayload, myBuffer.end());
+    }
+
+protected:
+    static const std::size_t MinimumPacketSize = Packet::MinimumPacketSize;
+    static const std::size_t OffsetPayload = 3;
 };
 
 }}} // namespace
 
-#endif // NETWORKPACKET_H
+#endif // PACKETSTRING_H

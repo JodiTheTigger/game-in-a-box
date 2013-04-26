@@ -21,9 +21,9 @@
 #ifndef PACKETQUERIESKEY_H
 #define PACKETQUERIESKEY_H
 
-#include "PacketKey.h"
-#include "PacketBuffer.h"
-#include "PacketString.h"
+#include "PacketKey.hpp"
+#include "PacketBuffer.hpp"
+#include "PacketString.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 

@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Huffman.h>
+#include <Common/Huffman.hpp>
 #include <gtest/gtest.h>
 
 #include <string>

@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketSimple.h>
-#include <Common/Network/PacketChallenge.h>
-#include <Common/Network/PacketChallengeResponse.h>
-#include <Common/Network/PacketDelta.h>
+#include <Common/Network/PacketSimple.hpp>
+#include <Common/Network/PacketChallenge.hpp>
+#include <Common/Network/PacketChallengeResponse.hpp>
+#include <Common/Network/PacketDelta.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
