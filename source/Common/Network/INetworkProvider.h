@@ -37,6 +37,11 @@ class INetworkProvider
     CLASS_NOCOPY_ASSIGN_MOVE(INetworkProvider);
 
 public:
+    // I need to delete classes via the interface, so make the destructor virtual.
+    // (Passing ownership via unique_ptr).
+    // NOTE: I would prefer all NVI to have protected desctructors so delete cannot
+    // be called by the user of the interface. But then doing so means I cannot use
+    // unique_ptr<interface> to transfer ownership either. Bah.
     INetworkProvider() = default;
     virtual ~INetworkProvider() = default;
 
