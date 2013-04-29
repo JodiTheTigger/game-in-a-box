@@ -48,7 +48,10 @@ class GameInABoxServer final : public GameInABox::Common::IReflected
     
 public:
     GameInABoxServer(int32_t argc, uint8_t** argv);
-    ~GameInABoxServer();
+
+    // Hmm, gcc gives warning about non-virtual dtor when there are virtual
+    // methods. However this is a final class, so it shouldn't do that. Bah.
+    virtual ~GameInABoxServer();
     
     // Starts the game, runs the main game loop, keeps going until a fatal error
     // or Stop() has been called.
