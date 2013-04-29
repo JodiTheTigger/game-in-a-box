@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 include(CheckCXXCompilerFlag)
-project(game-in-a-box CXX)
+project(game-in-a-box C CXX)
 
 ###############
 # Prerequisites 
