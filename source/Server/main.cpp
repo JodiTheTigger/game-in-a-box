@@ -43,6 +43,7 @@ using namespace GameInABox::Common;
 GameInABoxServer* theGame = nullptr;
 
 // Linux signal handlers
+// TODO: Use boost asio to handle these.
 extern "C"
 {
     void SignalSigHup(int signal)
