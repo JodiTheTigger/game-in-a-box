@@ -18,15 +18,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include "Common/MakeUnique.hpp"
 #include "NetworkProviderSynchronousIp4.hpp"
 #include "NetworkPacket.hpp"
 
 using boost::asio::ip::udp;
 using namespace GameInABox::Common::Network;
 
-NetworkProviderSynchronousIp4::NetworkProviderSynchronousIp4(boost::asio::ip::udp::endpoint)
+NetworkProviderSynchronousIp4::NetworkProviderSynchronousIp4(boost::asio::ip::udp::endpoint bindAddress)
     : INetworkProvider()
+    , myBindAddress(bindAddress)
     , myIoService()
+    , mySocket(make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress))
 {
 }
 
@@ -36,30 +39,52 @@ NetworkProviderSynchronousIp4::~NetworkProviderSynchronousIp4() noexcept(true)
 
 std::vector<NetworkPacket> NetworkProviderSynchronousIp4::PrivateReceive()
 {
-    return std::vector<NetworkPacket>();
+    std::vector<NetworkPacket> result;
+
+    if (mySocket->is_open() && mySocket->available() > 0)
+    {
+        // don't check for packet type, as assume you cannot get ip4 on an ip6 socket.
+        // for now loop one packet at a time until empty or max number of packets
+        // in one receive.
+    }
+
+    return result;
 }
 
-void NetworkProviderSynchronousIp4::PrivateSend(std::vector<NetworkPacket>)
+void NetworkProviderSynchronousIp4::PrivateSend(std::vector<NetworkPacket> packets)
 {
-
+    if (mySocket->is_open() && !packets.empty())
+    {
+        for (auto packet : packets)
+        {
+            // test to see if they are the same network type (ip4/ip6)
+            // group them to destination address
+            // send the groups.
+            // check for errors, fail gracfully.
+        }
+    }
 }
 
 void NetworkProviderSynchronousIp4::PrivateReset()
 {
+    PrivateDisable();
 
+    // TODO! Check for errors, fail gracfully on error.
+    // RAM: how? mySocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress));
 }
 
 void NetworkProviderSynchronousIp4::PrivateFlush()
 {
-
+    // Sends and Receives are blocking, nothing to flush.
 }
 
 void NetworkProviderSynchronousIp4::PrivateDisable()
 {
-
+    // RAM: WTF? worked without smart pointer. mySocket->shutdown();
+    mySocket->close();
 }
 
 bool NetworkProviderSynchronousIp4::PrivateIsDisabled() const
 {
-    return true;
+    return !(mySocket->is_open());
 }

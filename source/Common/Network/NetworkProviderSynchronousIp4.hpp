@@ -21,6 +21,7 @@
 #ifndef NETWORKPROVIDERSYNCHRONOUSIP4_H
 #define NETWORKPROVIDERSYNCHRONOUSIP4_H
 
+#include <memory>
 #include <boost/asio.hpp>
 #include "INetworkProvider.hpp"
 
@@ -41,7 +42,11 @@ public:
     ~NetworkProviderSynchronousIp4() noexcept(true) override;
 
 private:
+    boost::asio::ip::udp::endpoint myBindAddress;
     boost::asio::io_service myIoService;
+
+    // udp::socket can't be assigned, so I can't use it on the stack.
+    std::unique_ptr<boost::asio::ip::udp::socket> mySocket;
 
     std::vector<NetworkPacket> PrivateReceive() override;
     void PrivateSend(std::vector<NetworkPacket> packets) override;
