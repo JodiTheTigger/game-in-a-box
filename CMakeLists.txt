@@ -141,6 +141,7 @@ source/Common/Network/PacketDelta.cpp
 source/Common/Network/INetworkManager.cpp
 source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/NetworkManagerClient.cpp
+source/Common/Network/NetworkProviderSynchronousIp4.cpp
 source/Common/GameSimple.cpp
 source/Common/IStateManager.cpp
 source/Common/Huffman.cpp
