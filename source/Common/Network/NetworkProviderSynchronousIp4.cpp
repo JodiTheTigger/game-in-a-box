@@ -41,11 +41,27 @@ std::vector<NetworkPacket> NetworkProviderSynchronousIp4::PrivateReceive()
 {
     std::vector<NetworkPacket> result;
 
-    if (mySocket->is_open() && mySocket->available() > 0)
+    if (mySocket->is_open())
     {
+        std::size_t available(mySocket->available());
+
         // don't check for packet type, as assume you cannot get ip4 on an ip6 socket.
         // for now loop one packet at a time until empty or max number of packets
-        // in one receive.
+        // in one receive. Bah, I wish I didn't need to suffer the cost of array
+        // initilisation.
+        while ((available > 0) && (mySocket->is_open()))
+        {
+            boost::asio::ip::udp::endpoint addressToUse;
+            std::vector<uint8_t> dataToUse(available);
+
+            // blocking (but shouldn't as the data is available).
+            // RAM: TODO! Deal with the errors!
+            mySocket->receive_from(
+                boost::asio::buffer(dataToUse),
+                addressToUse);
+
+            result.emplace_back(dataToUse, addressToUse);
+        }
     }
 
     return result;
@@ -55,12 +71,26 @@ void NetworkProviderSynchronousIp4::PrivateSend(std::vector<NetworkPacket> packe
 {
     if (mySocket->is_open() && !packets.empty())
     {
+        // RAM: who owns the packet buffers? figure out lifetime!
         for (auto packet : packets)
         {
-            // test to see if they are the same network type (ip4/ip6)
+            // Suggested (possible) performance inprovements:
+            // Batching to sender address:
             // group them to destination address
             // send the groups.
             // check for errors, fail gracfully.
+
+            // test to see if they are the same network type (ip4/ip6)
+            if (packet.data.size() > 0)
+            {
+                if (packet.address.address().is_v4())
+                {
+                    // RAM: TODO: deal with errors!
+                    mySocket->send_to(
+                        boost::asio::buffer(packet.data),
+                        packet.address);
+                }
+            }
         }
     }
 }
@@ -69,8 +99,8 @@ void NetworkProviderSynchronousIp4::PrivateReset()
 {
     PrivateDisable();
 
-    // TODO! Check for errors, fail gracfully on error.
-    // RAM: how? mySocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress));
+    // Can this throw an error resulting in a null mySocket?
+    mySocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress);
 }
 
 void NetworkProviderSynchronousIp4::PrivateFlush()
@@ -80,7 +110,7 @@ void NetworkProviderSynchronousIp4::PrivateFlush()
 
 void NetworkProviderSynchronousIp4::PrivateDisable()
 {
-    // RAM: WTF? worked without smart pointer. mySocket->shutdown();
+    mySocket->shutdown(udp::socket::shutdown_both);
     mySocket->close();
 }
 
