@@ -33,20 +33,20 @@ namespace GameInABox { namespace Common { namespace Network {
 class NetworkPacket
 {
 public:
-    boost::asio::ip::udp::endpoint      address;
     std::vector<uint8_t>                data;
+    boost::asio::ip::udp::endpoint      address;
 
     NetworkPacket()
-        : address()
-        , data()
+        : data()
+        , address()
     {
     }
 
     NetworkPacket(
-            boost::asio::ip::udp::endpoint addressToUse,
-            std::vector<uint8_t> dataToUse)
-        : address(addressToUse)
-        , data(dataToUse)
+            std::vector<uint8_t> dataToUse,
+            boost::asio::ip::udp::endpoint addressToUse)
+        : data(dataToUse)
+        , address(addressToUse)
     {
     }
 

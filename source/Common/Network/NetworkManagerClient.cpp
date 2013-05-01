@@ -219,8 +219,8 @@ void NetworkManagerClient::PrivateProcessIncomming()
                                 // Respond with a failed message please.
                                 // Only one will do, the server can timeout if it misses it.
                                 myConnectedNetwork->Send({{
-                                      myServerAddress,
-                                      PacketDisconnect(failReason).TakeBuffer()}});
+                                      PacketDisconnect(failReason).TakeBuffer(),
+                                      myServerAddress}});
 
                                 Fail(failReason);
                             }
@@ -340,14 +340,14 @@ void NetworkManagerClient::PrivateSendState()
                     if (myState == State::Challenging)
                     {
                         myConnectedNetwork->Send({{
-                              myServerAddress,
-                              PacketChallenge().TakeBuffer()}});
+                              PacketChallenge().TakeBuffer(),
+                              myServerAddress}});
                     }
                     else
                     {
                         myConnectedNetwork->Send({{
-                              myServerAddress,
-                              PacketConnect(myServerKey).TakeBuffer()}});
+                              PacketConnect(myServerKey).TakeBuffer(),
+                              myServerAddress}});
                     }
                 }
             }
@@ -461,7 +461,7 @@ void NetworkManagerClient::DeltaSend()
         auto fragments(PacketDeltaFragmentManager::FragmentPacket(delta));
         for (auto& fragment : fragments)
         {
-            packets.emplace_back(myServerAddress, fragment.TakeBuffer());
+            packets.emplace_back(fragment.TakeBuffer(), myServerAddress);
         }
 
         // send
