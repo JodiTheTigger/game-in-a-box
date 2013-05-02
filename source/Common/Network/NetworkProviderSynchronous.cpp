@@ -105,7 +105,11 @@ void NetworkProviderSynchronous::PrivateReset()
     PrivateDisable();
 
     // Can this throw an error resulting in a null mySocket?
-    mySocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress);
+    using std::swap;
+
+    auto tempSocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress);
+
+    swap(mySocket, tempSocket);
 }
 
 void NetworkProviderSynchronous::PrivateFlush()
