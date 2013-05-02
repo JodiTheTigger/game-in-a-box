@@ -128,6 +128,7 @@ FIND_PACKAGE ( Threads )
 ###############    
 # RAM: Debug, get clang to find the bits/c++config.h file!
 include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
@@ -181,6 +182,7 @@ enable_testing()
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mock/)
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
