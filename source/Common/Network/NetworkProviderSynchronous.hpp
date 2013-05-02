@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef NETWORKPROVIDERSYNCHRONOUSIP4_H
-#define NETWORKPROVIDERSYNCHRONOUSIP4_H
+#ifndef NetworkProviderSynchronous_H
+#define NetworkProviderSynchronous_H
 
 #include <memory>
 #include <boost/asio.hpp>
@@ -28,18 +28,18 @@
 namespace GameInABox { namespace Common { namespace Network {
 class NetworkPacket;
 
-class NetworkProviderSynchronousIp4 final: public INetworkProvider
+class NetworkProviderSynchronous final: public INetworkProvider
 {
 public:
-    NetworkProviderSynchronousIp4(boost::asio::ip::udp::endpoint bindAddress);
-    NetworkProviderSynchronousIp4()
-        : NetworkProviderSynchronousIp4(boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
+    NetworkProviderSynchronous(boost::asio::ip::udp::endpoint bindAddress);
+    NetworkProviderSynchronous()
+        : NetworkProviderSynchronous(boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
     {
     }
 
     // oh, I didn't know ~ctor = default; has a signature of
     // ~ctor() noexcept(true) {}.
-    ~NetworkProviderSynchronousIp4() noexcept(true) override;
+    ~NetworkProviderSynchronous() noexcept(true) override;
 
 private:
     boost::asio::ip::udp::endpoint myBindAddress;
@@ -47,6 +47,8 @@ private:
 
     // udp::socket can't be assigned, so I can't use it on the stack.
     std::unique_ptr<boost::asio::ip::udp::socket> mySocket;
+    bool myAddressIsIpv4;
+    bool myAddressIsIpv6;
 
     std::vector<NetworkPacket> PrivateReceive() override;
     void PrivateSend(std::vector<NetworkPacket> packets) override;
@@ -58,4 +60,4 @@ private:
 
 }}} // namespace
 
-#endif // NETWORKPROVIDERSYNCHRONOUSIP4_H
+#endif // NetworkProviderSynchronous_H

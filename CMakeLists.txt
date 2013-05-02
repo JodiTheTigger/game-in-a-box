@@ -183,8 +183,8 @@ source/Common/Network/DeltaCoder.hpp
 source/Common/Network/DeltaCoder-Implementation.hpp
 source/Common/Network/NetworkManagerClient.cpp
 source/Common/Network/NetworkPacket.hpp
-source/Common/Network/NetworkProviderSynchronousIp4.cpp
-source/Common/Network/NetworkProviderSynchronousIp4.hpp
+source/Common/Network/NetworkProviderSynchronous.cpp
+source/Common/Network/NetworkProviderSynchronous.hpp
 )
 
 
@@ -234,6 +234,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mock/)
 
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
+  ${PROJECT_SOURCE_DIR}/mock/Common/Network/MockINetworkProvider.hpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestWrappingCounter.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp

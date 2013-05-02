@@ -19,25 +19,27 @@
 */
 
 #include "Common/MakeUnique.hpp"
-#include "NetworkProviderSynchronousIp4.hpp"
+#include "NetworkProviderSynchronous.hpp"
 #include "NetworkPacket.hpp"
 
 using boost::asio::ip::udp;
 using namespace GameInABox::Common::Network;
 
-NetworkProviderSynchronousIp4::NetworkProviderSynchronousIp4(boost::asio::ip::udp::endpoint bindAddress)
+NetworkProviderSynchronous::NetworkProviderSynchronous(boost::asio::ip::udp::endpoint bindAddress)
     : INetworkProvider()
     , myBindAddress(bindAddress)
     , myIoService()
     , mySocket(make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress))
+    , myAddressIsIpv4(myBindAddress.address().is_v4())
+    , myAddressIsIpv6(myBindAddress.address().is_v6())
 {
 }
 
-NetworkProviderSynchronousIp4::~NetworkProviderSynchronousIp4() noexcept(true)
+NetworkProviderSynchronous::~NetworkProviderSynchronous() noexcept(true)
 {
 }
 
-std::vector<NetworkPacket> NetworkProviderSynchronousIp4::PrivateReceive()
+std::vector<NetworkPacket> NetworkProviderSynchronous::PrivateReceive()
 {
     std::vector<NetworkPacket> result;
 
@@ -67,7 +69,7 @@ std::vector<NetworkPacket> NetworkProviderSynchronousIp4::PrivateReceive()
     return result;
 }
 
-void NetworkProviderSynchronousIp4::PrivateSend(std::vector<NetworkPacket> packets)
+void NetworkProviderSynchronous::PrivateSend(std::vector<NetworkPacket> packets)
 {
     if (mySocket->is_open() && !packets.empty())
     {
@@ -83,7 +85,10 @@ void NetworkProviderSynchronousIp4::PrivateSend(std::vector<NetworkPacket> packe
             // test to see if they are the same network type (ip4/ip6)
             if (packet.data.size() > 0)
             {
-                if (packet.address.address().is_v4())
+                if  (
+                        (packet.address.address().is_v4() == myAddressIsIpv4) &&
+                        (packet.address.address().is_v6() == myAddressIsIpv6)
+                     )
                 {
                     // RAM: TODO: deal with errors!
                     mySocket->send_to(
@@ -95,7 +100,7 @@ void NetworkProviderSynchronousIp4::PrivateSend(std::vector<NetworkPacket> packe
     }
 }
 
-void NetworkProviderSynchronousIp4::PrivateReset()
+void NetworkProviderSynchronous::PrivateReset()
 {
     PrivateDisable();
 
@@ -103,18 +108,18 @@ void NetworkProviderSynchronousIp4::PrivateReset()
     mySocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress);
 }
 
-void NetworkProviderSynchronousIp4::PrivateFlush()
+void NetworkProviderSynchronous::PrivateFlush()
 {
     // Sends and Receives are blocking, nothing to flush.
 }
 
-void NetworkProviderSynchronousIp4::PrivateDisable()
+void NetworkProviderSynchronous::PrivateDisable()
 {
     mySocket->shutdown(udp::socket::shutdown_both);
     mySocket->close();
 }
 
-bool NetworkProviderSynchronousIp4::PrivateIsDisabled() const
+bool NetworkProviderSynchronous::PrivateIsDisabled() const
 {
     return !(mySocket->is_open());
 }
