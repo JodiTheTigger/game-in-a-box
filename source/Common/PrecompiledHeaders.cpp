@@ -18,6 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PrecompiledHeaders.h"
+#include "PrecompiledHeaders.hpp"
 
 // If the headers have changed, just touch this file to force a recompile.

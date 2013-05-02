@@ -76,6 +76,6 @@ private:
 }}} // namespace
 
 // The only downside of templates
-#include "DeltaCoder.cpp"
+#include "DeltaCoder-Implementation.hpp"
 
 #endif // IDELTACODER_H
