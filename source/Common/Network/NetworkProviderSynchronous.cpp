@@ -90,6 +90,7 @@ void NetworkProviderSynchronous::PrivateSend(std::vector<NetworkPacket> packets)
                         (packet.address.address().is_v6() == myAddressIsIpv6)
                      )
                 {
+                    // RAM: TODO make sure the address is not IPADDRESS_ANY!
                     // RAM: TODO: deal with errors!
                     mySocket->send_to(
                         boost::asio::buffer(packet.data),
@@ -104,11 +105,9 @@ void NetworkProviderSynchronous::PrivateReset()
 {
     PrivateDisable();
 
-    // Can this throw an error resulting in a null mySocket?
     using std::swap;
 
     auto tempSocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress);
-
     swap(mySocket, tempSocket);
 }
 
