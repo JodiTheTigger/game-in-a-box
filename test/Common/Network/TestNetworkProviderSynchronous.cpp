@@ -30,6 +30,8 @@ using Bytes = std::vector<uint8_t>;
 
 namespace GameInABox { namespace Common { namespace Network {
 
+using Packets = std::vector<NetworkPacket>;
+
 // Class definition!
 class TestNetworkProviderSynchronous : public ::testing::Test
 {
@@ -37,19 +39,118 @@ public:
     TestNetworkProviderSynchronous()
         : myIpv4()
         , myIpv6(udp::endpoint(udp::v6(), 0))
+        // boost has no way of getting local or loopback addresses.
+        // using hard coded general defaults.
+        , myIpv4loopback(address::from_string("127.0.0.1"))
+        , myIpv4blackhole(address::from_string("10.24.76.43"))
     {
     }
 
     NetworkProviderSynchronous myIpv4;
     NetworkProviderSynchronous myIpv6;
+    address myIpv4loopback;
+    address myIpv4blackhole;
 };
+
+//std::vector<NetworkPacket> PrivateReceive() override;
+//void PrivateSend(std::vector<NetworkPacket> packets) override;
+//void PrivateReset() override;
+//void PrivateFlush() override;
+//void PrivateDisable() override;
 
 TEST_F(TestNetworkProviderSynchronous, Ip4NoPermissionBind)
 {
     // expect exception about permissions.
-//    ASSERT_THROW(
-//        NetworkProviderSynchronous notAllowed(udp::endpoint(udp::v4(), 1023)),
-//        error::basic_errors::access_denied);
+    ASSERT_THROW(
+        NetworkProviderSynchronous notAllowed(udp::endpoint(udp::v4(), 1023)),
+        boost::system::system_error);
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4IsValid)
+{
+    EXPECT_FALSE(myIpv4.IsDisabled());
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4Disable)
+{
+    EXPECT_FALSE(myIpv4.IsDisabled());
+    myIpv4.Disable();
+    EXPECT_TRUE(myIpv4.IsDisabled());
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4DisableThenReset)
+{
+    EXPECT_FALSE(myIpv4.IsDisabled());
+    myIpv4.Disable();
+    EXPECT_TRUE(myIpv4.IsDisabled());
+    myIpv4.Reset();
+    EXPECT_FALSE(myIpv4.IsDisabled());
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4Reset)
+{
+    EXPECT_FALSE(myIpv4.IsDisabled());
+    myIpv4.Reset();
+    EXPECT_FALSE(myIpv4.IsDisabled());
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4Flush)
+{
+    myIpv4.Flush();
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4FlushWhenDisabled)
+{
+    myIpv4.Disable();
+    myIpv4.Flush();
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4NotExpectingData)
+{
+    Packets data(myIpv4.Receive());
+
+    EXPECT_EQ(0, data.size());
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4SendEmptyArray)
+{
+    myIpv4.Send({{}});
+}
+
+
+TEST_F(TestNetworkProviderSynchronous, Ip4SendEmptyPacket)
+{
+    Packets toSend;
+
+    toSend.emplace_back();
+
+    myIpv4.Send(toSend);
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketNoAddress)
+{
+    Packets toSend;
+
+    // should ignore the invalid address.
+    toSend.emplace_back(Bytes(4,42), udp::endpoint());
+
+    myIpv4.Send(toSend);
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketLoopback)
+{
+    Packets toSend;
+
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4loopback, 4444));
+    myIpv4.Send(toSend);
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketBlackHole)
+{
+    Packets toSend;
+
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4blackhole, 4444));
+    myIpv4.Send(toSend);
 }
 
 }}} // namespace
