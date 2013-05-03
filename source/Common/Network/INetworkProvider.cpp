@@ -19,7 +19,6 @@
 */
 
 #include "INetworkProvider.hpp"
-#include "NetworkPacket.hpp"
 
 using namespace std;
 using namespace GameInABox::Common::Network;

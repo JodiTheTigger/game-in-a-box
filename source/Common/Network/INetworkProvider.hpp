@@ -22,12 +22,10 @@
 #define NETWORKPROVIDER_H
 
 #include <vector>
+#include "NetworkPacket.hpp"
 #include "Common/BuildMacros.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
-
-// forward references
-class NetworkPacket;
 
 // RAM: TODO! Add network metrics (bytes per second, send, recieve, rolling stats)
 // RAM: TODO! Add Network throttling here
