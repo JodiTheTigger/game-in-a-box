@@ -118,7 +118,6 @@ void NetworkProviderSynchronous::PrivateFlush()
 
 void NetworkProviderSynchronous::PrivateDisable()
 {
-    mySocket->shutdown(udp::socket::shutdown_both);
     mySocket->close();
 }
 
