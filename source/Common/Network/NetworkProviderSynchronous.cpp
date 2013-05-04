@@ -19,6 +19,8 @@
 */
 
 #include "Common/MakeUnique.hpp"
+#include "Common/Logging/Logging.hpp"
+
 #include "NetworkProviderSynchronous.hpp"
 #include "NetworkPacket.hpp"
 
@@ -75,7 +77,7 @@ void NetworkProviderSynchronous::PrivateSend(std::vector<NetworkPacket> packets)
     if (mySocket->is_open() && !packets.empty())
     {
         // RAM: who owns the packet buffers? figure out lifetime!
-        for (auto packet : packets)
+        for (auto& packet : packets)
         {
             // Suggested (possible) performance inprovements:
             // Batching to sender address:
