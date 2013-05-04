@@ -52,12 +52,6 @@ public:
     address myIpv4blackhole;
 };
 
-//std::vector<NetworkPacket> PrivateReceive() override;
-//void PrivateSend(std::vector<NetworkPacket> packets) override;
-//void PrivateReset() override;
-//void PrivateFlush() override;
-//void PrivateDisable() override;
-
 TEST_F(TestNetworkProviderSynchronous, Ip4NoPermissionBind)
 {
     // expect exception about permissions.
@@ -153,7 +147,7 @@ TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketBlackHole)
     myIpv4.Send(toSend);
 }
 
-TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketLoopbackAndReceive)
+TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketLoopbackAndReceive4Bytes)
 {
     Packets toSend;
     NetworkProviderSynchronous listen(udp::endpoint(myIpv4loopback, 4444));
@@ -163,7 +157,23 @@ TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketLoopbackAndReceive)
     auto result(listen.Receive());
 
     ASSERT_EQ(1, result.size());
-    EXPECT_EQ(udp::endpoint(myIpv4loopback, 4444), result[0].address);
+    EXPECT_EQ(Bytes(4,42), result[0].data);
+}
+
+TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketLoopbackAndReceive4BytesMultiple)
+{
+    Packets toSend;
+    NetworkProviderSynchronous listen(udp::endpoint(myIpv4loopback, 4444));
+
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4loopback, 4444));
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4loopback, 4444));
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4loopback, 4444));
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4loopback, 4444));
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4loopback, 4444));
+    myIpv4.Send(toSend);
+    auto result(listen.Receive());
+
+    ASSERT_EQ(5, result.size());
     EXPECT_EQ(Bytes(4,42), result[0].data);
 }
 
