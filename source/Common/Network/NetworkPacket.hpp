@@ -52,8 +52,6 @@ public:
 
     NetworkPacket(const NetworkPacket&) = default;
     NetworkPacket& operator= ( NetworkPacket const &) = default;
-
-    // RAM: TODO: Comparison overloads.
 };
 
 }}} // namespace
