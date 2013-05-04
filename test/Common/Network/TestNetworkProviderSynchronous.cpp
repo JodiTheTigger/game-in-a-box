@@ -153,4 +153,18 @@ TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketBlackHole)
     myIpv4.Send(toSend);
 }
 
+TEST_F(TestNetworkProviderSynchronous, Ip4SendPacketLoopbackAndReceive)
+{
+    Packets toSend;
+    NetworkProviderSynchronous listen(udp::endpoint(myIpv4loopback, 4444));
+
+    toSend.emplace_back(Bytes(4,42), udp::endpoint(myIpv4loopback, 4444));
+    myIpv4.Send(toSend);
+    auto result(listen.Receive());
+
+    ASSERT_EQ(1, result.size());
+    EXPECT_EQ(udp::endpoint(myIpv4loopback, 4444), result[0].address);
+    EXPECT_EQ(Bytes(4,42), result[0].data);
+}
+
 }}} // namespace
