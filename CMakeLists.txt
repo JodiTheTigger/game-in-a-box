@@ -187,6 +187,9 @@ source/Common/Network/NetworkProviderSynchronous.cpp
 source/Common/Network/NetworkProviderSynchronous.hpp
 )
 
+set(COMMON_SOURCE_LOGGING
+source/Common/Logging/Logging.hpp
+)
 
 ###############
 # Server 
@@ -201,6 +204,7 @@ add_library(
 game-in-a-box-common
 ${COMMON_SOURCE}
 ${COMMON_SOURCE_NETWORK}
+${COMMON_SOURCE_LOGGING}
 )
 
 add_executable(
