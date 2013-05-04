@@ -63,6 +63,7 @@ std::vector<NetworkPacket> NetworkProviderSynchronous::PrivateReceive()
                 addressToUse);
 
             result.emplace_back(dataToUse, addressToUse);
+            available = mySocket->available();
         }
     }
 
