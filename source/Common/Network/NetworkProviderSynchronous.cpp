@@ -26,6 +26,7 @@
 
 using boost::asio::ip::udp;
 using namespace GameInABox::Common::Network;
+using namespace GameInABox::Common::Logging;
 
 NetworkProviderSynchronous::NetworkProviderSynchronous(boost::asio::ip::udp::endpoint bindAddress)
     : INetworkProvider()
@@ -47,25 +48,46 @@ std::vector<NetworkPacket> NetworkProviderSynchronous::PrivateReceive()
 
     if (mySocket->is_open())
     {
-        std::size_t available(mySocket->available());
+        boost::system::error_code error;
+
+        std::size_t available(mySocket->available(error));
 
         // don't check for packet type, as assume you cannot get ip4 on an ip6 socket.
         // for now loop one packet at a time until empty or max number of packets
         // in one receive. Bah, I wish I didn't need to suffer the cost of array
         // initilisation.
-        while ((available > 0) && (mySocket->is_open()))
+        while   (
+                    (available > 0) &&
+                    (mySocket->is_open()) &&
+                    (!error)
+                )
         {
             boost::asio::ip::udp::endpoint addressToUse;
             std::vector<uint8_t> dataToUse(available);
 
             // blocking (but shouldn't as the data is available).
-            // RAM: TODO! Deal with the errors!
             mySocket->receive_from(
                 boost::asio::buffer(dataToUse),
-                addressToUse);
+                addressToUse,
+                0,
+                error);
 
-            result.emplace_back(dataToUse, addressToUse);
-            available = mySocket->available();
+            if (!error)
+            {
+                result.emplace_back(dataToUse, addressToUse);
+                available = mySocket->available(error);
+            }
+        }
+
+        if (error)
+        {
+            // report and give up.
+            Logging::Log(
+                Logging::LogLevel::Error,
+                "Received Failed: (",
+                error.value(),
+                ") ",
+                error.message().c_str());
         }
     }
 
@@ -76,14 +98,14 @@ void NetworkProviderSynchronous::PrivateSend(std::vector<NetworkPacket> packets)
 {
     if (mySocket->is_open() && !packets.empty())
     {
-        // RAM: who owns the packet buffers? figure out lifetime!
+        boost::system::error_code error;
+
         for (auto& packet : packets)
         {
             // Suggested (possible) performance inprovements:
             // Batching to sender address:
             // group them to destination address
             // send the groups.
-            // check for errors, fail gracfully.
 
             // test to see if they are the same network type (ip4/ip6)
             if (packet.data.size() > 0)
@@ -93,11 +115,28 @@ void NetworkProviderSynchronous::PrivateSend(std::vector<NetworkPacket> packets)
                         (packet.address.address().is_v6() == myAddressIsIpv6)
                      )
                 {
-                    // RAM: TODO make sure the address is not IPADDRESS_ANY!
-                    // RAM: TODO: deal with errors!
+                    // Buffer lifetime > send_to lifetime. And since we're
+                    // block that means for the life of the function.
+                    // If we were using async sends, things would be more
+                    // complicated.
                     mySocket->send_to(
                         boost::asio::buffer(packet.data),
-                        packet.address);
+                        packet.address,
+                        0,
+                        error);
+
+                    if (error)
+                    {
+                        // report and quit.
+                        Logging::Log(
+                            Logging::LogLevel::Error,
+                            "Send Failed: (",
+                            error.value(),
+                            ") ",
+                            error.message().c_str());
+
+                        break;
+                    }
                 }
             }
         }
@@ -108,10 +147,23 @@ void NetworkProviderSynchronous::PrivateReset()
 {
     PrivateDisable();
 
-    using std::swap;
+    try
+    {
+        using std::swap;
 
-    auto tempSocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress);
-    swap(mySocket, tempSocket);
+        auto tempSocket = make_unique<boost::asio::ip::udp::socket>(myIoService, myBindAddress);
+        swap(mySocket, tempSocket);
+    }
+    catch (boost::system::system_error& socketError)
+    {
+        // is_open() will return false if this didn't work, so just report why to debug.
+        Logging::Log(
+            Logging::LogLevel::Error,
+            "Reset Failed: (",
+            socketError.code().value(),
+            ") ",
+            socketError.what());
+    }
 }
 
 void NetworkProviderSynchronous::PrivateFlush()
