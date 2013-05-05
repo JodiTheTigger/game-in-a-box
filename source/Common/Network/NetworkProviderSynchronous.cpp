@@ -83,7 +83,7 @@ std::vector<NetworkPacket> NetworkProviderSynchronous::PrivateReceive()
         {
             // report and give up.
             Logging::Log(
-                Logging::LogLevel::Error,
+                Logging::LogLevel::Informational,
                 "Received Failed: (",
                 error.value(),
                 ") ",
@@ -129,7 +129,7 @@ void NetworkProviderSynchronous::PrivateSend(std::vector<NetworkPacket> packets)
                     {
                         // report and quit.
                         Logging::Log(
-                            Logging::LogLevel::Error,
+                            Logging::LogLevel::Informational,
                             "Send Failed: (",
                             error.value(),
                             ") ",
@@ -158,7 +158,7 @@ void NetworkProviderSynchronous::PrivateReset()
     {
         // is_open() will return false if this didn't work, so just report why to debug.
         Logging::Log(
-            Logging::LogLevel::Error,
+            Logging::LogLevel::Warning,
             "Reset Failed: (",
             socketError.code().value(),
             ") ",

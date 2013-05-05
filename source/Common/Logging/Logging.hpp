@@ -25,14 +25,34 @@ namespace GameInABox { namespace Common { namespace Logging {
 
 enum class LogLevel
 {
+    // Debug Spew, doesn't contain any infomation that's useful in release builds.
+    // Used for debugging, but too useful to delete the code that makes the spew.
     Debug,
+
+    // Debug spew for release builds. Stuff you can afford to be in log files for
+    // Release builds (but not something that would make the logs huge, use debug for that).
     Informational,
+
+    // Hmm, that's interesting. Internal program state like births, deaths or marriages.
     Notice,
+
+    // Program has failed in a recoverable way, keep on trucking...
     Warning,
+
+    // Something you should really take note of, but doesn't invalidate program
+    // state in anyway. Like a Warning, but more important. For example, you've
+    // Stated running out of memory, but you still have some more up your sleve
+    // before you go Critical.
     Alert,
+
+    // Program has failed and will reset to a state as if freshly started.
     Error,
+
+    // Program cannot run, impending quit or segfault.
     Critical
 };
+
+
 
 void Log(LogLevel, ...)
 {
