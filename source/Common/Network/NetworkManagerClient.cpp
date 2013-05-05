@@ -198,6 +198,13 @@ void NetworkManagerClient::PrivateProcessIncomming()
         {
             auto packets = myConnectedNetwork->Receive();
 
+            // Fail?
+            if (myConnectedNetwork->IsDisabled())
+            {
+                Fail("Network Failed Unexpectedly.");
+                break;
+            }
+
             for (auto& packet : packets)
             {
                 bool exit(false);
@@ -270,24 +277,12 @@ void NetworkManagerClient::PrivateProcessIncomming()
 
         case State::Connected:
         {
+            // Cannot get disconnected unless the gamestate tells us to.
+            // That is, ignore disconnect state packets.
             auto packets = myConnectedNetwork->Receive();
 
             for (auto& packet : packets)
             {
-                if (Packet::GetCommand(packet.data) == Command::Disconnect)
-                {
-                    PacketDisconnect disconnect(packet.data);
-
-                    // RAM: TODO: Put key into disconnected packet to prevent easy
-                    // disconnected attacks by spoofing disconnect message from
-                    // server.
-                    if (disconnect.IsValid())
-                    {
-                        Fail(disconnect.Message());
-                        break;
-                    }
-                }
-
                 if (PacketDelta::IsPacketDelta(packet.data))
                 {
                     myDeltaHelper.AddPacket(PacketDelta(packet.data));
@@ -380,6 +375,8 @@ void NetworkManagerClient::Fail(std::string failReason)
 
     myFailReason = failReason;
     myState = State::FailedConnection;
+
+    Logging::Log(Logging::LogLevel::Warning, failReason.c_str());
 }
 
 void NetworkManagerClient::DeltaReceive()
@@ -471,7 +468,7 @@ void NetworkManagerClient::DeltaSend()
     }
     else
     {
-        Logging::Log(Logging::LogLevel::Warning, "Delta distance > 255.");
+        Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
     }
 }
 
