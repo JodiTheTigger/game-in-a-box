@@ -26,6 +26,7 @@
 #include <memory>
 #include <array>
 
+#include "Common/Logging/Logging.hpp"
 #include "Common/IStateManager.hpp"
 #include "Common/BitStream.hpp"
 #include "Common/BitStreamReadOnly.hpp"
@@ -41,6 +42,7 @@
 using std::string;
 using namespace std::chrono;
 using namespace GameInABox::Common::Network;
+using namespace GameInABox::Common::Logging;
 
 NetworkManagerClient::NetworkManagerClient(
         std::vector<std::unique_ptr<INetworkProvider>> networks,
@@ -467,7 +469,10 @@ void NetworkManagerClient::DeltaSend()
         // send
         myConnectedNetwork->Send(packets);
     }
-    // RAM: TODO: else {Error Message in debug}
+    else
+    {
+        Logging::Log(Logging::LogLevel::Warning, "Delta distance > 255.");
+    }
 }
 
 

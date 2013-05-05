@@ -154,6 +154,7 @@ unique_ptr<vector<uint8_t>> BitStream::TakeBuffer()
     myBitIndexWrite = 0;
     myCurrentBitCount = 0;
     myBuffer.reset(new vector<uint8_t>());
+    Reset(*myBuffer);
 
     return move(result);
 }
