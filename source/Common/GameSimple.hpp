@@ -33,22 +33,22 @@ public:
     virtual ~GameSimple() {};
     
 private:
-    IStateManager::ClientHandle* PrivateConnect(
+    ClientHandle PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,
             std::string& failReason) override;
 
-    void PrivateDisconnect(ClientHandle* playerToDisconnect) override;
+    void PrivateDisconnect(ClientHandle playerToDisconnect) override;
         
     virtual void PrivateDeltaGet(
-            const ClientHandle& client,
+            ClientHandle client,
             Sequence& tickTo,
             Sequence& tickFrom,
             Sequence lastTickAcked,
             BitStream& result) const override;
 
     virtual void PrivateDeltaSet(
-            const ClientHandle& client,
+            ClientHandle client,
             Sequence tickTo,
             Sequence tickFrom,
             BitStreamReadOnly& source) override;

@@ -74,7 +74,7 @@ private:
     uint32_t myServerKey;
     std::array<uint8_t,4> myServerKeyAsABuffer;
     boost::asio::ip::udp::endpoint myServerAddress;
-    IStateManager::ClientHandle* myStateHandle;
+    ClientHandle myStateHandle;
     std::string myFailReason;
     uint16_t myClientId;
 

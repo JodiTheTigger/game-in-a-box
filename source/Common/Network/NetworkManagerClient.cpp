@@ -55,7 +55,7 @@ NetworkManagerClient::NetworkManagerClient(
     , myServerKey(0)
     , myServerKeyAsABuffer()
     , myServerAddress()
-    , myStateHandle(nullptr)
+    , myStateHandle()
     , myFailReason()
     , myClientId(0)
     , myDeltaHelper()
@@ -88,7 +88,7 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     myConnectedNetwork = nullptr;
     myServerKey = 0;
     myServerAddress = serverAddress;
-    myStateHandle = nullptr;
+    myStateHandle = ClientHandle();
     myFailReason = "";
 
     myLastSequenceProcessed = Sequence(0);
@@ -219,7 +219,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
                         {
                             bool failed;
                             string failReason;
-                            IStateManager::ClientHandle* handle;
+                            ClientHandle handle;
 
                             handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
 
@@ -418,7 +418,7 @@ void NetworkManagerClient::DeltaReceive()
             // Pass to gamestate (which will decompress the delta itself).
             BitStreamReadOnly payloadBitstream(payload);
             myStateManager.DeltaSet(
-                *myStateHandle,
+                myStateHandle,
                 delta.GetSequence().Value(),
                 delta.GetSequenceBase().Value(),
                 payloadBitstream);
@@ -437,7 +437,7 @@ void NetworkManagerClient::DeltaSend()
     Sequence to;
 
     myStateManager.DeltaGet(
-                *myStateHandle,
+                myStateHandle,
                 to,
                 from,
                 myLastSequenceAcked,

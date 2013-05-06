@@ -139,6 +139,7 @@ source/Common/WrappingCounter.hpp
 source/Common/BitStreamReadOnly.cpp
 source/Common/IReflected.cpp
 source/Common/IStateManager.cpp
+source/Common/ClientHandle.hpp
 source/Common/Huffman.cpp
 source/Common/RollingStatistics.cpp
 source/Common/BitStream.cpp
@@ -152,6 +153,7 @@ source/Common/ReflectionManager.hpp
 source/Common/RollingStatistics.hpp
 source/Common/BitStreamReadOnly.hpp
 source/Common/IReflected.hpp
+source/Common/Sequence.hpp
 )
 
 set(COMMON_SOURCE_NETWORK

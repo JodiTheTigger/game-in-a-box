@@ -27,7 +27,8 @@
 #include <array>
 #include "BuildMacros.hpp"
 
-#include "WrappingCounter.hpp"
+#include "Sequence.hpp"
+#include "ClientHandle.hpp"
 
 namespace GameInABox { namespace Common {
 
@@ -35,40 +36,27 @@ namespace GameInABox { namespace Common {
 class BitStream;
 class BitStreamReadOnly;
 
-// RAM: Where to put this? Not here as DeltaPacket.h uses it! Need types header!
-using Sequence = WrappingCounter<uint16_t>;
-
-// RAM: TODO! Convert to NVI!
 class IStateManager
 {
     CLASS_NOCOPY_ASSIGN_MOVE(IStateManager);
     
 public:
-    // RAM: TODO! Not an interface if it has a sub class, move out
-    // but put into same namespace.
-    // RAM: TODO! namespaces.
-    class ClientHandle
-    {
-    protected:
-        ~ClientHandle() {};
-    };
-
     IStateManager() {};
 
     std::array<uint64_t, 256>& GetHuffmanFrequencies() const;
 
-    ClientHandle* Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
-    void Disconnect(ClientHandle* toDisconnect);
+    ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
+    void Disconnect(ClientHandle toDisconnect);
 
     void DeltaGet(
-            const ClientHandle& client,
+            ClientHandle client,
             Sequence& tickTo,
             Sequence& tickFrom,
             Sequence lastTickAcked,
             BitStream& result) const;
 
     void DeltaSet(
-            const ClientHandle& client,
+            ClientHandle client,
             Sequence tickTo,
             Sequence tickFrom,
             BitStreamReadOnly& source);
@@ -78,15 +66,15 @@ protected:
     ~IStateManager();
     
 private:
-    virtual IStateManager::ClientHandle* PrivateConnect(
+    virtual ClientHandle PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,
             std::string& failReason) = 0;
 
-    virtual void PrivateDisconnect(ClientHandle* playerToDisconnect) = 0;
+    virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;
     
     virtual void PrivateDeltaGet(
-            const ClientHandle& client,
+            ClientHandle client,
             Sequence& tickTo,
             Sequence& tickFrom,
             Sequence lastTickAcked,
@@ -94,7 +82,7 @@ private:
 
     // may be ignored by the game state or not, we don't care.
     virtual void PrivateDeltaSet(
-            const ClientHandle& client,
+            ClientHandle client,
             Sequence tickTo,
             Sequence tickFrom,
             BitStreamReadOnly& source) = 0;
