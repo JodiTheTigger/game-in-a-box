@@ -167,10 +167,10 @@ PacketDelta::PacketDelta(
                     // it's a fragment!
                     myBuffer[OffsetSequence] |= MaskTopByteIsFragmented;
 
-                    std::copy(
+                    myBuffer.insert(
+                        myBuffer.end(),
                         toFragment.myBuffer.begin() + start,
-                        toFragment.myBuffer.begin() + start + count,
-                        back_inserter(myBuffer));
+                        toFragment.myBuffer.begin() + start + count);
                 }
             }
         }
@@ -239,10 +239,10 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
                             break;
                         }
 
-                        std::copy(
+                        buffer.insert(
+                            buffer.end(),
                             fragment->myBuffer.begin() + OffsetFragmentPayload,
-                            fragment->myBuffer.end(),
-                            back_inserter(buffer));
+                            fragment->myBuffer.end());
 
                         // last fragment id?
                         if (fragment->IsLastFragment())
