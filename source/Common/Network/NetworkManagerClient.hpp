@@ -54,6 +54,7 @@ public:
     virtual ~NetworkManagerClient();
 
 private:
+    static const uint64_t MaxPacketSizeInBytes{65535};
     static constexpr uint8_t HandshakeRetries{5};
     static constexpr std::chrono::milliseconds HandshakeRetryPeriod{1000};
 

@@ -431,8 +431,7 @@ void NetworkManagerClient::DeltaReceive()
 
 void NetworkManagerClient::DeltaSend()
 {
-    // RAM: TODO: How to find max size in advance?
-    BitStream payloadBitstream(65535);
+    BitStream payloadBitstream(MaxPacketSizeInBytes);
     Sequence from;
     Sequence to;
 
@@ -443,32 +442,40 @@ void NetworkManagerClient::DeltaSend()
                 myLastSequenceAcked,
                 payloadBitstream);
 
-    // ignore if the delta distance is greater than 255, as we
-    // store the distance as a byte.
-    uint16_t distance(to - from);
-    if (distance < 256)
+    if (payloadBitstream.SizeInBytes() <= MaxPacketSizeInBytes)
     {
-        PacketDelta delta(
-                from,
-                myLastSequenceProcessed,
-                uint8_t(distance),
-                &myClientId,
-                *(payloadBitstream.TakeBuffer()));
-
-        // Fragment (if needed)
-        std::vector<NetworkPacket> packets;
-        auto fragments(PacketDeltaFragmentManager::FragmentPacket(delta));
-        for (auto& fragment : fragments)
+        // ignore if the delta distance is greater than 255, as we
+        // store the distance as a byte.
+        uint16_t distance(to - from);
+        if (distance < 256)
         {
-            packets.emplace_back(fragment.TakeBuffer(), myServerAddress);
-        }
+            PacketDelta delta(
+                    from,
+                    myLastSequenceProcessed,
+                    uint8_t(distance),
+                    &myClientId,
+                    *(payloadBitstream.TakeBuffer()));
 
-        // send
-        myConnectedNetwork->Send(packets);
+            // Fragment (if needed)
+            std::vector<NetworkPacket> packets;
+            auto fragments(PacketDeltaFragmentManager::FragmentPacket(delta));
+            for (auto& fragment : fragments)
+            {
+                packets.emplace_back(fragment.TakeBuffer(), myServerAddress);
+            }
+
+            // send
+            myConnectedNetwork->Send(packets);
+        }
+        else
+        {
+            Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
+        }
     }
     else
     {
-        Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
+        // Gamestate should realise that packets are too big and make them smaller instead.
+        Logging::Log(Logging::LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
     }
 }
 
