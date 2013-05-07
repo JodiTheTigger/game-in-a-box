@@ -27,9 +27,11 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class MockINetworkProvider : public INetworkProvider
+class MockINetworkProvider final : public INetworkProvider
 {
 public:
+    ~MockINetworkProvider() noexcept(true) override {};
+
     MOCK_METHOD0(PrivateReceive, std::vector<NetworkPacket> ());
     MOCK_METHOD1(PrivateSend, void (std::vector<NetworkPacket>));
     MOCK_METHOD0(PrivateReset, void ());
