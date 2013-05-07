@@ -179,7 +179,7 @@ source/Common/Network/NetworkManagerServer.hpp
 source/Common/Network/INetworkManager.hpp
 source/Common/Network/INetworkProvider.hpp
 source/Common/Network/NetworkManagerClient.hpp
-source/Common/Network/PacketSimple.hpp
+source/Common/Network/PacketTypes.hpp
 source/Common/Network/PacketBuffer.hpp
 source/Common/Network/DeltaCoder.hpp
 source/Common/Network/DeltaCoder-Implementation.hpp

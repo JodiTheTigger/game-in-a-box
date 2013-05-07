@@ -27,9 +27,6 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// RAM: TODO! Rename to PacketTypes, fill with all the packetTypes
-// RAM: TODO! Make a Packet namespace. Remove the Packet prefix from everything.
-
 using PacketInfo            = PacketKey<Command::Info>;
 using PacketInfoResponse    = PacketBuffer<Command::InfoResponse>;
 using PacketConnect         = PacketKey<Command::Connect>;

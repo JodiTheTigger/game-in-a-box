@@ -35,7 +35,7 @@
 #include "PacketChallenge.hpp"
 #include "PacketChallengeResponse.hpp"
 #include "PacketDelta.hpp"
-#include "PacketSimple.hpp"
+#include "PacketTypes.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
 

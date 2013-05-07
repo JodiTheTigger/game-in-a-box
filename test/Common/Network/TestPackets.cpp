@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketSimple.hpp>
+#include <Common/Network/PacketTypes.hpp>
 #include <Common/Network/PacketChallenge.hpp>
 #include <Common/Network/PacketChallengeResponse.hpp>
 #include <Common/Network/PacketDelta.hpp>
