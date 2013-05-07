@@ -91,11 +91,6 @@ public:
     // Not guaranteed to be valid, make sure you include a checksum or something
     // in your payload to validate it.
     std::vector<uint8_t> GetPayload() const;
-
-    // TODO: REMOVE! Use BufferSerialisation.h instead.
-    static uint16_t GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset);
-    static void Push(std::vector<uint8_t>& buffer, uint16_t data);
-
 private:
     // No, I'm not going to use a struct to determine offsets.
     static const std::size_t OffsetSequence = 0;

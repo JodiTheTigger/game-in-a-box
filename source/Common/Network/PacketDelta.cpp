@@ -19,6 +19,7 @@
 */
 
 #include "PacketDelta.hpp"
+#include "BufferSerialisation.hpp"
 
 using namespace GameInABox::Common;
 using namespace GameInABox::Common::Network;
@@ -100,13 +101,14 @@ PacketDelta::PacketDelta(
         myBuffer.reserve(MinimumPacketSizeServer + deltaPayload.size());
     }
 
-    Push(myBuffer, sequence.Value());
-    Push(myBuffer, sequenceAck.Value());
+    auto inserter = back_inserter(myBuffer);
+    Push(inserter, sequence.Value());
+    Push(inserter, sequenceAck.Value());
     myBuffer.push_back(sequenceAckDelta);
 
     if (clientId != nullptr)
     {
-        Push(myBuffer, *clientId);
+        Push(inserter, *clientId);
     }
     else
     {
@@ -161,7 +163,7 @@ PacketDelta::PacketDelta(
                     myBuffer.reserve(count + OffsetFragmentPayload);
 
                     // write out the sequence and fragment id
-                    Push(myBuffer, toFragment.GetSequence().Value());
+                    Push(back_inserter(myBuffer), toFragment.GetSequence().Value());
                     myBuffer.push_back(fragmentId);
 
                     // it's a fragment!
@@ -210,7 +212,7 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
 
                     // copy the sequence to the buffer
                     // (IsValid() so we assume the size is > 2).
-                    Push(buffer, fragmentSequence.Value());
+                    Push(back_inserter(buffer), fragmentSequence.Value());
 
                     // verify and join.
                     for (auto& fragment : sorted)
@@ -267,7 +269,10 @@ WrappingCounter<uint16_t> PacketDelta::GetSequence() const
 {
     if (IsValid())
     {
-        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequence) & MaskSequence);
+        uint16_t rawSequence;
+        Pull(myBuffer.begin() + OffsetSequence, rawSequence);
+
+        return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
     }
     else
     {
@@ -279,7 +284,9 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceBase() const
 {
     if (IsValid())
     {
-        uint16_t base(GetUint16(myBuffer, OffsetSequenceAck) & MaskSequenceAck);
+        uint16_t base;
+        Pull(myBuffer.begin() + OffsetSequenceAck, base);
+        base &= MaskSequenceAck;
 
         return WrappingCounter<uint16_t>(base - myBuffer[OffsetDeltaBase]);
     }
@@ -293,7 +300,10 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceAck() const
 {
     if (IsValid())
     {
-        return WrappingCounter<uint16_t>(GetUint16(myBuffer, OffsetSequenceAck) & MaskSequenceAck);
+        uint16_t rawSequence;
+        Pull(myBuffer.begin() + OffsetSequenceAck, rawSequence);
+
+        return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
     }
     else
     {
@@ -359,7 +369,10 @@ uint16_t PacketDelta::ClientId() const
 {
     if (HasClientId())
     {
-        return GetUint16(myBuffer, OffsetClientId);
+        uint16_t id;
+        Pull(myBuffer.begin() + OffsetClientId, id);
+
+        return id;
     }
     else
     {
@@ -391,16 +404,4 @@ std::vector<uint8_t> PacketDelta::GetPayload() const
     {
         return std::vector<uint8_t>();
     }
-}
-
-uint16_t PacketDelta::GetUint16(const std::vector<uint8_t>& buffer, std::size_t offset)
-{
-    return (uint16_t(buffer[offset]) << 8) |  uint16_t(buffer[offset + 1]);
-}
-
-void PacketDelta::Push(std::vector<uint8_t>& buffer, uint16_t data)
-{
-    // sets the iterator before incrementing it.
-    buffer.push_back(uint8_t(data >> 8));
-    buffer.push_back(uint8_t(data & 0xFF));
 }
