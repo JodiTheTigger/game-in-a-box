@@ -47,6 +47,7 @@ public:
 
     ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
     void Disconnect(ClientHandle toDisconnect);
+    bool IsConnected(ClientHandle client) const;
 
     void DeltaGet(
             ClientHandle client,
@@ -71,7 +72,8 @@ private:
             bool& fail,
             std::string& failReason) = 0;
 
-    virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;
+    virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;    
+    virtual bool PrivateIsConnected(ClientHandle client) const = 0;
     
     virtual void PrivateDeltaGet(
             ClientHandle client,

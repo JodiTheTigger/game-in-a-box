@@ -39,6 +39,7 @@ private:
             std::string& failReason) override;
 
     void PrivateDisconnect(ClientHandle playerToDisconnect) override;
+    bool PrivateIsConnected(ClientHandle client) const override;
         
     virtual void PrivateDeltaGet(
             ClientHandle client,

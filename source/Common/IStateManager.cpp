@@ -42,6 +42,11 @@ void IStateManager::Disconnect(ClientHandle toDisconnect)
     PrivateDisconnect(toDisconnect);
 }
 
+bool IStateManager::IsConnected(ClientHandle client) const
+{
+    return PrivateIsConnected(client);
+}
+
 void IStateManager::DeltaGet(
         ClientHandle client,
         Sequence& tickTo,

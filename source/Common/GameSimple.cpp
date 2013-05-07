@@ -37,6 +37,12 @@ void GameSimple::PrivateDisconnect(ClientHandle)
     // RAM: TODO
 }
 
+bool GameSimple::PrivateIsConnected(ClientHandle) const
+{
+    // RAM: TODO
+    return false;
+}
+
 
 void GameSimple::PrivateDeltaGet(
         ClientHandle,

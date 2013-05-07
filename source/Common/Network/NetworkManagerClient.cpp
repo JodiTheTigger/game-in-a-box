@@ -279,18 +279,27 @@ void NetworkManagerClient::PrivateProcessIncomming()
         {
             // Cannot get disconnected unless the gamestate tells us to.
             // That is, ignore disconnect state packets.
-            auto packets = myConnectedNetwork->Receive();
-
-            for (auto& packet : packets)
+            if (myStateManager.IsConnected(myStateHandle))
             {
-                if (PacketDelta::IsPacketDelta(packet.data))
-                {
-                    myDeltaHelper.AddPacket(PacketDelta(packet.data));
-                }
-            }
+                auto packets = myConnectedNetwork->Receive();
 
-            // Do the work :-)
-            DeltaReceive();
+                for (auto& packet : packets)
+                {
+                    if (PacketDelta::IsPacketDelta(packet.data))
+                    {
+                        myDeltaHelper.AddPacket(PacketDelta(packet.data));
+                    }
+                }
+
+                // Do the work :-)
+                DeltaReceive();
+            }
+            else
+            {
+                // No longer connected, quit out.
+                // RAM: TODO! Need way of telling the server this too!
+                Fail("State is no longer connected.");
+            }
 
             break;
         }
@@ -376,7 +385,7 @@ void NetworkManagerClient::Fail(std::string failReason)
     myFailReason = failReason;
     myState = State::FailedConnection;
 
-    Logging::Log(Logging::LogLevel::Warning, failReason.c_str());
+    Logging::Log(Logging::LogLevel::Notice, failReason.c_str());
 }
 
 void NetworkManagerClient::DeltaReceive()
