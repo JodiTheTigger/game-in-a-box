@@ -96,6 +96,8 @@ TEST_F(TestNetworkProviderSynchronous, Ip4Flush)
 TEST_F(TestNetworkProviderSynchronous, Ip4FlushWhenDisabled)
 {
     myIpv4.Disable();
+
+    // no exceptions please.
     myIpv4.Flush();
 }
 
