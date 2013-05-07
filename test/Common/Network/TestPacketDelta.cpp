@@ -24,8 +24,6 @@
 using namespace std;
 using GameInABox::Common::WrappingCounter;
 
-// RAM: TODO! Copy, assignment and move tests.
-
 namespace GameInABox { namespace Common { namespace Network {
 
 // Class definition!
@@ -42,36 +40,54 @@ public:
     {
     }
 
-    // RAM: TODO! Only need to test this once! Remove!
-    // One test, one assert (to a degree). It's bad
-    // unit tests that test more than one thing in a test
-    // as it's already tested, and makes changing the code
-    // a pain as you have to change some many tests instead of one.
-    void TestEmpty(const PacketDelta& toTest)
-    {
-        EXPECT_FALSE(toTest.IsValid());
-
-        EXPECT_FALSE(toTest.IsFragmented());
-        EXPECT_FALSE(toTest.IsLastFragment());
-        EXPECT_EQ(0, toTest.FragmentId());
-        EXPECT_EQ(0, toTest.Size());
-
-        EXPECT_FALSE(toTest.HasClientId());
-        EXPECT_EQ(0, toTest.GetSequence());
-        EXPECT_EQ(0, toTest.GetSequenceAck());
-        EXPECT_EQ(0, toTest.GetSequenceBase());
-        EXPECT_EQ(0, toTest.GetPayload().size());
-    }
-
     PacketDelta delta8BytePayloadServer;
 };
 
 TEST_F(TestPacketDelta, Empty)
 {
-    PacketDelta empty;
+    PacketDelta toTest;
 
-    TestEmpty(empty);
-    EXPECT_EQ(0, empty.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_FALSE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
+    EXPECT_EQ(0, toTest.Size());
+
+    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_EQ(0, toTest.GetSequence());
+    EXPECT_EQ(0, toTest.GetSequenceAck());
+    EXPECT_EQ(0, toTest.GetSequenceBase());
+    EXPECT_EQ(0, toTest.GetPayload().size());
+    EXPECT_EQ(0, toTest.TakeBuffer().size());
+}
+
+TEST_F(TestPacketDelta, TestCopy)
+{
+    PacketDelta toTest(delta8BytePayloadServer);
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+
+TEST_F(TestPacketDelta, TestAssignCopy)
+{
+    PacketDelta toTest = delta8BytePayloadServer;
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+
+TEST_F(TestPacketDelta, TestMoveAssign)
+{
+    PacketDelta toTest = std::move(delta8BytePayloadServer);
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_FALSE(delta8BytePayloadServer.IsValid());
+}
+
+TEST_F(TestPacketDelta, TestMoveCopy)
+{
+    PacketDelta toTest(std::move(delta8BytePayloadServer));
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_FALSE(delta8BytePayloadServer.IsValid());
 }
 
 TEST_F(TestPacketDelta, TakeBuffer)
@@ -87,8 +103,6 @@ TEST_F(TestPacketDelta, TakeBuffer)
 
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_EQ(7, toTest.TakeBuffer().size());
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
 }
 
 TEST_F(TestPacketDelta, NoDataClient)
@@ -249,16 +263,14 @@ TEST_F(TestPacketDelta, FragmentEmpty)
 {
     PacketDelta toTest(PacketDelta(), 0, 0);
 
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, FragmentIdPastEnd)
 {
     PacketDelta toTest(delta8BytePayloadServer, 4, 100);
 
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, FragmentNotFragmented)
@@ -298,8 +310,7 @@ TEST_F(TestPacketDelta, DefragmentEmpty)
     auto buffer = std::vector<PacketDelta>();
     PacketDelta toTest(buffer);
 
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, DefragmentSingleNotFragmented)
@@ -308,8 +319,7 @@ TEST_F(TestPacketDelta, DefragmentSingleNotFragmented)
 
     PacketDelta toTest(buffer);
 
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, DefragmentMultipleNotFragmented)
@@ -318,8 +328,7 @@ TEST_F(TestPacketDelta, DefragmentMultipleNotFragmented)
 
     PacketDelta toTest(buffer);
 
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, DefragmentTooMany)
@@ -330,16 +339,14 @@ TEST_F(TestPacketDelta, DefragmentTooMany)
 
     PacketDelta toTest(buffer);
 
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, DefragmentTooBig)
 {
     PacketDelta toTest({2,4,6,nullptr,vector<uint8_t>(1024*256, 44)}, 1500, 0);
 
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, DefragmentSimple)
@@ -408,8 +415,8 @@ TEST_F(TestPacketDelta, DefragmentSimpleMissingOne)
     }
 
     PacketDelta toTest(fragments);
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, DefragmentFragmentNoFragmentedFragments)
@@ -467,8 +474,8 @@ TEST_F(TestPacketDelta, DefragmentSequenceInterleavedNotComplete)
     }
 
     PacketDelta toTest(fragments);
-    TestEmpty(toTest);
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 }}} // namespace
