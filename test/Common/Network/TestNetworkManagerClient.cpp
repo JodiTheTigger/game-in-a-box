@@ -22,6 +22,7 @@
 
 #include <Common/Network/NetworkManagerClient.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
+#include <Common/MockIStateManager.hpp>
 
 using namespace std;
 using Bytes = std::vector<uint8_t>;
@@ -31,6 +32,17 @@ namespace GameInABox { namespace Common { namespace Network {
 // Class definition!
 class TestNetworkManagerClient : public ::testing::Test
 {
+public:
+    TestNetworkManagerClient()
+//        : ipMock1()
+//        , ipMock2()
+    {
+
+    }
+
+private:
+//    MockINetworkProvider ipMock1;
+//    MockINetworkProvider ipMock2;
 
 };
 
