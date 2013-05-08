@@ -41,8 +41,6 @@ class IStateManager
     CLASS_NOCOPY_ASSIGN_MOVE(IStateManager);
     
 public:
-    IStateManager() {};
-
     std::array<uint64_t, 256>& GetHuffmanFrequencies() const;
 
     ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
@@ -63,8 +61,12 @@ public:
             BitStreamReadOnly& source);
 
 protected:
+    IStateManager() {};
+
     // Don't delete via base class, use smart pointers or the derived pointer please.
-    ~IStateManager();
+    // RAM: TODO: Figure out once and for all how to pass smart pointers to interfaces which have
+    // protected desctrutors please. I'm getting annoyed with the non-virtual destructor warnings.
+    virtual ~IStateManager();
     
 private:
     virtual ClientHandle PrivateConnect(
