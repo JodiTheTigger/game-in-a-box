@@ -240,6 +240,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mock/)
 ADD_EXECUTABLE(
   game-in-a-box-common-tests
   ${PROJECT_SOURCE_DIR}/mock/Common/Network/MockINetworkProvider.hpp
+  ${PROJECT_SOURCE_DIR}/mock/Common/MockIStateManager.hpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestWrappingCounter.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
