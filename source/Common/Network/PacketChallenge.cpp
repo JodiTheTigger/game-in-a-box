@@ -29,7 +29,7 @@ using namespace GameInABox::Common::Network;
 const std::string PacketChallenge::ChallengeMessage = "Why, Hello there.";
 
 PacketChallenge::PacketChallenge()
-    : PacketString(PacketChallenge::ChallengeMessage)
+    : PacketBuffer(PacketChallenge::ChallengeMessage)
 {
 }
 

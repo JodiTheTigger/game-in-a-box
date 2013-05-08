@@ -21,6 +21,7 @@
 #ifndef PACKETBUFFER_H
 #define PACKETBUFFER_H
 
+#include <string>
 #include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
@@ -31,6 +32,11 @@ class PacketBuffer : public Packet
 public:
     PacketBuffer() : Packet(TheCommand) {}
     PacketBuffer(std::vector<uint8_t> buffer) : Packet(buffer) {}
+
+    PacketBuffer(std::string message) : PacketBuffer()
+    {
+        myBuffer.insert(myBuffer.end(), message.begin(), message.end());
+    }
 
     virtual ~PacketBuffer() {}
 
@@ -56,6 +62,11 @@ public:
         result.assign(myBuffer.begin() + OffsetPayload, myBuffer.end());
 
         return result;
+    }
+
+    std::string Message() const
+    {
+        return std::string(myBuffer.begin() + OffsetPayload, myBuffer.end());
     }
 
 protected:

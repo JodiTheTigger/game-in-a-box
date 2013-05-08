@@ -21,15 +21,15 @@
 #ifndef PACKETCHALLENGE_H
 #define PACKETCHALLENGE_H
 
-#include "PacketString.hpp"
+#include "PacketBuffer.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketChallenge : public PacketString<Command::Challenge>
+class PacketChallenge : public PacketBuffer<Command::Challenge>
 {
 public:
     PacketChallenge();
-    PacketChallenge(std::vector<uint8_t> buffer) : PacketString(buffer) {}
+    PacketChallenge(std::vector<uint8_t> buffer) : PacketBuffer(buffer) {}
     virtual ~PacketChallenge();
     virtual bool IsValid() const override;
 private:

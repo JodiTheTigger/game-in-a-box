@@ -25,6 +25,7 @@
 #include <gmock/gmock.h>
 
 using namespace std;
+using Bytes = std::vector<uint8_t>;
 
 namespace GameInABox { namespace Common { namespace Network {
 
@@ -165,8 +166,8 @@ TEST_F(TestPackets, SimplePacketsBuffer)
     PacketInfoResponse info;
     PacketConnectResponse connect;
 
-    PacketInfoResponse infoBuffer({0xFF, 0xFF, uint8_t(Command::InfoResponse), 0x03});
-    PacketConnectResponse connectBuffer({0xFF, 0xFF, uint8_t(Command::ConnectResponse), 0x03, 0x20});
+    PacketInfoResponse infoBuffer(Bytes{0xFF, 0xFF, uint8_t(Command::InfoResponse), 0x03});
+    PacketConnectResponse connectBuffer(Bytes{0xFF, 0xFF, uint8_t(Command::ConnectResponse), 0x03, 0x20});
 
     ASSERT_TRUE(info.IsValid());
     EXPECT_EQ(0, info.GetBuffer().size());
@@ -186,8 +187,8 @@ TEST_F(TestPackets, SimplePacketsBuffer)
 
 TEST_F(TestPackets, SimplePacketsBufferInvalid)
 {
-    PacketInfoResponse infoBuffer({0xFF, 0xFF, 42, 0x03});
-    PacketConnectResponse connectBuffer({0xFF, 0xFF, 77, 0x03, 0x20});
+    PacketInfoResponse infoBuffer(Bytes{0xFF, 0xFF, 42, 0x03});
+    PacketConnectResponse connectBuffer(Bytes{0xFF, 0xFF, 77, 0x03, 0x20});
 
     EXPECT_FALSE(infoBuffer.IsValid());
     EXPECT_FALSE(connectBuffer.IsValid());

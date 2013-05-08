@@ -23,7 +23,6 @@
 
 #include "PacketKey.hpp"
 #include "PacketBuffer.hpp"
-#include "PacketString.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
@@ -31,7 +30,7 @@ using PacketInfo            = PacketKey<Command::Info>;
 using PacketInfoResponse    = PacketBuffer<Command::InfoResponse>;
 using PacketConnect         = PacketKey<Command::Connect>;
 using PacketConnectResponse = PacketBuffer<Command::ConnectResponse>;
-using PacketDisconnect      = PacketString<Command::Disconnect>;
+using PacketDisconnect      = PacketBuffer<Command::Disconnect>;
 
 }}} // namespace
 

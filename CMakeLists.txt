@@ -171,7 +171,6 @@ source/Common/Network/PacketChallenge.cpp
 source/Common/Network/PacketDeltaFragmentManager.hpp
 source/Common/Network/PacketDelta.hpp
 source/Common/Network/PacketChallenge.hpp
-source/Common/Network/PacketString.hpp
 source/Common/Network/Packet.hpp
 source/Common/Network/PacketChallengeResponse.hpp
 source/Common/Network/PacketKey.hpp
