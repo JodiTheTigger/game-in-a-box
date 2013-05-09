@@ -37,7 +37,7 @@ namespace GameInABox { namespace Common {
 // /////////////////////
 
 // Anonymous namespace to keep it here
-namespace {
+// RAM: debug namespace {
 
 template<typename DerivedType>
 void DeleteBaseClassAsDerived(void* baseClass)
@@ -52,7 +52,8 @@ public:
     BoundDeleter(DerivedType* derived)
         : myDeleter(&DeleteBaseClassAsDerived<DerivedType>)
         , myDerivedObject(derived)
-    {}
+    {
+    }
 
     BoundDeleter(BoundDeleter&& other)
         : myDeleter(std::move(other.myDeleter))
@@ -73,19 +74,21 @@ private:
 
 };
 
-}
+// RAM: debug}
 
 // /////////////////////
 // Interface
 // /////////////////////
 template<typename BaseType>
-class MotleyUniquePointer : protected std::unique_ptr<BaseType, BoundDeleter>
+class MotleyUniquePointer final : protected std::unique_ptr<BaseType, BoundDeleter>
 {
 public:
     typedef std::unique_ptr<BaseType, BoundDeleter> Base;
 
     using Base::operator->;
     using Base::operator*;
+    using Base::operator bool;
+    using Base::get;
 
     template<typename ActualType>
     MotleyUniquePointer(ActualType* derived)
@@ -101,7 +104,7 @@ public:
 };
 
 template<typename BaseType, typename DerivedType, typename... Args>
-MotleyUniquePointer<BaseType> make_motley_unique(Args&&... args)
+MotleyUniquePointer<BaseType> make_unique_motley(Args&&... args)
 {
     return MotleyUniquePointer<BaseType>(new DerivedType(std::forward<Args>(args)...));
 }

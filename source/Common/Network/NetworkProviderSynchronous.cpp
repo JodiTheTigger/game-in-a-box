@@ -38,10 +38,6 @@ NetworkProviderSynchronous::NetworkProviderSynchronous(boost::asio::ip::udp::end
 {
 }
 
-NetworkProviderSynchronous::~NetworkProviderSynchronous() noexcept(true)
-{
-}
-
 std::vector<NetworkPacket> NetworkProviderSynchronous::PrivateReceive()
 {
     std::vector<NetworkPacket> result;

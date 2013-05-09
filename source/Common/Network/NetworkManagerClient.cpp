@@ -45,7 +45,7 @@ using namespace GameInABox::Common::Network;
 using namespace GameInABox::Common::Logging;
 
 NetworkManagerClient::NetworkManagerClient(
-        std::vector<std::unique_ptr<INetworkProvider>> networks,
+        std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
     : INetworkManager()
     , myNetworks(move(networks))

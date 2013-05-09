@@ -23,7 +23,6 @@
 
 #include <vector>
 #include <array>
-#include <memory>
 #include <chrono>
 #include <utility>
 #include <boost/asio/ip/udp.hpp>
@@ -32,6 +31,10 @@
 #include "Common/Huffman.hpp"
 #include "Common/WrappingCounter.hpp"
 #include "PacketDeltaFragmentManager.hpp"
+
+// RAM: uniqueptrmotyleyt
+#include "Common/MotleyUniquePointer.hpp"
+
 
 namespace GameInABox { namespace Common {
 class IStateManager;
@@ -45,7 +48,7 @@ class NetworkManagerClient : public INetworkManager
 
 public:
     NetworkManagerClient(
-            std::vector<std::unique_ptr<INetworkProvider>> networks,
+            std::vector<MotleyUniquePointer<INetworkProvider>> networks,
             IStateManager& stateManager);
 
     void Connect(boost::asio::ip::udp::endpoint serverAddress);
@@ -67,7 +70,7 @@ private:
         FailedConnection,
     };
 
-    std::vector<std::unique_ptr<INetworkProvider>> myNetworks;
+    std::vector<MotleyUniquePointer<INetworkProvider>> myNetworks;
     IStateManager& myStateManager;
     INetworkProvider* myConnectedNetwork;
 

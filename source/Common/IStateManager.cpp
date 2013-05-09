@@ -24,11 +24,6 @@
 
 using namespace GameInABox::Common;
 
-IStateManager::~IStateManager()
-{
-    // Nothing for now.
-}
-
 ClientHandle IStateManager::Connect(
         std::vector<uint8_t> connectData,
         bool& fail,

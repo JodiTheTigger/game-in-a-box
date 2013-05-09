@@ -37,10 +37,6 @@ public:
     {
     }
 
-    // oh, I didn't know ~ctor = default; has a signature of
-    // ~ctor() noexcept(true) {}.
-    ~NetworkProviderSynchronous() noexcept(true) override;
-
 private:
     boost::asio::ip::udp::endpoint myBindAddress;
     boost::asio::io_service myIoService;

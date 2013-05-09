@@ -61,12 +61,9 @@ public:
             BitStreamReadOnly& source);
 
 protected:
-    IStateManager() {};
-
-    // Don't delete via base class, use smart pointers or the derived pointer please.
-    // RAM: TODO: Figure out once and for all how to pass smart pointers to interfaces which have
-    // protected desctrutors please. I'm getting annoyed with the non-virtual destructor warnings.
-    virtual ~IStateManager();
+    // Don't allow deletion or creation of the interface.
+    IStateManager()  = default;
+    ~IStateManager() = default;
     
 private:
     virtual ClientHandle PrivateConnect(

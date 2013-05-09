@@ -61,6 +61,7 @@ check_cxx_compiler_flag(-W4 HAS_W4)
 check_cxx_compiler_flag(-Wextra HAS_WEXTRA)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Werror HAS_WERROR)
+check_cxx_compiler_flag(-Wno-non-virtual-dtor HAS_IGNORE_NONVIRTUAL_DTOR)
 
 # OK, so MSVC12 is needed for c++11 but doesn't support it without the
 # November 2012 CTP as the platform tool-set.
@@ -94,7 +95,7 @@ elseif(NOT MSVC11)
     message(FATAL_ERROR "Compiler requires C++11 functionality.")
 endif()
 
-#prefer W4 over WALL for MSVC at least.
+# prefer W4 over WALL for MSVC at least.
 if (HAS_W4)
     set(PARANOID_FLAGS "${PARANOID_FLAGS} -W4")
 elseif(HAS_WALL)
@@ -105,12 +106,21 @@ if (HAS_WEXTRA)
     set(PARANOID_FLAGS "${PARANOID_FLAGS} -Wextra")
 endif()
 
-if (HAS_WEFFICENTCPLUSPLUS)
-    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Weffc++")
-endif()
+# Can't ignore "Base class has non-virtual destructor warnings :-("
+#if (HAS_WEFFICENTCPLUSPLUS)
+#    if (HAS_IGNORE_NONVIRTUAL_DTOR)
+#        set(PARANOID_FLAGS "${PARANOID_FLAGS} -Weffc++")
+#
+#        # First warning I'm ignoring
+#        # "class X has virtual functions and an accessible non-virtual destructor."
+#        # As my NVI interfaces have protected destructors it doesn't matter.
+#        # Bug 7302 - -Wnon-virtual-dtor should't complain of protected dtor
+#        set(PARANOID_FLAGS "${PARANOID_FLAGS} -Wno-non-virtual-dtor")
+#    endif()
+#endif()
 
 if (HAS_WERROR)
-    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Werror")
+    #set(PARANOID_FLAGS "${PARANOID_FLAGS} -Werror")
 endif()
 
 ###############

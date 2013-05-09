@@ -31,8 +31,6 @@ namespace GameInABox { namespace Common {
 class MockIStateManager final : public IStateManager
 {
 public:
-    ~MockIStateManager() noexcept(true) override {};
-
     MOCK_METHOD3(PrivateConnect, ClientHandle (std::vector<uint8_t>,
                                                bool&,
                                                std::string&));
