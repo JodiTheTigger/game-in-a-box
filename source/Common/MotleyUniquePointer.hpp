@@ -37,7 +37,7 @@ namespace GameInABox { namespace Common {
 // /////////////////////
 
 // Anonymous namespace to keep it here
-// RAM: debug namespace {
+namespace {
 
 template<typename DerivedType>
 void DeleteBaseClassAsDerived(void* baseClass)
@@ -74,7 +74,7 @@ private:
 
 };
 
-// RAM: debug}
+}
 
 // /////////////////////
 // Interface

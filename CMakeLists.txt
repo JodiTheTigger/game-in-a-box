@@ -120,7 +120,7 @@ endif()
 #endif()
 
 if (HAS_WERROR)
-    #set(PARANOID_FLAGS "${PARANOID_FLAGS} -Werror")
+    set(PARANOID_FLAGS "${PARANOID_FLAGS} -Werror")
 endif()
 
 ###############
