@@ -22,6 +22,12 @@
 
 using namespace GameInABox::Common;
 
+std::array<uint64_t, 256>& GameSimple::PrivateGetHuffmanFrequencies() const
+{
+    // RAM: TODO! BUILD BROKEN! FIX!
+    return std::array<uint64_t, 256>();// myFrequencies;
+}
+
 ClientHandle GameSimple::PrivateConnect(
         std::vector<uint8_t>,
         bool& fail,

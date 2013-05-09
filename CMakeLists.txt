@@ -275,8 +275,8 @@ target_link_libraries(
   game-in-a-box-common-tests
   game-in-a-box-common
   ${CMAKE_THREAD_LIBS_INIT}
-  gtest
-  gtest_main
+  gmock
+  gmock_main
   ${Boost_LIBRARIES})
   
 add_test(

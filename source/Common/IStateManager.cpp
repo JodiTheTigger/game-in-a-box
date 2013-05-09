@@ -24,6 +24,11 @@
 
 using namespace GameInABox::Common;
 
+std::array<uint64_t, 256>& IStateManager::GetHuffmanFrequencies() const
+{
+    return PrivateGetHuffmanFrequencies();
+}
+
 ClientHandle IStateManager::Connect(
         std::vector<uint8_t> connectData,
         bool& fail,

@@ -33,6 +33,10 @@ public:
     virtual ~GameSimple() {};
     
 private:
+    std::array<uint64_t, 256> myFrequencies;
+
+    std::array<uint64_t, 256>& PrivateGetHuffmanFrequencies() const override;
+
     ClientHandle PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,

@@ -30,6 +30,7 @@
 #include "Common/IStateManager.hpp"
 #include "Common/BitStream.hpp"
 #include "Common/BitStreamReadOnly.hpp"
+
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
 #include "PacketChallenge.hpp"

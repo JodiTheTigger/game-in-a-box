@@ -34,21 +34,22 @@ class TestNetworkManagerClient : public ::testing::Test
 {
 public:
     TestNetworkManagerClient()
-//        : ipMock1()
-//        , ipMock2()
+        : ipMock1()
+        , ipMock2()
+        , stateMock()
     {
 
     }
 
-private:
-//    MockINetworkProvider ipMock1;
-//    MockINetworkProvider ipMock2;
+    MockINetworkProvider ipMock1;
+    MockINetworkProvider ipMock2;
+    MockIStateManager stateMock;
 
 };
 
-TEST_F(TestNetworkManagerClient, TODO)
+TEST_F(TestNetworkManagerClient, CreateNoNet)
 {
-    // TODO!
+    // RAM: TODO NetworkManagerClient({}, stateMock);
 }
 
 }}} // namespace

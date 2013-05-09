@@ -26,20 +26,18 @@
 #include <chrono>
 #include <utility>
 #include <boost/asio/ip/udp.hpp>
+
 #include "INetworkManager.hpp"
+
 #include "Common/IStateManager.hpp"
 #include "Common/Huffman.hpp"
 #include "Common/WrappingCounter.hpp"
-#include "PacketDeltaFragmentManager.hpp"
-
-// RAM: uniqueptrmotyleyt
 #include "Common/MotleyUniquePointer.hpp"
 
+#include "PacketDeltaFragmentManager.hpp"
 
-namespace GameInABox { namespace Common {
-class IStateManager;
 
-namespace Network {
+namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
 
 class NetworkManagerClient : public INetworkManager

@@ -66,6 +66,8 @@ protected:
     ~IStateManager() = default;
     
 private:
+    virtual std::array<uint64_t, 256>& PrivateGetHuffmanFrequencies() const = 0;
+
     virtual ClientHandle PrivateConnect(
             std::vector<uint8_t> connectData,
             bool& fail,
