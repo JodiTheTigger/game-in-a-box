@@ -41,7 +41,7 @@ class IStateManager
     CLASS_NOCOPY_ASSIGN_MOVE(IStateManager);
     
 public:
-    std::array<uint64_t, 256>& GetHuffmanFrequencies() const;
+    std::array<uint64_t, 256> GetHuffmanFrequencies() const;
 
     ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
     void Disconnect(ClientHandle toDisconnect);
@@ -66,7 +66,7 @@ protected:
     ~IStateManager() = default;
     
 private:
-    virtual std::array<uint64_t, 256>& PrivateGetHuffmanFrequencies() const = 0;
+    virtual std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const = 0;
 
     virtual ClientHandle PrivateConnect(
             std::vector<uint8_t> connectData,

@@ -24,7 +24,7 @@
 
 using namespace GameInABox::Common;
 
-std::array<uint64_t, 256>& IStateManager::GetHuffmanFrequencies() const
+std::array<uint64_t, 256> IStateManager::GetHuffmanFrequencies() const
 {
     return PrivateGetHuffmanFrequencies();
 }

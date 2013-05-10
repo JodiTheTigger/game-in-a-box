@@ -33,7 +33,7 @@ class MockIStateManager final : public IStateManager
 public:    
     typedef std::array<uint64_t, 256> frequencyArray;
 
-    MOCK_CONST_METHOD0(PrivateGetHuffmanFrequencies, frequencyArray& ());
+    MOCK_CONST_METHOD0(PrivateGetHuffmanFrequencies, frequencyArray ());
 
     MOCK_METHOD3(PrivateConnect, ClientHandle (std::vector<uint8_t>,
                                                bool&,
