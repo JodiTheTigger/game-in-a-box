@@ -49,7 +49,11 @@ public:
 
 TEST_F(TestNetworkManagerClient, CreateNoNet)
 {
-    NetworkManagerClient({}, stateMock);
+    //std::array<uint64_t, 256> frequencies;
+
+
+
+    //NetworkManagerClient({}, stateMock);
 }
 
 }}} // namespace
