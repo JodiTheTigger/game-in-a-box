@@ -49,7 +49,7 @@ public:
 
 TEST_F(TestNetworkManagerClient, CreateNoNet)
 {
-    // RAM: TODO NetworkManagerClient({}, stateMock);
+    NetworkManagerClient({}, stateMock);
 }
 
 }}} // namespace

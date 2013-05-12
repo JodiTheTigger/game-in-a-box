@@ -57,7 +57,12 @@ public:
 private:
     static const uint64_t MaxPacketSizeInBytes{65535};
     static constexpr uint8_t HandshakeRetries{5};
-    static constexpr std::chrono::milliseconds HandshakeRetryPeriod{1000};
+
+    // RAM: TODO: Is there no other way to do this as opposed to being a function?
+    static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
+    {
+        return std::chrono::milliseconds{1000};
+    }
 
     enum class State
     {

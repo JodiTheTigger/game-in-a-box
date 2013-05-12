@@ -341,7 +341,7 @@ void NetworkManagerClient::PrivateSendState()
             {
                 auto sinceLastPacket = steady_clock::now() - myLastPacketSent;
 
-                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod)
+                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
                     // send challenge packet please.
                     if (myState == State::Challenging)
