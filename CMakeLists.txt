@@ -201,6 +201,7 @@ source/Common/Network/NetworkProviderSynchronous.hpp
 
 set(COMMON_SOURCE_LOGGING
 source/Common/Logging/Logging.hpp
+source/Common/Logging/Logging.cpp
 )
 
 ###############

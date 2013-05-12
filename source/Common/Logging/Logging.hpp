@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef LOGGING_HPP
-#define LOGGING_HPP
+#ifndef ARGH_LOGGING_HPP
+#define ARGH_LOGGING_HPP
 
 namespace GameInABox { namespace Common { namespace Logging {
 
@@ -52,13 +52,11 @@ enum class LogLevel
     Critical
 };
 
-
-
-void Log(LogLevel, ...)
-{
-  // Ignore for now, this is just an api.
-}
+// Eh, for some reason I cannot have the body in the header file?
+// For some reason the include guards don't work and I get multiple
+// defintion warnings.
+void Log(LogLevel, ...);
 
 }}};
 
-#endif // LOGGING_HPP
+#endif // ARGH_LOGGING_HPP
