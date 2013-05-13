@@ -59,7 +59,11 @@ TEST_F(TestNetworkManagerClient, CreateNoNet)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(frequencies));
 
-    NetworkManagerClient({}, stateMock);
+    NetworkManagerClient toTest({}, stateMock);
+
+    EXPECT_FALSE(toTest.IsConnected());
+    EXPECT_FALSE(toTest.HasFailed());
+    EXPECT_EQ("", toTest.FailReason());
 }
 
 TEST_F(TestNetworkManagerClient, CreateTwoNet)
@@ -68,7 +72,6 @@ TEST_F(TestNetworkManagerClient, CreateTwoNet)
 
     networks.push_back(std::move(ipMock1));
     networks.push_back(std::move(ipMock2));
-
 
     // right, what do we expect?
     EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
