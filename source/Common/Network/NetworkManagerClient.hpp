@@ -52,13 +52,27 @@ public:
     void Connect(boost::asio::ip::udp::endpoint serverAddress);
     void Disconnect();
 
+    bool IsConnected() const
+    {
+        return myState == State::Connected;
+    }
+
+    bool HasFailed() const
+    {
+        return myState == State::FailedConnection;
+    }
+
+    std::string FailReason() const
+    {
+        return myFailReason;
+    }
+
     virtual ~NetworkManagerClient();
 
 private:
     static const uint64_t MaxPacketSizeInBytes{65535};
     static constexpr uint8_t HandshakeRetries{5};
 
-    // RAM: TODO: Is there no other way to do this as opposed to being a function?
     static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
     {
         return std::chrono::milliseconds{1000};
