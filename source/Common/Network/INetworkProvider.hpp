@@ -41,7 +41,7 @@ public:
     // Non blocking, can return empty array.
     std::vector<NetworkPacket> Receive();
     
-    // Adds the packets to the send queue. consumes the data (move()), non-blocking.
+    // Adds the packets to the send queue. Non-blocking.
     // Will ignore packets that are the wrong type (ipv4 send for ip6 provider).
     void Send(std::vector<NetworkPacket> packets);
 
