@@ -168,6 +168,8 @@ source/Common/MotleyUniquePointer.hpp
 )
 
 set(COMMON_SOURCE_NETWORK
+source/Common/Network/NetworkStateServer.cpp
+source/Common/Network/NetworkStateServer.hpp
 source/Common/Network/BufferSerialisation.hpp
 source/Common/Network/DeltaMapItem.hpp
 source/Common/Network/XorCode.hpp
@@ -269,7 +271,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/TestBitStreamReadOnly.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestBitStream.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestAutoComplete.cpp)
-  
+
 set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
 
 target_link_libraries(
