@@ -21,11 +21,13 @@
 #ifndef NETWORKMANAGERCLIENT_H
 #define NETWORKMANAGERCLIENT_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <array>
 #include <chrono>
 #include <utility>
 #include <boost/asio/ip/udp.hpp>
+#endif
 
 #include "INetworkManager.hpp"
 

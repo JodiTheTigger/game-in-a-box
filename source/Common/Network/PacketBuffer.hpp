@@ -21,7 +21,10 @@
 #ifndef PACKETBUFFER_H
 #define PACKETBUFFER_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <string>
+#endif
+
 #include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {

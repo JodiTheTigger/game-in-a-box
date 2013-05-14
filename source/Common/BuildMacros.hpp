@@ -25,6 +25,7 @@
 // Effective c++: don't use macros when the compiler can do it. Remove this macro
 // and use a baseclass where the copy and assign operator is private (or was that protected, can't remember).
 // HOWEVER! Weffc++ doesn't pick up on that so throws warnings. This macro is staying.
+// RAM: TODO: I've removed Weffc++ because of false positives, plesae revisit.
 #define CLASS_NOCOPY_ASSIGN_MOVE(CLASSNAME) private: \
     CLASSNAME(const CLASSNAME &) = delete; \
     CLASSNAME &operator=(const CLASSNAME &) = delete; \

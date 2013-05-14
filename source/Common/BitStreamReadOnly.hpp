@@ -21,10 +21,12 @@
 #ifndef BITSTREAMREADONLY_H
 #define BITSTREAMREADONLY_H
 
-#include "BuildMacros.hpp"
-
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
+#endif
+
+#include "BuildMacros.hpp"
 
 namespace GameInABox { namespace Common {
 

@@ -20,11 +20,13 @@
 
 #include "NetworkManagerClient.hpp"
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <string>
 #include <chrono>
 #include <vector>
 #include <memory>
 #include <array>
+#endif
 
 #include "Common/Logging/Logging.hpp"
 #include "Common/IStateManager.hpp"

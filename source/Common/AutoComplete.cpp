@@ -20,7 +20,9 @@
 
 #include "AutoComplete.hpp"
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <algorithm>
+#endif
 
 using namespace std;
 using namespace GameInABox::Common;

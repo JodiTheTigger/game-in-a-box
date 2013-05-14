@@ -21,10 +21,12 @@
 #ifndef NETWORKMANAGERSERVER_H
 #define NETWORKMANAGERSERVER_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <map>
 #include <boost/asio/ip/udp.hpp>
+#endif
 
 #include "INetworkManager.hpp"
 #include "NetworkPacket.hpp"

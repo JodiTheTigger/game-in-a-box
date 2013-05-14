@@ -21,7 +21,9 @@
 #ifndef MAKEUNIQUE_H
 #define MAKEUNIQUE_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
+#endif
 
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args)

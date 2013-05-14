@@ -21,9 +21,11 @@
 #ifndef ROLLINGSTATISTICS_H
 #define ROLLINGSTATISTICS_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <memory>
 #include <deque>
+#endif
 
 #include "BuildMacros.hpp"
 

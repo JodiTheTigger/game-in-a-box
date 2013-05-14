@@ -21,8 +21,10 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
+#endif
 
 namespace GameInABox { namespace Common { namespace Network {
 

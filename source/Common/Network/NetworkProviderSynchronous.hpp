@@ -21,8 +21,11 @@
 #ifndef NetworkProviderSynchronous_H
 #define NetworkProviderSynchronous_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
 #include <boost/asio.hpp>
+#endif
+
 #include "INetworkProvider.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {

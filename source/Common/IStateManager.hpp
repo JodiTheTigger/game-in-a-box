@@ -21,10 +21,13 @@
 #ifndef ISTATEMANAGER_H
 #define ISTATEMANAGER_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <string>
 #include <array>
+#endif
+
 #include "BuildMacros.hpp"
 
 #include "Sequence.hpp"

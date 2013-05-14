@@ -20,8 +20,10 @@
 
 #include "PacketChallenge.hpp"
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <string>
 #include <iterator>
+#endif
 
 using namespace std;
 using namespace GameInABox::Common::Network;

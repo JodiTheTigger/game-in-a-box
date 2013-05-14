@@ -18,10 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RollingStatistics.hpp"
+#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#endif
+
+#include "RollingStatistics.hpp"
 
 // RAM: TODO! ARGH! MSVC WART! Need to have a pre-compiled header to put all the warts into
 // but for now, this will have to do.

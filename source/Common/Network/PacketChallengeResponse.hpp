@@ -21,7 +21,9 @@
 #ifndef PACKETCHALLENGERESPONSE_H
 #define PACKETCHALLENGERESPONSE_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
+#endif
 
 #include "PacketKey.hpp"
 

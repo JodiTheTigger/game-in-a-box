@@ -21,10 +21,12 @@
 #ifndef NETWORKPACKET_H
 #define NETWORKPACKET_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <memory>
 #include <boost/asio/ip/udp.hpp>
+#endif
 
 #include "Common/BuildMacros.hpp"
 

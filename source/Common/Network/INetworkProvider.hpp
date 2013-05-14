@@ -21,7 +21,10 @@
 #ifndef NETWORKPROVIDER_H
 #define NETWORKPROVIDER_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
+#endif
+
 #include "NetworkPacket.hpp"
 #include "Common/BuildMacros.hpp"
 

@@ -21,10 +21,12 @@
 #ifndef PACKETDELTA_H
 #define PACKETDELTA_H
 
+#ifndef USING_PRECOMPILED_HEADERS
+#include <vector>
+#endif
+
 #include "Common/WrappingCounter.hpp"
 #include "Packet.hpp"
-
-#include <vector>
 
 namespace GameInABox { namespace Common { namespace Network {
 

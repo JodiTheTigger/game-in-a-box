@@ -21,8 +21,10 @@
 #ifndef INETWORKMANAGER_H
 #define INETWORKMANAGER_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
 #include <vector>
+#endif
 
 #include "Common/BuildMacros.hpp"
 

@@ -21,7 +21,10 @@
 #ifndef PACKETDELTAFRAGENTMANAGER_H
 #define PACKETDELTAFRAGENTMANAGER_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
+#endif
+
 #include "PacketDelta.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {

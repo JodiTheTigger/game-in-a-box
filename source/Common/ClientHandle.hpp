@@ -21,6 +21,10 @@
 #ifndef CLIENTHANDLE_HPP
 #define CLIENTHANDLE_HPP
 
+#ifndef USING_PRECOMPILED_HEADERS
+#include <cstdint>
+#endif
+
 namespace GameInABox { namespace Common {
 
 struct ClientHandle

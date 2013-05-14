@@ -20,7 +20,9 @@
 
 #include "IReflected.hpp"
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <utility>
+#endif
 
 using namespace GameInABox::Common;
 

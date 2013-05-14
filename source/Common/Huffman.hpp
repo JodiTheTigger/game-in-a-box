@@ -21,10 +21,12 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <array>
 #include <memory>
+#endif
 
 namespace GameInABox { namespace Common {
 

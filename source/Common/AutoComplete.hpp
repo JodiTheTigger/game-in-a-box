@@ -21,11 +21,13 @@
 #ifndef AUTOCOMPLETE_H
 #define AUTOCOMPLETE_H
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <string>
 #include <memory>
 #include <queue>
 #include <deque>
+#endif
 
 namespace GameInABox { namespace Common {
 

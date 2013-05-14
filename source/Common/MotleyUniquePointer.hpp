@@ -21,7 +21,9 @@
 #ifndef MOTLEYUNIQUEPOINTER_HPP
 #define MOTLEYUNIQUEPOINTER_HPP
 
+#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
+#endif
 
 namespace GameInABox { namespace Common {
 
