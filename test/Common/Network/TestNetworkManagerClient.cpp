@@ -25,6 +25,13 @@
 #include <Common/MockIStateManager.hpp>
 #include <Common/MotleyUniquePointer.hpp>
 
+// NOTE:
+// This only tests the class for valid state.
+// I'm not testing the process, or the data the mocks
+// are getting or setting.
+// I'm not testing timeouts due to the general rule of:
+// units test should take more than 250ms to complete.
+
 using namespace std;
 using Bytes = std::vector<uint8_t>;
 
