@@ -32,6 +32,7 @@ class IStateManager;
 
 namespace Network {
 class NetworkPacket;
+enum class State;
 
 // Handles the connection handshake and failures for a server.
 class NetworkStateServer
@@ -45,15 +46,8 @@ public:
     std::vector<NetworkPacket> Process(std::vector<NetworkPacket> packets);
     void Disconnect();
 
-    bool IsConnected() const
-    {
-        return myState == State::Connected;
-    }
-
-    bool HasFailed() const
-    {
-        return myState == State::FailedConnection;
-    }
+    bool IsConnected() const;
+    bool HasFailed() const;
 
     std::string FailReason() const
     {
@@ -61,15 +55,6 @@ public:
     }
 
 private:
-    enum class State
-    {
-        Idle,
-        Challenging,
-        Connecting,
-        Connected,
-        FailedConnection,
-    };
-
     IStateManager&                  myStateManager;
     boost::asio::ip::udp::endpoint  myAddress;
     State                           myState;

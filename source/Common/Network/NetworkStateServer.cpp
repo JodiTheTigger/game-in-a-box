@@ -18,10 +18,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#ifndef USING_PRECOMPILED_HEADERS
+#include <chrono>
+#include <tuple>
+#endif
+
 #include "Common/IStateManager.hpp"
 #include "NetworkPacket.hpp"
 
 #include "NetworkStateServer.hpp"
+
+namespace GameInABox { namespace Common { namespace Network {
+
+enum class State
+{
+    Idle,
+    Challenging,
+    Connecting,
+    Connected,
+    FailedConnection,
+};
+
+// pure functional state handling.
+std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> ProcessState(
+        State currentState,
+        NetworkPacket packet,
+        uint8_t packetCount,
+        std::chrono::steady_clock::time_point timeLastPacket,
+        std::chrono::steady_clock::time_point timeCurrent);
 
 using namespace GameInABox::Common::Network;
 
@@ -37,6 +61,14 @@ NetworkStateServer::NetworkStateServer(
 
 std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket>)
 {
+    // NOTE:
+    // pure things:
+    // State, NetworkPacket, packetCount, timeLastPacket, timeCurrent, failReason
+    // impure things:
+    // IStateManager, Disconnecting, Fail()
+    // tried to have this all in a pure function, but calling IStateManager connect
+    // and disconnect was impure, wrong place to try.
+
     /* copy and pasted from networkmanagerclient.
     switch (myState)
     {
@@ -242,3 +274,73 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
 
     return std::vector<NetworkPacket>();
 }
+
+void NetworkStateServer::Disconnect()
+{
+    // RAM: TODO
+}
+
+bool NetworkStateServer::IsConnected() const
+{
+    return myState == State::Connected;
+}
+
+bool NetworkStateServer::HasFailed() const
+{
+    return myState == State::FailedConnection;
+}
+
+std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> ProcessState(
+        State currentState,
+        NetworkPacket,// packet,
+        uint8_t packetCount,
+        std::chrono::steady_clock::time_point timeLastPacket,
+        std::chrono::steady_clock::time_point)// timeCurrent)
+{
+    std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> result(
+                currentState,
+                NetworkPacket(),
+                packetCount,
+                timeLastPacket);
+
+    switch (currentState)
+    {
+        case State::Idle:
+        {
+            // Nothing.
+            break;
+        }
+
+        case State::Challenging:
+        {
+            // Check for a ChallengeResponse packet, and if we don't
+            // Get it either resend or timeout.
+            break;
+        }
+
+        case State::Connecting:
+        {
+            // Check for a ConnectResponse packet, and if we don't
+            // Get it either resend or timeout.
+            // If we do get it then ask the state manager if we can connect.
+            // RAM: TODO: breaks pure functional - what to do?
+            break;
+        }
+
+        case State::Connected:
+        {
+            // check for a disconnect packet only.
+            break;
+        }
+
+        case State::FailedConnection:
+        {
+            // Nothing.
+            break;
+        }
+    };
+
+    return result;
+}
+
+}}} // namespace
