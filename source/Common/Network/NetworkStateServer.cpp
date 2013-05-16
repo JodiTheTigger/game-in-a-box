@@ -33,20 +33,26 @@ namespace GameInABox { namespace Common { namespace Network {
 enum class State
 {
     Idle,
+    FailedConnection,
+    Connected,
+
+    // Server States
+    Listening,
+
+    // Client States
     Challenging,
     Connecting,
-    Connected,
-    FailedConnection,
 };
 
 // pure functional state handling.
+/*
 std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> ProcessState(
         State currentState,
         NetworkPacket packet,
         uint8_t packetCount,
         std::chrono::steady_clock::time_point timeLastPacket,
         std::chrono::steady_clock::time_point timeCurrent);
-
+*/
 using namespace GameInABox::Common::Network;
 
 NetworkStateServer::NetworkStateServer(
@@ -68,6 +74,55 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
     // IStateManager, Disconnecting, Fail()
     // tried to have this all in a pure function, but calling IStateManager connect
     // and disconnect was impure, wrong place to try.
+
+    switch (myState)
+    {
+        // ///////////////////
+        // Common
+        // ///////////////////
+        case State::Idle:
+        {
+            // Nothing, ignore everything
+            break;
+        }
+
+        case State::FailedConnection:
+        {
+            // Again, Nothing, ignore everything.
+            break;
+        }
+
+        case State::Connected:
+        {
+            // Test for a valid disconnect packet, otherwise, ignore everything
+            // RAM: TODO!
+            break;
+        }
+
+        // ///////////////////
+        // Client
+        // ///////////////////
+        case State::Challenging:
+        {
+            // RAM: TODO!
+            break;
+        }
+
+        case State::Connecting:
+        {
+            // RAM: TODO!
+            break;
+        }
+
+        // ///////////////////
+        // Server
+        // ///////////////////
+        case State::Listening:
+        {
+            // RAM: TODO!
+            break;
+        }
+    }
 
     /* copy and pasted from networkmanagerclient.
     switch (myState)
@@ -290,6 +345,7 @@ bool NetworkStateServer::HasFailed() const
     return myState == State::FailedConnection;
 }
 
+/*
 std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> ProcessState(
         State currentState,
         NetworkPacket,// packet,
@@ -342,5 +398,5 @@ std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> 
 
     return result;
 }
-
+*/
 }}} // namespace
