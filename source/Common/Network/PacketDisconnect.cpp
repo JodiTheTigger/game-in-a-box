@@ -22,6 +22,6 @@
 
 using namespace GameInABox::Common::Network;
 
-PacketDisconnect::PacketDisconnect(uint32_t key, std::string) : PacketKey(key)
+PacketDisconnect::PacketDisconnect(NetworkKey key, std::string) : PacketKey(key)
 {
 }

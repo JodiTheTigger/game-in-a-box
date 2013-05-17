@@ -31,10 +31,7 @@ namespace GameInABox { namespace Common { namespace Network {
 // for now just use boost's uuid for my key
 typedef boost::uuids::uuid NetworkKey;
 
-NetworkKey GetNetworkKeyNil()
-{
-    return boost::uuids::nil_uuid();
-}
+NetworkKey GetNetworkKeyNil();
 
 }}} // namespace
 

@@ -22,6 +22,7 @@
 #define PACKETKEY_H
 
 #include "Packet.hpp"
+#include "NetworkKey.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
@@ -29,14 +30,12 @@ template<Command TheCommand>
 class PacketKey : public Packet
 {
 public:
-    PacketKey(uint32_t key)
+    PacketKey(NetworkKey key)
         : Packet(TheCommand)
     {
-        // High byte first.
-        myBuffer.push_back(uint8_t(key >> 24));
-        myBuffer.push_back(uint8_t(key >> 16));
-        myBuffer.push_back(uint8_t(key >> 8));
-        myBuffer.push_back(uint8_t(key >> 0));
+        // stored as a byte array so we don't need to
+        // worry about endianess.
+        myBuffer.insert(myBuffer.end(), key.begin(), key.end());
     }    
 
     PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
@@ -49,7 +48,7 @@ public:
         {
             if (GetCommand() == TheCommand)
             {
-                if (Key() != 0)
+                if (!(Key().is_nil()))
                 {
                     return true;
                 }
@@ -59,17 +58,24 @@ public:
         return false;
     }
 
-    uint32_t Key() const
+    NetworkKey Key() const
     {
-        return  uint32_t(myBuffer[OffsetKey + 0] << 24) |
-                uint32_t(myBuffer[OffsetKey + 1] << 16) |
-                uint32_t(myBuffer[OffsetKey + 2] << 8)  |
-                uint32_t(myBuffer[OffsetKey + 3]);
+        NetworkKey result;        
+
+        if (myBuffer.size() >= (PayloadSize + MinimumPacketSize))
+        {
+            std::copy(
+                myBuffer.begin() + OffsetKey,
+                myBuffer.begin() + OffsetKey + PayloadSize,
+                result.data);
+        }
+
+        return result;
     }
 
 protected:
-    static const std::size_t PayloadSize = 4;
-    static const std::size_t OffsetKey = 3;
+    static const std::size_t PayloadSize = 16;
+    static const std::size_t OffsetKey = MinimumPacketSize;
 };
 
 }}} // namespace

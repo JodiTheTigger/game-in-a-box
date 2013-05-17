@@ -32,7 +32,7 @@ namespace GameInABox { namespace Common { namespace Network {
 class PacketChallengeResponse : public PacketKey<Command::ChallengeResponse>
 {
 public:
-    PacketChallengeResponse(uint8_t version, uint32_t key);
+    PacketChallengeResponse(uint8_t version, NetworkKey key);
     PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
     virtual ~PacketChallengeResponse();
 
@@ -40,8 +40,8 @@ public:
     uint8_t Version() const;
 
 private:
-    static const std::size_t PayloadSize = PacketKey::PayloadSize;
-    static const std::size_t OffsetVersion = PacketKey::OffsetKey + 4;
+    static const std::size_t OffsetVersion = PacketKey::OffsetKey + PacketKey::PayloadSize;
+    static const std::size_t PacketSize = OffsetVersion + sizeof(uint8_t);
 };
 
 }}} // namespace

@@ -55,8 +55,7 @@ NetworkManagerClient::NetworkManagerClient(
     , myStateManager(stateManager)
     , myConnectedNetwork(nullptr)
     , myState(State::Idle)
-    , myServerKey(0)
-    , myServerKeyAsABuffer()
+    , myServerKey(GetNetworkKeyNil())
     , myServerAddress()
     , myStateHandle()
     , myFailReason()
@@ -89,7 +88,7 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
 
     myState = State::Challenging;
     myConnectedNetwork = nullptr;
-    myServerKey = 0;
+    myServerKey = GetNetworkKeyNil();
     myServerAddress = serverAddress;
     myStateHandle = ClientHandle();
     myFailReason = "";
@@ -115,7 +114,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
     {
         case State::Challenging:
         {
-            uint32_t key(0);
+            NetworkKey key(GetNetworkKeyNil());
             boost::asio::ip::udp::endpoint serverAddress;
 
             // talking to all interfaces for now.
@@ -155,7 +154,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
                             }
                         }
 
-                        if (key != 0)
+                        if (!(key.is_nil()))
                         {
                             serverAddress = packet.address;
                             break;
@@ -163,7 +162,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
                     }
                 }
 
-                if (key != 0)
+                if (!(key.is_nil()))
                 {
                     myConnectedNetwork = network.get();
                     myServerAddress = serverAddress;
@@ -190,7 +189,6 @@ void NetworkManagerClient::PrivateProcessIncomming()
 
                 // set key and change state
                 myServerKey = key;
-                Push(myServerKeyAsABuffer.data(), myServerKey);
                 myState = State::Connecting;
             }
 
@@ -415,7 +413,7 @@ void NetworkManagerClient::DeltaReceive()
             std::vector<uint8_t> code(4);
             Push(code.begin(), delta.GetSequence().Value());
             Push(code.begin() + 2, delta.GetSequenceAck().Value());
-            XorCode(code.begin(), code.end(), myServerKeyAsABuffer);
+            XorCode(code.begin(), code.end(), myServerKey.data);
             XorCode(payload.begin(), payload.end(), code);
 
             // Bah, I wrote Huffman and Bitstream before I knew about iterators

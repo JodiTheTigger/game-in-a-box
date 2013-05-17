@@ -32,7 +32,7 @@ namespace GameInABox { namespace Common { namespace Network {
 class PacketDisconnect : public PacketKey<Command::Disconnect>
 {
 public:
-    PacketDisconnect(uint32_t key, std::string failMessage);
+    PacketDisconnect(NetworkKey key, std::string failMessage);
 };
 
 }}} // namespace

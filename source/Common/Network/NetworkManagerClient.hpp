@@ -29,15 +29,14 @@
 #include <boost/asio/ip/udp.hpp>
 #endif
 
-#include "INetworkManager.hpp"
-
 #include "Common/IStateManager.hpp"
 #include "Common/Huffman.hpp"
 #include "Common/WrappingCounter.hpp"
 #include "Common/MotleyUniquePointer.hpp"
 
+#include "INetworkManager.hpp"
 #include "PacketDeltaFragmentManager.hpp"
-
+#include "NetworkKey.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
@@ -94,8 +93,7 @@ private:
     INetworkProvider* myConnectedNetwork;
 
     State myState;
-    uint32_t myServerKey;
-    std::array<uint8_t,4> myServerKeyAsABuffer;
+    NetworkKey myServerKey;
     boost::asio::ip::udp::endpoint myServerAddress;
     ClientHandle myStateHandle;
     std::string myFailReason;

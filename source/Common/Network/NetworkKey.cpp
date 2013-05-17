@@ -18,37 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketChallengeResponse.hpp"
+#include "NetworkKey.hpp"
 
-using namespace GameInABox::Common::Network;
+namespace GameInABox { namespace Common { namespace Network {
 
-PacketChallengeResponse::PacketChallengeResponse(uint8_t version, NetworkKey key)
-    : PacketKey(key)
+NetworkKey GetNetworkKeyNil()
 {
-    myBuffer.push_back(version);
+    return boost::uuids::nil_uuid();
 }
 
-PacketChallengeResponse::~PacketChallengeResponse()
-{
-}
-
-bool PacketChallengeResponse::IsValid() const
-{
-    if (PacketKey::IsValid())
-    {
-        if (myBuffer.size() == PacketSize)
-        {
-            if (Version() != 0)
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-uint8_t PacketChallengeResponse::Version() const
-{
-    return myBuffer[OffsetVersion];
-}
+}}} // namespace.

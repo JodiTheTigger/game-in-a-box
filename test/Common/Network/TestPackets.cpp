@@ -22,6 +22,7 @@
 #include <Common/Network/PacketChallenge.hpp>
 #include <Common/Network/PacketChallengeResponse.hpp>
 #include <Common/Network/PacketDelta.hpp>
+#include <Common/Network/PacketKey.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
@@ -113,16 +114,18 @@ TEST_F(TestPackets, ChallengeFromValidData)
 
 TEST_F(TestPackets, ChallengeResponseCreation)
 {
-    PacketChallengeResponse source(13, 0x12345678);
+    NetworkKey theKey{0x12,0x34,0x56,0x78,0xAB,0xCD,0xEF,0x69};
+    PacketChallengeResponse source(13, theKey);
 
     EXPECT_EQ(13, source.Version());
-    EXPECT_EQ(0x12345678, source.Key());
+    EXPECT_EQ(theKey, source.Key());
     EXPECT_TRUE(source.IsValid());
 }
 
 TEST_F(TestPackets, ChallengeResponseCreationZeroKeyInvalid)
 {
-    PacketChallengeResponse source(0, 0x12345678);
+    NetworkKey theKey{0x12,0x34,0x56,0x78,0xAB,0xCD,0xEF,0x69};
+    PacketChallengeResponse source(0, theKey);
 
     EXPECT_FALSE(source.IsValid());
 }
@@ -141,21 +144,24 @@ TEST_F(TestPackets, ChallengeResponseFromValidDataInvalidChallengeBadLength)
 }
 
 TEST_F(TestPackets, SimplePacketsKey)
-{
-    PacketInfo      info(12345678);
-    PacketConnect   connect(87654321);
+{    
+    NetworkKey key1{0x12,0x34,0x56,0x78,0xAB,0xCD,0xEF,0x69};
+    NetworkKey key2{0x10,0x29,0x38,0x48,0x57,0x66,0xEF,0x69};
+
+    PacketInfo      info(key1);
+    PacketConnect   connect(key2);
 
     ASSERT_TRUE(info.IsValid());
-    EXPECT_EQ(12345678, info.Key());
+    EXPECT_EQ(key1, info.Key());
 
     ASSERT_TRUE(connect.IsValid());
-    EXPECT_EQ(87654321, connect.Key());
+    EXPECT_EQ(key2, connect.Key());
 }
 
 TEST_F(TestPackets, SimplePacketsKeyInvalid)
 {
-    PacketInfo      info(0);
-    PacketConnect   connect(0);
+    PacketInfo      info(GetNetworkKeyNil());
+    PacketConnect   connect(GetNetworkKeyNil());
 
     EXPECT_FALSE(info.IsValid());
     EXPECT_FALSE(connect.IsValid());

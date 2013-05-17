@@ -59,6 +59,25 @@ void XorCode(
     }
 }
 
+// RAM: TODO! Get rid of duplicate code, deal with c arrays!
+template<class Uint8tIterator,
+         class CodeArrayType,
+         int Size>
+void XorCode(
+        Uint8tIterator begin,
+        Uint8tIterator end,
+        const CodeArrayType (&toCodeAgainst)[Size])
+{
+    // TODO: If (Size > 0) {}
+    std::size_t index(0);
+
+    for (; begin != end; begin++)
+    {
+        *begin = *begin ^ toCodeAgainst[index];
+        index = (index + 1) % Size;
+    }
+}
+
 }}} // namespace
 
 #endif // XORCODE_H
