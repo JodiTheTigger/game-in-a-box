@@ -24,8 +24,12 @@
 #ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <string>
+#include <chrono>
 #include <boost/asio/ip/udp.hpp>
 #endif
+
+#include "Common/ClientHandle.hpp"
+#include "NetworkKey.hpp"
 
 namespace GameInABox { namespace Common {
 class IStateManager;
@@ -40,14 +44,18 @@ class NetworkStateServer
 public:
     NetworkStateServer(
             IStateManager& stateManager,
-            boost::asio::ip::udp::endpoint clientAddress);
+            boost::asio::ip::udp::endpoint address);
+
+    void StartClient();
+    void StartServer();
+    void Disconnect();
 
     // Input, packets to process, output, packets to send.
     std::vector<NetworkPacket> Process(std::vector<NetworkPacket> packets);
-    void Disconnect();
 
     bool IsConnected() const;
     bool HasFailed() const;
+    ClientHandle Handle() const;
 
     std::string FailReason() const
     {
@@ -55,10 +63,16 @@ public:
     }
 
 private:
-    IStateManager&                  myStateManager;
-    boost::asio::ip::udp::endpoint  myAddress;
-    State                           myState;
-    std::string                     myFailReason;
+    IStateManager&                          myStateManager;
+    boost::asio::ip::udp::endpoint          myAddress;
+    State                                   myState;
+    std::string                             myFailReason;
+    NetworkKey                              myKey;
+    int                                     myPacketCount;
+    std::chrono::steady_clock::time_point   myLastTimestamp;
+    ClientHandle                            myStateHandle;
+
+    void Reset(State resetState);
 };
 
 }}} // namespace

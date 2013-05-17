@@ -28,6 +28,8 @@
 
 #include "NetworkStateServer.hpp"
 
+using Timepoint = std::chrono::steady_clock::time_point;
+
 namespace GameInABox { namespace Common { namespace Network {
 
 enum class State
@@ -35,6 +37,7 @@ enum class State
     Idle,
     FailedConnection,
     Connected,
+    Disconnecting,
 
     // Server States
     Listening,
@@ -57,12 +60,33 @@ using namespace GameInABox::Common::Network;
 
 NetworkStateServer::NetworkStateServer(
         IStateManager& stateManager,
-        boost::asio::ip::udp::endpoint clientAddress)
+        boost::asio::ip::udp::endpoint address)
     : myStateManager(stateManager)
-    , myAddress(clientAddress)
+    , myAddress(address)
     , myState(State::Idle)
     , myFailReason("")
+    , myKey(GetNetworkKeyNil())
+    , myPacketCount(0)
+    , myLastTimestamp(Timepoint::min())
+    , myStateHandle()
 {
+}
+
+
+void NetworkStateServer::StartClient()
+{
+    Reset(State::Challenging);
+}
+
+void NetworkStateServer::StartServer()
+{
+    Reset(State::Listening);
+}
+
+void NetworkStateServer::Disconnect()
+{
+    myStateManager.Disconnect(myStateHandle);
+    Reset(State::Disconnecting);
 }
 
 std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket>)
@@ -95,6 +119,13 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
         case State::Connected:
         {
             // Test for a valid disconnect packet, otherwise, ignore everything
+            // RAM: TODO!
+            break;
+        }
+
+        case State::Disconnecting:
+        {
+            // Send disconnect packet once, then fail with "disconnected" message.
             // RAM: TODO!
             break;
         }
@@ -330,11 +361,6 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
     return std::vector<NetworkPacket>();
 }
 
-void NetworkStateServer::Disconnect()
-{
-    // RAM: TODO
-}
-
 bool NetworkStateServer::IsConnected() const
 {
     return myState == State::Connected;
@@ -399,4 +425,16 @@ std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> 
     return result;
 }
 */
+
+
+void NetworkStateServer::Reset(State resetState)
+{
+    myState         = resetState;
+    myFailReason    = "";
+    myPacketCount   = 0;
+    myLastTimestamp = Timepoint::min();
+    myStateHandle   = ClientHandle();
+}
+
+
 }}} // namespace
