@@ -23,12 +23,18 @@
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <boost/uuid/uuid.hpp>
+#include <boost/uuid/nil_generator.hpp>
 #endif
 
 namespace GameInABox { namespace Common { namespace Network {
 
 // for now just use boost's uuid for my key
 typedef boost::uuids::uuid NetworkKey;
+
+NetworkKey GetNetworkKeyNil()
+{
+    return boost::uuids::nil_uuid();
+}
 
 }}} // namespace
 
