@@ -59,6 +59,17 @@ void XorCode(
     }
 }
 
+// RAM: Take begin, end, begin and size
+/*
+void XorCode(
+        Uint8tIteratorWrite writeBegin,
+        Uint8tIteratorWrite writeEnd,
+        Uint8tIteratorRead readBegin,
+        std::size_t arraySize
+        const CodeArrayType (&toCodeAgainst)[Size])
+*/
+
+
 // RAM: TODO! Get rid of duplicate code, deal with c arrays!
 template<class Uint8tIterator,
          class CodeArrayType,
