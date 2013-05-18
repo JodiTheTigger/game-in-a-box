@@ -213,9 +213,6 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
             {
                 auto command = Packet::GetCommand(packet.data);
 
-                // RAM: just react to packets, no resends or timeouts.
-                // RAM: if i do that, how do I know we're connected?
-                // RAM: TODO!
                 switch (command)
                 {
                     case Command::Challenge:
@@ -238,6 +235,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                         if (connect.IsValid())
                         {
+                            // RAM: TODO! Pass packet payload into connect doofer.
                             // register the client with the game state
                             // and if successful send the packet.
                             if (myStateHandle)
@@ -248,7 +246,18 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                             }
                             else
                             {
-                                // ask first, then send the packet.
+                                std::string failMessage;
+
+                                auto handle = myStateManager.Connect(connect.GetPayload(), failMessage);
+
+                                if (handle)
+                                {
+                                    // RAM: TODO!
+                                }
+                                else
+                                {
+                                    // send a disconnect, it didn't work.
+                                }
                             }
                         }
 
