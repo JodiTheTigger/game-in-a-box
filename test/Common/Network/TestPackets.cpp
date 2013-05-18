@@ -30,7 +30,8 @@ using Bytes = std::vector<uint8_t>;
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// RAM: TODO! TEST DISCONNECT PACKETS!
+// RAM: TODO! TEST the new features of the KEY packet.
+// and the disconnect packet
 
 // Class definition!
 class TestPackets : public ::testing::Test

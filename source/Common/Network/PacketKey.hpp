@@ -21,6 +21,10 @@
 #ifndef PACKETKEY_H
 #define PACKETKEY_H
 
+#ifndef USING_PRECOMPILED_HEADERS
+#include <string>
+#endif
+
 #include "Packet.hpp"
 #include "NetworkKey.hpp"
 
@@ -36,7 +40,13 @@ public:
         // NetworkKey is internally stored as a byte array so
         // we don't need to worry about endianess.
         myBuffer.insert(myBuffer.end(), key.begin(), key.end());
-    }    
+    }
+
+    PacketKey(NetworkKey key, std::string message)
+        : PacketKey(key)
+    {
+        myBuffer.insert(myBuffer.end(), message.begin(), message.end());
+    }
 
     PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
@@ -73,9 +83,26 @@ public:
         return result;
     }
 
+    std::vector<uint8_t> GetBuffer()
+    {
+        std::vector<uint8_t> result;
+
+        result.reserve(myBuffer.size() - OffsetPayload);
+
+        result.assign(myBuffer.begin() + OffsetPayload, myBuffer.end());
+
+        return result;
+    }
+
+    std::string Message() const
+    {
+        return std::string(myBuffer.begin() + OffsetPayload, myBuffer.end());
+    }
+
 protected:
     static const std::size_t PayloadSize = 16;
     static const std::size_t OffsetKey = MinimumPacketSize;
+    static const std::size_t OffsetPayload = OffsetKey + PayloadSize;
 };
 
 }}} // namespace
