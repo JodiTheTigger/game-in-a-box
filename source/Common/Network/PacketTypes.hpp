@@ -30,7 +30,6 @@ using PacketInfo            = PacketKey<Command::Info>;
 using PacketInfoResponse    = PacketBuffer<Command::InfoResponse>;
 using PacketConnect         = PacketKey<Command::Connect>;
 using PacketConnectResponse = PacketBuffer<Command::ConnectResponse>;
-using PacketDisconnect      = PacketBuffer<Command::Disconnect>;
 
 }}} // namespace
 
