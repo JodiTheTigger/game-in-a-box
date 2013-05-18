@@ -26,6 +26,8 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
+// RAM: TODO: Merge packetKey with packet buffer as they have the same interfaces (Message, GetPayload).
+
 using PacketInfo            = PacketKey<Command::Info>;
 using PacketInfoResponse    = PacketBuffer<Command::InfoResponse>;
 using PacketConnect         = PacketKey<Command::Connect>;
