@@ -29,12 +29,11 @@ std::array<uint64_t, 256> IStateManager::GetHuffmanFrequencies() const
     return PrivateGetHuffmanFrequencies();
 }
 
-ClientHandle IStateManager::Connect(
+boost::optional<ClientHandle> IStateManager::Connect(
         std::vector<uint8_t> connectData,
-        bool& fail,
         std::string &failReason)
 {
-    return PrivateConnect(connectData, fail, failReason);
+    return PrivateConnect(connectData, failReason);
 }
 
 void IStateManager::Disconnect(ClientHandle toDisconnect)

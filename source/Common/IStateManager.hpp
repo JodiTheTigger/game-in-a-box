@@ -26,6 +26,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <boost/optional.hpp>
 #endif
 
 #include "BuildMacros.hpp"
@@ -46,8 +47,7 @@ class IStateManager
 public:
     std::array<uint64_t, 256> GetHuffmanFrequencies() const;
 
-    // RAM: TODO: Get rid of fail and use boost::optional as the return type?
-    ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
+    boost::optional<ClientHandle> Connect(std::vector<uint8_t> connectData, std::string& failReason);
     void Disconnect(ClientHandle toDisconnect);
     bool IsConnected(ClientHandle client) const;
 
@@ -72,9 +72,8 @@ protected:
 private:
     virtual std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const = 0;
 
-    virtual ClientHandle PrivateConnect(
+    virtual boost::optional<ClientHandle> PrivateConnect(
             std::vector<uint8_t> connectData,
-            bool& fail,
             std::string& failReason) = 0;
 
     virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;    

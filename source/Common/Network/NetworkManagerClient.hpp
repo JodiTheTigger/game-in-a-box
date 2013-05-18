@@ -95,7 +95,7 @@ private:
     State myState;
     NetworkKey myServerKey;
     boost::asio::ip::udp::endpoint myServerAddress;
-    ClientHandle myStateHandle;
+    boost::optional<ClientHandle> myStateHandle;
     std::string myFailReason;
     uint16_t myClientId;
 

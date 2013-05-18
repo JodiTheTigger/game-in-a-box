@@ -182,13 +182,11 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                         if (connection.IsValid())
                         {
-                            bool failed;
                             std::string failReason;
-                            ClientHandle handle;
 
-                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
+                            auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
 
-                            if (failed)
+                            if (!handle)
                             {
                                 result.emplace_back(
                                     PacketDisconnect(myKey, failReason).TakeBuffer(),
@@ -198,7 +196,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                             }
                             else
                             {
-                                myStateHandle.reset(handle);
+                                myStateHandle = handle;
                                 Reset(State::Connected);
                             }
                         }
@@ -388,13 +386,11 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                         if (connection.IsValid())
                         {
-                            bool failed;
                             std::string failReason;
-                            ClientHandle handle;
 
-                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
+                            auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
 
-                            if (failed)
+                            if (!handle)
                             {
                                 // Respond with a failed message please.
                                 // Only one will do, the server can timeout if it misses it.

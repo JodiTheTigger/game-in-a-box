@@ -218,13 +218,11 @@ void NetworkManagerClient::PrivateProcessIncomming()
 
                         if (connection.IsValid())
                         {
-                            bool failed;
                             string failReason;
-                            ClientHandle handle;
 
-                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
+                            auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
 
-                            if (failed)
+                            if (!handle)
                             {
                                 // Respond with a failed message please.
                                 // Only one will do, the server can timeout if it misses it.
@@ -280,7 +278,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
         {
             // Cannot get disconnected unless the gamestate tells us to.
             // That is, ignore disconnect state packets.
-            if (myStateManager.IsConnected(myStateHandle))
+            if (myStateManager.IsConnected(*myStateHandle))
             {
                 auto packets = myConnectedNetwork->Receive();
 
@@ -428,7 +426,7 @@ void NetworkManagerClient::DeltaReceive()
             // Pass to gamestate (which will decompress the delta itself).
             BitStreamReadOnly payloadBitstream(payload);
             myStateManager.DeltaSet(
-                myStateHandle,
+                *myStateHandle,
                 delta.GetSequence().Value(),
                 delta.GetSequenceBase().Value(),
                 payloadBitstream);
@@ -446,7 +444,7 @@ void NetworkManagerClient::DeltaSend()
     Sequence to;
 
     myStateManager.DeltaGet(
-                myStateHandle,
+                *myStateHandle,
                 to,
                 from,
                 myLastSequenceAcked,

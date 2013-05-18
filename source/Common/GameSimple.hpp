@@ -40,9 +40,8 @@ private:
 
     std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const override;
 
-    ClientHandle PrivateConnect(
+    boost::optional<ClientHandle> PrivateConnect(
             std::vector<uint8_t> connectData,
-            bool& fail,
             std::string& failReason) override;
 
     void PrivateDisconnect(ClientHandle playerToDisconnect) override;
