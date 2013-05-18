@@ -23,6 +23,7 @@
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <string>
+#include <vector>
 #endif
 
 #include "PacketKey.hpp"
@@ -32,7 +33,13 @@ namespace GameInABox { namespace Common { namespace Network {
 class PacketDisconnect : public PacketKey<Command::Disconnect>
 {
 public:
-    PacketDisconnect(NetworkKey key, std::string failMessage);
+    PacketDisconnect(NetworkKey key, std::string failReason);
+    PacketDisconnect(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
+
+    std::string FailReason() const;
+
+private:
+    static const std::size_t OffsetFailReason = PacketKey::OffsetKey + PacketKey::PayloadSize;
 };
 
 }}} // namespace

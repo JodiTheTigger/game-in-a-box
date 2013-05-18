@@ -22,6 +22,19 @@
 
 using namespace GameInABox::Common::Network;
 
-PacketDisconnect::PacketDisconnect(NetworkKey key, std::string) : PacketKey(key)
+PacketDisconnect::PacketDisconnect(NetworkKey key, std::string failReason) : PacketKey(key)
 {
+    myBuffer.insert(myBuffer.end(), failReason.begin(), failReason.end());
+}
+
+std::string PacketDisconnect::FailReason() const
+{
+    if (IsValid())
+    {
+        return std::string(myBuffer.begin() + OffsetFailReason, myBuffer.end());
+    }
+    else
+    {
+        return "";
+    }
 }
