@@ -26,6 +26,7 @@
 #include <string>
 #include <chrono>
 #include <boost/asio/ip/udp.hpp>
+#include <boost/optional.hpp>
 #endif
 
 #include "Common/ClientHandle.hpp"
@@ -55,7 +56,7 @@ public:
 
     bool IsConnected() const;
     bool HasFailed() const;
-    ClientHandle Handle() const;
+    boost::optional<ClientHandle> Handle() const;
 
     std::string FailReason() const
     {
@@ -64,6 +65,7 @@ public:
 
 private:
     static const int HandshakeRetries = 5;
+    static const uint8_t Version = 1;
 
     IStateManager&                          myStateManager;
     boost::asio::ip::udp::endpoint          myAddress;
@@ -72,7 +74,7 @@ private:
     NetworkKey                              myKey;
     int                                     myPacketCount;
     std::chrono::steady_clock::time_point   myLastTimestamp;
-    ClientHandle                            myStateHandle;
+    boost::optional<ClientHandle>           myStateHandle;
 
     static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
     {

@@ -21,14 +21,15 @@
 #ifndef USING_PRECOMPILED_HEADERS
 #include <chrono>
 #include <tuple>
+#include <sstream>
 #endif
 
 #include "Common/IStateManager.hpp"
 #include "NetworkPacket.hpp"
 #include "PacketTypes.hpp"
-#include "PacketDisconnect.hpp"
 #include "PacketChallenge.hpp"
 #include "PacketChallengeResponse.hpp"
+#include "PacketDelta.hpp"
 
 
 #include "NetworkStateServer.hpp"
@@ -81,17 +82,21 @@ NetworkStateServer::NetworkStateServer(
 
 void NetworkStateServer::StartClient()
 {
+    myKey = GetNetworkKeyNil();
+    myStateHandle.reset();
     Reset(State::Challenging);
 }
 
 void NetworkStateServer::StartServer()
 {
+    myKey = GetNetworkKeyRandom();
+    myStateHandle.reset();
     Reset(State::Listening);
 }
 
 void NetworkStateServer::Disconnect()
 {
-    myStateManager.Disconnect(myStateHandle);
+    myStateManager.Disconnect(*myStateHandle);
     Reset(State::Disconnecting);
 }
 
@@ -106,6 +111,180 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
     // IStateManager, Disconnecting, Fail()
     // tried to have this all in a pure function, but calling IStateManager connect
     // and disconnect was impure, wrong place to try.
+
+    // Done in two parts, parse the packets then generate packets.
+    // Parse first as that can change the state we're in.
+
+    // ///////////////////
+    // Parse
+    // ///////////////////
+    if (packet.address == myAddress)
+    {
+        switch (myState)
+        {
+            case State::Idle:
+            case State::FailedConnection:
+            case State::Disconnecting:
+            {
+                // Nothing, ignore everything
+                break;
+            }
+
+            case State::Connected:
+            {
+                // check to see if we disconnect.
+                Disconnected(packet);
+                break;
+            }
+
+            case State::Challenging:
+            {
+                if (!Disconnected(packet))
+                {
+                    if (Packet::GetCommand(packet.data) == Command::ChallengeResponse)
+                    {
+                        PacketChallengeResponse response(packet.data);
+
+                        if (response.IsValid())
+                        {
+                            if (response.Version() == Version)
+                            {
+                                myKey = response.Key();
+                                Reset(State::Connecting);
+                            }
+                            else
+                            {
+                                std::ostringstream theFail;
+
+                                theFail
+                                    << "Network Protocol Mistmatch, expecting version: "
+                                    << Version
+                                    << " recieved: "
+                                    << response.Version()
+                                    << ".";
+
+                                Fail(theFail.str());
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            case State::Connecting:
+            {
+                if (!Disconnected(packet))
+                {
+                    if (Packet::GetCommand(packet.data) == Command::ConnectResponse)
+                    {
+                        PacketConnectResponse connection(packet.data);
+
+                        if (connection.IsValid())
+                        {
+                            bool failed;
+                            std::string failReason;
+                            ClientHandle handle;
+
+                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
+
+                            if (failed)
+                            {
+                                result.emplace_back(
+                                    PacketDisconnect(myKey, failReason).TakeBuffer(),
+                                    myAddress);
+
+                                Fail(failReason);
+                            }
+                            else
+                            {
+                                myStateHandle.reset(handle);
+                                Reset(State::Connected);
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            // ///////////////////
+            // Server
+            // ///////////////////
+            case State::Listening:
+            {
+                auto command = Packet::GetCommand(packet.data);
+
+                // RAM: just react to packets, no resends or timeouts.
+                // RAM: if i do that, how do I know we're connected?
+                // RAM: TODO!
+                switch (command)
+                {
+                    case Command::Challenge:
+                    {
+                        PacketChallenge challenge(packet.data);
+
+                        if (challenge.IsValid())
+                        {
+                            result.emplace_back(
+                                PacketChallengeResponse(Version, myKey).TakeBuffer(),
+                                myAddress);
+                        }
+
+                        break;
+                    }
+
+                    case Command::Connect:
+                    {
+                        PacketConnect connect(packet.data);
+
+                        if (connect.IsValid())
+                        {
+                            // register the client with the game state
+                            // and if successful send the packet.
+                            if (myStateHandle)
+                            {
+                                result.emplace_back(
+                                    PacketConnectResponse().TakeBuffer(),
+                                    myAddress);
+                            }
+                            else
+                            {
+                                // ask first, then send the packet.
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case Command::Unrecognised:
+                    {
+                        // If we get deltas, that means we're connected.
+                        if (PacketDelta::IsPacketDelta(packet.data))
+                        {
+                            Reset(State::Connected);
+                        }
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        // nothing.
+                        break;
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
+
+    // ///////////////////
+    // Generate
+    // ///////////////////
+
 
     switch (myState)
     {
@@ -161,9 +340,11 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                         if (response.IsValid())
                         {
-                            // RAM: TODO! Check version!
-                            myKey = response.Key();
-                            Reset(State::Connecting);
+                            if (response.Version() == Version)
+                            {
+                                myKey = response.Key();
+                                Reset(State::Connecting);
+                            }
                         }
                     }
                 }
@@ -236,6 +417,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
             // RAM: duplicate code! remove!
 
             // state didn't change on us did it?
+            // RAM: TODO: use recursion to avoid if statement?
             if (myState == State::Connecting)
             {
                 if (myPacketCount > HandshakeRetries)

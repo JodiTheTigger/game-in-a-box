@@ -46,6 +46,7 @@ class IStateManager
 public:
     std::array<uint64_t, 256> GetHuffmanFrequencies() const;
 
+    // RAM: TODO: Get rid of fail and use boost::optional as the return type?
     ClientHandle Connect(std::vector<uint8_t> connectData, bool& fail, std::string& failReason);
     void Disconnect(ClientHandle toDisconnect);
     bool IsConnected(ClientHandle client) const;
