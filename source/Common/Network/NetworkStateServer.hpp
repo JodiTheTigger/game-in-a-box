@@ -51,7 +51,7 @@ public:
     void Disconnect();
 
     // Input, packets to process, output, packets to send.
-    std::vector<NetworkPacket> Process(std::vector<NetworkPacket> packets);
+    std::vector<NetworkPacket> Process(NetworkPacket packets);
 
     bool IsConnected() const;
     bool HasFailed() const;
@@ -63,6 +63,8 @@ public:
     }
 
 private:
+    static const int HandshakeRetries = 5;
+
     IStateManager&                          myStateManager;
     boost::asio::ip::udp::endpoint          myAddress;
     State                                   myState;
@@ -72,7 +74,18 @@ private:
     std::chrono::steady_clock::time_point   myLastTimestamp;
     ClientHandle                            myStateHandle;
 
+    static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
+    {
+        return std::chrono::milliseconds{1000};
+    }
+
     void Reset(State resetState);
+    void Fail(std::string failReason);
+    bool Disconnected(const NetworkPacket& packet);
+
+    // To enable a unit test class for the state machine
+    // I need a way of controlling the time.
+    virtual std::chrono::steady_clock::time_point GetTimeNow() = 0;
 };
 
 }}} // namespace

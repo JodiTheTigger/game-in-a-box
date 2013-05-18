@@ -25,9 +25,15 @@
 
 #include "Common/IStateManager.hpp"
 #include "NetworkPacket.hpp"
+#include "PacketTypes.hpp"
+#include "PacketDisconnect.hpp"
+#include "PacketChallenge.hpp"
+#include "PacketChallengeResponse.hpp"
+
 
 #include "NetworkStateServer.hpp"
 
+using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;
 
 namespace GameInABox { namespace Common { namespace Network {
@@ -89,8 +95,10 @@ void NetworkStateServer::Disconnect()
     Reset(State::Disconnecting);
 }
 
-std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket>)
+std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 {
+    std::vector<NetworkPacket> result;
+
     // NOTE:
     // pure things:
     // State, NetworkPacket, packetCount, timeLastPacket, timeCurrent, failReason
@@ -118,15 +126,23 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
 
         case State::Connected:
         {
-            // Test for a valid disconnect packet, otherwise, ignore everything
-            // RAM: TODO!
+            if (packet.address == myAddress)
+            {
+                // check to see if we disconnect.
+                Disconnected(packet);
+            }
+
             break;
         }
 
         case State::Disconnecting:
         {
-            // Send disconnect packet once, then fail with "disconnected" message.
-            // RAM: TODO!
+            std::string failReason("Normal Disconnect.");
+
+            result.emplace_back(
+                PacketDisconnect(myKey, failReason).TakeBuffer(),
+                myAddress);
+            Fail(failReason);
             break;
         }
 
@@ -135,13 +151,113 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
         // ///////////////////
         case State::Challenging:
         {
-            // RAM: TODO!
+            if (packet.address == myAddress)
+            {
+                if (!Disconnected(packet))
+                {
+                    if (Packet::GetCommand(packet.data) == Command::ChallengeResponse)
+                    {
+                        PacketChallengeResponse response(packet.data);
+
+                        if (response.IsValid())
+                        {
+                            // RAM: TODO! Check version!
+                            myKey = response.Key();
+                            Reset(State::Connecting);
+                        }
+                    }
+                }
+            }
+
+            // state didn't change on us did it?
+            if (myState == State::Challenging)
+            {
+                if (myPacketCount > HandshakeRetries)
+                {
+                    Fail("Timeout: Challenging.");
+                }
+                else
+                {
+                    auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+
+                    if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
+                    {
+                        result.emplace_back(
+                            PacketChallenge().TakeBuffer(),
+                            myAddress);
+
+                        myLastTimestamp = GetTimeNow();
+                        ++myPacketCount;
+                    }
+                }
+            }
+
             break;
         }
 
         case State::Connecting:
         {
-            // RAM: TODO!
+            if (packet.address == myAddress)
+            {
+                if (!Disconnected(packet))
+                {
+                    if (Packet::GetCommand(packet.data) == Command::ConnectResponse)
+                    {
+                        PacketConnectResponse connection(packet.data);
+
+                        if (connection.IsValid())
+                        {
+                            bool failed;
+                            std::string failReason;
+                            ClientHandle handle;
+
+                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
+
+                            if (failed)
+                            {
+                                // Respond with a failed message please.
+                                // Only one will do, the server can timeout if it misses it.
+                                result.emplace_back(
+                                    PacketDisconnect(myKey, failReason).TakeBuffer(),
+                                    myAddress);
+
+                                Fail(failReason);
+                            }
+                            else
+                            {
+                                myStateHandle = handle;
+                                Reset(State::Connected);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // RAM: duplicate code! remove!
+
+            // state didn't change on us did it?
+            if (myState == State::Connecting)
+            {
+                if (myPacketCount > HandshakeRetries)
+                {
+                    Fail("Timeout: Connecting.");
+                }
+                else
+                {
+                    auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+
+                    if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
+                    {
+                        result.emplace_back(
+                            PacketConnect(myKey).TakeBuffer(),
+                            myAddress);
+
+                        myLastTimestamp = GetTimeNow();
+                        ++myPacketCount;
+                    }
+                }
+            }
+
             break;
         }
 
@@ -150,6 +266,8 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
         // ///////////////////
         case State::Listening:
         {
+            // RAM: just react to packets, no resends or timeouts.
+            // RAM: if i do that, how do I know we're connected?
             // RAM: TODO!
             break;
         }
@@ -358,7 +476,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(std::vector<NetworkPacket
         }
     }*/
 
-    return std::vector<NetworkPacket>();
+    return result;
 }
 
 bool NetworkStateServer::IsConnected() const
@@ -371,70 +489,44 @@ bool NetworkStateServer::HasFailed() const
     return myState == State::FailedConnection;
 }
 
-/*
-std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> ProcessState(
-        State currentState,
-        NetworkPacket,// packet,
-        uint8_t packetCount,
-        std::chrono::steady_clock::time_point timeLastPacket,
-        std::chrono::steady_clock::time_point)// timeCurrent)
-{
-    std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> result(
-                currentState,
-                NetworkPacket(),
-                packetCount,
-                timeLastPacket);
-
-    switch (currentState)
-    {
-        case State::Idle:
-        {
-            // Nothing.
-            break;
-        }
-
-        case State::Challenging:
-        {
-            // Check for a ChallengeResponse packet, and if we don't
-            // Get it either resend or timeout.
-            break;
-        }
-
-        case State::Connecting:
-        {
-            // Check for a ConnectResponse packet, and if we don't
-            // Get it either resend or timeout.
-            // If we do get it then ask the state manager if we can connect.
-            // RAM: TODO: breaks pure functional - what to do?
-            break;
-        }
-
-        case State::Connected:
-        {
-            // check for a disconnect packet only.
-            break;
-        }
-
-        case State::FailedConnection:
-        {
-            // Nothing.
-            break;
-        }
-    };
-
-    return result;
-}
-*/
-
-
 void NetworkStateServer::Reset(State resetState)
 {
     myState         = resetState;
     myFailReason    = "";
     myPacketCount   = 0;
     myLastTimestamp = Timepoint::min();
-    myStateHandle   = ClientHandle();
 }
 
+void NetworkStateServer::Fail(std::string failReason)
+{
+    myState = State::FailedConnection;
+    myFailReason = failReason;
+}
+
+bool NetworkStateServer::Disconnected(const NetworkPacket& packet)
+{
+    bool result(false);
+
+    if (Packet::GetCommand(packet.data) == Command::Disconnect)
+    {
+        PacketDisconnect disconnect(packet.data);
+
+        if (disconnect.IsValid())
+        {
+            if (disconnect.Key() == myKey)
+            {
+                Fail(disconnect.Message());
+                result = true;
+            }
+        }
+    }
+
+    return result;
+}
+
+std::chrono::steady_clock::time_point NetworkStateServer::GetTimeNow()
+{
+    return std::chrono::steady_clock::now();
+}
 
 }}} // namespace
