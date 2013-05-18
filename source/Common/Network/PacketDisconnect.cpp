@@ -27,7 +27,7 @@ PacketDisconnect::PacketDisconnect(NetworkKey key, std::string failReason) : Pac
     myBuffer.insert(myBuffer.end(), failReason.begin(), failReason.end());
 }
 
-std::string PacketDisconnect::FailReason() const
+std::string PacketDisconnect::Message() const
 {
     if (IsValid())
     {

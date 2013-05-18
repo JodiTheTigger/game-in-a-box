@@ -36,7 +36,7 @@ public:
     PacketDisconnect(NetworkKey key, std::string failReason);
     PacketDisconnect(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
 
-    std::string FailReason() const;
+    std::string Message() const;
 
 private:
     static const std::size_t OffsetFailReason = PacketKey::OffsetKey + PacketKey::PayloadSize;

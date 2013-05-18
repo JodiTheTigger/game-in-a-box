@@ -38,6 +38,7 @@
 #include "PacketChallenge.hpp"
 #include "PacketChallengeResponse.hpp"
 #include "PacketDelta.hpp"
+#include "PacketDisconnect.hpp"
 #include "PacketTypes.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
@@ -229,7 +230,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
                                 // Respond with a failed message please.
                                 // Only one will do, the server can timeout if it misses it.
                                 myConnectedNetwork->Send({{
-                                      PacketDisconnect(failReason).TakeBuffer(),
+                                      PacketDisconnect(myServerKey, failReason).TakeBuffer(),
                                       myServerAddress}});
 
                                 Fail(failReason);
