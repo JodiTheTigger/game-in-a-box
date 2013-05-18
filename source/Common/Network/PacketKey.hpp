@@ -33,8 +33,8 @@ public:
     PacketKey(NetworkKey key)
         : Packet(TheCommand)
     {
-        // stored as a byte array so we don't need to
-        // worry about endianess.
+        // NetworkKey is internally stored as a byte array so
+        // we don't need to worry about endianess.
         myBuffer.insert(myBuffer.end(), key.begin(), key.end());
     }    
 
