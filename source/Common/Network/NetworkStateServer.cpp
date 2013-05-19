@@ -248,7 +248,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                             {
                                 std::string failMessage;
 
-                                auto handle = myStateManager.Connect(connect.GetPayload(), failMessage);
+                                auto handle = myStateManager.Connect(connect.GetBuffer(), failMessage);
 
                                 if (handle)
                                 {
@@ -337,26 +337,6 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
         // ///////////////////
         case State::Challenging:
         {
-            if (packet.address == myAddress)
-            {
-                if (!Disconnected(packet))
-                {
-                    if (Packet::GetCommand(packet.data) == Command::ChallengeResponse)
-                    {
-                        PacketChallengeResponse response(packet.data);
-
-                        if (response.IsValid())
-                        {
-                            if (response.Version() == Version)
-                            {
-                                myKey = response.Key();
-                                Reset(State::Connecting);
-                            }
-                        }
-                    }
-                }
-            }
-
             // state didn't change on us did it?
             if (myState == State::Challenging)
             {
@@ -385,40 +365,6 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
         case State::Connecting:
         {
-            if (packet.address == myAddress)
-            {
-                if (!Disconnected(packet))
-                {
-                    if (Packet::GetCommand(packet.data) == Command::ConnectResponse)
-                    {
-                        PacketConnectResponse connection(packet.data);
-
-                        if (connection.IsValid())
-                        {
-                            std::string failReason;
-
-                            auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
-
-                            if (!handle)
-                            {
-                                // Respond with a failed message please.
-                                // Only one will do, the server can timeout if it misses it.
-                                result.emplace_back(
-                                    PacketDisconnect(myKey, failReason).TakeBuffer(),
-                                    myAddress);
-
-                                Fail(failReason);
-                            }
-                            else
-                            {
-                                myStateHandle = handle;
-                                Reset(State::Connected);
-                            }
-                        }
-                    }
-                }
-            }
-
             // RAM: duplicate code! remove!
 
             // state didn't change on us did it?

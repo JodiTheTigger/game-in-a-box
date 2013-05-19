@@ -38,7 +38,8 @@ public:
 private:
     std::array<uint64_t, 256> myFrequencies;
 
-    std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const override;
+    std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const override;    
+    std::vector<uint8_t> PrivateStateInfo() const override;
 
     boost::optional<ClientHandle> PrivateConnect(
             std::vector<uint8_t> connectData,

@@ -29,6 +29,11 @@ std::array<uint64_t, 256> IStateManager::GetHuffmanFrequencies() const
     return PrivateGetHuffmanFrequencies();
 }
 
+std::vector<uint8_t> IStateManager::StateInfo() const
+{
+    return PrivateStateInfo();
+}
+
 boost::optional<ClientHandle> IStateManager::Connect(
         std::vector<uint8_t> connectData,
         std::string &failReason)

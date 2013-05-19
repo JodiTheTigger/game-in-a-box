@@ -35,6 +35,8 @@ public:
 
     MOCK_CONST_METHOD0(PrivateGetHuffmanFrequencies, frequencyArray ());
 
+    MOCK_CONST_METHOD0(PrivateStateInfo, std::vector<uint8_t> ());
+
     MOCK_METHOD2(PrivateConnect, boost::optional<ClientHandle> (std::vector<uint8_t>,
                                                std::string&));
 

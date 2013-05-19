@@ -28,6 +28,12 @@ std::array<uint64_t, 256> GameSimple::PrivateGetHuffmanFrequencies() const
     return myFrequencies;
 }
 
+std::vector<uint8_t> GameSimple::PrivateStateInfo() const
+{
+    // RAM: TODO
+    return std::vector<uint8_t>();
+}
+
 boost::optional<ClientHandle> GameSimple::PrivateConnect(
         std::vector<uint8_t>,
         std::string&)
