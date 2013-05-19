@@ -22,7 +22,9 @@
 #define PACKETKEY_H
 
 #ifndef USING_PRECOMPILED_HEADERS
+#include <cstdint>
 #include <string>
+#include <vector>
 #endif
 
 #include "Packet.hpp"
@@ -46,6 +48,12 @@ public:
         : PacketKey(key)
     {
         myBuffer.insert(myBuffer.end(), message.begin(), message.end());
+    }
+
+    PacketKey(NetworkKey key, std::vector<uint8_t> payload)
+        : PacketKey(key)
+    {
+        myBuffer.insert(myBuffer.end(), payload.begin(), payload.end());
     }
 
     PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
