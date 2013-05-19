@@ -65,6 +65,7 @@ public:
 
 private:
     static const int HandshakeRetries = 5;
+    static const int FloodTrigger = 1 + HandshakeRetries * 2;
     static const uint8_t Version = 1;
 
     IStateManager&                          myStateManager;

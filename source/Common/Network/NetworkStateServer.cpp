@@ -54,17 +54,6 @@ enum class State
     Connecting,
 };
 
-// pure functional state handling.
-/*
-std::tuple<State, NetworkPacket,uint8_t, std::chrono::steady_clock::time_point> ProcessState(
-        State currentState,
-        NetworkPacket packet,
-        uint8_t packetCount,
-        std::chrono::steady_clock::time_point timeLastPacket,
-        std::chrono::steady_clock::time_point timeCurrent);
-*/
-using namespace GameInABox::Common::Network;
-
 NetworkStateServer::NetworkStateServer(
         IStateManager& stateManager,
         boost::asio::ip::udp::endpoint address)
@@ -78,7 +67,6 @@ NetworkStateServer::NetworkStateServer(
     , myStateHandle()
 {
 }
-
 
 void NetworkStateServer::StartClient()
 {
@@ -213,72 +201,121 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
             {
                 auto command = Packet::GetCommand(packet.data);
 
-                switch (command)
+                // Deal with floods but not sending the response.
+                if (myPacketCount > FloodTrigger)
                 {
-                    case Command::Challenge:
+                    switch (command)
                     {
-                        PacketChallenge challenge(packet.data);
-
-                        if (challenge.IsValid())
+                        case Command::Challenge:
                         {
-                            result.emplace_back(
-                                PacketChallengeResponse(Version, myKey).TakeBuffer(),
-                                myAddress);
-                        }
+                            PacketChallenge challenge(packet.data);
 
-                        break;
-                    }
-
-                    case Command::Connect:
-                    {
-                        PacketConnect connect(packet.data);
-
-                        if (connect.IsValid())
-                        {
-                            // RAM: TODO! Pass packet payload into connect doofer.
-                            // register the client with the game state
-                            // and if successful send the packet.
-                            if (myStateHandle)
+                            if (challenge.IsValid())
                             {
                                 result.emplace_back(
-                                    PacketConnectResponse().TakeBuffer(),
+                                    PacketChallengeResponse(Version, myKey).TakeBuffer(),
                                     myAddress);
+
+                                myLastTimestamp = GetTimeNow();
+                                ++myPacketCount;
+                            }
+
+                            break;
+                        }
+
+                        case Command::Info:
+                        {
+                            PacketConnect info(packet.data);
+
+                            if (info.IsValid())
+                            {
+                                if (info.Key() == myKey)
+                                {
+                                    // auto infoData = myStateManager.StateInfo();
+
+                                    // RAM: TODO! find a way of adding an info response.
+                                    // RAM: TODO! make sure the packetsize isn't too big.
+                                    // RAM: TODO! truncate the packet instead of dropping it.
+                                    result.emplace_back(
+                                        PacketInfoResponse().TakeBuffer(),
+                                        myAddress);
+
+                                    myLastTimestamp = GetTimeNow();
+                                    ++myPacketCount;
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case Command::Connect:
+                        {
+                            PacketConnect connect(packet.data);
+
+                            if (connect.IsValid())
+                            {
+                                if (connect.Key() == myKey)
+                                {
+                                    // register the client with the game state
+                                    // and if successful send the packet.
+                                    if (!myStateHandle)
+                                    {
+                                        std::string failMessage;
+
+                                        auto handle = myStateManager.Connect(connect.GetBuffer(), failMessage);
+
+                                        if (handle)
+                                        {
+                                            myStateHandle = handle;
+                                        }
+                                        else
+                                        {
+                                            result.emplace_back(
+                                                PacketDisconnect(myKey, failMessage).TakeBuffer(),
+                                                myAddress);
+
+                                            Fail(failMessage);
+                                        }
+                                    }
+
+                                    if (myStateHandle)
+                                    {
+                                        result.emplace_back(
+                                            PacketConnectResponse().TakeBuffer(),
+                                            myAddress);
+
+                                        myLastTimestamp = GetTimeNow();
+                                        ++myPacketCount;
+                                    }
+                                }
                             }
                             else
                             {
-                                std::string failMessage;
-
-                                auto handle = myStateManager.Connect(connect.GetBuffer(), failMessage);
-
-                                if (handle)
-                                {
-                                    // RAM: TODO!
-                                }
-                                else
-                                {
-                                    // send a disconnect, it didn't work.
-                                }
+                                result.emplace_back(
+                                    PacketDisconnect(myKey, "Invalid Key.").TakeBuffer(),
+                                    myAddress);
+                                ++myPacketCount;
                             }
+
+                            break;
                         }
 
-                        break;
-                    }
-
-                    case Command::Unrecognised:
-                    {
-                        // If we get deltas, that means we're connected.
-                        if (PacketDelta::IsPacketDelta(packet.data))
+                        case Command::Unrecognised:
                         {
-                            Reset(State::Connected);
+                            // If we get deltas, that means we're connected.
+                            if (PacketDelta::IsPacketDelta(packet.data))
+                            {
+                                Reset(State::Connected);
+                            }
+
+                            break;
                         }
 
-                        break;
-                    }
-
-                    default:
-                    {
-                        // nothing.
-                        break;
+                        default:
+                        {
+                            // nothing.
+                            break;
+                        }
                     }
                 }
 
@@ -337,26 +374,22 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
         // ///////////////////
         case State::Challenging:
         {
-            // state didn't change on us did it?
-            if (myState == State::Challenging)
+            if (myPacketCount > HandshakeRetries)
             {
-                if (myPacketCount > HandshakeRetries)
-                {
-                    Fail("Timeout: Challenging.");
-                }
-                else
-                {
-                    auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+                Fail("Timeout: Challenging.");
+            }
+            else
+            {
+                auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
 
-                    if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
-                    {
-                        result.emplace_back(
-                            PacketChallenge().TakeBuffer(),
-                            myAddress);
+                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
+                {
+                    result.emplace_back(
+                        PacketChallenge().TakeBuffer(),
+                        myAddress);
 
-                        myLastTimestamp = GetTimeNow();
-                        ++myPacketCount;
-                    }
+                    myLastTimestamp = GetTimeNow();
+                    ++myPacketCount;
                 }
             }
 
@@ -367,27 +400,25 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
         {
             // RAM: duplicate code! remove!
 
-            // state didn't change on us did it?
-            // RAM: TODO: use recursion to avoid if statement?
-            if (myState == State::Connecting)
+            if (myPacketCount > HandshakeRetries)
             {
-                if (myPacketCount > HandshakeRetries)
-                {
-                    Fail("Timeout: Connecting.");
-                }
-                else
-                {
-                    auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+                Fail("Timeout: Connecting.");
+            }
+            else
+            {
+                auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
 
-                    if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
-                    {
-                        result.emplace_back(
-                            PacketConnect(myKey).TakeBuffer(),
-                            myAddress);
+                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
+                {
+                    // RAM: TODO: Make sure state info > max packet size.
+                    auto info = myStateManager.StateInfo();
 
-                        myLastTimestamp = GetTimeNow();
-                        ++myPacketCount;
-                    }
+                    result.emplace_back(
+                        PacketConnect(myKey, info).TakeBuffer(),
+                        myAddress);
+
+                    myLastTimestamp = GetTimeNow();
+                    ++myPacketCount;
                 }
             }
 
@@ -399,9 +430,14 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
         // ///////////////////
         case State::Listening:
         {
-            // RAM: just react to packets, no resends or timeouts.
-            // RAM: if i do that, how do I know we're connected?
-            // RAM: TODO!
+            auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+
+            if (duration_cast<milliseconds>(sinceLastPacket) > (HandshakeRetries * HandshakeRetryPeriod()))
+            {
+                // Meh, timeout.
+                Fail("Timeout: Connecting to server.");
+            }
+
             break;
         }
     }
