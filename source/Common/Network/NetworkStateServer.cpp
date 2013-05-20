@@ -231,13 +231,14 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                             {
                                 if (info.Key() == myKey)
                                 {
-                                    // auto infoData = myStateManager.StateInfo();
+                                    auto infoData = myStateManager.StateInfo({});
+                                    PacketInfoResponse packet = {};
+                                    packet.Append(infoData);
 
-                                    // RAM: TODO! find a way of adding an info response.
-                                    // RAM: TODO! make sure the packetsize isn't too big.
-                                    // RAM: TODO! truncate the packet instead of dropping it.
+                                    // NOTE: Packet will be UDP fragmented if too big.
+                                    // But I'm not going to do anything about that.
                                     result.emplace_back(
-                                        PacketInfoResponse().TakeBuffer(),
+                                        packet.TakeBuffer(),
                                         myAddress);
 
                                     myLastTimestamp = GetTimeNow();
@@ -280,8 +281,12 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                                     if (myStateHandle)
                                     {
+                                        auto infoData = myStateManager.StateInfo(myStateHandle);
+                                        PacketConnectResponse packet = {};
+                                        packet.Append(infoData);
+
                                         result.emplace_back(
-                                            PacketConnectResponse().TakeBuffer(),
+                                            packet.TakeBuffer(),
                                             myAddress);
 
                                         myLastTimestamp = GetTimeNow();
@@ -410,9 +415,9 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
-                    // RAM: TODO: Make sure state info > max packet size.
-                    auto info = myStateManager.StateInfo();
+                    auto info = myStateManager.StateInfo({});
 
+                    // may be so big it UDP fragments, not my problem.
                     result.emplace_back(
                         PacketConnect(myKey, info).TakeBuffer(),
                         myAddress);

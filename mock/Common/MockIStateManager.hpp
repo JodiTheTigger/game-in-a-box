@@ -31,13 +31,14 @@ namespace GameInABox { namespace Common {
 class MockIStateManager final : public IStateManager
 {
 public:    
-    typedef std::array<uint64_t, 256> frequencyArray;
+    typedef std::array<uint64_t, 256>       FrequencyArray;
+    typedef boost::optional<ClientHandle>   OptionalClient;
 
-    MOCK_CONST_METHOD0(PrivateGetHuffmanFrequencies, frequencyArray ());
+    MOCK_CONST_METHOD0(PrivateGetHuffmanFrequencies, FrequencyArray ());
 
-    MOCK_CONST_METHOD0(PrivateStateInfo, std::vector<uint8_t> ());
+    MOCK_CONST_METHOD1(PrivateStateInfo, std::vector<uint8_t> (const OptionalClient&));
 
-    MOCK_METHOD2(PrivateConnect, boost::optional<ClientHandle> (std::vector<uint8_t>,
+    MOCK_METHOD2(PrivateConnect, OptionalClient (std::vector<uint8_t>,
                                                std::string&));
 
     MOCK_METHOD1(PrivateDisconnect, void (ClientHandle));

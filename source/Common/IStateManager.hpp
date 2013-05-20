@@ -47,7 +47,9 @@ class IStateManager
 public:
     std::array<uint64_t, 256> GetHuffmanFrequencies() const;
 
-    std::vector<uint8_t> StateInfo() const;
+    // Returns general state info if the client handle is invalid
+    // Otherwise info specific to the client (which is passed into Connect()).
+    std::vector<uint8_t> StateInfo(const boost::optional<ClientHandle>& client) const;
 
     boost::optional<ClientHandle> Connect(std::vector<uint8_t> connectData, std::string& failReason);
     void Disconnect(ClientHandle toDisconnect);
@@ -74,7 +76,7 @@ protected:
 private:
     virtual std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const = 0;
 
-    virtual std::vector<uint8_t> PrivateStateInfo() const = 0;
+    virtual std::vector<uint8_t> PrivateStateInfo(const boost::optional<ClientHandle>& client) const = 0;
 
     virtual boost::optional<ClientHandle> PrivateConnect(
             std::vector<uint8_t> connectData,
