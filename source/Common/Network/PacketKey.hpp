@@ -79,6 +79,11 @@ public:
         }
 
         return false;
+    }    
+
+    void Append(std::vector<uint8_t> toAppend)
+    {
+        myBuffer.insert(end(myBuffer), begin(toAppend), end(toAppend));
     }
 
     NetworkKey Key() const
@@ -96,7 +101,7 @@ public:
         return result;
     }
 
-    std::vector<uint8_t> GetBuffer()
+    std::vector<uint8_t> GetBuffer() const
     {
         std::vector<uint8_t> result;
 

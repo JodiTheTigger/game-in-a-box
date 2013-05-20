@@ -56,7 +56,12 @@ public:
         return false;
     }
 
-    std::vector<uint8_t> GetBuffer()
+    void Append(std::vector<uint8_t> toAppend)
+    {
+        myBuffer.insert(end(myBuffer), begin(toAppend), end(toAppend));
+    }
+
+    std::vector<uint8_t> GetBuffer() const
     {
         std::vector<uint8_t> result;
 
