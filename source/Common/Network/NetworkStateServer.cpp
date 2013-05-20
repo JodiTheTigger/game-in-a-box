@@ -131,7 +131,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                 {
                     if (Packet::GetCommand(packet.data) == Command::ChallengeResponse)
                     {
-                        PacketChallengeResponse response(packet.data);
+                        auto response = PacketChallengeResponse{packet.data};
 
                         if (response.IsValid())
                         {
@@ -142,7 +142,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                             }
                             else
                             {
-                                std::ostringstream theFail;
+                                std::ostringstream theFail{};
 
                                 theFail
                                     << "Network Protocol Mistmatch, expecting version: "
@@ -166,12 +166,11 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                 {
                     if (Packet::GetCommand(packet.data) == Command::ConnectResponse)
                     {
-                        PacketConnectResponse connection(packet.data);
+                        auto connection = PacketConnectResponse{packet.data};
 
                         if (connection.IsValid())
                         {
-                            std::string failReason;
-
+                            std::string failReason{};
                             auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
 
                             if (!handle)
@@ -208,7 +207,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                     {
                         case Command::Challenge:
                         {
-                            PacketChallenge challenge(packet.data);
+                            auto challenge = PacketChallenge{packet.data};
 
                             if (challenge.IsValid())
                             {
@@ -225,14 +224,14 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                         case Command::Info:
                         {
-                            PacketConnect info(packet.data);
+                            auto info = PacketConnect{packet.data};
 
                             if (info.IsValid())
                             {
                                 if (info.Key() == myKey)
                                 {
                                     auto infoData = myStateManager.StateInfo({});
-                                    PacketInfoResponse packet = {};
+                                    PacketInfoResponse packet{};
                                     packet.Append(infoData);
 
                                     // NOTE: Packet will be UDP fragmented if too big.
@@ -251,7 +250,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
                         case Command::Connect:
                         {
-                            PacketConnect connect(packet.data);
+                            auto connect = PacketConnect{packet.data};
 
                             if (connect.IsValid())
                             {
@@ -261,8 +260,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                                     // and if successful send the packet.
                                     if (!myStateHandle)
                                     {
-                                        std::string failMessage;
-
+                                        std::string failMessage{};
                                         auto handle = myStateManager.Connect(connect.GetBuffer(), failMessage);
 
                                         if (handle)
@@ -282,7 +280,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
                                     if (myStateHandle)
                                     {
                                         auto infoData = myStateManager.StateInfo(myStateHandle);
-                                        PacketConnectResponse packet = {};
+                                        PacketConnectResponse packet{};
                                         packet.Append(infoData);
 
                                         result.emplace_back(
@@ -365,7 +363,7 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
 
         case State::Disconnecting:
         {
-            std::string failReason("Normal Disconnect.");
+            auto failReason = std::string{"Normal Disconnect."};
 
             result.emplace_back(
                 PacketDisconnect(myKey, failReason).TakeBuffer(),
@@ -447,209 +445,6 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
         }
     }
 
-    /* copy and pasted from networkmanagerclient.
-    switch (myState)
-    {
-        case State::Challenging:
-        {
-            uint32_t key(0);
-            boost::asio::ip::udp::endpoint serverAddress;
-
-            // talking to all interfaces for now.
-            for (auto& network : myNetworks)
-            {
-                bool exit(false);
-
-                if (!network->IsDisabled())
-                {
-                    auto packets = network->Receive();
-
-                    for (auto& packet : packets)
-                    {
-                        Command commandType(Packet::GetCommand(packet.data));
-
-                        if (commandType == Command::Disconnect)
-                        {
-                            PacketDisconnect disconnect(packet.data);
-
-                            if (disconnect.IsValid())
-                            {
-                                Fail(disconnect.Message());
-                                exit = true;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            if (commandType == Command::ChallengeResponse)
-                            {
-                                PacketChallengeResponse response(packet.data);
-
-                                if (response.IsValid())
-                                {
-                                    key = response.Key();
-                                }
-                            }
-                        }
-
-                        if (key != 0)
-                        {
-                            serverAddress = packet.address;
-                            break;
-                        }
-                    }
-                }
-
-                if (key != 0)
-                {
-                    myConnectedNetwork = network.get();
-                    myServerAddress = serverAddress;
-                    exit = true;
-                }
-
-                if (exit)
-                {
-                    break;
-                }
-            }
-
-            // Level up?
-            if (myConnectedNetwork != nullptr)
-            {
-                // disable all other networks
-                for (auto& network : myNetworks)
-                {
-                    if (network.get() != myConnectedNetwork)
-                    {
-                        network->Disable();
-                    }
-                }
-
-                // set key and change state
-                myServerKey = key;
-                Push(myServerKeyAsABuffer.data(), myServerKey);
-                myState = State::Connecting;
-            }
-
-            break;
-        }
-
-        case State::Connecting:
-        {
-            auto packets = myConnectedNetwork->Receive();
-
-            // Fail?
-            if (myConnectedNetwork->IsDisabled())
-            {
-                Fail("Network Failed Unexpectedly.");
-                break;
-            }
-
-            for (auto& packet : packets)
-            {
-                bool exit(false);
-
-                switch (Packet::GetCommand(packet.data))
-                {
-                    case Command::ConnectResponse:
-                    {
-                        PacketConnectResponse connection(packet.data);
-
-                        if (connection.IsValid())
-                        {
-                            bool failed;
-                            string failReason;
-                            ClientHandle handle;
-
-                            handle = myStateManager.Connect(connection.GetBuffer(), failed, failReason);
-
-                            if (failed)
-                            {
-                                // Respond with a failed message please.
-                                // Only one will do, the server can timeout if it misses it.
-                                myConnectedNetwork->Send({{
-                                      PacketDisconnect(failReason).TakeBuffer(),
-                                      myServerAddress}});
-
-                                Fail(failReason);
-                            }
-                            else
-                            {
-                                myStateHandle = handle;
-                                myState = State::Connected;
-                            }
-
-                            // Don't support connecting to multiple servers at the same time.
-                            exit = true;
-                        }
-
-                        break;
-                    }
-
-                    case Command::Disconnect:
-                    {
-                        PacketDisconnect disconnect(packet.data);
-
-                        if (disconnect.IsValid())
-                        {
-                            Fail(disconnect.Message());
-                            exit = true;
-                        }
-
-                        break;
-                    }
-
-                    default:
-                    {
-                        // ignore
-                        break;
-                    }
-                }
-
-                if (exit)
-                {
-                    break;
-                }
-            }
-
-            break;
-        }
-
-        case State::Connected:
-        {
-            // Cannot get disconnected unless the gamestate tells us to.
-            // That is, ignore disconnect state packets.
-            if (myStateManager.IsConnected(myStateHandle))
-            {
-                auto packets = myConnectedNetwork->Receive();
-
-                for (auto& packet : packets)
-                {
-                    if (PacketDelta::IsPacketDelta(packet.data))
-                    {
-                        myDeltaHelper.AddPacket(PacketDelta(packet.data));
-                    }
-                }
-
-                // Do the work :-)
-                DeltaReceive();
-            }
-            else
-            {
-                // No longer connected, quit out.
-                // RAM: TODO! Need way of telling the server this too!
-                Fail("State is no longer connected.");
-            }
-
-            break;
-        }
-
-        default:
-        {
-            break;
-        }
-    }*/
-
     return result;
 }
 
@@ -679,11 +474,11 @@ void NetworkStateServer::Fail(std::string failReason)
 
 bool NetworkStateServer::Disconnected(const NetworkPacket& packet)
 {
-    bool result(false);
+    bool result{false};
 
     if (Packet::GetCommand(packet.data) == Command::Disconnect)
     {
-        PacketDisconnect disconnect(packet.data);
+        auto disconnect = PacketDisconnect{packet.data};
 
         if (disconnect.IsValid())
         {
