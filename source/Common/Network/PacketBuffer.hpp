@@ -38,7 +38,7 @@ public:
 
     PacketBuffer(std::string message) : PacketBuffer()
     {
-        myBuffer.insert(myBuffer.end(), message.begin(), message.end());
+        myBuffer.insert(end(myBuffer), begin(message), end(message));
     }
 
     virtual ~PacketBuffer() {}
@@ -62,14 +62,14 @@ public:
 
         result.reserve(myBuffer.size() - OffsetPayload);
 
-        result.assign(myBuffer.begin() + OffsetPayload, myBuffer.end());
+        result.assign(begin(myBuffer) + OffsetPayload, end(myBuffer));
 
         return result;
     }
 
     std::string Message() const
     {
-        return std::string(myBuffer.begin() + OffsetPayload, myBuffer.end());
+        return std::string(begin(myBuffer) + OffsetPayload, end(myBuffer));
     }
 
 protected:

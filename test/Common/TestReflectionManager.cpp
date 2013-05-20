@@ -152,11 +152,11 @@ TEST_F(TestReflectionManager, TestAddOneClassList)
 
     // call non-existing functions, not expecting any exceptions    
     EXPECT_EQ(5, things.size());
-    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.FirstProperty"));
-    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.SecondProperty"));
-    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.String1"));
-    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.String2"));
-    EXPECT_NE(things.end(), find(things.begin(), things.end(), "ReflectedTester.ResetToZero"));
+    EXPECT_NE(end(things), find(begin(things), end(things), "ReflectedTester.FirstProperty"));
+    EXPECT_NE(end(things), find(begin(things), end(things), "ReflectedTester.SecondProperty"));
+    EXPECT_NE(end(things), find(begin(things), end(things), "ReflectedTester.String1"));
+    EXPECT_NE(end(things), find(begin(things), end(things), "ReflectedTester.String2"));
+    EXPECT_NE(end(things), find(begin(things), end(things), "ReflectedTester.ResetToZero"));
 }
 
 TEST_F(TestReflectionManager, TestAddOneClassTypes) 

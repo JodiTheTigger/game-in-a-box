@@ -97,11 +97,11 @@ TEST_F(TestIReflected, TestList)
   auto relfectionMap = toTest.ReflectionList();
   
   EXPECT_EQ(5, relfectionMap.size());
-  EXPECT_NE(relfectionMap.end(), relfectionMap.find("FirstProperty"));
-  EXPECT_NE(relfectionMap.end(), relfectionMap.find("SecondProperty"));
-  EXPECT_NE(relfectionMap.end(), relfectionMap.find("String1"));
-  EXPECT_NE(relfectionMap.end(), relfectionMap.find("String2"));  
-  EXPECT_NE(relfectionMap.end(), relfectionMap.find("ResetToZero"));
+  EXPECT_NE(end(relfectionMap), relfectionMap.find("FirstProperty"));
+  EXPECT_NE(end(relfectionMap), relfectionMap.find("SecondProperty"));
+  EXPECT_NE(end(relfectionMap), relfectionMap.find("String1"));
+  EXPECT_NE(end(relfectionMap), relfectionMap.find("String2"));
+  EXPECT_NE(end(relfectionMap), relfectionMap.find("ResetToZero"));
 }
 
 TEST_F(TestIReflected, TestTypes) 

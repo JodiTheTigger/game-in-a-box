@@ -176,7 +176,7 @@ bool ReflectionManager::CheckAndGetClassAndKey(
     shared_ptr<IReflected> classConcrete;
     ReflectionKey keyToUse;
     
-    if (myStringToClassAndKey.find(argument) == myStringToClassAndKey.end())
+    if (myStringToClassAndKey.find(argument) == end(myStringToClassAndKey))
     {
         // no key
         return false;

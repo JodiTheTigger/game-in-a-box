@@ -49,10 +49,10 @@ public:
         
         // Simple phrase so I could check the tree against online tree creators.
         testPhrase = "SILLY SALLY SAW SIXTYSIX THICK THISTLE STICKS";
-        myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
+        myTestBuffers.push_back(new vector<uint8_t>(begin(testPhrase), end(testPhrase)));
 
         testPhrase = "Silly Sally saw sixty-six thick thistle sticks";
-        myTestBuffers.push_back(new vector<uint8_t>(testPhrase.begin(), testPhrase.end()));
+        myTestBuffers.push_back(new vector<uint8_t>(begin(testPhrase), end(testPhrase)));
         
         // Do a Fibonacci Sequence to generate an unbalanced tree.
         // This is used to test codewords greater than 9 bits.

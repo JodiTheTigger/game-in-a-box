@@ -115,7 +115,7 @@ PacketDelta::PacketDelta(
         myBuffer[OffsetIsServerFlags] |= MaskTopByteIsServerPacket;
     }
 
-    myBuffer.insert( myBuffer.end(), deltaPayload.begin(), deltaPayload.end() );
+    myBuffer.insert(end(myBuffer), begin(deltaPayload), end(deltaPayload));
 }
 
 PacketDelta::PacketDelta(
@@ -170,9 +170,9 @@ PacketDelta::PacketDelta(
                     myBuffer[OffsetSequence] |= MaskTopByteIsFragmented;
 
                     myBuffer.insert(
-                        myBuffer.end(),
-                        toFragment.myBuffer.begin() + start,
-                        toFragment.myBuffer.begin() + start + count);
+                        end(myBuffer),
+                        begin(toFragment.myBuffer) + start,
+                        begin(toFragment.myBuffer) + start + count);
                 }
             }
         }
@@ -242,9 +242,9 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
                         }
 
                         buffer.insert(
-                            buffer.end(),
-                            fragment->myBuffer.begin() + OffsetFragmentPayload,
-                            fragment->myBuffer.end());
+                            end(buffer),
+                            begin(fragment->myBuffer) + OffsetFragmentPayload,
+                            end(fragment->myBuffer));
 
                         // last fragment id?
                         if (fragment->IsLastFragment())
@@ -270,7 +270,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequence() const
     if (IsValid())
     {
         uint16_t rawSequence;
-        Pull(myBuffer.begin() + OffsetSequence, rawSequence);
+        Pull(begin(myBuffer) + OffsetSequence, rawSequence);
 
         return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
     }
@@ -285,7 +285,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceBase() const
     if (IsValid())
     {
         uint16_t base;
-        Pull(myBuffer.begin() + OffsetSequenceAck, base);
+        Pull(begin(myBuffer) + OffsetSequenceAck, base);
         base &= MaskSequenceAck;
 
         return WrappingCounter<uint16_t>(base - myBuffer[OffsetDeltaBase]);
@@ -301,7 +301,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceAck() const
     if (IsValid())
     {
         uint16_t rawSequence;
-        Pull(myBuffer.begin() + OffsetSequenceAck, rawSequence);
+        Pull(begin(myBuffer) + OffsetSequenceAck, rawSequence);
 
         return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
     }
@@ -370,7 +370,7 @@ uint16_t PacketDelta::ClientId() const
     if (HasClientId())
     {
         uint16_t id;
-        Pull(myBuffer.begin() + OffsetClientId, id);
+        Pull(begin(myBuffer) + OffsetClientId, id);
 
         return id;
     }
@@ -386,17 +386,17 @@ std::vector<uint8_t> PacketDelta::GetPayload() const
     {
         if (IsFragmented())
         {
-            return std::vector<uint8_t>(myBuffer.begin() + OffsetFragmentPayload, myBuffer.end());
+            return std::vector<uint8_t>(begin(myBuffer) + OffsetFragmentPayload, end(myBuffer));
         }
         else
         {
             if (HasClientId())
             {
-                return std::vector<uint8_t>(myBuffer.begin() + OffsetDataClient, myBuffer.end());
+                return std::vector<uint8_t>(begin(myBuffer) + OffsetDataClient, end(myBuffer));
             }
             else
             {
-                return std::vector<uint8_t>(myBuffer.begin() + OffsetDataServer, myBuffer.end());
+                return std::vector<uint8_t>(begin(myBuffer) + OffsetDataServer, end(myBuffer));
             }
         }
     }

@@ -78,7 +78,7 @@ TYPED_TEST(TestBufferSerialisation, PushPullRandomVector)
     std::back_insert_iterator<std::vector<uint8_t>> writer(buffer);
 
     Push(writer, typename TestFixture::DataType(TestFixture::maxValue - 24));
-    Pull(buffer.begin(), result);
+    Pull(begin(buffer), result);
 
     EXPECT_EQ(result, TestFixture::maxValue - 24);
 }

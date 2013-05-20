@@ -94,8 +94,8 @@ TEST_F(TestAutoComplete, TwoWordsInList)
     
     results = toTest.GetMatchList("");
     
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "TwoWrodsInList.Sad()"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "OneWordInList.Happy()"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "TwoWrodsInList.Sad()"));
     
     ASSERT_EQ(1, toTest.GetMatchList("One").size());
     ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.").size());
@@ -136,8 +136,8 @@ TEST_F(TestAutoComplete, TwoWordsInListSimilar)
     
     results = toTest.GetMatchList("");
     
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.RealHappy"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "OneWordInList.Happy()"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "OneWordInList.RealHappy"));
     
     ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.H").size());
     ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Hap").size());
@@ -219,12 +219,12 @@ TEST_F(TestAutoComplete, SimpleAutocompleteTests)
     
     results = toTest.GetMatchList("");
     
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.Happy()"));
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "OneWordInList.RealHappy"));
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "TwoThings"));
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.One()"));
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.Two"));
-    EXPECT_NE(results.end(), find(results.begin(), results.end(), "Tree.Tree.Trie"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "OneWordInList.Happy()"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "OneWordInList.RealHappy"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "TwoThings"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "Tree.One()"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "Tree.Two"));
+    EXPECT_NE(end(results), find(begin(results), end(results), "Tree.Tree.Trie"));
     
     ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.H").size());
     ASSERT_EQ(1, toTest.GetMatchList("OneWordInList.Hap").size());

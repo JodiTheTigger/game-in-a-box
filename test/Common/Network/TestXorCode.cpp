@@ -39,7 +39,7 @@ TEST_F(TestXorCode, EmptyBufferEmptyKey)
 {
     Bytes empty;
 
-    XorCode(empty.begin(), empty.end(), empty);
+    XorCode(begin(empty), end(empty), empty);
 
     // no execptions expected;
     EXPECT_TRUE(empty.empty());
@@ -50,7 +50,7 @@ TEST_F(TestXorCode, EmptyBuffer)
     Bytes empty;
     Bytes codes(4,42);
 
-    XorCode(empty.begin(), empty.end(), codes);
+    XorCode(begin(empty), end(empty), codes);
 
     // no execptions expected;
     EXPECT_TRUE(empty.empty());

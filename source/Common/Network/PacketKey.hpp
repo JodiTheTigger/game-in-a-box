@@ -39,21 +39,26 @@ public:
     PacketKey(NetworkKey key)
         : Packet(TheCommand)
     {
+        // Dependent name lookup for C++ templates
+        // is something I wish I didn't have to know about.
+        using std::begin;
+        using std::end;
+
         // NetworkKey is internally stored as a byte array so
         // we don't need to worry about endianess.
-        myBuffer.insert(myBuffer.end(), key.begin(), key.end());
+        myBuffer.insert(end(myBuffer), begin(key), end(key));
     }
 
     PacketKey(NetworkKey key, std::string message)
         : PacketKey(key)
     {
-        myBuffer.insert(myBuffer.end(), message.begin(), message.end());
+        myBuffer.insert(end(myBuffer), begin(message), end(message));
     }
 
     PacketKey(NetworkKey key, std::vector<uint8_t> payload)
         : PacketKey(key)
     {
-        myBuffer.insert(myBuffer.end(), payload.begin(), payload.end());
+        myBuffer.insert(end(myBuffer), begin(payload), end(payload));
     }
 
     PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
@@ -83,8 +88,8 @@ public:
         if (myBuffer.size() >= (PayloadSize + MinimumPacketSize))
         {
             std::copy(
-                myBuffer.begin() + OffsetKey,
-                myBuffer.begin() + OffsetKey + PayloadSize,
+                begin(myBuffer) + OffsetKey,
+                begin(myBuffer) + OffsetKey + PayloadSize,
                 result.data);
         }
 
@@ -97,14 +102,14 @@ public:
 
         result.reserve(myBuffer.size() - OffsetPayload);
 
-        result.assign(myBuffer.begin() + OffsetPayload, myBuffer.end());
+        result.assign(begin(myBuffer) + OffsetPayload, end(myBuffer));
 
         return result;
     }
 
     std::string Message() const
     {
-        return std::string(myBuffer.begin() + OffsetPayload, myBuffer.end());
+        return std::string(begin(myBuffer) + OffsetPayload, end(myBuffer));
     }
 
 protected:

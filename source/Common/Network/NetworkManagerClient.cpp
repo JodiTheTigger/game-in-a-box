@@ -409,10 +409,10 @@ void NetworkManagerClient::DeltaReceive()
             // Reason for excryption in the fist place is to prevent easy man-in-the-middle
             // attacks to control someone else's connection.
             std::vector<uint8_t> code(4);
-            Push(code.begin(), delta.GetSequence().Value());
-            Push(code.begin() + 2, delta.GetSequenceAck().Value());
-            XorCode(code.begin(), code.end(), myServerKey.data);
-            XorCode(payload.begin(), payload.end(), code);
+            Push(begin(code), delta.GetSequence().Value());
+            Push(begin(code) + 2, delta.GetSequenceAck().Value());
+            XorCode(begin(code), end(code), myServerKey.data);
+            XorCode(begin(payload), end(payload), code);
 
             // Bah, I wrote Huffman and Bitstream before I knew about iterators
             // or streams. This results in lots of copies that arn't really needed.

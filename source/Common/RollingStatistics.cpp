@@ -103,7 +103,7 @@ void RollingStatistics::Calculate()
     myStandardDeviation = static_cast<float>(std::sqrt(bigVariance / mySamples->size()));
     
     // 3.
-    sort(sorted.begin(), sorted.end());
+    sort(begin(sorted), end(sorted));
     myMin = sorted.front();
     myMax = sorted.back();
     
