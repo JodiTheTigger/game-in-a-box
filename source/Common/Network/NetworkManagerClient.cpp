@@ -18,8 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "NetworkManagerClient.hpp"
-
 #ifndef USING_PRECOMPILED_HEADERS
 #include <string>
 #include <chrono>
@@ -41,6 +39,9 @@
 #include "PacketTypes.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
+#include "Handshake.hpp"
+
+#include "NetworkManagerClient.hpp"
 
 using std::string;
 using namespace std::chrono;
@@ -52,8 +53,10 @@ NetworkManagerClient::NetworkManagerClient(
         IStateManager& stateManager)
     : INetworkManager()
     , myNetworks(move(networks))
+    , myNetworkState(networks.size(), {stateManager})
     , myStateManager(stateManager)
     , myConnectedNetwork(nullptr)
+    , myConnectedNetworkState(nullptr)
     , myState(State::Idle)
     , myServerKey(GetNetworkKeyNil())
     , myServerAddress()
@@ -81,16 +84,20 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     // reset state please.
     for (auto& network : myNetworks)
     {
-        network->Reset();
+        network->Reset();        
     }
 
-    myConnectedNetwork = nullptr;
+    for (auto& state : myNetworkState)
+    {
+        state.StartClient();
+    }
 
     myState = State::Challenging;
     myConnectedNetwork = nullptr;
+    myConnectedNetworkState = nullptr;
     myServerKey = GetNetworkKeyNil();
     myServerAddress = serverAddress;
-    myStateHandle = ClientHandle();
+    myStateHandle = {};
     myFailReason = "";
 
     myLastSequenceProcessed = Sequence(0);
@@ -108,6 +115,7 @@ void NetworkManagerClient::Disconnect()
     Fail("Client disconnected.");
 }
 
+// RAM: TODO! Use Handshake!
 void NetworkManagerClient::PrivateProcessIncomming()
 {
     switch (myState)
@@ -310,6 +318,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
     }
 }
 
+// RAM: TODO! Use Handshake!
 void NetworkManagerClient::PrivateSendState()
 {    
     // Deal with timeout and resend logic here during

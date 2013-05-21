@@ -40,6 +40,7 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
+class Handshake;
 
 class NetworkManagerClient : public INetworkManager
 {
@@ -89,8 +90,10 @@ private:
     };
 
     std::vector<MotleyUniquePointer<INetworkProvider>> myNetworks;
+    std::vector<Handshake> myNetworkState;
     IStateManager& myStateManager;
     INetworkProvider* myConnectedNetwork;
+    Handshake* myConnectedNetworkState;
 
     State myState;
     NetworkKey myServerKey;
