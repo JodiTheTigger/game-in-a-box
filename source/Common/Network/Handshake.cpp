@@ -88,9 +88,9 @@ void Handshake::Disconnect()
     Reset(State::Disconnecting);
 }
 
-std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
+boost::optional<NetworkPacket> Handshake::Process(NetworkPacket packet)
 {
-    std::vector<NetworkPacket> result;
+    boost::optional<NetworkPacket> result{};
 
     // NOTE:
     // pure things:
@@ -175,9 +175,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
 
                             if (!handle)
                             {
-                                result.emplace_back(
+                                result = {
                                     PacketDisconnect(myKey, failReason).TakeBuffer(),
-                                    myAddress);
+                                    myAddress};
 
                                 Fail(failReason);
                             }
@@ -211,9 +211,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
 
                             if (challenge.IsValid())
                             {
-                                result.emplace_back(
+                                result = {
                                     PacketChallengeResponse(Version, myKey).TakeBuffer(),
-                                    myAddress);
+                                    myAddress};
 
                                 myLastTimestamp = GetTimeNow();
                                 ++myPacketCount;
@@ -236,9 +236,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
 
                                     // NOTE: Packet will be UDP fragmented if too big.
                                     // But I'm not going to do anything about that.
-                                    result.emplace_back(
+                                    result = {
                                         packet.TakeBuffer(),
-                                        myAddress);
+                                        myAddress};
 
                                     myLastTimestamp = GetTimeNow();
                                     ++myPacketCount;
@@ -269,9 +269,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
                                         }
                                         else
                                         {
-                                            result.emplace_back(
+                                            result = {
                                                 PacketDisconnect(myKey, failMessage).TakeBuffer(),
-                                                myAddress);
+                                                myAddress};
 
                                             Fail(failMessage);
                                         }
@@ -283,9 +283,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
                                         PacketConnectResponse packet{};
                                         packet.Append(infoData);
 
-                                        result.emplace_back(
+                                        result = {
                                             packet.TakeBuffer(),
-                                            myAddress);
+                                            myAddress};
 
                                         myLastTimestamp = GetTimeNow();
                                         ++myPacketCount;
@@ -294,9 +294,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
                             }
                             else
                             {
-                                result.emplace_back(
+                                result = {
                                     PacketDisconnect(myKey, "Invalid Key.").TakeBuffer(),
-                                    myAddress);
+                                    myAddress};
                                 ++myPacketCount;
                             }
 
@@ -365,9 +365,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
         {
             auto failReason = std::string{"Normal Disconnect."};
 
-            result.emplace_back(
+            result = {
                 PacketDisconnect(myKey, failReason).TakeBuffer(),
-                myAddress);
+                myAddress};
             Fail(failReason);
             break;
         }
@@ -387,9 +387,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
-                    result.emplace_back(
+                    result = {
                         PacketChallenge().TakeBuffer(),
-                        myAddress);
+                        myAddress};
 
                     myLastTimestamp = GetTimeNow();
                     ++myPacketCount;
@@ -416,9 +416,9 @@ std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
                     auto info = myStateManager.StateInfo({});
 
                     // may be so big it UDP fragments, not my problem.
-                    result.emplace_back(
+                    result = {
                         PacketConnect(myKey, info).TakeBuffer(),
-                        myAddress);
+                        myAddress};
 
                     myLastTimestamp = GetTimeNow();
                     ++myPacketCount;

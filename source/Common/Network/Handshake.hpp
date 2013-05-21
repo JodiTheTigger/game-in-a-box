@@ -39,7 +39,7 @@ namespace Network {
 class NetworkPacket;
 enum class State;
 
-// Handles the connection handshake and failures for a server.
+// Handles the connection handshake and failures between a client and a server.
 class Handshake
 {
 public:
@@ -52,7 +52,7 @@ public:
     void Disconnect();
 
     // Input, packets to process, output, packets to send.
-    std::vector<NetworkPacket> Process(NetworkPacket packets);
+    boost::optional<NetworkPacket> Process(NetworkPacket packets);
 
     bool IsConnected() const;
     bool HasFailed() const;
