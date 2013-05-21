@@ -420,11 +420,10 @@ void NetworkManagerClient::DeltaReceive()
             // to use iterators or streams.
 
             // Decompress (2nd Copy)
-            std::unique_ptr<std::vector<uint8_t>> decompressed;
-            decompressed = move(myCompressor.Decode(payload));
+            auto decompressed = move(myCompressor.Decode(payload));
 
             // Pass to gamestate (which will decompress the delta itself).
-            BitStreamReadOnly payloadBitstream(payload);
+            BitStreamReadOnly payloadBitstream(*decompressed);
             myStateManager.DeltaSet(
                 *myStateHandle,
                 delta.GetSequence().Value(),
