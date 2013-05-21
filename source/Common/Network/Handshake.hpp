@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef NETWORKSTATESERVER_HPP
-#define NETWORKSTATESERVER_HPP
+#ifndef HANDSHAKE_HPP
+#define HANDSHAKE_HPP
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
@@ -40,10 +40,10 @@ class NetworkPacket;
 enum class State;
 
 // Handles the connection handshake and failures for a server.
-class NetworkStateServer
+class Handshake
 {
 public:
-    NetworkStateServer(
+    Handshake(
             IStateManager& stateManager,
             boost::asio::ip::udp::endpoint address);
 
@@ -93,4 +93,4 @@ private:
 
 }}} // namespace
 
-#endif // NETWORKSTATESERVER_HPP
+#endif // HANDSHAKE_HPP

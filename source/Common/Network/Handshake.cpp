@@ -32,7 +32,7 @@
 #include "PacketDelta.hpp"
 
 
-#include "NetworkStateServer.hpp"
+#include "Handshake.hpp"
 
 using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;
@@ -54,7 +54,7 @@ enum class State
     Connecting,
 };
 
-NetworkStateServer::NetworkStateServer(
+Handshake::Handshake(
         IStateManager& stateManager,
         boost::asio::ip::udp::endpoint address)
     : myStateManager(stateManager)
@@ -68,27 +68,27 @@ NetworkStateServer::NetworkStateServer(
 {
 }
 
-void NetworkStateServer::StartClient()
+void Handshake::StartClient()
 {
     myKey = GetNetworkKeyNil();
     myStateHandle.reset();
     Reset(State::Challenging);
 }
 
-void NetworkStateServer::StartServer()
+void Handshake::StartServer()
 {
     myKey = GetNetworkKeyRandom();
     myStateHandle.reset();
     Reset(State::Listening);
 }
 
-void NetworkStateServer::Disconnect()
+void Handshake::Disconnect()
 {
     myStateManager.Disconnect(*myStateHandle);
     Reset(State::Disconnecting);
 }
 
-std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
+std::vector<NetworkPacket> Handshake::Process(NetworkPacket packet)
 {
     std::vector<NetworkPacket> result;
 
@@ -448,17 +448,17 @@ std::vector<NetworkPacket> NetworkStateServer::Process(NetworkPacket packet)
     return result;
 }
 
-bool NetworkStateServer::IsConnected() const
+bool Handshake::IsConnected() const
 {
     return myState == State::Connected;
 }
 
-bool NetworkStateServer::HasFailed() const
+bool Handshake::HasFailed() const
 {
     return myState == State::FailedConnection;
 }
 
-void NetworkStateServer::Reset(State resetState)
+void Handshake::Reset(State resetState)
 {
     myState         = resetState;
     myFailReason    = "";
@@ -466,13 +466,13 @@ void NetworkStateServer::Reset(State resetState)
     myLastTimestamp = Timepoint::min();
 }
 
-void NetworkStateServer::Fail(std::string failReason)
+void Handshake::Fail(std::string failReason)
 {
     myState = State::FailedConnection;
     myFailReason = failReason;
 }
 
-bool NetworkStateServer::Disconnected(const NetworkPacket& packet)
+bool Handshake::Disconnected(const NetworkPacket& packet)
 {
     bool result{false};
 
@@ -493,7 +493,7 @@ bool NetworkStateServer::Disconnected(const NetworkPacket& packet)
     return result;
 }
 
-std::chrono::steady_clock::time_point NetworkStateServer::GetTimeNow()
+std::chrono::steady_clock::time_point Handshake::GetTimeNow()
 {
     return std::chrono::steady_clock::now();
 }
