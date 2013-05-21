@@ -405,7 +405,12 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
         {
             auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
 
-            if (duration_cast<milliseconds>(sinceLastPacket) > (HandshakeRetries * HandshakeRetryPeriod()))
+            // int{HandshakeRetries} because for some reason te compiler needs
+            // the address of HandshakeRetries if I just do * HandshakeRetries.
+            // Which means I'll need to put a defintion in this file. Argh.
+            // Yes, I know that this comment is bigger than the defintion I would
+            // have needed.
+            if (duration_cast<milliseconds>(sinceLastPacket) > (HandshakeRetryPeriod() * int{HandshakeRetries}))
             {
                 // Meh, timeout.
                 Fail("Timeout: Connecting to server.");

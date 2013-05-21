@@ -44,6 +44,12 @@ class Handshake
 public:
     Handshake(IStateManager& stateManager);
 
+    Handshake(const Handshake&) = default;
+    Handshake(Handshake&&) = default;
+    Handshake& operator=(const Handshake&) = default;
+    Handshake& operator=(Handshake&&) = default;
+    ~Handshake() = default;
+
     void StartClient();
     void StartServer();
     void Disconnect();
@@ -84,7 +90,9 @@ private:
 
     // To enable a unit test class for the state machine
     // I need a way of controlling the time.
-    virtual std::chrono::steady_clock::time_point GetTimeNow() = 0;
+    // RAM: Use a function passed into the constructor instead
+    // (dependency injection).
+    virtual std::chrono::steady_clock::time_point GetTimeNow();
 };
 
 }}} // namespace
