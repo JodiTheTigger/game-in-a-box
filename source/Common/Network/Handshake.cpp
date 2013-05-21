@@ -97,7 +97,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
     // pure things:
     // State, NetworkPacket, packetCount, timeLastPacket, timeCurrent, failReason
     // impure things:
-    // IStateManager, Disconnecting, Fail()
+    // IStateManager (Disconnect, Connect, StateInfo), Fail()
     // tried to have this all in a pure function, but calling IStateManager connect
     // and disconnect was impure, wrong place to try.
 
