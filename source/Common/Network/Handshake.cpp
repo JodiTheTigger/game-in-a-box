@@ -54,11 +54,8 @@ enum class State
     Connecting,
 };
 
-Handshake::Handshake(
-        IStateManager& stateManager,
-        boost::asio::ip::udp::endpoint address)
+Handshake::Handshake(IStateManager& stateManager)
     : myStateManager(stateManager)
-    , myAddress(address)
     , myState(State::Idle)
     , myFailReason("")
     , myKey(GetNetworkKeyNil())
@@ -88,9 +85,9 @@ void Handshake::Disconnect()
     Reset(State::Disconnecting);
 }
 
-boost::optional<NetworkPacket> Handshake::Process(NetworkPacket packet)
+std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
 {
-    boost::optional<NetworkPacket> result{};
+    std::vector<uint8_t> result{};
 
     // NOTE:
     // pure things:
@@ -103,235 +100,219 @@ boost::optional<NetworkPacket> Handshake::Process(NetworkPacket packet)
     // Done in two parts, parse the packets then generate packets.
     // Parse first as that can change the state we're in.
 
+    // Finally, it's assumed that packet address checks have been done
+    // Before we get here, so I won't be checking.
+
     // ///////////////////
     // Parse
     // ///////////////////
-    if (packet.address == myAddress)
+    switch (myState)
     {
-        switch (myState)
+        case State::Idle:
+        case State::FailedConnection:
+        case State::Disconnecting:
         {
-            case State::Idle:
-            case State::FailedConnection:
-            case State::Disconnecting:
-            {
-                // Nothing, ignore everything
-                break;
-            }
+            // Nothing, ignore everything
+            break;
+        }
 
-            case State::Connected:
-            {
-                // check to see if we disconnect.
-                Disconnected(packet);
-                break;
-            }
+        case State::Connected:
+        {
+            // check to see if we disconnect.
+            Disconnected(packet);
+            break;
+        }
 
-            case State::Challenging:
+        case State::Challenging:
+        {
+            if (!Disconnected(packet))
             {
-                if (!Disconnected(packet))
+                if (Packet::GetCommand(packet) == Command::ChallengeResponse)
                 {
-                    if (Packet::GetCommand(packet.data) == Command::ChallengeResponse)
+                    auto response = PacketChallengeResponse{packet};
+
+                    if (response.IsValid())
                     {
-                        auto response = PacketChallengeResponse{packet.data};
-
-                        if (response.IsValid())
+                        if (response.Version() == Version)
                         {
-                            if (response.Version() == Version)
-                            {
-                                myKey = response.Key();
-                                Reset(State::Connecting);
-                            }
-                            else
-                            {
-                                std::ostringstream theFail{};
+                            myKey = response.Key();
+                            Reset(State::Connecting);
+                        }
+                        else
+                        {
+                            std::ostringstream theFail{};
 
-                                theFail
-                                    << "Network Protocol Mistmatch, expecting version: "
-                                    << Version
-                                    << " recieved: "
-                                    << response.Version()
-                                    << ".";
+                            theFail
+                                << "Network Protocol Mistmatch, expecting version: "
+                                << Version
+                                << " recieved: "
+                                << response.Version()
+                                << ".";
 
-                                Fail(theFail.str());
-                            }
+                            Fail(theFail.str());
                         }
                     }
                 }
-
-                break;
             }
 
-            case State::Connecting:
+            break;
+        }
+
+        case State::Connecting:
+        {
+            if (!Disconnected(packet))
             {
-                if (!Disconnected(packet))
+                if (Packet::GetCommand(packet) == Command::ConnectResponse)
                 {
-                    if (Packet::GetCommand(packet.data) == Command::ConnectResponse)
+                    auto connection = PacketConnectResponse{packet};
+
+                    if (connection.IsValid())
                     {
-                        auto connection = PacketConnectResponse{packet.data};
+                        std::string failReason{};
+                        auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
 
-                        if (connection.IsValid())
+                        if (!handle)
                         {
-                            std::string failReason{};
-                            auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
-
-                            if (!handle)
-                            {
-                                result = {
-                                    PacketDisconnect(myKey, failReason).TakeBuffer(),
-                                    myAddress};
-
-                                Fail(failReason);
-                            }
-                            else
-                            {
-                                myStateHandle = handle;
-                                Reset(State::Connected);
-                            }
+                            result = PacketDisconnect(myKey, failReason).TakeBuffer();
+                            Fail(failReason);
+                        }
+                        else
+                        {
+                            myStateHandle = handle;
+                            Reset(State::Connected);
                         }
                     }
                 }
-
-                break;
             }
 
-            // ///////////////////
-            // Server
-            // ///////////////////
-            case State::Listening:
+            break;
+        }
+
+        // ///////////////////
+        // Server
+        // ///////////////////
+        case State::Listening:
+        {
+            auto command = Packet::GetCommand(packet);
+
+            // Deal with floods but not sending the response.
+            if (myPacketCount > FloodTrigger)
             {
-                auto command = Packet::GetCommand(packet.data);
-
-                // Deal with floods but not sending the response.
-                if (myPacketCount > FloodTrigger)
+                switch (command)
                 {
-                    switch (command)
+                    case Command::Challenge:
                     {
-                        case Command::Challenge:
+                        auto challenge = PacketChallenge{packet};
+
+                        if (challenge.IsValid())
                         {
-                            auto challenge = PacketChallenge{packet.data};
+                            result = PacketChallengeResponse(Version, myKey).TakeBuffer();
+                            myLastTimestamp = GetTimeNow();
+                            ++myPacketCount;
+                        }
 
-                            if (challenge.IsValid())
+                        break;
+                    }
+
+                    case Command::Info:
+                    {
+                        auto info = PacketConnect{packet};
+
+                        if (info.IsValid())
+                        {
+                            if (info.Key() == myKey)
                             {
-                                result = {
-                                    PacketChallengeResponse(Version, myKey).TakeBuffer(),
-                                    myAddress};
+                                auto infoData = myStateManager.StateInfo({});
 
+                                // Bah can't just create the packet with std::vector as it'll treat it
+                                // as the entire packet buffer, not just the payload.
+                                PacketInfoResponse packet{};
+                                packet.Append(infoData);
+
+                                // NOTE: Packet will be UDP fragmented if too big.
+                                // But I'm not going to do anything about that.
+                                result = packet.TakeBuffer();
                                 myLastTimestamp = GetTimeNow();
                                 ++myPacketCount;
                             }
-
-                            break;
                         }
 
-                        case Command::Info:
+                        break;
+                    }
+
+                    case Command::Connect:
+                    {
+                        auto connect = PacketConnect{packet};
+
+                        if (connect.IsValid())
                         {
-                            auto info = PacketConnect{packet.data};
-
-                            if (info.IsValid())
+                            if (connect.Key() == myKey)
                             {
-                                if (info.Key() == myKey)
+                                // register the client with the game state
+                                // and if successful send the packet.
+                                if (!myStateHandle)
                                 {
-                                    auto infoData = myStateManager.StateInfo({});
-                                    PacketInfoResponse packet{};
-                                    packet.Append(infoData);
+                                    std::string failMessage{};
+                                    auto handle = myStateManager.Connect(connect.GetBuffer(), failMessage);
 
-                                    // NOTE: Packet will be UDP fragmented if too big.
-                                    // But I'm not going to do anything about that.
-                                    result = {
-                                        packet.TakeBuffer(),
-                                        myAddress};
+                                    if (handle)
+                                    {
+                                        myStateHandle = handle;
+                                    }
+                                    else
+                                    {
+                                        result = PacketDisconnect(myKey, failMessage).TakeBuffer();
+                                        Fail(failMessage);
+                                    }
+                                }
 
+                                if (myStateHandle)
+                                {
+                                    auto infoData = myStateManager.StateInfo(myStateHandle);
+                                    PacketConnectResponse response{};
+                                    response.Append(infoData);
+
+                                    result = response.TakeBuffer();
                                     myLastTimestamp = GetTimeNow();
                                     ++myPacketCount;
                                 }
                             }
-
-                            break;
                         }
-
-                        case Command::Connect:
+                        else
                         {
-                            auto connect = PacketConnect{packet.data};
-
-                            if (connect.IsValid())
-                            {
-                                if (connect.Key() == myKey)
-                                {
-                                    // register the client with the game state
-                                    // and if successful send the packet.
-                                    if (!myStateHandle)
-                                    {
-                                        std::string failMessage{};
-                                        auto handle = myStateManager.Connect(connect.GetBuffer(), failMessage);
-
-                                        if (handle)
-                                        {
-                                            myStateHandle = handle;
-                                        }
-                                        else
-                                        {
-                                            result = {
-                                                PacketDisconnect(myKey, failMessage).TakeBuffer(),
-                                                myAddress};
-
-                                            Fail(failMessage);
-                                        }
-                                    }
-
-                                    if (myStateHandle)
-                                    {
-                                        auto infoData = myStateManager.StateInfo(myStateHandle);
-                                        PacketConnectResponse packet{};
-                                        packet.Append(infoData);
-
-                                        result = {
-                                            packet.TakeBuffer(),
-                                            myAddress};
-
-                                        myLastTimestamp = GetTimeNow();
-                                        ++myPacketCount;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                result = {
-                                    PacketDisconnect(myKey, "Invalid Key.").TakeBuffer(),
-                                    myAddress};
-                                ++myPacketCount;
-                            }
-
-                            break;
+                            result = PacketDisconnect(myKey, "Invalid Key.").TakeBuffer();
+                            ++myPacketCount;
                         }
 
-                        case Command::Unrecognised:
+                        break;
+                    }
+
+                    case Command::Unrecognised:
+                    {
+                        // If we get deltas, that means we're connected.
+                        if (PacketDelta::IsPacketDelta(packet))
                         {
-                            // If we get deltas, that means we're connected.
-                            if (PacketDelta::IsPacketDelta(packet.data))
-                            {
-                                Reset(State::Connected);
-                            }
-
-                            break;
+                            Reset(State::Connected);
                         }
 
-                        default:
-                        {
-                            // nothing.
-                            break;
-                        }
+                        break;
+                    }
+
+                    default:
+                    {
+                        // nothing.
+                        break;
                     }
                 }
-
-                break;
             }
+
+            break;
         }
     }
-
 
     // ///////////////////
     // Generate
     // ///////////////////
-
 
     switch (myState)
     {
@@ -352,11 +333,8 @@ boost::optional<NetworkPacket> Handshake::Process(NetworkPacket packet)
 
         case State::Connected:
         {
-            if (packet.address == myAddress)
-            {
-                // check to see if we disconnect.
-                Disconnected(packet);
-            }
+            // check to see if we disconnect.
+            Disconnected(packet);
 
             break;
         }
@@ -365,9 +343,7 @@ boost::optional<NetworkPacket> Handshake::Process(NetworkPacket packet)
         {
             auto failReason = std::string{"Normal Disconnect."};
 
-            result = {
-                PacketDisconnect(myKey, failReason).TakeBuffer(),
-                myAddress};
+            result = PacketDisconnect(myKey, failReason).TakeBuffer();
             Fail(failReason);
             break;
         }
@@ -387,10 +363,7 @@ boost::optional<NetworkPacket> Handshake::Process(NetworkPacket packet)
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
-                    result = {
-                        PacketChallenge().TakeBuffer(),
-                        myAddress};
-
+                    result = PacketChallenge().TakeBuffer();
                     myLastTimestamp = GetTimeNow();
                     ++myPacketCount;
                 }
@@ -416,10 +389,7 @@ boost::optional<NetworkPacket> Handshake::Process(NetworkPacket packet)
                     auto info = myStateManager.StateInfo({});
 
                     // may be so big it UDP fragments, not my problem.
-                    result = {
-                        PacketConnect(myKey, info).TakeBuffer(),
-                        myAddress};
-
+                    result = PacketConnect(myKey, info).TakeBuffer();
                     myLastTimestamp = GetTimeNow();
                     ++myPacketCount;
                 }
@@ -472,13 +442,13 @@ void Handshake::Fail(std::string failReason)
     myFailReason = failReason;
 }
 
-bool Handshake::Disconnected(const NetworkPacket& packet)
+bool Handshake::Disconnected(const std::vector<uint8_t> &packet)
 {
     bool result{false};
 
-    if (Packet::GetCommand(packet.data) == Command::Disconnect)
+    if (Packet::GetCommand(packet) == Command::Disconnect)
     {
-        auto disconnect = PacketDisconnect{packet.data};
+        auto disconnect = PacketDisconnect{packet};
 
         if (disconnect.IsValid())
         {

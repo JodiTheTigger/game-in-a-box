@@ -25,7 +25,6 @@
 #include <vector>
 #include <string>
 #include <chrono>
-#include <boost/asio/ip/udp.hpp>
 #include <boost/optional.hpp>
 #endif
 
@@ -43,16 +42,14 @@ enum class State;
 class Handshake
 {
 public:
-    Handshake(
-            IStateManager& stateManager,
-            boost::asio::ip::udp::endpoint address);
+    Handshake(IStateManager& stateManager);
 
     void StartClient();
     void StartServer();
     void Disconnect();
 
     // Input, packets to process, output, packets to send.
-    boost::optional<NetworkPacket> Process(NetworkPacket packets);
+    std::vector<uint8_t> Process(std::vector<uint8_t> packet);
 
     bool IsConnected() const;
     bool HasFailed() const;
@@ -69,7 +66,6 @@ private:
     static const uint8_t Version = 1;
 
     IStateManager&                          myStateManager;
-    boost::asio::ip::udp::endpoint          myAddress;
     State                                   myState;
     std::string                             myFailReason;
     NetworkKey                              myKey;
@@ -84,7 +80,7 @@ private:
 
     void Reset(State resetState);
     void Fail(std::string failReason);
-    bool Disconnected(const NetworkPacket& packet);
+    bool Disconnected(const std::vector<uint8_t>& packet);
 
     // To enable a unit test class for the state machine
     // I need a way of controlling the time.
