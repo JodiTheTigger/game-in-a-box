@@ -81,7 +81,11 @@ void Handshake::StartServer()
 
 void Handshake::Disconnect()
 {
-    myStateManager.Disconnect(*myStateHandle);
+    if (myStateHandle)
+    {
+        myStateManager.Disconnect(*myStateHandle);
+    }
+
     Reset(State::Disconnecting);
 }
 
