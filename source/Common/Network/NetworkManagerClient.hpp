@@ -89,11 +89,9 @@ private:
         FailedConnection,
     };
 
-    std::vector<MotleyUniquePointer<INetworkProvider>> myNetworks;
-    std::vector<Handshake> myNetworkState;
+    std::vector<std::pair<MotleyUniquePointer<INetworkProvider>, Handshake>> myNetworks;
+    std::pair<MotleyUniquePointer<INetworkProvider>, Handshake>* myConnectedNetwork;
     IStateManager& myStateManager;
-    INetworkProvider* myConnectedNetwork;
-    Handshake* myConnectedNetworkState;
 
     State myState;
     NetworkKey myServerKey;

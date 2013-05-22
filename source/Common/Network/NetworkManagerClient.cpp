@@ -48,15 +48,14 @@ using namespace std::chrono;
 using namespace GameInABox::Common::Network;
 using namespace GameInABox::Common::Logging;
 
+// RAM: TODO! Make sure you check recieved packets are from the server address.
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
     : INetworkManager()
-    , myNetworks(move(networks))
-    , myNetworkState(networks.size(), {stateManager})
-    , myStateManager(stateManager)
+    , myNetworks()
     , myConnectedNetwork(nullptr)
-    , myConnectedNetworkState(nullptr)
+    , myStateManager(stateManager)
     , myState(State::Idle)
     , myServerKey(GetNetworkKeyNil())
     , myServerAddress()
@@ -70,7 +69,13 @@ NetworkManagerClient::NetworkManagerClient(
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
-
+    for (auto& network : networks)
+    {
+        myNetworks.push_back({move(network), {stateManager}});
+        // RAM: TODO: Why doesn't emplace_back compile?
+        //myNetworks.emplace_back(move(network), {stateManager});
+        //myNetworks.emplace_back({move(network), {stateManager}});
+    }
 }
 
 NetworkManagerClient::~NetworkManagerClient()
@@ -84,17 +89,12 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     // reset state please.
     for (auto& network : myNetworks)
     {
-        network->Reset();        
-    }
-
-    for (auto& state : myNetworkState)
-    {
-        state.StartClient();
+        network.first->Reset();
+        network.second.StartClient();
     }
 
     myState = State::Challenging;
     myConnectedNetwork = nullptr;
-    myConnectedNetworkState = nullptr;
     myServerKey = GetNetworkKeyNil();
     myServerAddress = serverAddress;
     myStateHandle = {};
@@ -118,8 +118,101 @@ void NetworkManagerClient::Disconnect()
 // RAM: TODO! Use Handshake!
 void NetworkManagerClient::PrivateProcessIncomming()
 {
+    if (myConnectedNetwork != nullptr)
+    {
+        // already connected, just deal with that.
+
+        if (myStateManager.IsConnected(*myStateHandle))
+        {
+            auto packets = myConnectedNetwork->first->Receive();
+
+            for (auto& packet : packets)
+            {
+                if (PacketDelta::IsPacketDelta(packet.data))
+                {
+                    myDeltaHelper.AddPacket(PacketDelta(packet.data));
+                }
+                else
+                {
+                    // Pass though state incase we get disconnect packets.
+                    auto response = myConnectedNetwork->second.Process(packet.data);
+                    myConnectedNetwork->first->Send({{response, myServerAddress}});
+
+                    if (myConnectedNetwork->second.HasFailed())
+                    {
+                        Fail(myConnectedNetwork->second.FailReason());
+                        break;
+                    }
+                }
+            }
+
+            // Do some work :-)
+            if (myConnectedNetwork->second.IsConnected())
+            {
+                DeltaReceive();
+            }
+        }
+        else
+        {
+            // No longer connected, quit out.
+            // RAM: TODO! Need way of telling the server this too!
+            Fail("State is no longer connected.");
+        }
+    }
+    else
+    {
+        // talking to all interfaces for now.
+        for (auto& network : myNetworks)
+        {
+            if (!network.first->IsDisabled())
+            {
+                auto packets = network.first->Receive();
+                std::vector<NetworkPacket> toSend{};
+
+                for (auto& packet : packets)
+                {
+                    auto response = network.second.Process(packet.data);
+                    toSend.emplace_back(response, myServerAddress);
+
+                    // Win, lose or nothing?
+                    if (network.second.IsConnected())
+                    {
+                        // Win
+                        myConnectedNetwork = &network;
+
+                        // Don't accidently drop a delta packet.
+                        if (PacketDelta::IsPacketDelta(packet.data))
+                        {
+                            myDeltaHelper.AddPacket(PacketDelta(packet.data));
+                        }
+
+                        break;
+                    }
+                    else
+                    {
+                        if (network.second.HasFailed())
+                        {
+                            // Lose.
+                            network.first->Send(toSend);
+                            network.first->Flush();
+                            network.first->Disable();
+                            break;
+                        }
+                    }
+                }
+
+                if (!network.first->IsDisabled())
+                {
+                    network.first->Send(toSend);
+                }
+            }
+        }
+    }
+
+    /*
     switch (myState)
     {
+
         case State::Challenging:
         {
             NetworkKey key(GetNetworkKeyNil());
@@ -316,11 +409,48 @@ void NetworkManagerClient::PrivateProcessIncomming()
             break;
         }
     }
+    */
 }
 
 // RAM: TODO! Use Handshake!
 void NetworkManagerClient::PrivateSendState()
-{    
+{        
+    if (myConnectedNetwork != nullptr)
+    {
+        // Don't bother checkng state, as when connected it can't do
+        // anything without receiving a packet first.
+        //auto response = myConnectedNetwork->second.Process(packet.data);
+        //myConnectedNetwork->first->Send({{response, myServerAddress}});
+
+        //if (myConnectedNetwork->second.HasFailed())
+        //{
+        //    Fail(myConnectedNetwork->second.FailReason());
+        //    return;
+        //}
+        DeltaSend();
+    }
+    else
+    {
+        // talking to all interfaces for now.
+        for (auto& network : myNetworks)
+        {
+            if (!network.first->IsDisabled())
+            {
+                auto response = network.second.Process({});
+                network.first->Send({{response, myServerAddress}});
+
+                // Lose?
+                if (network.second.HasFailed())
+                {
+                    // Lose.
+                    network.first->Flush();
+                    network.first->Disable();
+                    break;
+                }
+            }
+        }
+    }
+    /*
     // Deal with timeout and resend logic here during
     // Connection handshaking. Otherwise get the lastest
     // state from the client and send a delta packet.
@@ -380,14 +510,22 @@ void NetworkManagerClient::PrivateSendState()
             break;
         }
     }
+    */
 }
 
 void NetworkManagerClient::Fail(std::string failReason)
 {
     for (auto& network : myNetworks)
     {
-        network->Flush();
-        network->Disable();
+        if (!network.first->IsDisabled())
+        {
+            network.second.Disconnect();
+            auto lastPacket = network.second.Process({});
+
+            network.first->Send({{lastPacket, myServerAddress}});
+            network.first->Flush();
+            network.first->Disable();
+        }
     }
 
     myFailReason = failReason;
@@ -462,6 +600,7 @@ void NetworkManagerClient::DeltaSend()
     {
         // ignore if the delta distance is greater than 255, as we
         // store the distance as a byte.
+        // RAM: TODO: Make this part of the type, so I don't use magic numbers.
         uint16_t distance(to - from);
         if (distance < 256)
         {
@@ -481,7 +620,7 @@ void NetworkManagerClient::DeltaSend()
             }
 
             // send
-            myConnectedNetwork->Send(packets);
+            myConnectedNetwork->first->Send(packets);
         }
         else
         {
@@ -490,7 +629,7 @@ void NetworkManagerClient::DeltaSend()
     }
     else
     {
-        // Gamestate should realise that packets are too big and make them smaller instead.
+        // RAM: TODO: Gamestate should realise that packets are too big and make them smaller instead.
         Logging::Log(Logging::LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
     }
 }
