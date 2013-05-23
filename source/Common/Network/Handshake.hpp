@@ -57,7 +57,7 @@ public:
     ~Handshake() = default;
 
     void Start(Mode mode);
-    void Disconnect();
+    void Disconnect(std::string failReason);
 
     // Input, packets to process, output, packets to send.
     std::vector<uint8_t> Process(std::vector<uint8_t> packet);

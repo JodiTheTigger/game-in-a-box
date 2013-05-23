@@ -519,7 +519,7 @@ void NetworkManagerClient::Fail(std::string failReason)
     {
         if (!network.first->IsDisabled())
         {
-            network.second.Disconnect();
+            network.second.Disconnect(failReason);
             auto lastPacket = network.second.Process({});
 
             network.first->Send({{lastPacket, myServerAddress}});

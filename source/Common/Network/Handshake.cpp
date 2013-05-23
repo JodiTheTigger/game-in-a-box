@@ -81,8 +81,9 @@ void Handshake::Start(Mode mode)
     }
 }
 
-void Handshake::Disconnect()
+void Handshake::Disconnect(std::string)
 {
+    // RAM: TODO: Deal with the failReason here!
     if (myStateHandle)
     {
         myStateManager.Disconnect(*myStateHandle);
