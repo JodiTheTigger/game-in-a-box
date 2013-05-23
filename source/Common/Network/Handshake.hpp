@@ -42,6 +42,12 @@ enum class State;
 class Handshake
 {
 public:
+    enum class Mode
+    {
+        Client,
+        Server
+    };
+
     Handshake(IStateManager& stateManager);
 
     Handshake(const Handshake&) = default;
@@ -50,8 +56,7 @@ public:
     Handshake& operator=(Handshake&&) = default;
     ~Handshake() = default;
 
-    void StartClient();
-    void StartServer();
+    void Start(Mode mode);
     void Disconnect();
 
     // Input, packets to process, output, packets to send.

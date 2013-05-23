@@ -65,18 +65,20 @@ Handshake::Handshake(IStateManager& stateManager)
 {
 }
 
-void Handshake::StartClient()
+void Handshake::Start(Mode mode)
 {
-    myKey = GetNetworkKeyNil();
-    myStateHandle.reset();
-    Reset(State::Challenging);
-}
-
-void Handshake::StartServer()
-{
-    myKey = GetNetworkKeyRandom();
-    myStateHandle.reset();
-    Reset(State::Listening);
+    if (mode == Mode::Server)
+    {
+        myKey = GetNetworkKeyRandom();
+        myStateHandle.reset();
+        Reset(State::Listening);
+    }
+    else
+    {
+        myKey = GetNetworkKeyNil();
+        myStateHandle.reset();
+        Reset(State::Challenging);
+    }
 }
 
 void Handshake::Disconnect()

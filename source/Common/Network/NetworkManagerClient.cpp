@@ -90,7 +90,7 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     for (auto& network : myNetworks)
     {
         network.first->Reset();
-        network.second.StartClient();
+        network.second.Start(Handshake::Mode::Client);
     }
 
     myState = State::Challenging;
