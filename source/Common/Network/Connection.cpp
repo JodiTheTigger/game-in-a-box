@@ -18,49 +18,148 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#ifndef USING_PRECOMPILED_HEADERS
+#include <vector>
+#endif
+
+#include "INetworkProvider.hpp"
 #include "Connection.hpp"
 
-using namespace GameInABox::Common::Network;
+namespace GameInABox { namespace Common { namespace Network {
 
 Connection::Connection(
-    const INetworkProvider&,
-    Mode)
+    INetworkProvider& network,
+    IStateManager& state,
+    Mode mode)
+    : myNetwork(network)
+    , myState(state)
+    , myMode(mode)
+    , myHandshake(state)
+    , myFailReason()
+    , myAddress()
+    , myFragments()
 {
 
 }
 
-void Connection::Connect(boost::asio::ip::udp::endpoint)
+void Connection::Connect(boost::asio::ip::udp::endpoint, Handshake::Mode mode)
 {
+    if (myMode == Mode::Solo)
+    {
+        myNetwork.Reset();
+    }
 
+    myFailReason = {};
+    myHandshake.Start(mode);
 }
 
-void Connection::Disconnect(std::string)
+void Connection::Disconnect(std::string failReason)
 {
-
+    Fail(failReason);
 }
 
 bool Connection::IsConnected()
 {
-    return false;
+    return myHandshake.IsConnected() && (!myNetwork.IsDisabled());
 }
 
 bool Connection::HasFailed()
 {
-    return true;
+    return myHandshake.HasFailed();
 }
 
 std::string Connection::FailReason()
 {
-    return {};
+    return myFailReason;
 }
 
-void Connection::DeltaSend(PacketDelta)
+void Connection::Process()
 {
+    if (!myNetwork.IsDisabled())
+    {
+        auto packets = myNetwork.Receive();
 
+        for (auto& packet : packets)
+        {
+            if (packet.address == myAddress)
+            {
+                // RAM: TODO: Best way to do this?
+                /*
+                if (PacketDelta::IsPacketDelta(packet.data))
+                {
+                    myFragments.AddPacket(PacketDelta(packet.data));
+                }
+                else
+                {
+                    // Pass though state incase we get disconnect packets.
+                    auto response = myHandshake.Process(packet.data);
+                    myNetwork.Send({{response, myAddress}});
+
+                    if (myHandshake.HasFailed())
+                    {
+                        Fail(myHandshake.FailReason());
+                        break;
+                    }
+                }*/
+            }
+        }
+    }
+}
+
+void Connection::DeltaSend(PacketDelta toSend)
+{
+    if (!myNetwork.IsDisabled())
+    {
+        std::vector<NetworkPacket> packets;
+
+        auto fragments = PacketDeltaFragmentManager::FragmentPacket(toSend);
+
+        // Pretty sure I could use a lambda here to remove the loop.
+        for (auto& fragment : fragments)
+        {
+            packets.emplace_back(fragment.TakeBuffer(), myAddress);
+        }
+
+        // send
+        myNetwork.Send(packets);
+    }
 }
 
 // Returns an invalid packet if there is nothing to get.
 PacketDelta Connection::DeltaReceive()
 {
+    if (!myNetwork.IsDisabled())
+    {
+        if (myHandshake.IsConnected())
+        {
+            // RAM: TODO!
+        }
+    }
+
     return {};
 }
+
+void Connection::Fail(std::string failReason)
+{
+    myFailReason = failReason;
+
+    if (!myHandshake.HasFailed())
+    {
+        myHandshake.Disconnect(failReason);
+    }
+
+    auto lastPacket = myHandshake.Process({});
+
+    if (!myNetwork.IsDisabled())
+    {
+        myNetwork.Send({{lastPacket, myAddress}});
+
+        if (myMode == Mode::Solo)
+        {
+            myNetwork.Flush();
+            myNetwork.Disable();
+        }
+    }
+}
+
+}}} // namespace

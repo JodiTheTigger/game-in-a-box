@@ -26,13 +26,19 @@
 #include <boost/asio/ip/udp.hpp>
 #endif
 
-#include "INetworkProvider.hpp"
 #include "PacketDelta.hpp"
+#include "Handshake.hpp"
+#include "PacketDeltaFragmentManager.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Common {
+class IStateManager;
+
+namespace Network {
+class INetworkProvider;
 
 class Connection
 {
+public:
     enum class Mode
     {
         Solo,
@@ -40,7 +46,8 @@ class Connection
     };
 
     Connection(
-        const INetworkProvider& provider,
+        INetworkProvider& network,
+        IStateManager& state,
         Mode mode);
 
     // Rule of 5.
@@ -50,17 +57,29 @@ class Connection
     Connection& operator=(Connection&&) = default;
     ~Connection() = default;
 
-    void Connect(boost::asio::ip::udp::endpoint address);
+    void Connect(boost::asio::ip::udp::endpoint address, Handshake::Mode mode);
     void Disconnect(std::string failReason);
 
     bool IsConnected();
     bool HasFailed();
     std::string FailReason();
 
+    void Process();
     void DeltaSend(PacketDelta toSend);
 
     // Returns an invalid packet if there is nothing to get.
     PacketDelta DeltaReceive();
+
+private:
+    INetworkProvider& myNetwork;
+    IStateManager& myState;
+    Mode myMode;
+    Handshake myHandshake;
+    std::string myFailReason;
+    boost::asio::ip::udp::endpoint myAddress;
+    PacketDeltaFragmentManager myFragments;
+
+    void Fail(std::string failReason);
 };
 
 }}} // namespace
