@@ -54,7 +54,9 @@ enum class State
     Connecting,
 };
 
-Handshake::Handshake(IStateManager& stateManager)
+Handshake::Handshake(
+        IStateManager& stateManager,
+        TimeFunction timepiece)
     : myStateManager(stateManager)
     , myState(State::Idle)
     , myFailReason("")
@@ -63,7 +65,12 @@ Handshake::Handshake(IStateManager& stateManager)
     , myLastTimestamp(Timepoint::min())
     , myStateHandle()
     , myFragments()
+    , myTimeNow(timepiece)
 {
+    if (!myTimeNow)
+    {
+        myTimeNow = std::chrono::steady_clock::now;
+    }
 }
 
 void Handshake::Start(Mode mode)
@@ -229,7 +236,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
                         if (challenge.IsValid())
                         {
                             result = PacketChallengeResponse(Version, myKey).TakeBuffer();
-                            myLastTimestamp = GetTimeNow();
+                            myLastTimestamp = myTimeNow();
                             ++myPacketCount;
                         }
 
@@ -254,7 +261,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
                                 // NOTE: Packet will be UDP fragmented if too big.
                                 // But I'm not going to do anything about that.
                                 result = packet.TakeBuffer();
-                                myLastTimestamp = GetTimeNow();
+                                myLastTimestamp = myTimeNow();
                                 ++myPacketCount;
                             }
                         }
@@ -295,7 +302,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
                                     response.Append(infoData);
 
                                     result = response.TakeBuffer();
-                                    myLastTimestamp = GetTimeNow();
+                                    myLastTimestamp = myTimeNow();
                                     ++myPacketCount;
                                 }
                             }
@@ -380,12 +387,12 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
             }
             else
             {
-                auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+                auto sinceLastPacket = myTimeNow() - myLastTimestamp;
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
                     result = PacketChallenge().TakeBuffer();
-                    myLastTimestamp = GetTimeNow();
+                    myLastTimestamp = myTimeNow();
                     ++myPacketCount;
                 }
             }
@@ -403,7 +410,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
             }
             else
             {
-                auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+                auto sinceLastPacket = myTimeNow() - myLastTimestamp;
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
@@ -411,7 +418,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
 
                     // may be so big it UDP fragments, not my problem.
                     result = PacketConnect(myKey, info).TakeBuffer();
-                    myLastTimestamp = GetTimeNow();
+                    myLastTimestamp = myTimeNow();
                     ++myPacketCount;
                 }
             }
@@ -424,7 +431,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
         // ///////////////////
         case State::Listening:
         {
-            auto sinceLastPacket = GetTimeNow() - myLastTimestamp;
+            auto sinceLastPacket = myTimeNow() - myLastTimestamp;
 
             // int{HandshakeRetries} because for some reason te compiler needs
             // the address of HandshakeRetries if I just do * HandshakeRetries.
@@ -490,11 +497,6 @@ bool Handshake::Disconnected(const std::vector<uint8_t> &packet)
     }
 
     return false;
-}
-
-std::chrono::steady_clock::time_point Handshake::GetTimeNow()
-{
-    return std::chrono::steady_clock::now();
 }
 
 }}} // namespace

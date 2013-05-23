@@ -25,6 +25,7 @@
 #include <vector>
 #include <string>
 #include <chrono>
+#include <functional>
 #include <boost/optional.hpp>
 #endif
 
@@ -43,13 +44,20 @@ enum class State;
 class Handshake
 {
 public:
+    using TimeFunction = std::function<std::chrono::steady_clock::time_point()>;
+
     enum class Mode
     {
         Client,
         Server
     };
 
-    Handshake(IStateManager& stateManager);
+    Handshake(IStateManager& stateManager)
+        : Handshake(stateManager, std::chrono::steady_clock::now) {}
+
+    Handshake(
+            IStateManager& stateManager,
+            TimeFunction timepiece);
 
     Handshake(const Handshake&) = default;
     Handshake(Handshake&&) = default;
@@ -86,6 +94,7 @@ private:
     std::chrono::steady_clock::time_point   myLastTimestamp;
     boost::optional<ClientHandle>           myStateHandle;
     PacketDeltaFragmentManager              myFragments;
+    TimeFunction                            myTimeNow;
 
     static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
     {
@@ -95,12 +104,6 @@ private:
     void Reset(State resetState);
     void Fail(std::string failReason);
     bool Disconnected(const std::vector<uint8_t>& packet);
-
-    // To enable a unit test class for the state machine
-    // I need a way of controlling the time.
-    // RAM: Use a function passed into the constructor instead
-    // (dependency injection).
-    virtual std::chrono::steady_clock::time_point GetTimeNow();
 };
 
 }}} // namespace
