@@ -30,6 +30,7 @@
 
 #include "Common/ClientHandle.hpp"
 #include "NetworkKey.hpp"
+#include "PacketDeltaFragmentManager.hpp"
 
 namespace GameInABox { namespace Common {
 class IStateManager;
@@ -61,6 +62,7 @@ public:
 
     // Input, packets to process, output, packets to send.
     std::vector<uint8_t> Process(std::vector<uint8_t> packet);
+    PacketDelta GetDefragmentedPacket();
 
     bool IsConnected() const;
     bool HasFailed() const;
@@ -83,6 +85,7 @@ private:
     int                                     myPacketCount;
     std::chrono::steady_clock::time_point   myLastTimestamp;
     boost::optional<ClientHandle>           myStateHandle;
+    PacketDeltaFragmentManager              myFragments;
 
     static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
     {

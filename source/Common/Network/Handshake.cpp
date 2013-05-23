@@ -62,33 +62,40 @@ Handshake::Handshake(IStateManager& stateManager)
     , myPacketCount(0)
     , myLastTimestamp(Timepoint::min())
     , myStateHandle()
+    , myFragments()
 {
 }
 
 void Handshake::Start(Mode mode)
 {
+    myStateHandle.reset();
+    myFragments = {};
+
     if (mode == Mode::Server)
     {
         myKey = GetNetworkKeyRandom();
-        myStateHandle.reset();
         Reset(State::Listening);
     }
     else
     {
         myKey = GetNetworkKeyNil();
-        myStateHandle.reset();
         Reset(State::Challenging);
     }
 }
 
-void Handshake::Disconnect(std::string)
+void Handshake::Disconnect(std::string failReason)
 {
-    // RAM: TODO: Deal with the failReason here!
     if (myStateHandle)
     {
         myStateManager.Disconnect(*myStateHandle);
     }
 
+    if (failReason.empty())
+    {
+        failReason = std::string{"Normal Disconnect."};
+    }
+
+    myFailReason = failReason;
     Reset(State::Disconnecting);
 }
 
@@ -125,8 +132,16 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
 
         case State::Connected:
         {
-            // check to see if we disconnect.
-            Disconnected(packet);
+            if (PacketDelta::IsPacketDelta(packet))
+            {
+                myFragments.AddPacket(packet);
+            }
+            else
+            {
+                // check to see if we disconnect.
+                Disconnected(packet);
+            }
+
             break;
         }
 
@@ -202,7 +217,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
         {
             auto command = Packet::GetCommand(packet);
 
-            // Deal with floods but not sending the response.
+            // Deal with floods by not sending the response.
             if (myPacketCount > FloodTrigger)
             {
                 switch (command)
@@ -300,6 +315,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
                         if (PacketDelta::IsPacketDelta(packet))
                         {
                             Reset(State::Connected);
+                            myFragments.AddPacket(packet);
                         }
 
                         break;
@@ -348,10 +364,8 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
 
         case State::Disconnecting:
         {
-            auto failReason = std::string{"Normal Disconnect."};
-
-            result = PacketDisconnect(myKey, failReason).TakeBuffer();
-            Fail(failReason);
+            result = PacketDisconnect(myKey, myFailReason).TakeBuffer();
+            Fail(myFailReason);
             break;
         }
 
@@ -430,6 +444,11 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
     return result;
 }
 
+PacketDelta Handshake::GetDefragmentedPacket()
+{
+    return myFragments.GetDefragmentedPacket();
+}
+
 bool Handshake::IsConnected() const
 {
     return myState == State::Connected;
@@ -456,8 +475,6 @@ void Handshake::Fail(std::string failReason)
 
 bool Handshake::Disconnected(const std::vector<uint8_t> &packet)
 {
-    bool result{false};
-
     if (Packet::GetCommand(packet) == Command::Disconnect)
     {
         auto disconnect = PacketDisconnect{packet};
@@ -467,12 +484,12 @@ bool Handshake::Disconnected(const std::vector<uint8_t> &packet)
             if (disconnect.Key() == myKey)
             {
                 Fail(disconnect.Message());
-                result = true;
+                return true;
             }
         }
     }
 
-    return result;
+    return false;
 }
 
 std::chrono::steady_clock::time_point Handshake::GetTimeNow()
