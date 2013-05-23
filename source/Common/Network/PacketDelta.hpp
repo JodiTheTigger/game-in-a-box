@@ -36,7 +36,7 @@ public:
     static bool IsPacketDelta(const std::vector<uint8_t>& buffer);
 
     PacketDelta() : PacketDelta(std::vector<uint8_t>()) {}
-    PacketDelta(std::vector<uint8_t> rawData);
+    explicit PacketDelta(std::vector<uint8_t> rawData);
 
     PacketDelta(
             WrappingCounter<uint16_t> sequence,
@@ -59,7 +59,7 @@ public:
     // in correct packet size. Fix by sending the actual total packet length
     // along with the current packet length start with each packet (for 65k max
     // that's an extra 3 bytes header overhead per packet.)
-    PacketDelta(std::vector<PacketDelta> fragments);
+    explicit PacketDelta(std::vector<PacketDelta> fragments);
 
     // Rule of 5 (class contents are just one vector, so use defaults).
     PacketDelta(const PacketDelta&) = default;

@@ -134,7 +134,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
         {
             if (PacketDelta::IsPacketDelta(packet))
             {
-                myFragments.AddPacket(packet);
+                myFragments.AddPacket(PacketDelta{packet});
             }
             else
             {
@@ -315,7 +315,7 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
                         if (PacketDelta::IsPacketDelta(packet))
                         {
                             Reset(State::Connected);
-                            myFragments.AddPacket(packet);
+                            myFragments.AddPacket(PacketDelta{packet});
                         }
 
                         break;
