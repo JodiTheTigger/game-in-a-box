@@ -89,8 +89,10 @@ private:
         FailedConnection,
     };
 
-    std::vector<std::pair<MotleyUniquePointer<INetworkProvider>, Handshake>> myNetworks;
-    std::pair<MotleyUniquePointer<INetworkProvider>, Handshake>* myConnectedNetwork;
+    struct Connection;
+
+    std::vector<Connection> myNetworks;
+    Connection* myConnectedNetwork;
     IStateManager& myStateManager;
 
     State myState;
@@ -100,7 +102,6 @@ private:
     std::string myFailReason;
     uint16_t myClientId;
 
-    PacketDeltaFragmentManager myDeltaHelper;
     Huffman myCompressor;
 
     Sequence myLastSequenceProcessed;

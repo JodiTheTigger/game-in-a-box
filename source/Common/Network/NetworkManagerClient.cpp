@@ -48,6 +48,12 @@ using namespace std::chrono;
 using namespace GameInABox::Common::Network;
 using namespace GameInABox::Common::Logging;
 
+struct NetworkManagerClient::Connection
+{
+    MotleyUniquePointer<INetworkProvider> transport;
+    Handshake handshake;
+};
+
 // RAM: TODO! Make sure you check recieved packets are from the server address.
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
@@ -62,7 +68,6 @@ NetworkManagerClient::NetworkManagerClient(
     , myStateHandle()
     , myFailReason()
     , myClientId(0)
-    , myDeltaHelper()
     , myCompressor(stateManager.GetHuffmanFrequencies())
     , myLastSequenceProcessed(0)
     , myLastSequenceAcked(0)
@@ -72,7 +77,8 @@ NetworkManagerClient::NetworkManagerClient(
     for (auto& network : networks)
     {
         myNetworks.push_back({move(network), {stateManager}});
-        // RAM: TODO: Why doesn't emplace_back compile?
+
+        // RAM: TODO! Why doesn't emplace_back compile?
         //myNetworks.emplace_back(move(network), {stateManager});
         //myNetworks.emplace_back({move(network), {stateManager}});
     }
@@ -89,8 +95,8 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     // reset state please.
     for (auto& network : myNetworks)
     {
-        network.first->Reset();
-        network.second.Start(Handshake::Mode::Client);
+        network.transport->Reset();
+        network.handshake.Start(Handshake::Mode::Client);
     }
 
     myState = State::Challenging;
@@ -115,39 +121,31 @@ void NetworkManagerClient::Disconnect()
     Fail("Client disconnected.");
 }
 
-// RAM: TODO! Use Handshake!
 void NetworkManagerClient::PrivateProcessIncomming()
 {
     if (myConnectedNetwork != nullptr)
     {
-        // already connected, just deal with that.
-
         if (myStateManager.IsConnected(*myStateHandle))
         {
-            auto packets = myConnectedNetwork->first->Receive();
+            auto packets = myConnectedNetwork->transport->Receive();
 
             for (auto& packet : packets)
             {
-                if (PacketDelta::IsPacketDelta(packet.data))
+                if (packet.address == myServerAddress)
                 {
-                    myDeltaHelper.AddPacket(PacketDelta(packet.data));
-                }
-                else
-                {
-                    // Pass though state incase we get disconnect packets.
-                    auto response = myConnectedNetwork->second.Process(packet.data);
-                    myConnectedNetwork->first->Send({{response, myServerAddress}});
+                    auto response = myConnectedNetwork->handshake.Process(packet.data);
+                    myConnectedNetwork->transport->Send({{response, myServerAddress}});
 
-                    if (myConnectedNetwork->second.HasFailed())
+                    if (myConnectedNetwork->handshake.HasFailed())
                     {
-                        Fail(myConnectedNetwork->second.FailReason());
+                        Fail(myConnectedNetwork->handshake.FailReason());
                         break;
                     }
                 }
             }
 
             // Do some work :-)
-            if (myConnectedNetwork->second.IsConnected())
+            if (myConnectedNetwork->handshake.IsConnected())
             {
                 DeltaReceive();
             }
@@ -155,278 +153,87 @@ void NetworkManagerClient::PrivateProcessIncomming()
         else
         {
             // No longer connected, quit out.
-            // RAM: TODO! Need way of telling the server this too!
             Fail("State is no longer connected.");
         }
     }
     else
     {
         // talking to all interfaces for now.
+        bool fail = true;
         for (auto& network : myNetworks)
         {
-            if (!network.first->IsDisabled())
+            if (!network.transport->IsDisabled())
             {
-                auto packets = network.first->Receive();
+                auto packets = network.transport->Receive();
                 std::vector<NetworkPacket> toSend{};
 
                 for (auto& packet : packets)
                 {
-                    auto response = network.second.Process(packet.data);
-                    toSend.emplace_back(response, myServerAddress);
-
-                    // Win, lose or nothing?
-                    if (network.second.IsConnected())
+                    if (packet.address == myServerAddress)
                     {
-                        // Win
-                        myConnectedNetwork = &network;
+                        auto response = network.handshake.Process(packet.data);
+                        toSend.emplace_back(response, myServerAddress);
 
-                        // Don't accidently drop a delta packet.
-                        if (PacketDelta::IsPacketDelta(packet.data))
+                        // Win, lose or nothing?
+                        if (network.handshake.IsConnected())
                         {
-                            myDeltaHelper.AddPacket(PacketDelta(packet.data));
-                        }
-
-                        break;
-                    }
-                    else
-                    {
-                        if (network.second.HasFailed())
-                        {
-                            // Lose.
-                            network.first->Send(toSend);
-                            network.first->Flush();
-                            network.first->Disable();
+                            // Win
+                            myConnectedNetwork = &network;
                             break;
-                        }
-                    }
-                }
-
-                if (!network.first->IsDisabled())
-                {
-                    network.first->Send(toSend);
-                }
-            }
-        }
-    }
-
-    /*
-    switch (myState)
-    {
-
-        case State::Challenging:
-        {
-            NetworkKey key(GetNetworkKeyNil());
-            boost::asio::ip::udp::endpoint serverAddress;
-
-            // talking to all interfaces for now.
-            for (auto& network : myNetworks)
-            {
-                bool exit(false);
-
-                if (!network->IsDisabled())
-                {
-                    auto packets = network->Receive();
-
-                    for (auto& packet : packets)
-                    {                        
-                        Command commandType(Packet::GetCommand(packet.data));
-
-                        if (commandType == Command::Disconnect)
-                        {
-                            PacketDisconnect disconnect(packet.data);
-
-                            if (disconnect.IsValid())
-                            {
-                                Fail(disconnect.Message());
-                                exit = true;
-                                break;
-                            }
                         }
                         else
                         {
-                            if (commandType == Command::ChallengeResponse)
+                            if (network.handshake.HasFailed())
                             {
-                                PacketChallengeResponse response(packet.data);
-
-                                if (response.IsValid())
-                                {
-                                    key = response.Key();
-                                }
-                            }
-                        }
-
-                        if (!(key.is_nil()))
-                        {
-                            serverAddress = packet.address;
-                            break;
-                        }
-                    }
-                }
-
-                if (!(key.is_nil()))
-                {
-                    myConnectedNetwork = network.get();
-                    myServerAddress = serverAddress;
-                    exit = true;
-                }
-
-                if (exit)
-                {
-                    break;
-                }
-            }
-
-            // Level up?
-            if (myConnectedNetwork != nullptr)
-            {
-                // disable all other networks
-                for (auto& network : myNetworks)
-                {
-                    if (network.get() != myConnectedNetwork)
-                    {
-                        network->Disable();
-                    }
-                }
-
-                // set key and change state
-                myServerKey = key;
-                myState = State::Connecting;
-            }
-
-            break;
-        }
-
-        case State::Connecting:
-        {
-            auto packets = myConnectedNetwork->Receive();
-
-            // Fail?
-            if (myConnectedNetwork->IsDisabled())
-            {
-                Fail("Network Failed Unexpectedly.");
-                break;
-            }
-
-            for (auto& packet : packets)
-            {
-                bool exit(false);
-
-                switch (Packet::GetCommand(packet.data))
-                {
-                    case Command::ConnectResponse:
-                    {
-                        PacketConnectResponse connection(packet.data);
-
-                        if (connection.IsValid())
-                        {
-                            string failReason;
-
-                            auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
-
-                            if (!handle)
-                            {
-                                // Respond with a failed message please.
-                                // Only one will do, the server can timeout if it misses it.
-                                myConnectedNetwork->Send({{
-                                      PacketDisconnect(myServerKey, failReason).TakeBuffer(),
-                                      myServerAddress}});
-
-                                Fail(failReason);
+                                // Lose.
+                                network.transport->Send(toSend);
+                                network.transport->Flush();
+                                network.transport->Disable();
+                                break;
                             }
                             else
                             {
-                                myStateHandle = handle;
-                                myState = State::Connected;
+                                // Nothing.
+                                fail = false;
                             }
-
-                            // Don't support connecting to multiple servers at the same time.
-                            exit = true;
                         }
-
-                        break;
-                    }
-
-                    case Command::Disconnect:
-                    {
-                        PacketDisconnect disconnect(packet.data);
-
-                        if (disconnect.IsValid())
-                        {
-                            Fail(disconnect.Message());
-                            exit = true;
-                        }
-
-                        break;
-                    }
-
-                    default:
-                    {
-                        // ignore
-                        break;
                     }
                 }
 
-                if (exit)
+                if (!network.transport->IsDisabled())
                 {
-                    break;
+                    network.transport->Send(toSend);
                 }
             }
 
-            break;
-        }
-
-        case State::Connected:
-        {
-            // Cannot get disconnected unless the gamestate tells us to.
-            // That is, ignore disconnect state packets.
-            if (myStateManager.IsConnected(*myStateHandle))
+            // clean up
+            if (myConnectedNetwork != nullptr)
             {
-                auto packets = myConnectedNetwork->Receive();
-
-                for (auto& packet : packets)
+                for (auto& network : myNetworks)
                 {
-                    if (PacketDelta::IsPacketDelta(packet.data))
+                    if (&network != myConnectedNetwork)
                     {
-                        myDeltaHelper.AddPacket(PacketDelta(packet.data));
+                        network.transport->Disable();
                     }
                 }
-
-                // Do the work :-)
-                DeltaReceive();
             }
             else
             {
-                // No longer connected, quit out.
-                // RAM: TODO! Need way of telling the server this too!
-                Fail("State is no longer connected.");
+                if (fail)
+                {
+                    Fail("Connection attempt failed.");
+                }
             }
-
-            break;
-        }
-
-        default:
-        {
-            break;
         }
     }
-    */
 }
 
-// RAM: TODO! Use Handshake!
 void NetworkManagerClient::PrivateSendState()
 {        
     if (myConnectedNetwork != nullptr)
     {
         // Don't bother checkng state, as when connected it can't do
         // anything without receiving a packet first.
-        //auto response = myConnectedNetwork->second.Process(packet.data);
-        //myConnectedNetwork->first->Send({{response, myServerAddress}});
-
-        //if (myConnectedNetwork->second.HasFailed())
-        //{
-        //    Fail(myConnectedNetwork->second.FailReason());
-        //    return;
-        //}
         DeltaSend();
     }
     else
@@ -434,97 +241,41 @@ void NetworkManagerClient::PrivateSendState()
         // talking to all interfaces for now.
         for (auto& network : myNetworks)
         {
-            if (!network.first->IsDisabled())
+            if (!network.transport->IsDisabled())
             {
-                auto response = network.second.Process({});
-                network.first->Send({{response, myServerAddress}});
+                auto response = network.handshake.Process({});
+                network.transport->Send({{response, myServerAddress}});
 
                 // Lose?
-                if (network.second.HasFailed())
+                if (network.handshake.HasFailed())
                 {
                     // Lose.
-                    network.first->Flush();
-                    network.first->Disable();
+                    network.transport->Flush();
+                    network.transport->Disable();
                     break;
                 }
             }
         }
     }
-    /*
-    // Deal with timeout and resend logic here during
-    // Connection handshaking. Otherwise get the lastest
-    // state from the client and send a delta packet.
-    switch (myState)
-    {
-        case State::Challenging:
-        case State::Connecting:
-        {
-            if (myPacketSentCount > HandshakeRetries)
-            {
-                std::string failString("Timeout: ");
-
-                if (myState == State::Challenging)
-                {
-                    failString += "Challenge.";
-                }
-                else
-                {
-                    failString += "Connecting.";
-                }
-
-                Fail(failString);
-            }
-            else
-            {
-                auto sinceLastPacket = steady_clock::now() - myLastPacketSent;
-
-                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
-                {
-                    // send challenge packet please.
-                    if (myState == State::Challenging)
-                    {
-                        myConnectedNetwork->Send({{
-                              PacketChallenge().TakeBuffer(),
-                              myServerAddress}});
-                    }
-                    else
-                    {
-                        myConnectedNetwork->Send({{
-                              PacketConnect(myServerKey).TakeBuffer(),
-                              myServerAddress}});
-                    }
-                }
-            }
-
-            break;
-        }
-
-        case State::Connected:
-        {
-            DeltaSend();
-            break;
-        }
-
-        default:
-        {
-            break;
-        }
-    }
-    */
 }
 
 void NetworkManagerClient::Fail(std::string failReason)
 {
     for (auto& network : myNetworks)
     {
-        if (!network.first->IsDisabled())
+        if (!network.transport->IsDisabled())
         {
-            network.second.Disconnect(failReason);
-            auto lastPacket = network.second.Process({});
+            // Only be polite if we are already connected.
+            if (network.handshake.IsConnected())
+            {
+                network.handshake.Disconnect(failReason);
+                auto lastPacket = network.handshake.Process({});
 
-            network.first->Send({{lastPacket, myServerAddress}});
-            network.first->Flush();
-            network.first->Disable();
+                network.transport->Send({{lastPacket, myServerAddress}});
+            }
+
+            network.transport->Flush();
+            network.transport->Disable();
         }
     }
 
@@ -536,7 +287,7 @@ void NetworkManagerClient::Fail(std::string failReason)
 
 void NetworkManagerClient::DeltaReceive()
 {
-    PacketDelta delta(myDeltaHelper.GetDefragmentedPacket());
+    auto delta = myConnectedNetwork->handshake.GetDefragmentedPacket();
     Sequence latestSequence(myLastSequenceProcessed);
 
     if (delta.IsValid())
@@ -620,7 +371,7 @@ void NetworkManagerClient::DeltaSend()
             }
 
             // send
-            myConnectedNetwork->first->Send(packets);
+            myConnectedNetwork->transport->Send(packets);
         }
         else
         {
