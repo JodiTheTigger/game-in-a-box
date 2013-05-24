@@ -170,8 +170,8 @@ source/Common/MotleyUniquePointer.hpp
 set(COMMON_SOURCE_NETWORK
 source/Common/Network/NetworkKey.hpp
 source/Common/Network/NetworkKey.cpp
-source/Common/Network/Handshake.cpp
-source/Common/Network/Handshake.hpp
+source/Common/Network/Connection.cpp
+source/Common/Network/Connection.hpp
 source/Common/Network/BufferSerialisation.hpp
 source/Common/Network/DeltaMapItem.hpp
 source/Common/Network/XorCode.hpp

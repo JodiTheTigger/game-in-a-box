@@ -41,7 +41,8 @@ class NetworkPacket;
 enum class State;
 
 // Handles the connection handshake and failures between a client and a server.
-class Handshake
+// Also decodes incomming DeltaPackets (but does not fragment outgoing ones).
+class Connection
 {
 public:
     using TimeFunction = std::function<std::chrono::steady_clock::time_point()>;
@@ -52,18 +53,18 @@ public:
         Server
     };
 
-    Handshake(IStateManager& stateManager)
-        : Handshake(stateManager, std::chrono::steady_clock::now) {}
+    Connection(IStateManager& stateManager)
+        : Connection(stateManager, std::chrono::steady_clock::now) {}
 
-    Handshake(
+    Connection(
             IStateManager& stateManager,
             TimeFunction timepiece);
 
-    Handshake(const Handshake&) = default;
-    Handshake(Handshake&&) = default;
-    Handshake& operator=(const Handshake&) = default;
-    Handshake& operator=(Handshake&&) = default;
-    ~Handshake() = default;
+    Connection(const Connection&) = default;
+    Connection(Connection&&) = default;
+    Connection& operator=(const Connection&) = default;
+    Connection& operator=(Connection&&) = default;
+    ~Connection() = default;
 
     void Start(Mode mode);
     void Disconnect(std::string failReason);

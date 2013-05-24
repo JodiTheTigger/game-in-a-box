@@ -40,7 +40,7 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
-class Handshake;
+class Connection;
 
 class NetworkManagerClient : public INetworkManager
 {
@@ -89,10 +89,10 @@ private:
         FailedConnection,
     };
 
-    struct Connection;
+    struct LiveConnection;
 
-    std::vector<Connection> myNetworks;
-    Connection* myConnectedNetwork;
+    std::vector<LiveConnection> myNetworks;
+    LiveConnection* myConnectedNetwork;
     IStateManager& myStateManager;
 
     State myState;

@@ -31,8 +31,7 @@
 #include "PacketChallengeResponse.hpp"
 #include "PacketDelta.hpp"
 
-
-#include "Handshake.hpp"
+#include "Connection.hpp"
 
 using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;
@@ -54,7 +53,7 @@ enum class State
     Connecting,
 };
 
-Handshake::Handshake(
+Connection::Connection(
         IStateManager& stateManager,
         TimeFunction timepiece)
     : myStateManager(stateManager)
@@ -73,7 +72,7 @@ Handshake::Handshake(
     }
 }
 
-void Handshake::Start(Mode mode)
+void Connection::Start(Mode mode)
 {
     myStateHandle.reset();
     myFragments = {};
@@ -90,7 +89,7 @@ void Handshake::Start(Mode mode)
     }
 }
 
-void Handshake::Disconnect(std::string failReason)
+void Connection::Disconnect(std::string failReason)
 {
     if (myStateHandle)
     {
@@ -106,7 +105,7 @@ void Handshake::Disconnect(std::string failReason)
     Reset(State::Disconnecting);
 }
 
-std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
+std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 {
     std::vector<uint8_t> result{};
 
@@ -451,22 +450,22 @@ std::vector<uint8_t> Handshake::Process(std::vector<uint8_t> packet)
     return result;
 }
 
-PacketDelta Handshake::GetDefragmentedPacket()
+PacketDelta Connection::GetDefragmentedPacket()
 {
     return myFragments.GetDefragmentedPacket();
 }
 
-bool Handshake::IsConnected() const
+bool Connection::IsConnected() const
 {
     return myState == State::Connected;
 }
 
-bool Handshake::HasFailed() const
+bool Connection::HasFailed() const
 {
     return myState == State::FailedConnection;
 }
 
-void Handshake::Reset(State resetState)
+void Connection::Reset(State resetState)
 {
     myState         = resetState;
     myFailReason    = "";
@@ -474,13 +473,13 @@ void Handshake::Reset(State resetState)
     myLastTimestamp = Timepoint::min();
 }
 
-void Handshake::Fail(std::string failReason)
+void Connection::Fail(std::string failReason)
 {
     myState = State::FailedConnection;
     myFailReason = failReason;
 }
 
-bool Handshake::Disconnected(const std::vector<uint8_t> &packet)
+bool Connection::Disconnected(const std::vector<uint8_t> &packet)
 {
     if (Packet::GetCommand(packet) == Command::Disconnect)
     {

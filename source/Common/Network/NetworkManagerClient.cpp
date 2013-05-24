@@ -39,7 +39,7 @@
 #include "PacketTypes.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
-#include "Handshake.hpp"
+#include "Connection.hpp"
 
 #include "NetworkManagerClient.hpp"
 
@@ -48,10 +48,10 @@ using namespace std::chrono;
 using namespace GameInABox::Common::Network;
 using namespace GameInABox::Common::Logging;
 
-struct NetworkManagerClient::Connection
+struct NetworkManagerClient::LiveConnection
 {
     MotleyUniquePointer<INetworkProvider> transport;
-    Handshake handshake;
+    Connection handshake;
 };
 
 // RAM: TODO! Make sure you check recieved packets are from the server address.
@@ -96,7 +96,7 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     for (auto& network : myNetworks)
     {
         network.transport->Reset();
-        network.handshake.Start(Handshake::Mode::Client);
+        network.handshake.Start(Connection::Mode::Client);
     }
 
     myState = State::Challenging;
