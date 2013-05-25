@@ -465,6 +465,11 @@ bool Connection::HasFailed() const
     return myState == State::FailedConnection;
 }
 
+boost::optional<ClientHandle> Connection::Handle() const
+{
+    return myStateHandle;
+}
+
 void Connection::Reset(State resetState)
 {
     myState         = resetState;
