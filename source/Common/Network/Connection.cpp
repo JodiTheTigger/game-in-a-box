@@ -475,6 +475,9 @@ void Connection::Reset(State resetState)
     myState         = resetState;
     myFailReason    = "";
     myPacketCount   = 0;
+
+    // RAM: TODO: Fix, this results in -ve numbers for duration
+    // which breaks stuff.
     myLastTimestamp = Timepoint::min();
 }
 
