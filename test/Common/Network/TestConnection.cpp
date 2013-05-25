@@ -28,6 +28,9 @@
 #include <Common/Network/PacketDelta.hpp>
 #include <Common/MockIStateManager.hpp>
 
+using ::testing::Return;
+using ::testing::AtLeast;
+
 using namespace std;
 using Bytes = std::vector<uint8_t>;
 
@@ -98,6 +101,22 @@ TEST_F(TestConnection, TimeoutClient)
     EXPECT_TRUE(toTest.HasFailed());
     EXPECT_FALSE(toTest.IsConnected());
     EXPECT_NE("", toTest.FailReason());
+}
+
+TEST_F(TestConnection, ClientServerConnect)
+{
+    // RAM: TODO
+}
+
+TEST_F(TestConnection, EmptyDisconnect)
+{
+    /*
+    EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(frequencies));*/
+    // .SetArgReferee<argument ordinal>(value)
+
+    // RAM: TODO
 }
 
 }}} // namespace
