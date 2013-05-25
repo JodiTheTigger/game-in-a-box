@@ -43,14 +43,14 @@ using Oclock = Clock::time_point;
 class TestConnection : public ::testing::Test
 {
 public:
-    MockIStateManager mockState;
+    MockIStateManager stateMock;
 };
 
 TEST_F(TestConnection, CreateCustomTime)
 {
     // woo, my first lambda with capture.
     Oclock testTime;
-    Connection toTest(mockState, [&testTime] () -> Oclock { return testTime; });
+    Connection toTest(stateMock, [&testTime] () -> Oclock { return testTime; });
 
     testTime = Clock::now();
     EXPECT_FALSE(toTest.HasFailed());
@@ -64,7 +64,7 @@ TEST_F(TestConnection, CreateCustomTime)
 
 TEST_F(TestConnection, NothingwhenNotStarted)
 {
-    Connection toTest(mockState);
+    Connection toTest(stateMock);
     Bytes empty{};
 
     for (int i = 0; i < 1000; i++)
@@ -79,7 +79,7 @@ TEST_F(TestConnection, TimeoutClient)
     // Give up after "1000 seconds", even though not technically a failure
     // as we don't know how many retires are allowed.
     Oclock testTime{Clock::now()};
-    Connection toTest{mockState, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTest{stateMock, [&testTime] () -> Oclock { return testTime; }};
 
     toTest.Start(Connection::Mode::Client);
 
@@ -105,18 +105,81 @@ TEST_F(TestConnection, TimeoutClient)
 
 TEST_F(TestConnection, ClientServerConnect)
 {
-    // RAM: TODO
+    Oclock testTime{Clock::now()};
+    Connection toTestClient{stateMock, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTestServer{stateMock, [&testTime] () -> Oclock { return testTime; }};
+
+    toTestClient.Start(Connection::Mode::Client);
+    toTestServer.Start(Connection::Mode::Server);
+
+    // Setup the state machine
+    // gmock says use _ for global matchers, but that doesn't work.
+    // Internally _ == {}, so use that instead.
+    ON_CALL(stateMock, PrivateConnect( {}, {}))
+            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+
+    // Need the same for Info() ?
+    // .SetArgReferee<argument ordinal>(value)
+
+    int count{0};
+    Bytes fromServer{};
+    Bytes fromClient{};
+    for (;count < 1000; count++)
+    {
+        fromClient = toTestClient.Process(fromServer);
+
+        // simulate 400ms ping.
+        testTime += std::chrono::milliseconds{200};
+
+        fromServer = toTestServer.Process(fromClient);
+
+        testTime += std::chrono::milliseconds{200};
+
+        if ((toTestClient.HasFailed()) || toTestServer.HasFailed())
+        {
+            break;
+        }
+
+        if ((toTestClient.IsConnected()))
+        {
+            break;
+        }
+    }
+
+    // Client should have connected.
+    EXPECT_NE(1000, count);
+    EXPECT_TRUE(toTestClient.IsConnected());
+    EXPECT_FALSE(toTestClient.HasFailed());
+    EXPECT_EQ("", toTestClient.FailReason());
+
+    // Without deltas server might not consider this connected, so don't test.
+    EXPECT_FALSE(toTestServer.HasFailed());
+    EXPECT_EQ("", toTestServer.FailReason());
 }
 
 TEST_F(TestConnection, EmptyDisconnect)
 {
-    /*
-    EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequencies));*/
-    // .SetArgReferee<argument ordinal>(value)
+    Connection toTest(stateMock);
+    Bytes empty{};
 
-    // RAM: TODO
+    toTest.Disconnect("");
+    toTest.Process({});
+
+    EXPECT_TRUE(toTest.HasFailed());
+    EXPECT_NE("", toTest.FailReason());
+}
+
+TEST_F(TestConnection, EmptyDisconnectWithString)
+{
+    Connection toTest(stateMock);
+    Bytes empty{};
+    auto reason = std::string{"Because!"};
+
+    toTest.Disconnect(reason);
+    toTest.Process({});
+
+    EXPECT_TRUE(toTest.HasFailed());
+    EXPECT_EQ(reason, toTest.FailReason());
 }
 
 }}} // namespace
