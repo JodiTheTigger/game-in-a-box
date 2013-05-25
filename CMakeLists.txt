@@ -127,7 +127,7 @@ endif()
 # Third Party Libraries
 ###############
 
-# TODO! Move to 1.52.0 for c++11 support.
+# TODO! Move to 1.53.0 for c++11 support.
 FIND_PACKAGE( Boost 1.46.1 COMPONENTS system thread REQUIRED )
 INCLUDE_DIRECTORIES( SYSTEM ${Boost_INCLUDE_DIR} )
 # Uses threads in Linuxland
@@ -258,6 +258,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/mock/Common/Network/MockINetworkProvider.hpp
   ${PROJECT_SOURCE_DIR}/mock/Common/MockIStateManager.hpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestWrappingCounter.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestConnection.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
