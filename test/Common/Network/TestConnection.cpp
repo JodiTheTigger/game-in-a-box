@@ -25,6 +25,7 @@
 #include <gmock/gmock.h>
 
 #include <Common/Network/Connection.hpp>
+#include <Common/Network/PacketDelta.hpp>
 #include <Common/MockIStateManager.hpp>
 
 using namespace std;
@@ -32,20 +33,71 @@ using Bytes = std::vector<uint8_t>;
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// Class definition!
+using Clock = std::chrono::steady_clock;
+using Oclock = Clock::time_point;
+
+// NOTE: Don't test what you don't know from the public interface.
 class TestConnection : public ::testing::Test
 {
 public:
     MockIStateManager mockState;
 };
 
-TEST_F(TestConnection, Create)
+TEST_F(TestConnection, CreateCustomTime)
 {
-    Connection toTest(mockState);
+    // woo, my first lambda with capture.
+    Oclock testTime;
+    Connection toTest(mockState, [&testTime] () -> Oclock { return testTime; });
 
+    testTime = Clock::now();
     EXPECT_FALSE(toTest.HasFailed());
     EXPECT_FALSE(toTest.IsConnected());
     EXPECT_FALSE(toTest.Handle());
+    EXPECT_EQ("", toTest.FailReason());
+
+    auto delta = toTest.GetDefragmentedPacket();
+    EXPECT_FALSE(delta.IsValid());
+}
+
+TEST_F(TestConnection, NothingwhenNotStarted)
+{
+    Connection toTest(mockState);
+    Bytes empty{};
+
+    for (int i = 0; i < 1000; i++)
+    {
+        EXPECT_EQ(empty, toTest.Process({}));
+    }
+}
+
+// Value-Parameterized Tests require too much setup.
+TEST_F(TestConnection, TimeoutClient)
+{
+    // Give up after "1000 seconds", even though not technically a failure
+    // as we don't know how many retires are allowed.
+    Oclock testTime{Clock::now()};
+    Connection toTest{mockState, [&testTime] () -> Oclock { return testTime; }};
+
+    toTest.Start(Connection::Mode::Client);
+
+    int count{0};
+    for (;count < 1000; count++)
+    {
+        toTest.Process({});
+        testTime += std::chrono::seconds{1};
+
+        if (toTest.HasFailed())
+        {
+            break;
+        }
+    }
+
+    // "No timeout after 1000 seconds, please check this is a valid use case."
+    EXPECT_NE(1000, count);
+
+    EXPECT_TRUE(toTest.HasFailed());
+    EXPECT_FALSE(toTest.IsConnected());
+    EXPECT_NE("", toTest.FailReason());
 }
 
 }}} // namespace
