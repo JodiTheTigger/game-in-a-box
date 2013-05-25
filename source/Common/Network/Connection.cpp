@@ -76,6 +76,7 @@ void Connection::Start(Mode mode)
 {
     myStateHandle.reset();
     myFragments = {};
+    myFailReason = {};
 
     if (mode == Mode::Server)
     {
@@ -473,12 +474,11 @@ boost::optional<ClientHandle> Connection::Handle() const
 void Connection::Reset(State resetState)
 {
     myState         = resetState;
-    myFailReason    = "";
     myPacketCount   = 0;
 
-    // RAM: TODO: Fix, this results in -ve numbers for duration
-    // which breaks stuff.
-    myLastTimestamp = Timepoint::min();
+    // If I use Timepoint::min(), I end up with -ve durations.
+    // This breaks the timestamping mechnamise. bah.
+    myLastTimestamp = myTimeNow() - (HandshakeRetryPeriod() * 2);
 }
 
 void Connection::Fail(std::string failReason)
