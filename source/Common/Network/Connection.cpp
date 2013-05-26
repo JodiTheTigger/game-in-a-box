@@ -225,7 +225,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
             auto command = Packet::GetCommand(packet);
 
             // Deal with floods by not sending the response.
-            if (myPacketCount > FloodTrigger)
+            if (myPacketCount < FloodTrigger)
             {
                 switch (command)
                 {
