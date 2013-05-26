@@ -49,6 +49,8 @@ public:
     StrictMock<MockIStateManager>   stateMockStrict;
 };
 
+int Cycle(Connection& client, Connection& server, Oclock &testTime, int countMax);
+
 TEST_F(TestConnection, CreateCustomTime)
 {
     // woo, my first lambda with capture.
@@ -106,61 +108,6 @@ TEST_F(TestConnection, TimeoutClient)
     EXPECT_NE("", toTest.FailReason());
 }
 
-TEST_F(TestConnection, ClientServerConnect)
-{
-    Oclock testTime{Clock::now()};
-    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
-    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
-
-    toTestClient.Start(Connection::Mode::Client);
-    toTestServer.Start(Connection::Mode::Server);
-
-    // Setup the state machine
-    ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
-            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
-
-    ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
-            .WillByDefault(Return(std::vector<uint8_t>()));
-
-    // Need the same for Info() ?
-    // .SetArgReferee<argument ordinal>(value)
-
-    int count{0};
-    Bytes fromServer{};
-    Bytes fromClient{};
-    for (;count < 1000; count++)
-    {
-        fromClient = toTestClient.Process(fromServer);
-
-        // simulate 400ms ping.
-        testTime += std::chrono::milliseconds{200};
-
-        fromServer = toTestServer.Process(fromClient);
-
-        testTime += std::chrono::milliseconds{200};
-
-        if ((toTestClient.HasFailed()) || toTestServer.HasFailed())
-        {
-            break;
-        }
-
-        if ((toTestClient.IsConnected()))
-        {
-            break;
-        }
-    }
-
-    // Client should have connected.
-    EXPECT_NE(1000, count);
-    EXPECT_TRUE(toTestClient.IsConnected());
-    EXPECT_FALSE(toTestClient.HasFailed());
-    EXPECT_EQ("", toTestClient.FailReason());
-
-    // Without deltas server might not consider this connected, so don't test.
-    EXPECT_FALSE(toTestServer.HasFailed());
-    EXPECT_EQ("", toTestServer.FailReason());
-}
-
 TEST_F(TestConnection, EmptyDisconnect)
 {
     Connection toTest(stateMockStrict);
@@ -184,6 +131,193 @@ TEST_F(TestConnection, EmptyDisconnectWithString)
 
     EXPECT_TRUE(toTest.HasFailed());
     EXPECT_EQ(reason, toTest.FailReason());
+}
+
+TEST_F(TestConnection, ClientServerConnect)
+{
+    Oclock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+
+    toTestClient.Start(Connection::Mode::Client);
+    toTestServer.Start(Connection::Mode::Server);
+
+    // Setup the state machine
+    ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
+            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+
+    ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
+
+    // Need the same for Info() ?
+    // .SetArgReferee<argument ordinal>(value)
+
+    auto count = Cycle(toTestClient, toTestServer, testTime, 1000);
+
+    // Client should have connected.
+    EXPECT_NE(1000, count);
+    EXPECT_TRUE(toTestClient.IsConnected());
+    EXPECT_FALSE(toTestClient.HasFailed());
+    EXPECT_EQ("", toTestClient.FailReason());
+
+    // Without deltas server might not consider this connected, so don't test.
+    EXPECT_FALSE(toTestServer.HasFailed());
+    EXPECT_EQ("", toTestServer.FailReason());
+}
+
+TEST_F(TestConnection, ClientServerConnectWithDelta)
+{
+    Oclock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+
+    toTestClient.Start(Connection::Mode::Client);
+    toTestServer.Start(Connection::Mode::Server);
+
+    // Setup the state machine
+    ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
+            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+
+    ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
+
+    // Need the same for Info() ?
+    // .SetArgReferee<argument ordinal>(value)
+
+    Cycle(toTestClient, toTestServer, testTime, 1000);
+
+    testTime += std::chrono::milliseconds(300);
+
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+
+    auto deltaBytes = toTestServer.GetDefragmentedPacket();
+
+    // client and server should be connected.
+    EXPECT_TRUE(toTestServer.IsConnected());
+    EXPECT_TRUE(deltaBytes.IsValid());
+}
+
+TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
+{
+    Oclock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+
+    toTestClient.Start(Connection::Mode::Client);
+    toTestServer.Start(Connection::Mode::Server);
+
+    // Setup the state machine
+    ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
+            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+
+    ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
+
+    // Need the same for Info() ?
+    // .SetArgReferee<argument ordinal>(value)
+
+    Cycle(toTestClient, toTestServer, testTime, 1000);
+
+    testTime += std::chrono::milliseconds(300);
+
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+
+    // Right, everyone is connected now. Lets Disconnect via the client.
+    auto reason = std::string{"Because."};
+
+    toTestClient.Disconnect(reason);
+
+    auto count = Cycle(toTestClient, toTestServer, testTime, 100);
+
+    // Everyone should be disconnected
+    EXPECT_NE(100, count);
+    EXPECT_FALSE(toTestClient.IsConnected());
+    EXPECT_TRUE(toTestClient.HasFailed());
+    EXPECT_EQ(reason, toTestClient.FailReason());
+
+    EXPECT_FALSE(toTestServer.IsConnected());
+    EXPECT_TRUE(toTestServer.HasFailed());
+    EXPECT_EQ(reason, toTestServer.FailReason());
+}
+
+TEST_F(TestConnection, ClientServerConnectDisconnectFromServer)
+{
+    Oclock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+
+    toTestClient.Start(Connection::Mode::Client);
+    toTestServer.Start(Connection::Mode::Server);
+
+    // Setup the state machine
+    ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
+            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+
+    ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
+
+    // Need the same for Info() ?
+    // .SetArgReferee<argument ordinal>(value)
+
+    Cycle(toTestClient, toTestServer, testTime, 1000);
+
+    testTime += std::chrono::milliseconds(300);
+
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+
+    // Right, everyone is connected now. Lets Disconnect via the client.
+    auto reason = std::string{"Because Im the server!"};
+
+    toTestServer.Disconnect(reason);
+
+    auto count = Cycle(toTestClient, toTestServer, testTime, 100);
+
+    // Everyone should be disconnected
+    EXPECT_NE(100, count);
+    EXPECT_FALSE(toTestClient.IsConnected());
+    EXPECT_TRUE(toTestClient.HasFailed());
+    EXPECT_EQ(reason, toTestClient.FailReason());
+
+    EXPECT_FALSE(toTestServer.IsConnected());
+    EXPECT_TRUE(toTestServer.HasFailed());
+    EXPECT_EQ(reason, toTestServer.FailReason());
+}
+
+int Cycle(Connection& client, Connection& server, Oclock &testTime, int countMax)
+{
+    int count{0};
+    Bytes fromServer{};
+    Bytes fromClient{};
+    for (;count < countMax; count++)
+    {
+        fromClient = client.Process(fromServer);
+
+        // simulate 400ms ping.
+        testTime += std::chrono::milliseconds{200};
+
+        fromServer = server.Process(fromClient);
+
+        testTime += std::chrono::milliseconds{200};
+
+        // Don't escape early if we're going though a
+        // disconnect process.
+        if ((client.HasFailed()) || server.HasFailed())
+        {
+            if ((client.HasFailed()) && server.HasFailed())
+            {
+                break;
+            }
+        }
+        else
+        {
+            if ((client.IsConnected()))
+            {
+                break;
+            }
+        }
+    }
+
+    return count;
 }
 
 }}} // namespace
