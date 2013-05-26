@@ -32,6 +32,8 @@ template<typename T>
 class WrappingCounter
 {
 public:
+    static constexpr T max() { return std::numeric_limits<T>::max(); }
+
     T Value() const { return myValue; }
     T& Value() { return myValue; }
 
@@ -108,11 +110,11 @@ bool operator<(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>&
     {
         if (rightHandSide.Value() > leftHandSide.Value())
         {
-            return ((rightHandSide - leftHandSide) <= ((std::numeric_limits<T>::max() >> 1) + 1));
+            return ((rightHandSide - leftHandSide) <= ((WrappingCounter<T>::max() >> 1) + 1));
         }
         else
         {
-            return ((leftHandSide - rightHandSide) > ((std::numeric_limits<T>::max() >> 1) + 1));
+            return ((leftHandSide - rightHandSide) > ((WrappingCounter<T>::max() >> 1) + 1));
         }
     }
 }
