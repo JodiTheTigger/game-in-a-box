@@ -28,54 +28,37 @@
 #include <boost/asio/ip/udp.hpp>
 #endif
 
+#include "Common/MotleyUniquePointer.hpp"
+
 #include "INetworkManager.hpp"
-#include "NetworkPacket.hpp"
+//#include "NetworkPacket.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Common {
+class IStateManager;
 
-// forward declarations
+namespace Network {
+class INetworkProvider;
 class NetworkPacket;
 
 class NetworkManagerServer : public INetworkManager
 {
+    CLASS_NOCOPY_ASSIGN_MOVE(NetworkManagerServer)
+
 public:
-    NetworkManagerServer();
+    NetworkManagerServer(
+            std::vector<MotleyUniquePointer<INetworkProvider>> networks,
+            IStateManager& stateManager);
+
     virtual ~NetworkManagerServer();
 
 private:
-    // RAM: Note: For now not tracking
-    // client state via an enum, instead
-    // tracking state by putting various
-    // clients into various arrays
-    // (myChallengers, myClients, myDisconnected)
+    struct LiveConnection;
 
-    class Challenger
-    {
-    public:
-        boost::asio::ip::udp::endpoint endpoint{};
-        uint32_t key{};
-        uint8_t challengeCount{};
-        // timestamp lastPacket;
-
-        virtual ~Challenger() {};
-    };
-
-    class Client : public Challenger
-    {
-        uint16_t linkId{};
-    };
-
-    class ClientKey
-    {
-        boost::asio::ip::address address{};
-        uint16_t linkId{};
-    };
+    std::vector<LiveConnection> myNetworks;
+    IStateManager& myStateManager;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
-
-    // RAM: TODO: Is this the best storage for the use?
-    std::map<ClientKey, Challenger> myClients;
 };
 
 }}} // namespace

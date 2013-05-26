@@ -18,15 +18,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include "Common/IStateManager.hpp"
+
 #include "NetworkManagerServer.hpp"
 
-using namespace std;
 using namespace GameInABox::Common::Network;
 
-NetworkManagerServer::NetworkManagerServer()
-    : INetworkManager()
-    , myClients()
+struct NetworkManagerClient::LiveConnection
 {
+    MotleyUniquePointer<INetworkProvider> transport;
+    Connection handshake;
+};
+
+// TODO:
+// Listen all all interfaces.
+// Need a client object (address, Connection, DeltapacketClientId)
+// need a map based on deltapacket client id to client
+// (used if we get a delta packet for a non-existing client, test against id instead).
+// need another map based on address to client (used more often)
+// To protect against client id remap reassing flooding DOS, need to check something else
+// as well to increse the bitdepth to deter attacks (currently depth is 16bits).
+
+NetworkManagerServer::NetworkManagerServer(
+        std::vector<MotleyUniquePointer<INetworkProvider>> networks,
+        IStateManager& stateManager)
+    : INetworkManager()
+    , myNetworks()
+{
+    for (auto& network : networks)
+    {
+        myNetworks.push_back({move(network), {stateManager}});
+
+        // RAM: TODO! Why doesn't emplace_back compile?
+        //myNetworks.emplace_back(move(network), {stateManager});
+        //myNetworks.emplace_back({move(network), {stateManager}});
+    }
 }
 
 NetworkManagerServer::~NetworkManagerServer()
