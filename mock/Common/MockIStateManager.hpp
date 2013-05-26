@@ -28,7 +28,7 @@
 
 namespace GameInABox { namespace Common {
 
-class MockIStateManager final : public IStateManager
+class MockIStateManager : public IStateManager
 {
 public:    
     typedef std::array<uint64_t, 256>       FrequencyArray;
