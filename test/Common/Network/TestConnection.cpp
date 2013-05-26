@@ -30,6 +30,8 @@
 
 using ::testing::Return;
 using ::testing::AtLeast;
+using ::testing::NiceMock;
+using ::testing::StrictMock;
 
 using namespace std;
 using Bytes = std::vector<uint8_t>;
@@ -43,14 +45,15 @@ using Oclock = Clock::time_point;
 class TestConnection : public ::testing::Test
 {
 public:
-    MockIStateManager stateMock;
+    NiceMock<MockIStateManager>     stateMockNice;
+    StrictMock<MockIStateManager>   stateMockStrict;
 };
 
 TEST_F(TestConnection, CreateCustomTime)
 {
     // woo, my first lambda with capture.
     Oclock testTime;
-    Connection toTest(stateMock, [&testTime] () -> Oclock { return testTime; });
+    Connection toTest(stateMockStrict, [&testTime] () -> Oclock { return testTime; });
 
     testTime = Clock::now();
     EXPECT_FALSE(toTest.HasFailed());
@@ -64,7 +67,7 @@ TEST_F(TestConnection, CreateCustomTime)
 
 TEST_F(TestConnection, NothingwhenNotStarted)
 {
-    Connection toTest(stateMock);
+    Connection toTest(stateMockStrict);
     Bytes empty{};
 
     for (int i = 0; i < 1000; i++)
@@ -79,7 +82,7 @@ TEST_F(TestConnection, TimeoutClient)
     // Give up after "1000 seconds", even though not technically a failure
     // as we don't know how many retires are allowed.
     Oclock testTime{Clock::now()};
-    Connection toTest{stateMock, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTest{stateMockStrict, [&testTime] () -> Oclock { return testTime; }};
 
     toTest.Start(Connection::Mode::Client);
 
@@ -106,17 +109,18 @@ TEST_F(TestConnection, TimeoutClient)
 TEST_F(TestConnection, ClientServerConnect)
 {
     Oclock testTime{Clock::now()};
-    Connection toTestClient{stateMock, [&testTime] () -> Oclock { return testTime; }};
-    Connection toTestServer{stateMock, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
 
     toTestClient.Start(Connection::Mode::Client);
     toTestServer.Start(Connection::Mode::Server);
 
     // Setup the state machine
-    // gmock says use _ for global matchers, but that doesn't work.
-    // Internally _ == {}, so use that instead.
-    ON_CALL(stateMock, PrivateConnect( {}, {}))
+    ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
             .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+
+    ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
 
     // Need the same for Info() ?
     // .SetArgReferee<argument ordinal>(value)
@@ -159,7 +163,7 @@ TEST_F(TestConnection, ClientServerConnect)
 
 TEST_F(TestConnection, EmptyDisconnect)
 {
-    Connection toTest(stateMock);
+    Connection toTest(stateMockStrict);
     Bytes empty{};
 
     toTest.Disconnect("");
@@ -171,7 +175,7 @@ TEST_F(TestConnection, EmptyDisconnect)
 
 TEST_F(TestConnection, EmptyDisconnectWithString)
 {
-    Connection toTest(stateMock);
+    Connection toTest(stateMockStrict);
     Bytes empty{};
     auto reason = std::string{"Because!"};
 
