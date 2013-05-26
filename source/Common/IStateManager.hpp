@@ -55,6 +55,10 @@ public:
     void Disconnect(ClientHandle toDisconnect);
     bool IsConnected(ClientHandle client) const;
 
+    // Delta compression aggression should be inferred by the packet distance,
+    // thus how well the packet compresses, therefore how big the packet should get.
+    // A large packet delta should require more aggressive delta creation to get
+    // smaller packet sizes.
     void DeltaGet(
             ClientHandle client,
             Sequence& tickTo,

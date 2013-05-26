@@ -32,7 +32,9 @@ namespace GameInABox { namespace Common { namespace Network {
 
 class PacketDelta : public Packet
 {
-public:
+public:    
+    // Delta distance is stored as a byte.
+    static constexpr uint8_t MaximumDeltaDistance() { return std::numeric_limits<uint8_t>::max(); }
     static bool IsPacketDelta(const std::vector<uint8_t>& buffer);
 
     PacketDelta() : PacketDelta(std::vector<uint8_t>()) {}

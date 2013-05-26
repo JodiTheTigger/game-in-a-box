@@ -54,7 +54,6 @@ struct NetworkManagerClient::LiveConnection
     Connection handshake;
 };
 
-// RAM: TODO! Make sure you check recieved packets are from the server address.
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
@@ -88,7 +87,6 @@ NetworkManagerClient::~NetworkManagerClient()
 {
 
 }
-
 
 void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
 {
@@ -198,9 +196,13 @@ void NetworkManagerClient::PrivateProcessIncomming()
                             }
                         }
                     }
+                    else
+                    {
+                        Logging::Log(Logging::LogLevel::Debug, "Recieved packet not addressed to me.");
+                    }
                 }
 
-                if (!network.transport->IsDisabled())
+                if ((!network.transport->IsDisabled()) && (!toSend.empty()))
                 {
                     network.transport->Send(toSend);
                 }
@@ -340,6 +342,10 @@ void NetworkManagerClient::DeltaSend()
     Sequence from;
     Sequence to;
 
+    // Delta compression aggression should be inferred by the packet distance,
+    // thus how well the packet compresses, therefore how big the packet should get.
+    // A large packet delta should require more aggressive delta creation to get
+    // smaller packet sizes.
     myStateManager.DeltaGet(
                 *myStateHandle,
                 to,
@@ -351,9 +357,8 @@ void NetworkManagerClient::DeltaSend()
     {
         // ignore if the delta distance is greater than 255, as we
         // store the distance as a byte.
-        // RAM: TODO: Make this part of the type, so I don't use magic numbers.
-        uint16_t distance(to - from);
-        if (distance < 256)
+        auto distance = to - from;
+        if (distance <= PacketDelta::MaximumDeltaDistance())
         {
             PacketDelta delta(
                     from,
@@ -380,9 +385,6 @@ void NetworkManagerClient::DeltaSend()
     }
     else
     {
-        // RAM: TODO: Gamestate should realise that packets are too big and make them smaller instead.
         Logging::Log(Logging::LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
     }
 }
-
-
