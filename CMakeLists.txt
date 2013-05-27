@@ -168,6 +168,8 @@ source/Common/MotleyUniquePointer.hpp
 )
 
 set(COMMON_SOURCE_NETWORK
+source/Common/Network/Hash.hpp
+source/Common/Network/Hash.cpp
 source/Common/Network/NetworkKey.hpp
 source/Common/Network/NetworkKey.cpp
 source/Common/Network/Connection.cpp
