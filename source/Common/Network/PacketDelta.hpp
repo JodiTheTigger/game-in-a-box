@@ -89,9 +89,6 @@ public:
     bool IsLastFragment() const;
     uint8_t FragmentId() const;
 
-    // NOTE: Mapping by ClientId when receiving a packet from an unrecognised address
-    // You will need to make sure someone isn't doing a spoofing DOS attack to force
-    // everyone offline by "changing" their address to something that doesn't exist.
     bool HasClientId() const;
     uint16_t ClientId() const;
 
