@@ -20,6 +20,8 @@
 
 #include "Common/IStateManager.hpp"
 
+#include "INetworkProvider.hpp"
+#include "NetworkPacket.hpp"
 #include "NetworkManagerServer.hpp"
 
 using namespace GameInABox::Common::Network;
@@ -39,20 +41,39 @@ NetworkManagerServer::NetworkManagerServer(
     : INetworkManager()
     , myNetworks(move(networks))
     , myStateManager(stateManager)
+    //, myConnections()
+    //, myConnectedClients()
 {
 }
 
 NetworkManagerServer::~NetworkManagerServer()
 {
-
+    Disconnect();
 }
 
 void NetworkManagerServer::PrivateProcessIncomming()
 {
-    // TODO!
+    /*
+    for (auto& network : myNetworks)
+    {
+        auto packets = network->Receive();
+
+        for (auto& packet: packets)
+        {
+            if (myConnections.count(packet.address))
+            {
+                auto response = myConnections[packet.address].Process(move(packet.data));
+            }
+        }
+    }
+    */
 }
 
 void NetworkManagerServer::PrivateSendState()
 {
     // TODO!
+}
+
+void NetworkManagerServer::Disconnect()
+{
 }
