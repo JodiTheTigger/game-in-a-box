@@ -53,6 +53,9 @@ NetworkManagerServer::~NetworkManagerServer()
 
 void NetworkManagerServer::PrivateProcessIncomming()
 {
+    // NOTE: Quake 3 does an array search to match ip address to
+    // connected clients. That would work fine for 8-64 players.
+    // However I would assume > 64 players hashing might be better.
     /*
     for (auto& network : myNetworks)
     {
