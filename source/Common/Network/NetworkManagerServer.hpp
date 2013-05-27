@@ -52,9 +52,7 @@ public:
     virtual ~NetworkManagerServer();
 
 private:
-    struct LiveConnection;
-
-    std::vector<LiveConnection> myNetworks;
+    std::vector<MotleyUniquePointer<INetworkProvider>> myNetworks;
     IStateManager& myStateManager;
 
     void PrivateProcessIncomming() override;

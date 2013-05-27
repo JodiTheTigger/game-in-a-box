@@ -24,12 +24,6 @@
 
 using namespace GameInABox::Common::Network;
 
-struct NetworkManagerClient::LiveConnection
-{
-    MotleyUniquePointer<INetworkProvider> transport;
-    Connection handshake;
-};
-
 // TODO:
 // Listen all all interfaces.
 // Need a client object (address, Connection, DeltapacketClientId)
@@ -43,16 +37,9 @@ NetworkManagerServer::NetworkManagerServer(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
     : INetworkManager()
-    , myNetworks()
+    , myNetworks(move(networks))
+    , myStateManager(stateManager)
 {
-    for (auto& network : networks)
-    {
-        myNetworks.push_back({move(network), {stateManager}});
-
-        // RAM: TODO! Why doesn't emplace_back compile?
-        //myNetworks.emplace_back(move(network), {stateManager});
-        //myNetworks.emplace_back({move(network), {stateManager}});
-    }
 }
 
 NetworkManagerServer::~NetworkManagerServer()
