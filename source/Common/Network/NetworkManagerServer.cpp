@@ -32,8 +32,6 @@ using namespace GameInABox::Common::Network;
 // need a map based on deltapacket client id to client
 // (used if we get a delta packet for a non-existing client, test against id instead).
 // need another map based on address to client (used more often)
-// To protect against client id remap reassing flooding DOS, need to check something else
-// as well to increse the bitdepth to deter attacks (currently depth is 16bits).
 
 NetworkManagerServer::NetworkManagerServer(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
@@ -56,6 +54,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
     // NOTE: Quake 3 does an array search to match ip address to
     // connected clients. That would work fine for 8-64 players.
     // However I would assume > 64 players hashing might be better.
+    // But, assumption == nullptr. Do metrics or shut up.
     /*
     for (auto& network : myNetworks)
     {
