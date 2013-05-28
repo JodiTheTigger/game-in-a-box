@@ -72,6 +72,38 @@ Connection::Connection(
     }
 }
 
+Connection::Connection(Connection&& other)
+    : myStateManager(other.myStateManager)
+    , myState(std::move(other.myState))
+    , myFailReason(std::move(other.myFailReason))
+    , myKey(std::move(other.myKey))
+    , myPacketCount(std::move(other.myPacketCount))
+    , myLastTimestamp(std::move(other.myLastTimestamp))
+    , myStateHandle(std::move(other.myStateHandle))
+    , myFragments(std::move(other.myFragments))
+    , myTimeNow(std::move(myTimeNow))
+{
+
+}
+
+Connection& Connection::operator=(Connection&& other)
+{
+    //if (this != other)
+    {
+        //myStateManager = &other.myStateManager;
+        myState = std::move(other.myState);
+        myFailReason = std::move(other.myFailReason);
+        myKey = std::move(other.myKey);
+        myPacketCount = std::move(other.myPacketCount);
+        myLastTimestamp = std::move(other.myLastTimestamp);
+        myStateHandle = std::move(other.myStateHandle);
+        myFragments = std::move(other.myFragments);
+        myTimeNow = std::move(myTimeNow);
+    }
+
+    return *this;
+}
+
 void Connection::Start(Mode mode)
 {
     myStateHandle.reset();
