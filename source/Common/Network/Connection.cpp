@@ -88,6 +88,7 @@ Connection::Connection(Connection&& other)
 
 Connection& Connection::operator=(Connection&& other)
 {
+    // RAM: TODO: FIX!
     //if (this != other)
     {
         //myStateManager = &other.myStateManager;
