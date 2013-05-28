@@ -21,69 +21,81 @@
 #ifndef HASH_HPP
 #define HASH_HPP
 
-/*
+
 #ifndef USING_PRECOMPILED_HEADERS
 #include <boost/asio/ip/udp.hpp>
 #endif
 
-// boost::asio::ip::basic_endpoint<typename P>
+// Hash functions for boost::asio addresses.
 
-// TODO: Make a hash for ip4 address and ip6 address.
-boost::asio::ip::address_v6;
-boost::asio::ip::address_v4;
+// You are explicitly allowed to extend the std:: namespace
+// for hash functions for custom types.
+namespace std {
 
+// /////////////////
+// IPv6 Address
+// /////////////////
 template<>
 struct hash<boost::asio::ip::address_v6>
 {
-    size_t operator()(const boost::asio::ip::address_v6 &address) const
+    size_t operator()(const boost::asio::ip::address_v6& address) const
     {
-        size_t result{}
-        auto byteHasher = std::hash<uint8_t>();
+        size_t result{};
 
+        // http://stackoverflow.com/questions/12793653/how-to-calculate-a-hash-value-from-different-fields-of-an-ip-packet
         for (auto byte : address.to_bytes())
         {
             // Don't want 1234:5678 to hash to the same as
             // 5678:1234.
-            result ^= byteHasher(byte);
-            result *= 53;
+            result ^= (result << 3) | byte;
         }
 
         return result;
     }
-}
+};
 
+// /////////////////
+// IPv4 Address
+// /////////////////
 template<>
-struct hash<boost::asio::ip::udp::endpoint>
+struct hash<boost::asio::ip::address_v4>
 {
-    size_t operator()(const boost::asio::ip::udp::endpoint &endpoint) const
+    size_t operator()(const boost::asio::ip::address_v4& address) const
     {
-        auto address = endpoint.address();
-        size_t addressHash{};
-
-        if (address.is_v4())
-        {
-            // treat the ip address as a 32bit number.
-            addressHash = std::hash<uint32_t>(){address.to_v4().to_ulong()};
-        }
-        else
-        {
-            auto byteHasher = std::hash<uint8_t>();
-
-            for (auto byte : address.to_v6().to_bytes())
-            {
-                // Don't want 1234:5678 to hash to the same as
-                // 5678:1234.
-                addressHash ^= byteHasher(byte);
-                addressHash *= 53;
-            }
-        }
-
-        auto hashPort = std::hash<uint16_t>(){endpoint.port()};
-
-        return theHash ^ (hashPort << 1);
+        return static_cast<size_t>(address.to_ulong());
     }
 };
 
-*/
+
+// /////////////////
+// Endpoint
+// /////////////////
+template<typename T>
+struct hash<boost::asio::ip::basic_endpoint<T>>
+{
+    size_t operator()(const boost::asio::ip::basic_endpoint<T>& endpoint) const
+    {
+        auto address = endpoint.address();
+        size_t result{};
+
+        if (address.is_v4())
+        {
+            result = hash<boost::asio::ip::address_v4>()(address.to_v4());
+        }
+        else
+        {
+            if (address.is_v6())
+            {
+                result = hash<boost::asio::ip::address_v6>()(address.to_v6());
+            }
+        }
+
+        result ^= (endpoint.port() << 3);
+
+        return result;
+    }
+};
+
+} // namespace
 
 #endif // HASH_HPP
