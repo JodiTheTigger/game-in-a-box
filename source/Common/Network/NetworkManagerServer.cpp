@@ -22,6 +22,8 @@
 
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
+#include "PacketDelta.hpp"
+
 #include "NetworkManagerServer.hpp"
 
 using namespace GameInABox::Common::Network;
@@ -41,8 +43,8 @@ NetworkManagerServer::NetworkManagerServer(
     : INetworkManager()
     , myNetworks(move(networks))
     , myStateManager(stateManager)
-    //, myConnections()
-    //, myConnectedClients()
+    , myConnections()
+    , myConnectedClients()
 {
 }
 
@@ -56,20 +58,48 @@ void NetworkManagerServer::PrivateProcessIncomming()
     // NOTE: Quake 3 does an array search to match ip address to
     // connected clients. That would work fine for 8-64 players.
     // However I would assume > 64 players hashing might be better.
-    /*
+
     for (auto& network : myNetworks)
     {
+        std::vector<NetworkPacket> responses{};
+
         auto packets = network->Receive();
 
         for (auto& packet: packets)
         {
-            if (myConnections.count(packet.address))
+            if (myConnections.count(packet.address) == 0)
             {
-                auto response = myConnections[packet.address].Process(move(packet.data));
+                // if it's a delta packet, see if the client id is recognised.
+                if (PacketDelta::IsPacketDelta(packet.data))
+                {
+
+                }
+                else
+                {
+                    // new connection.
+                    // Well, bother. The line below doesn't work as connection
+                    // doesn't have assignment or move constructors because
+                    // it requires a reference to IStateManager, which is not
+                    // assignable or moveable. Crap.
+                    //myConnections[packet.address] = Connection( myStateManager );
+                    myConnections.at(packet.address).Start(Connection::Mode::Server);
+                }
+            }
+
+            // Can't use the [] index as it requires a default constrcutor.
+            auto response = myConnections.at(packet.address).Process(move(packet.data));
+
+            if (!response.empty())
+            {
+                responses.emplace_back(move(response), packet.address);
             }
         }
+
+        if (!responses.empty())
+        {
+            network->Send(responses);
+        }
     }
-    */
 }
 
 void NetworkManagerServer::PrivateSendState()
