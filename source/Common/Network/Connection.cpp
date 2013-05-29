@@ -22,6 +22,8 @@
 #include <chrono>
 #include <tuple>
 #include <sstream>
+#else
+#include "Common/PrecompiledHeaders.hpp"
 #endif
 
 #include "Common/IStateManager.hpp"

@@ -18,11 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "IReflected.hpp"
-
 #ifndef USING_PRECOMPILED_HEADERS
 #include <utility>
+#else
+#include "Common/PrecompiledHeaders.hpp"
 #endif
+
+#include "IReflected.hpp"
 
 using namespace GameInABox::Common;
 

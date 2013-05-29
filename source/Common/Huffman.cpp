@@ -23,6 +23,8 @@
 #include <stdexcept>
 #include <map>
 #include <string>
+#else
+#include "Common/PrecompiledHeaders.hpp"
 #endif
 
 #include "BitStream.hpp"

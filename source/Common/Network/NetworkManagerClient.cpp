@@ -24,6 +24,8 @@
 #include <vector>
 #include <memory>
 #include <array>
+#else
+#include "Common/PrecompiledHeaders.hpp"
 #endif
 
 #include "Common/Logging/Logging.hpp"

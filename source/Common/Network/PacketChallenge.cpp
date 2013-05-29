@@ -18,12 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "PacketChallenge.hpp"
-
 #ifndef USING_PRECOMPILED_HEADERS
 #include <string>
 #include <iterator>
+#else
+#include "Common/PrecompiledHeaders.hpp"
 #endif
+
+#include "PacketChallenge.hpp"
 
 using namespace std;
 using namespace GameInABox::Common::Network;

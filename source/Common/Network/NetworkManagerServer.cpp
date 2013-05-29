@@ -18,6 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#ifndef USING_PRECOMPILED_HEADERS
+#else
+#include "Common/PrecompiledHeaders.hpp"
+#endif
+
 #include "Common/IStateManager.hpp"
 
 #include "INetworkProvider.hpp"

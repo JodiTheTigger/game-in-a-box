@@ -22,6 +22,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#else
+#include "Common/PrecompiledHeaders.hpp"
 #endif
 
 #include "RollingStatistics.hpp"
