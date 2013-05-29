@@ -61,7 +61,7 @@ public:
             TimeFunction timepiece);
 
     Connection(const Connection&) = default;
-    Connection(Connection&& other) = default;
+    Connection(Connection&&) = default;
     Connection& operator=(const Connection&) = default;
     Connection& operator=(Connection&&) = default;
     ~Connection() = default;
