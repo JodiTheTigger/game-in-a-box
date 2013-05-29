@@ -189,7 +189,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     testTime += std::chrono::milliseconds(300);
 
     // RAM: TODO! Why didn't this test fail? This is an invalid delta packet!
-    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.data);
 
     auto deltaBytes = toTestServer.GetDefragmentedPacket();
 
@@ -228,7 +228,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
 
     testTime += std::chrono::milliseconds(300);
 
-    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.data);
 
     // Right, everyone is connected now. Lets Disconnect via the client.
     auto reason = std::string{"Because."};
@@ -271,7 +271,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromServer)
 
     testTime += std::chrono::milliseconds(300);
 
-    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.data);
 
     // Right, everyone is connected now. Lets Disconnect via the client.
     auto reason = std::string{"Because Im the server!"};

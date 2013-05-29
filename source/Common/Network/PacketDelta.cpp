@@ -99,17 +99,17 @@ PacketDelta::PacketDelta(
 {
     if (clientId != nullptr)
     {
-        myBuffer.reserve(MinimumPacketSizeClient + deltaPayload.size());
+        data.reserve(MinimumPacketSizeClient + deltaPayload.size());
     }
     else
     {
-        myBuffer.reserve(MinimumPacketSizeServer + deltaPayload.size());
+        data.reserve(MinimumPacketSizeServer + deltaPayload.size());
     }
 
-    auto inserter = back_inserter(myBuffer);
+    auto inserter = back_inserter(data);
     Push(inserter, sequence.Value());
     Push(inserter, sequenceAck.Value());
-    myBuffer.push_back(sequenceAckDelta);
+    data.push_back(sequenceAckDelta);
 
     if (clientId != nullptr)
     {
@@ -117,10 +117,10 @@ PacketDelta::PacketDelta(
     }
     else
     {
-        myBuffer[OffsetIsServerFlags] |= MaskTopByteIsServerPacket;
+        data[OffsetIsServerFlags] |= MaskTopByteIsServerPacket;
     }
 
-    myBuffer.insert(end(myBuffer), begin(deltaPayload), end(deltaPayload));
+    data.insert(end(data), begin(deltaPayload), end(deltaPayload));
 }
 
 PacketDelta::PacketDelta(
@@ -139,13 +139,13 @@ PacketDelta::PacketDelta(
         std::size_t maxSize((maxPacketSize - MinimumPacketSizeFragment) * (MaskIsLastFragment - 1));
 
         // too big to fit?
-        if ((toFragment.Size() - OffsetSequenceAck) <= maxSize)
+        if ((toFragment.data.size() - OffsetSequenceAck) <= maxSize)
         {
             // test it needs fragmenting
-            if ((toFragment.Size() < maxPacketSize) && (fragmentId == 0))
+            if ((toFragment.data.size() < maxPacketSize) && (fragmentId == 0))
             {
                 // just copy, no fragmentation needed.
-                myBuffer = toFragment.myBuffer;
+                data = toFragment.data;
             }
             else
             {
@@ -156,28 +156,28 @@ PacketDelta::PacketDelta(
                 start = OffsetSequenceAck + fragmentId * count;
 
                 // Past the end?
-                if (start <= toFragment.Size())
+                if (start <= toFragment.data.size())
                 {
                     // last packet?
-                    if ((start + count) >= toFragment.Size())
+                    if ((start + count) >= toFragment.data.size())
                     {
                         fragmentId |= MaskIsLastFragment;
-                        count = toFragment.Size() - start;
+                        count = toFragment.data.size() - start;
                     }
 
-                    myBuffer.reserve(count + OffsetFragmentPayload);
+                    data.reserve(count + OffsetFragmentPayload);
 
                     // write out the sequence and fragment id
-                    Push(back_inserter(myBuffer), toFragment.GetSequence().Value());
-                    myBuffer.push_back(fragmentId);
+                    Push(back_inserter(data), toFragment.GetSequence().Value());
+                    data.push_back(fragmentId);
 
                     // it's a fragment!
-                    myBuffer[OffsetSequence] |= MaskTopByteIsFragmented;
+                    data[OffsetSequence] |= MaskTopByteIsFragmented;
 
-                    myBuffer.insert(
-                        end(myBuffer),
-                        begin(toFragment.myBuffer) + start,
-                        begin(toFragment.myBuffer) + start + count);
+                    data.insert(
+                        end(data),
+                        begin(toFragment.data) + start,
+                        begin(toFragment.data) + start + count);
                 }
             }
         }
@@ -207,7 +207,7 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
             {
                 if (sorted[0]->IsValid())
                 {
-                    std::size_t maxFragmentSize(sorted[0]->Size() - OffsetFragmentPayload);
+                    std::size_t maxFragmentSize(sorted[0]->data.size() - OffsetFragmentPayload);
                     std::size_t bufferSize(2 + (sorted.size() * maxFragmentSize));
                     std::vector<uint8_t> buffer;
                     WrappingCounter<uint16_t> fragmentSequence(sorted[0]->GetSequence());
@@ -248,8 +248,8 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
 
                         buffer.insert(
                             end(buffer),
-                            begin(fragment->myBuffer) + OffsetFragmentPayload,
-                            end(fragment->myBuffer));
+                            begin(fragment->data) + OffsetFragmentPayload,
+                            end(fragment->data));
 
                         // last fragment id?
                         if (fragment->IsLastFragment())
@@ -262,7 +262,7 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
                     // iterator due to the fragment pointer being nullptr.
                     if (isValid)
                     {
-                        std::swap(myBuffer, buffer);
+                        std::swap(data, buffer);
                     }
                 }
             }
@@ -275,7 +275,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequence() const
     if (IsValid())
     {
         uint16_t rawSequence;
-        Pull(begin(myBuffer) + OffsetSequence, rawSequence);
+        Pull(begin(data) + OffsetSequence, rawSequence);
 
         return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
     }
@@ -290,10 +290,10 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceBase() const
     if (IsValid())
     {
         uint16_t base;
-        Pull(begin(myBuffer) + OffsetSequenceAck, base);
+        Pull(begin(data) + OffsetSequenceAck, base);
         base &= MaskSequenceAck;
 
-        return WrappingCounter<uint16_t>(base - myBuffer[OffsetDeltaBase]);
+        return WrappingCounter<uint16_t>(base - data[OffsetDeltaBase]);
     }
     else
     {
@@ -306,7 +306,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceAck() const
     if (IsValid())
     {
         uint16_t rawSequence;
-        Pull(begin(myBuffer) + OffsetSequenceAck, rawSequence);
+        Pull(begin(data) + OffsetSequenceAck, rawSequence);
 
         return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
     }
@@ -318,7 +318,7 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceAck() const
 
 bool PacketDelta::IsValid() const
 {
-    return IsPacketDelta(myBuffer);
+    return IsPacketDelta(data);
 }
 
 
@@ -326,7 +326,7 @@ bool PacketDelta::IsFragmented() const
 {
     if (IsValid())
     {
-        return (0 != (myBuffer[OffsetIsFragmented] & MaskTopByteIsFragmented));
+        return (0 != (data[OffsetIsFragmented] & MaskTopByteIsFragmented));
     }
     else
     {
@@ -338,7 +338,7 @@ bool PacketDelta::IsLastFragment() const
 {
     if (IsFragmented())
     {
-        return ((myBuffer[OffsetFragmentId] & MaskIsLastFragment) != 0);
+        return ((data[OffsetFragmentId] & MaskIsLastFragment) != 0);
     }
     else
     {
@@ -350,7 +350,7 @@ uint8_t PacketDelta::FragmentId() const
 {
     if (IsValid() && IsFragmented())
     {
-        return myBuffer[OffsetFragmentId] & (0xFF ^ MaskIsLastFragment);
+        return data[OffsetFragmentId] & (0xFF ^ MaskIsLastFragment);
     }
     else
     {
@@ -362,7 +362,7 @@ bool PacketDelta::HasClientId() const
 {
     if (IsValid())
     {
-        return (0 == (myBuffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket));
+        return (0 == (data[OffsetIsServerFlags] & MaskTopByteIsServerPacket));
     }
     else
     {
@@ -375,7 +375,7 @@ uint16_t PacketDelta::ClientId() const
     if (HasClientId())
     {
         uint16_t id;
-        Pull(begin(myBuffer) + OffsetClientId, id);
+        Pull(begin(data) + OffsetClientId, id);
 
         return id;
     }
@@ -391,17 +391,17 @@ std::vector<uint8_t> PacketDelta::GetPayload() const
     {
         if (IsFragmented())
         {
-            return std::vector<uint8_t>(begin(myBuffer) + OffsetFragmentPayload, end(myBuffer));
+            return std::vector<uint8_t>(begin(data) + OffsetFragmentPayload, end(data));
         }
         else
         {
             if (HasClientId())
             {
-                return std::vector<uint8_t>(begin(myBuffer) + OffsetDataClient, end(myBuffer));
+                return std::vector<uint8_t>(begin(data) + OffsetDataClient, end(data));
             }
             else
             {
-                return std::vector<uint8_t>(begin(myBuffer) + OffsetDataServer, end(myBuffer));
+                return std::vector<uint8_t>(begin(data) + OffsetDataServer, end(data));
             }
         }
     }

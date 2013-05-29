@@ -374,7 +374,7 @@ void NetworkManagerClient::DeltaSend()
             auto fragments(PacketDeltaFragmentManager::FragmentPacket(delta));
             for (auto& fragment : fragments)
             {
-                packets.emplace_back(fragment.TakeBuffer(), myServerAddress);
+                packets.emplace_back(std::move(fragment.data), myServerAddress);
             }
 
             // send

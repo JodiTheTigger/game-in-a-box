@@ -40,7 +40,6 @@ enum class Command : uint8_t
     Disconnect,
 };
 
-// RAM: TODO: Move all virtual functions to private (like NVI pattern).
 class Packet
 {
 public:
@@ -56,17 +55,15 @@ public:
     Packet& operator=(Packet&&) = default;
     virtual ~Packet();
 
-    Command GetCommand() const { return GetCommand(myBuffer); }
+    Command GetCommand() const { return GetCommand(data); }
     virtual bool IsValid() const;
 
-    std::size_t Size() const { return myBuffer.size(); }
-    std::vector<uint8_t> TakeBuffer() { return move(myBuffer); }
+    std::vector<uint8_t> data;
 
 protected:
     static const std::size_t MinimumPacketSize = 3;
     static const std::size_t OffsetCommand = 2;
 
-    std::vector<uint8_t> myBuffer;
 };
 
 }}} // namespace

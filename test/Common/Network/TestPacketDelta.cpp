@@ -52,14 +52,14 @@ TEST_F(TestPacketDelta, Empty)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
-    EXPECT_EQ(0, toTest.Size());
+    EXPECT_EQ(0, toTest.data.size());
 
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(0, toTest.GetSequence());
     EXPECT_EQ(0, toTest.GetSequenceAck());
     EXPECT_EQ(0, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.GetPayload().size());
-    EXPECT_EQ(0, toTest.TakeBuffer().size());
+    EXPECT_EQ(0, toTest.data.size());
 }
 
 TEST_F(TestPacketDelta, TestCopy)
@@ -102,7 +102,7 @@ TEST_F(TestPacketDelta, TakeBuffer)
                 std::vector<uint8_t>());
 
     EXPECT_TRUE(toTest.IsValid());
-    EXPECT_EQ(7, toTest.TakeBuffer().size());
+    EXPECT_EQ(7, toTest.data.size());
 }
 
 TEST_F(TestPacketDelta, NoDataClient)
@@ -121,14 +121,14 @@ TEST_F(TestPacketDelta, NoDataClient)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
-    EXPECT_NE(0, toTest.Size());
+    EXPECT_NE(0, toTest.data.size());
 
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
-    EXPECT_EQ(7, toTest.TakeBuffer().size());
+    EXPECT_EQ(7, toTest.data.size());
 }
 
 
@@ -141,14 +141,14 @@ TEST_F(TestPacketDelta, NoDataServer)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
-    EXPECT_NE(0, toTest.Size());
+    EXPECT_NE(0, toTest.data.size());
 
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFE, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
-    EXPECT_EQ(5, toTest.TakeBuffer().size());
+    EXPECT_EQ(5, toTest.data.size());
 }
 
 TEST_F(TestPacketDelta, SimpleServer)
@@ -161,14 +161,14 @@ TEST_F(TestPacketDelta, SimpleServer)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
-    EXPECT_NE(0, toTest.Size());
+    EXPECT_NE(0, toTest.data.size());
 
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
-    EXPECT_EQ(13, toTest.TakeBuffer().size());
+    EXPECT_EQ(13, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
 }
 
@@ -190,21 +190,21 @@ TEST_F(TestPacketDelta, SimpleClient)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
-    EXPECT_NE(0, toTest.Size());
+    EXPECT_NE(0, toTest.data.size());
 
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
-    EXPECT_EQ(11, toTest.TakeBuffer().size());
+    EXPECT_EQ(11, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }
 
 TEST_F(TestPacketDelta, EncodeDecodeServer)
 {
     PacketDelta& source = delta8BytePayloadServer;
-    PacketDelta toTest(source.TakeBuffer());
+    PacketDelta toTest(std::move(source.data));
 
     std::vector<uint8_t> payload(toTest.GetPayload());
 
@@ -213,7 +213,7 @@ TEST_F(TestPacketDelta, EncodeDecodeServer)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
-    EXPECT_NE(0, toTest.Size());
+    EXPECT_NE(0, toTest.data.size());
 
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_FALSE(toTest.HasClientId());
@@ -221,7 +221,7 @@ TEST_F(TestPacketDelta, EncodeDecodeServer)
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
-    EXPECT_EQ(13, toTest.TakeBuffer().size());
+    EXPECT_EQ(13, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
 }
 
@@ -236,7 +236,7 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
                 &clientId,
                 {1,2,3,4});
 
-    PacketDelta toTest(source.TakeBuffer());
+    PacketDelta toTest(std::move(source.data));
     std::vector<uint8_t> payload(toTest.GetPayload());
 
     EXPECT_FALSE(source.IsValid());
@@ -244,7 +244,7 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_FALSE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
-    EXPECT_NE(0, toTest.Size());
+    EXPECT_NE(0, toTest.data.size());
 
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_TRUE(toTest.HasClientId());
@@ -252,7 +252,7 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
-    EXPECT_EQ(11, toTest.TakeBuffer().size());
+    EXPECT_EQ(11, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }
 
@@ -279,7 +279,7 @@ TEST_F(TestPacketDelta, FragmentNotFragmented)
 
     EXPECT_FALSE(toTest.IsFragmented());
     EXPECT_TRUE(toTest.IsValid());
-    EXPECT_EQ(toTest.Size(), delta8BytePayloadServer.Size());
+    EXPECT_EQ(toTest.data.size(), delta8BytePayloadServer.data.size());
 }
 
 TEST_F(TestPacketDelta, Fragments)
@@ -294,7 +294,7 @@ TEST_F(TestPacketDelta, Fragments)
     EXPECT_TRUE(toTest1.IsFragmented());
     EXPECT_EQ(0, toTest1.FragmentId());
     EXPECT_FALSE(toTest1.IsLastFragment());
-    EXPECT_EQ(toTest1.Size(), 10);
+    EXPECT_EQ(toTest1.data.size(), 10);
     EXPECT_EQ(7, payload1.size());
 
     // second
@@ -302,7 +302,7 @@ TEST_F(TestPacketDelta, Fragments)
     EXPECT_TRUE(toTest2.IsFragmented());
     EXPECT_EQ(1, toTest2.FragmentId());
     EXPECT_TRUE(toTest2.IsLastFragment());
-    EXPECT_EQ(toTest2.Size(), 3 + ((delta8BytePayloadServer.Size() - 2) - 7));
+    EXPECT_EQ(toTest2.data.size(), 3 + ((delta8BytePayloadServer.data.size() - 2) - 7));
 }
 
 TEST_F(TestPacketDelta, DefragmentEmpty)

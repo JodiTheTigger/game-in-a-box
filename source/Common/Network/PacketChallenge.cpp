@@ -43,7 +43,7 @@ PacketChallenge::~PacketChallenge()
 
 bool PacketChallenge::IsValid() const
 {
-    if (myBuffer.size() == PacketBuffer::OffsetPayload + PacketChallenge::ChallengeMessage.size())
+    if (data.size() == PacketBuffer::OffsetPayload + PacketChallenge::ChallengeMessage.size())
     {
         if (GetCommand() == Command::Challenge)
         {

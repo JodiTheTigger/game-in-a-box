@@ -92,7 +92,7 @@ TEST_F(TestPackets, ChallengeFromValidDataInvalidChallengeBadData)
     Command typeResult;
 
     // make it invalid.
-    auto buffer = PacketChallenge().TakeBuffer();
+    auto buffer = PacketChallenge().data;
     buffer[buffer.size() - 2] = 0;
     PacketChallenge challenge(buffer);
 
@@ -107,7 +107,7 @@ TEST_F(TestPackets, ChallengeFromValidData)
     Command typeResult;
     PacketChallenge source;
 
-    PacketChallenge challenge = PacketChallenge(source.TakeBuffer());
+    PacketChallenge challenge = PacketChallenge(source.data);
 
     typeResult = challenge.GetCommand();
 

@@ -46,19 +46,19 @@ public:
 
         // NetworkKey is internally stored as a byte array so
         // we don't need to worry about endianess.
-        myBuffer.insert(end(myBuffer), begin(key), end(key));
+        data.insert(end(data), begin(key), end(key));
     }
 
     PacketKey(NetworkKey key, std::string message)
         : PacketKey(key)
     {
-        myBuffer.insert(end(myBuffer), begin(message), end(message));
+        data.insert(end(data), begin(message), end(message));
     }
 
     PacketKey(NetworkKey key, std::vector<uint8_t> payload)
         : PacketKey(key)
     {
-        myBuffer.insert(end(myBuffer), begin(payload), end(payload));
+        data.insert(end(data), begin(payload), end(payload));
     }
 
     PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
@@ -67,7 +67,7 @@ public:
 
     virtual bool IsValid() const override
     {
-        if (myBuffer.size() >= (PayloadSize + MinimumPacketSize))
+        if (data.size() >= (PayloadSize + MinimumPacketSize))
         {
             if (GetCommand() == TheCommand)
             {
@@ -83,18 +83,18 @@ public:
 
     void Append(std::vector<uint8_t> toAppend)
     {
-        myBuffer.insert(end(myBuffer), begin(toAppend), end(toAppend));
+        data.insert(end(data), begin(toAppend), end(toAppend));
     }
 
     NetworkKey Key() const
     {
         NetworkKey result;        
 
-        if (myBuffer.size() >= (PayloadSize + MinimumPacketSize))
+        if (data.size() >= (PayloadSize + MinimumPacketSize))
         {
             std::copy(
-                begin(myBuffer) + OffsetKey,
-                begin(myBuffer) + OffsetKey + PayloadSize,
+                begin(data) + OffsetKey,
+                begin(data) + OffsetKey + PayloadSize,
                 result.data);
         }
 
@@ -105,16 +105,16 @@ public:
     {
         std::vector<uint8_t> result;
 
-        result.reserve(myBuffer.size() - OffsetPayload);
+        result.reserve(data.size() - OffsetPayload);
 
-        result.assign(begin(myBuffer) + OffsetPayload, end(myBuffer));
+        result.assign(begin(data) + OffsetPayload, end(data));
 
         return result;
     }
 
     std::string Message() const
     {
-        return std::string(begin(myBuffer) + OffsetPayload, end(myBuffer));
+        return std::string(begin(data) + OffsetPayload, end(data));
     }
 
 protected:

@@ -29,7 +29,7 @@ using namespace std;
 using namespace GameInABox::Common::Network;
 
 Packet::Packet(std::vector<uint8_t> fromBuffer)
-    : myBuffer(fromBuffer)
+    : data(fromBuffer)
 {
 }
 
@@ -52,7 +52,7 @@ Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
 
             if (value <= static_cast<uint8_t> (Command::Disconnect))
             {
-                return static_cast<Command>(bufferToCheck[OffsetCommand]);
+                return static_cast<Command>(value);
             }
         }
     }
