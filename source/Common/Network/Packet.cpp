@@ -48,10 +48,12 @@ Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
     {
         if ((bufferToCheck[0] == 0xFF) && (bufferToCheck[1] == 0xFF))
         {
-            // RAM: TODO: check that it's a valid enum
-            // RAM: TODO: diff between an invalid command packet
-            // and an invalid enum (0xffff vs unknown command).
-            return static_cast<Command>(bufferToCheck[OffsetCommand]);
+            auto value = bufferToCheck[OffsetCommand];
+
+            if (value <= static_cast<uint8_t> (Command::Disconnect))
+            {
+                return static_cast<Command>(bufferToCheck[OffsetCommand]);
+            }
         }
     }
 

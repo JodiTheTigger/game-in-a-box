@@ -37,9 +37,10 @@ enum class Command : uint8_t
     InfoResponse,
     Connect,
     ConnectResponse,
-    Disconnect
+    Disconnect,
 };
 
+// RAM: TODO: Move all virtual functions to private (like NVI pattern).
 class Packet
 {
 public:
