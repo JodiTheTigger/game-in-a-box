@@ -76,6 +76,7 @@ public:
     bool IsConnected() const;
     bool HasFailed() const;
     boost::optional<ClientHandle> Handle() const;
+    boost::optional<uint16_t> ClientId() const;
 
     std::string FailReason() const
     {
@@ -94,6 +95,7 @@ private:
     int                                     myPacketCount;
     std::chrono::steady_clock::time_point   myLastTimestamp;
     boost::optional<ClientHandle>           myStateHandle;
+    boost::optional<uint16_t>               myClientId;
     PacketDeltaFragmentManager              myFragments;
     TimeFunction                            myTimeNow;
 

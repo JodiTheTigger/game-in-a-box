@@ -65,6 +65,7 @@ Connection::Connection(
     , myPacketCount(0)
     , myLastTimestamp(Timepoint::min())
     , myStateHandle()
+    , myClientId()
     , myFragments()
     , myTimeNow(timepiece)
 {
@@ -323,8 +324,15 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         // If we get deltas, that means we're connected.
                         if (PacketDelta::IsPacketDelta(packet))
                         {
-                            Reset(State::Connected);
-                            myFragments.AddPacket(PacketDelta{packet});
+                            auto delta = PacketDelta{packet};
+
+                            if (delta.HasClientId())
+                            {
+                                myClientId.reset(delta.ClientId());
+
+                                Reset(State::Connected);
+                                myFragments.AddPacket(PacketDelta{packet});
+                            }
                         }
 
                         break;
@@ -471,6 +479,11 @@ bool Connection::HasFailed() const
 boost::optional<ClientHandle> Connection::Handle() const
 {
     return myStateHandle;
+}
+
+boost::optional<uint16_t> Connection::ClientId() const
+{
+    return myClientId;
 }
 
 void Connection::Reset(State resetState)
