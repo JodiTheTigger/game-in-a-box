@@ -92,8 +92,8 @@ public:
     bool HasClientId() const;
     uint16_t ClientId() const;
 
-    // Not guaranteed to be valid, make sure you include a checksum or something
-    // in your payload to validate it.
+    // No checks are done here to make sure the packet is valid.
+    // It's up the the consumer to check and trust the data.
     std::vector<uint8_t> GetPayload() const;
 private:
     // No, I'm not going to use a struct to determine offsets.
