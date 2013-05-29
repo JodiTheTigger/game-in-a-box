@@ -30,18 +30,6 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// RAM: TODO! Add network metrics (bytes per second, send, recieve, rolling stats)
-// RAM: TODO! Add Network throttling here
-// RAM: TODO! Add Network throttling per destination as well (so global throttle, and per connection)
-// RAM: TODO! use function pointers (std::function) to do throttling and stats. However that would be
-// Set at constructor time, so isn't part of the interface. Should I make setters for those
-// Things in the interface itself?
-// eg:
-// using GateKeeper = std::function<bool(size, timestamp, address)>;
-// void SetGatekeeperSend(GateKeeper).
-// void SetGatekeeperReceive(GateKeeper).
-// where the function returns true if the send can go ahead, and is passed in details about
-// that send/receive.
 class INetworkProvider
 {
     CLASS_NOCOPY_ASSIGN_MOVE(INetworkProvider);
