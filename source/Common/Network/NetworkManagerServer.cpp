@@ -23,6 +23,7 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
+#include "Common/Logging/Logging.hpp"
 #include "Common/IStateManager.hpp"
 
 #include "INetworkProvider.hpp"
@@ -46,7 +47,8 @@ NetworkManagerServer::NetworkManagerServer(
     : INetworkManager()
     , myNetworks(move(networks))
     , myStateManager(stateManager)
-    , myConnections()
+    , myConnecting()
+    , myConnected()
     , myConnectedClients()
 {
 }
@@ -70,6 +72,83 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
         for (auto& packet: packets)
         {
+            // Most packets will be delta packets of already
+            // connected clients. Deal with that first.
+            if (myConnected.count(packet.address) > 0)
+            {
+                auto response = myConnected.at(packet.address).Process(move(packet.data));
+                if (!response.empty())
+                {
+                    responses.emplace_back(move(response), packet.address);
+                }
+            }
+            else
+            {
+                // Most packets will be connection handshake or info request packets
+                if (myConnecting.count(packet.address) > 0)
+                {
+                    auto response = myConnecting.at(packet.address).Process(move(packet.data));
+                    if (!response.empty())
+                    {
+                        responses.emplace_back(move(response), packet.address);
+                    }
+
+                    if (myConnected.at(packet.address).IsConnected())
+                    {
+                        myConnected.emplace(packet.address, std::move(myConnecting.at(packet.address)));
+                        myConnecting.erase(packet.address);
+                    }
+                }
+                else
+                {
+                    // Next are new connetion requests followed by
+                    // the least frequent packets: port or address hopping
+                    // connected clients.
+                    if (PacketDelta::IsPacketDelta(packet.data))
+                    {
+                        // Client packets are not allowed to fragment.
+                        //checktoseeifmoved;
+                    }
+                    else
+                    {
+                        myConnecting.emplace(packet.address, Connection{myStateManager});
+                        myConnecting.at(packet.address).Start(Connection::Mode::Server);
+
+                        auto response = myConnecting.at(packet.address).Process(move(packet.data));
+                        if (!response.empty())
+                        {
+                            responses.emplace_back(move(response), packet.address);
+                        }
+                    }
+                }
+            }
+        }
+
+            /*
+            if (PacketDelta::IsPacketDelta(packet))
+            {
+                PacketDelta delta{move(packet.data)};
+
+                if (delta.HasClientId())
+                {
+                    if (myConnectedClients.count(delta.ClientId()) > 0)
+                    {
+                        // already connected client.
+                        // Test
+                    }
+                }
+                else
+                {
+                    // wtf? ignore
+                    Logging::Log(Logging::LogLevel::Debug, "PacketDelta doesn't have a ClientId.");
+                }
+            }
+            else
+            {
+
+            }
+            */
+            /*
             if (myConnections.count(packet.address) == 0)
             {
                 // if it's a delta packet, see if the client id is recognised.
@@ -101,8 +180,10 @@ void NetworkManagerServer::PrivateProcessIncomming()
         if (!responses.empty())
         {
             network->Send(responses);
-        }
+        }*/
     }
+
+    // RAM: TODO: Process any deltas from the connected clients.
 }
 
 void NetworkManagerServer::PrivateSendState()
