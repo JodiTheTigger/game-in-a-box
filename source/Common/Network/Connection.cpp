@@ -56,7 +56,7 @@ enum class State
 Connection::Connection(
         IStateManager& stateManager,
         TimeFunction timepiece)
-    : myStateManager(stateManager)
+    : myStateManager(&stateManager)
     , myState(State::Idle)
     , myFailReason("")
     , myKey(GetNetworkKeyNil())
@@ -70,39 +70,6 @@ Connection::Connection(
     {
         myTimeNow = std::chrono::steady_clock::now;
     }
-}
-
-Connection::Connection(Connection&& other)
-    : myStateManager(other.myStateManager)
-    , myState(std::move(other.myState))
-    , myFailReason(std::move(other.myFailReason))
-    , myKey(std::move(other.myKey))
-    , myPacketCount(std::move(other.myPacketCount))
-    , myLastTimestamp(std::move(other.myLastTimestamp))
-    , myStateHandle(std::move(other.myStateHandle))
-    , myFragments(std::move(other.myFragments))
-    , myTimeNow(std::move(myTimeNow))
-{
-
-}
-
-Connection& Connection::operator=(Connection&& other)
-{
-    // RAM: TODO: FIX!
-    //if (this != other)
-    {
-        //myStateManager = &other.myStateManager;
-        myState = std::move(other.myState);
-        myFailReason = std::move(other.myFailReason);
-        myKey = std::move(other.myKey);
-        myPacketCount = std::move(other.myPacketCount);
-        myLastTimestamp = std::move(other.myLastTimestamp);
-        myStateHandle = std::move(other.myStateHandle);
-        myFragments = std::move(other.myFragments);
-        myTimeNow = std::move(myTimeNow);
-    }
-
-    return *this;
 }
 
 void Connection::Start(Mode mode)
@@ -127,7 +94,7 @@ void Connection::Disconnect(std::string failReason)
 {
     if (myStateHandle)
     {
-        myStateManager.Disconnect(*myStateHandle);
+        myStateManager->Disconnect(*myStateHandle);
     }
 
     if (failReason.empty())
@@ -231,7 +198,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                     if (connection.IsValid())
                     {
                         std::string failReason{};
-                        auto handle = myStateManager.Connect(connection.GetBuffer(), failReason);
+                        auto handle = myStateManager->Connect(connection.GetBuffer(), failReason);
 
                         if (!handle)
                         {
@@ -284,7 +251,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         {
                             if (info.Key() == myKey)
                             {
-                                auto infoData = myStateManager.StateInfo({});
+                                auto infoData = myStateManager->StateInfo({});
 
                                 // Bah can't just create the packet with std::vector as it'll treat it
                                 // as the entire packet buffer, not just the payload.
@@ -315,7 +282,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                 if (!myStateHandle)
                                 {
                                     std::string failMessage{};
-                                    auto handle = myStateManager.Connect(connect.GetBuffer(), failMessage);
+                                    auto handle = myStateManager->Connect(connect.GetBuffer(), failMessage);
 
                                     if (handle)
                                     {
@@ -330,7 +297,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                                 if (myStateHandle)
                                 {
-                                    auto infoData = myStateManager.StateInfo(myStateHandle);
+                                    auto infoData = myStateManager->StateInfo(myStateHandle);
                                     PacketConnectResponse response{};
                                     response.Append(infoData);
 
@@ -447,7 +414,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
-                    auto info = myStateManager.StateInfo({});
+                    auto info = myStateManager->StateInfo({});
 
                     // may be so big it UDP fragments, not my problem.
                     result = PacketConnect(myKey, info).TakeBuffer();

@@ -61,21 +61,10 @@ public:
             TimeFunction timepiece);
 
     Connection(const Connection&) = default;
-    Connection(Connection&& other); // = delete;
+    Connection(Connection&& other) = default;
     Connection& operator=(const Connection&) = default;
-    Connection& operator=(Connection&&); // = delete;
+    Connection& operator=(Connection&&) = default;
     ~Connection() = default;
-
-    // RAM: Needed by unordered_map
-    // RAM: TODO! FIX!
-    // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
-    // Should be non static non method, but since it compares a non-public member, I'll keep it as a member.
-    inline bool operator==(const PacketDelta& ) const {return true; } // RAM: TODO!
-    inline bool operator!=(const PacketDelta& other) const {return !operator==(other);}
-    inline bool operator< (const PacketDelta& ) const {return true;} // RAM: TODO!
-    inline bool operator> (const PacketDelta& ) const {return false;} // RAM: TODO!
-    inline bool operator<=(const PacketDelta& other) const {return !operator>(other);}
-    inline bool operator>=(const PacketDelta& other) const {return !operator<(other);}
 
     void Start(Mode mode);
     void Disconnect(std::string failReason);
@@ -98,7 +87,7 @@ private:
     static const int FloodTrigger = 1 + HandshakeRetries * 2;
     static const uint8_t Version = 1;
 
-    IStateManager&                          myStateManager;
+    IStateManager*                          myStateManager;
     State                                   myState;
     std::string                             myFailReason;
     NetworkKey                              myKey;
