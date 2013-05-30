@@ -41,6 +41,23 @@ using namespace GameInABox::Common::Network;
 // (used if we get a delta packet for a non-existing client, test against id instead).
 // need another map based on address to client (used more often)
 
+
+// RAM: TODO! Add network metrics (bytes per second, send, recieve, rolling stats)
+// RAM: TODO! Add Network throttling here
+// RAM: TODO! Add Network throttling per destination as well (so global throttle, and per connection)
+// RAM: TODO! use function pointers (std::function) to do throttling and stats. However that would be
+// Set at constructor time, so isn't part of the interface. Should I make setters for those
+// Things in the interface itself?
+// eg:
+// using GateKeeper = std::function<bool(size, timestamp, address)>;
+// void SetGatekeeperSend(GateKeeper).
+// void SetGatekeeperReceive(GateKeeper).
+// where the function returns true if the send can go ahead, and is passed in details about
+// that send/receive.
+//
+// NOTE: Network metrics are used by the client state, make a new interface to pass that info
+// to the state.
+
 NetworkManagerServer::NetworkManagerServer(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
