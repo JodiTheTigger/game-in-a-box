@@ -38,14 +38,14 @@ public:
 
     PacketBuffer(std::string message) : PacketBuffer()
     {
-        myBuffer.insert(end(myBuffer), begin(message), end(message));
+        data.insert(end(data), begin(message), end(message));
     }
 
     virtual ~PacketBuffer() {}
 
     virtual bool IsValid() const override
     {
-        if (myBuffer.size() >= MinimumPacketSize)
+        if (data.size() >= MinimumPacketSize)
         {
             if (Packet::GetCommand() == TheCommand)
             {
@@ -58,23 +58,23 @@ public:
 
     void Append(std::vector<uint8_t> toAppend)
     {
-        myBuffer.insert(end(myBuffer), begin(toAppend), end(toAppend));
+        data.insert(end(data), begin(toAppend), end(toAppend));
     }
 
     std::vector<uint8_t> GetBuffer() const
     {
         std::vector<uint8_t> result;
 
-        result.reserve(myBuffer.size() - OffsetPayload);
+        result.reserve(data.size() - OffsetPayload);
 
-        result.assign(begin(myBuffer) + OffsetPayload, end(myBuffer));
+        result.assign(begin(data) + OffsetPayload, end(data));
 
         return result;
     }
 
     std::string Message() const
     {
-        return std::string(begin(myBuffer) + OffsetPayload, end(myBuffer));
+        return std::string(begin(data) + OffsetPayload, end(data));
     }
 
 protected:

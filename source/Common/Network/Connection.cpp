@@ -205,7 +205,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                         if (!handle)
                         {
-                            result = PacketDisconnect(myKey, failReason).TakeBuffer();
+                            result = std::move(PacketDisconnect(myKey, failReason).data);
                             Fail(failReason);
                         }
                         else
@@ -238,7 +238,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                         if (challenge.IsValid())
                         {
-                            result = PacketChallengeResponse(Version, myKey).TakeBuffer();
+                            result = std::move(PacketChallengeResponse(Version, myKey).data);
                             myLastTimestamp = myTimeNow();
                             ++myPacketCount;
                         }
@@ -263,7 +263,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                                 // NOTE: Packet will be UDP fragmented if too big.
                                 // But I'm not going to do anything about that.
-                                result = packet.TakeBuffer();
+                                result = std::move(packet.data);
                                 myLastTimestamp = myTimeNow();
                                 ++myPacketCount;
                             }
@@ -293,7 +293,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                     }
                                     else
                                     {
-                                        result = PacketDisconnect(myKey, failMessage).TakeBuffer();
+                                        result = std::move(PacketDisconnect(myKey, failMessage).data);
                                         Fail(failMessage);
                                     }
                                 }
@@ -304,7 +304,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                     PacketConnectResponse response{};
                                     response.Append(infoData);
 
-                                    result = response.TakeBuffer();
+                                    result = std::move(response.data);
                                     myLastTimestamp = myTimeNow();
                                     ++myPacketCount;
                                 }
@@ -312,7 +312,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         }
                         else
                         {
-                            result = PacketDisconnect(myKey, "Invalid Key.").TakeBuffer();
+                            result = std::move(PacketDisconnect(myKey, "Invalid Key.").data);
                             ++myPacketCount;
                         }
 
@@ -381,7 +381,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
         case State::Disconnecting:
         {
-            result = PacketDisconnect(myKey, myFailReason).TakeBuffer();
+            result = std::move(PacketDisconnect(myKey, myFailReason).data);
             Fail(myFailReason);
             break;
         }
@@ -401,7 +401,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
-                    result = PacketChallenge().TakeBuffer();
+                    result = std::move(PacketChallenge().data);
                     myLastTimestamp = myTimeNow();
                     ++myPacketCount;
                 }
@@ -427,7 +427,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                     auto info = myStateManager->StateInfo({});
 
                     // may be so big it UDP fragments, not my problem.
-                    result = PacketConnect(myKey, info).TakeBuffer();
+                    result = std::move(PacketConnect(myKey, info).data);
                     myLastTimestamp = myTimeNow();
                     ++myPacketCount;
                 }

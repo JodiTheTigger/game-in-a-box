@@ -30,7 +30,7 @@ using namespace GameInABox::Common::Network;
 PacketChallengeResponse::PacketChallengeResponse(uint8_t version, NetworkKey key)
     : PacketKey(key)
 {
-    myBuffer.push_back(version);
+    data.push_back(version);
 }
 
 PacketChallengeResponse::~PacketChallengeResponse()
@@ -41,7 +41,7 @@ bool PacketChallengeResponse::IsValid() const
 {
     if (PacketKey::IsValid())
     {
-        if (myBuffer.size() == PacketSize)
+        if (data.size() == PacketSize)
         {
             if (Version() != 0)
             {
@@ -55,5 +55,5 @@ bool PacketChallengeResponse::IsValid() const
 
 uint8_t PacketChallengeResponse::Version() const
 {
-    return myBuffer[OffsetVersion];
+    return data[OffsetVersion];
 }

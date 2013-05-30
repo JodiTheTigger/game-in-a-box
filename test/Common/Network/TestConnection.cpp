@@ -189,12 +189,12 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     testTime += std::chrono::milliseconds(300);
 
     // send an invalid delta, server shouldn't be connected.
-    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+    toTestServer.Process(std::move(PacketDelta{Bytes(42,20)}.data));
 
     EXPECT_FALSE(toTestServer.IsConnected());
 
     auto delta = PacketDelta{0, 0xFFFF, 255, 88, Bytes(42,20)};
-    toTestServer.Process(delta.TakeBuffer());
+    toTestServer.Process(std::move(delta.data));
 
     auto deltaBytes = toTestServer.GetDefragmentedPacket();
 
@@ -228,7 +228,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
 
     testTime += std::chrono::milliseconds(300);
 
-    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.data);
 
     // Right, everyone is connected now. Lets Disconnect via the client.
     auto reason = std::string{"Because."};
@@ -271,7 +271,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromServer)
 
     testTime += std::chrono::milliseconds(300);
 
-    toTestServer.Process(PacketDelta{Bytes(42,20)}.TakeBuffer());
+    toTestServer.Process(PacketDelta{Bytes(42,20)}.data);
 
     // Right, everyone is connected now. Lets Disconnect via the client.
     auto reason = std::string{"Because Im the server!"};
