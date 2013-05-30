@@ -326,7 +326,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         {
                             auto delta = PacketDelta{packet};
 
-                            if (delta.HasClientId())
+                            if (delta.IsValid() && delta.HasClientId())
                             {
                                 myClientId.reset(delta.ClientId());
 
