@@ -366,7 +366,7 @@ void NetworkManagerClient::DeltaSend()
                     from,
                     myLastSequenceProcessed,
                     uint8_t(distance),
-                    &myClientId,
+                    {myClientId},
                     *(payloadBitstream.TakeBuffer()));
 
             // Fragment (if needed)

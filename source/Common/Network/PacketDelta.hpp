@@ -23,6 +23,7 @@
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
+#include <boost/optional.hpp>
 #endif
 
 #include "Common/WrappingCounter.hpp"
@@ -44,7 +45,7 @@ public:
             WrappingCounter<uint16_t> sequence,
             WrappingCounter<uint16_t> sequenceAck,
             uint8_t sequenceAckDelta,
-            uint16_t* clientId,
+            boost::optional<uint16_t> clientId,
             std::vector<uint8_t> deltaPayload);
 
     PacketDelta(

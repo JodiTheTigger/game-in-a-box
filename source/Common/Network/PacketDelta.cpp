@@ -89,15 +89,14 @@ PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
 {
 }
 
-PacketDelta::PacketDelta(
-        WrappingCounter<uint16_t> sequence,
+PacketDelta::PacketDelta(WrappingCounter<uint16_t> sequence,
         WrappingCounter<uint16_t> sequenceAck,
         uint8_t sequenceAckDelta,
-        uint16_t* clientId,
+        boost::optional<uint16_t> clientId,
         std::vector<uint8_t> deltaPayload)
     : PacketDelta()
 {
-    if (clientId != nullptr)
+    if (clientId)
     {
         myBuffer.reserve(MinimumPacketSizeClient + deltaPayload.size());
     }
@@ -111,7 +110,7 @@ PacketDelta::PacketDelta(
     Push(inserter, sequenceAck.Value());
     myBuffer.push_back(sequenceAckDelta);
 
-    if (clientId != nullptr)
+    if (clientId)
     {
         Push(inserter, *clientId);
     }

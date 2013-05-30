@@ -98,7 +98,7 @@ TEST_F(TestPacketDelta, TakeBuffer)
                 WrappingCounter<uint16_t>(1),
                 WrappingCounter<uint16_t>(2),
                 3,
-                &clientId,
+                {clientId},
                 std::vector<uint8_t>());
 
     EXPECT_TRUE(toTest.IsValid());
@@ -113,7 +113,7 @@ TEST_F(TestPacketDelta, NoDataClient)
                 WrappingCounter<uint16_t>(1),
                 WrappingCounter<uint16_t>(2),
                 3,
-                &clientId,
+                {clientId},
                 std::vector<uint8_t>());
 
     EXPECT_TRUE(toTest.IsValid());
@@ -180,7 +180,7 @@ TEST_F(TestPacketDelta, SimpleClient)
                 WrappingCounter<uint16_t>(1),
                 WrappingCounter<uint16_t>(2),
                 3,
-                &clientId,
+                {clientId},
                 {1,2,3,4});
 
     std::vector<uint8_t> payload(toTest.GetPayload());
@@ -233,7 +233,7 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
                 WrappingCounter<uint16_t>(1),
                 WrappingCounter<uint16_t>(2),
                 3,
-                &clientId,
+                {clientId},
                 {1,2,3,4});
 
     PacketDelta toTest(source.TakeBuffer());
