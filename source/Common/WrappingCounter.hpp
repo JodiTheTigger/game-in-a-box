@@ -28,11 +28,20 @@
 
 namespace GameInABox { namespace Common {
 
-template<typename T>
+template<typename T, int BITS = 0>
 class WrappingCounter
 {
 public:
-    static constexpr T max() { return std::numeric_limits<T>::max(); }
+    static constexpr int bits()
+    {
+        return BITS == 0 ?
+            std::numeric_limits<T>::max() :
+            BITS > std::numeric_limits<T>::digits ?
+                std::numeric_limits<T>::digits :
+                BITS;
+    }
+
+    static constexpr T max() { return (1 << bits()) - 1; }
 
     T Value() const { return myValue; }
     T& Value() { return myValue; }
