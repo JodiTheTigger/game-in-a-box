@@ -188,11 +188,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
 
     testTime += std::chrono::milliseconds(300);
 
-    // send an invalid delta, server shouldn't be connected.
-    toTestServer.Process(std::move(PacketDelta{Bytes(42,20)}.data));
-
-    EXPECT_FALSE(toTestServer.IsConnected());
-
+    // RAM: TODO: This doesn't make a packet with client id bit set. fix.
     auto delta = PacketDelta{0, 0xFFFF, 255, 88, Bytes(42,20)};
     toTestServer.Process(std::move(delta.data));
 
