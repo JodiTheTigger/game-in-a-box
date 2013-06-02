@@ -26,6 +26,7 @@
 // and use a baseclass where the copy and assign operator is private (or was that protected, can't remember).
 // HOWEVER! Weffc++ doesn't pick up on that so throws warnings. This macro is staying.
 // RAM: TODO: I've removed Weffc++ because of false positives, plesae revisit.
+// RAM: TODO: Make an "access.h" and add the classes: NoCopy, NoAssign, NoMove.
 #define CLASS_NOCOPY_ASSIGN_MOVE(CLASSNAME) private: \
     CLASSNAME(const CLASSNAME &) = delete; \
     CLASSNAME &operator=(const CLASSNAME &) = delete; \
