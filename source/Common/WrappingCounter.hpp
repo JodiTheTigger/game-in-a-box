@@ -48,68 +48,68 @@ public:
 
     WrappingCounter() : WrappingCounter(0) {};
     WrappingCounter(T newValue) : myValue(newValue) {}
-    WrappingCounter(const WrappingCounter<T>& other) : myValue(other.myValue) {};
+    WrappingCounter(const WrappingCounter<T, BITS>& other) : myValue(other.myValue) {};
 
 private:
     T myValue;
 };
 
 // Maths
-template<typename T>
-T operator-(const WrappingCounter<T> &leftHandSide, const WrappingCounter<T> &rightHandSide)
+template<typename T, int BITS>
+T operator-(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
 {
     // Expecting overflow wraparound.
     return T(leftHandSide.Value() - rightHandSide.Value());
 }
 
-template<typename T>
-T operator+(const WrappingCounter<T> &leftHandSide, const WrappingCounter<T> &rightHandSide)
+template<typename T, int BITS>
+T operator+(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
 {
     // Expecting overflow wraparound.
     return T(leftHandSide.Value() + rightHandSide.Value());
 }
 
-template<typename T>
-WrappingCounter<T>& operator+=(WrappingCounter<T>& leftHandSide, const T rightHandSide)
+template<typename T, int BITS>
+WrappingCounter<T, BITS>& operator+=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
 {
     leftHandSide.Value() += rightHandSide;
     return leftHandSide;
 }
 
-template<typename T>
-WrappingCounter<T>& operator-=(WrappingCounter<T>& leftHandSide, const T rightHandSide)
+template<typename T, int BITS>
+WrappingCounter<T, BITS>& operator-=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
 {
     leftHandSide.Value() -= rightHandSide;
     return leftHandSide;
 }
 
 // Boolean Maths
-template<typename T>
-bool operator==(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
+template<typename T, int BITS>
+bool operator==(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
     return leftHandSide.Value() == rightHandSide.Value();
 }
 
-template<typename T>
-bool operator!=(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
+template<typename T, int BITS>
+bool operator!=(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
     return !(leftHandSide.Value() == rightHandSide.Value());
 }
 
-template<typename T>
-bool operator==(const WrappingCounter<T>& leftHandSide, uint64_t rightHandSide)
+template<typename T, int BITS>
+bool operator==(const WrappingCounter<T, BITS>& leftHandSide, uint64_t rightHandSide)
 {
     return leftHandSide.Value() == rightHandSide;
 }
 
-template<typename T>
-bool operator==(uint64_t leftHandSide, const WrappingCounter<T>& rightHandSide)
+template<typename T, int BITS>
+bool operator==(uint64_t leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
     return leftHandSide == rightHandSide.Value();
 }
 
-template<typename T>
-bool operator<(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
+template<typename T, int BITS>
+bool operator<(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
     if (leftHandSide == rightHandSide)
     {
@@ -119,17 +119,17 @@ bool operator<(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>&
     {
         if (rightHandSide.Value() > leftHandSide.Value())
         {
-            return ((rightHandSide - leftHandSide) <= ((WrappingCounter<T>::max() >> 1) + 1));
+            return ((rightHandSide - leftHandSide) <= ((WrappingCounter<T, BITS>::max() >> 1) + 1));
         }
         else
         {
-            return ((leftHandSide - rightHandSide) > ((WrappingCounter<T>::max() >> 1) + 1));
+            return ((leftHandSide - rightHandSide) > ((WrappingCounter<T, BITS>::max() >> 1) + 1));
         }
     }
 }
 
-template<typename T>
-bool operator>(const WrappingCounter<T>& leftHandSide, const WrappingCounter<T>& rightHandSide)
+template<typename T, int BITS>
+bool operator>(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
     if (leftHandSide == rightHandSide)
     {
