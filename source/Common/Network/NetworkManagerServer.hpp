@@ -55,8 +55,6 @@ private:
     std::vector<MotleyUniquePointer<INetworkProvider>> myNetworks;
     IStateManager& myStateManager;
 
-    // RAM: TODO: boost::asio::ip::udp::endpoint doesn't have a hash function (needed)
-    // Connection doesn't have an empty constructor (needed)
     std::unordered_map<boost::asio::ip::udp::endpoint, Connection> myConnecting;
     std::unordered_map<boost::asio::ip::udp::endpoint, Connection> myConnected;
     std::unordered_map<uint16_t, boost::asio::ip::udp::endpoint> myConnectedClients;
