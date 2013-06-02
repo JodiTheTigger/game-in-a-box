@@ -25,7 +25,7 @@
 
 namespace GameInABox { namespace Common {
 
-using Sequence = WrappingCounter<uint16_t>;
+using Sequence = WrappingCounter<uint16_t, 15>;
 
 }} // namespace.
 

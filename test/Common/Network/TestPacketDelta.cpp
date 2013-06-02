@@ -32,8 +32,8 @@ class TestPacketDelta : public ::testing::Test
 public:
     TestPacketDelta()
         : delta8BytePayloadServer(
-              WrappingCounter<uint16_t>(1),
-              WrappingCounter<uint16_t>(2),
+              Sequence(1),
+              Sequence(2),
               3,
               nullptr,
               {1,2,3,4,5,6,7,8})
@@ -95,8 +95,8 @@ TEST_F(TestPacketDelta, TakeBuffer)
     uint16_t clientId(4);
 
     PacketDelta toTest(
-                WrappingCounter<uint16_t>(1),
-                WrappingCounter<uint16_t>(2),
+                Sequence(1),
+                Sequence(2),
                 3,
                 {clientId},
                 std::vector<uint8_t>());
@@ -110,8 +110,8 @@ TEST_F(TestPacketDelta, NoDataClient)
     uint16_t clientId(4);
 
     PacketDelta toTest(
-                WrappingCounter<uint16_t>(1),
-                WrappingCounter<uint16_t>(2),
+                Sequence(1),
+                Sequence(2),
                 3,
                 {clientId},
                 std::vector<uint8_t>());
@@ -126,7 +126,7 @@ TEST_F(TestPacketDelta, NoDataClient)
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
+    EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
     EXPECT_EQ(7, toTest.data.size());
 }
@@ -146,7 +146,7 @@ TEST_F(TestPacketDelta, NoDataServer)
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFE, toTest.GetSequenceBase());
+    EXPECT_EQ(0x7FFE, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
     EXPECT_EQ(5, toTest.data.size());
 }
@@ -166,7 +166,7 @@ TEST_F(TestPacketDelta, SimpleServer)
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
+    EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
     EXPECT_EQ(13, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
@@ -177,8 +177,8 @@ TEST_F(TestPacketDelta, SimpleClient)
     uint16_t clientId(4);
 
     PacketDelta toTest(
-                WrappingCounter<uint16_t>(1),
-                WrappingCounter<uint16_t>(2),
+                Sequence(1),
+                Sequence(2),
                 3,
                 {clientId},
                 {1,2,3,4});
@@ -195,7 +195,7 @@ TEST_F(TestPacketDelta, SimpleClient)
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
+    EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
     EXPECT_EQ(11, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
@@ -219,7 +219,7 @@ TEST_F(TestPacketDelta, EncodeDecodeServer)
     EXPECT_FALSE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
+    EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
     EXPECT_EQ(0, toTest.ClientId());
     EXPECT_EQ(13, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
@@ -230,8 +230,8 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
     uint16_t clientId(4);
 
     PacketDelta source(
-                WrappingCounter<uint16_t>(1),
-                WrappingCounter<uint16_t>(2),
+                Sequence(1),
+                Sequence(2),
                 3,
                 {clientId},
                 {1,2,3,4});
@@ -250,7 +250,7 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
     EXPECT_TRUE(toTest.HasClientId());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0xFFFF, toTest.GetSequenceBase());
+    EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.ClientId());
     EXPECT_EQ(11, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);

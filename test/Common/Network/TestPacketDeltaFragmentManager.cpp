@@ -32,20 +32,20 @@ class TestPacketDeltaFragmentManager : public ::testing::Test
 public:
     TestPacketDeltaFragmentManager()
         : delta4kBytePayloadServerSequence22(
-              WrappingCounter<uint16_t>(22),
-              WrappingCounter<uint16_t>(2),
+              Sequence(22),
+              Sequence(2),
               3,
               nullptr,
               std::vector<uint8_t>(4096,33))
         , delta4kBytePayloadServerSequence44(
-              WrappingCounter<uint16_t>(44),
-              WrappingCounter<uint16_t>(22),
+              Sequence(44),
+              Sequence(22),
               22,
               nullptr,
               std::vector<uint8_t>(4096,35))
         , delta8BytePayloadServer(
-              WrappingCounter<uint16_t>(1),
-              WrappingCounter<uint16_t>(2),
+              Sequence(1),
+              Sequence(2),
               3,
               nullptr,
               {1,2,3,4,5,6,7,8})
@@ -214,8 +214,8 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOldComplete)
                 PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44));
 
     PacketDelta delta8BytePayloadServer66(
-                  WrappingCounter<uint16_t>(66),
-                  WrappingCounter<uint16_t>(2),
+                  Sequence(66),
+                  Sequence(2),
                   3,
                   nullptr,
                   {1,2,3,4,5,6,7,8});

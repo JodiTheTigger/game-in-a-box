@@ -62,7 +62,7 @@ private:
 
     std::vector<PacketDelta> myFragments;
     PacketDelta myComplete;
-    WrappingCounter<uint16_t> myCurrentSequence;
+    Sequence myCurrentSequence;
 };
 
 }}} // namespace

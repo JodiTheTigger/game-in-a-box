@@ -27,7 +27,6 @@
 #endif
 
 #include "Common/Sequence.hpp"
-#include "Common/WrappingCounter.hpp"
 #include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
