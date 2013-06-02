@@ -41,6 +41,8 @@ public:
     };
 };
 
+// RAM: TODO! Test bits < type::digits
+
 // TYPES I'M TESTING!
 // Enabling uint32_t means the test will take about 30 min.
 // typedef ::testing::Types<uint8_t, uint16_t, uint32_t> TestSequenceTypes;
