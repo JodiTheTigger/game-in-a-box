@@ -26,6 +26,7 @@
 #include <boost/optional.hpp>
 #endif
 
+#include "Common/Sequence.hpp"
 #include "Common/WrappingCounter.hpp"
 #include "Packet.hpp"
 
@@ -33,7 +34,7 @@ namespace GameInABox { namespace Common { namespace Network {
 
 class PacketDelta : public Packet
 {
-public:    
+public:
     // Delta distance is stored as a byte.
     static constexpr uint8_t MaximumDeltaDistance() { return std::numeric_limits<uint8_t>::max(); }
     static bool IsPacketDelta(const std::vector<uint8_t>& buffer);
@@ -42,8 +43,8 @@ public:
     explicit PacketDelta(std::vector<uint8_t> rawData);
 
     PacketDelta(
-            WrappingCounter<uint16_t> sequence,
-            WrappingCounter<uint16_t> sequenceAck,
+            Sequence sequence,
+            Sequence sequenceAck,
             uint8_t sequenceAckDelta,
             boost::optional<uint16_t> clientId,
             std::vector<uint8_t> deltaPayload);
@@ -80,9 +81,9 @@ public:
     inline bool operator<=(const PacketDelta& other) const {return !operator>(other);}
     inline bool operator>=(const PacketDelta& other) const {return !operator<(other);}
 
-    WrappingCounter<uint16_t> GetSequence() const;
-    WrappingCounter<uint16_t> GetSequenceBase() const;
-    WrappingCounter<uint16_t> GetSequenceAck() const;
+    Sequence GetSequence() const;
+    Sequence GetSequenceBase() const;
+    Sequence GetSequenceAck() const;
 
     bool IsValid() const;    
 

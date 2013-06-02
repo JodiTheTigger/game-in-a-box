@@ -89,8 +89,8 @@ PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
 {
 }
 
-PacketDelta::PacketDelta(WrappingCounter<uint16_t> sequence,
-        WrappingCounter<uint16_t> sequenceAck,
+PacketDelta::PacketDelta(Sequence sequence,
+        Sequence sequenceAck,
         uint8_t sequenceAckDelta,
         boost::optional<uint16_t> clientId,
         std::vector<uint8_t> deltaPayload)
@@ -209,7 +209,7 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
                     std::size_t maxFragmentSize(sorted[0]->data.size() - OffsetFragmentPayload);
                     std::size_t bufferSize(2 + (sorted.size() * maxFragmentSize));
                     std::vector<uint8_t> buffer;
-                    WrappingCounter<uint16_t> fragmentSequence(sorted[0]->GetSequence());
+                    Sequence fragmentSequence(sorted[0]->GetSequence());
                     bool isValid(true);
 
                     buffer.reserve(bufferSize);
@@ -269,22 +269,22 @@ PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetSequence() const
+Sequence PacketDelta::GetSequence() const
 {
     if (IsValid())
     {
         uint16_t rawSequence;
         Pull(begin(data) + OffsetSequence, rawSequence);
 
-        return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
+        return Sequence(rawSequence & MaskSequence);
     }
     else
     {
-        return WrappingCounter<uint16_t>(0);
+        return Sequence(0);
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetSequenceBase() const
+Sequence PacketDelta::GetSequenceBase() const
 {
     if (IsValid())
     {
@@ -292,26 +292,26 @@ WrappingCounter<uint16_t> PacketDelta::GetSequenceBase() const
         Pull(begin(data) + OffsetSequenceAck, base);
         base &= MaskSequenceAck;
 
-        return WrappingCounter<uint16_t>(base - data[OffsetDeltaBase]);
+        return Sequence(base - data[OffsetDeltaBase]);
     }
     else
     {
-        return WrappingCounter<uint16_t>(0);
+        return Sequence(0);
     }
 }
 
-WrappingCounter<uint16_t> PacketDelta::GetSequenceAck() const
+Sequence PacketDelta::GetSequenceAck() const
 {
     if (IsValid())
     {
         uint16_t rawSequence;
         Pull(begin(data) + OffsetSequenceAck, rawSequence);
 
-        return WrappingCounter<uint16_t>(rawSequence & MaskSequence);
+        return Sequence(rawSequence & MaskSequence);
     }
     else
     {
-        return WrappingCounter<uint16_t>(0);
+        return Sequence(0);
     }
 }
 
