@@ -188,7 +188,6 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
 
     testTime += std::chrono::milliseconds(300);
 
-    // RAM: TODO: This doesn't make a packet with client id bit set. fix.
     auto delta = PacketDelta{0, 0xFFFF, 255, 88, Bytes(42,20)};
     toTestServer.Process(std::move(delta.data));
 
@@ -198,7 +197,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     EXPECT_TRUE(toTestServer.IsConnected());
     EXPECT_TRUE(deltaBytes.IsValid());
     EXPECT_TRUE(deltaBytes.HasClientId());
-    EXPECT_EQ(99, deltaBytes.ClientId());
+    EXPECT_EQ(88, deltaBytes.ClientId());
 }
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
