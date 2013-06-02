@@ -328,8 +328,8 @@ void NetworkManagerClient::DeltaReceive()
             BitStreamReadOnly payloadBitstream(*decompressed);
             myStateManager.DeltaSet(
                 *myStateHandle,
-                delta.GetSequence().Value(),
-                delta.GetSequenceBase().Value(),
+                delta.GetSequence(),
+                delta.GetSequenceBase(),
                 payloadBitstream);
 
             // Now see what the last packet the other end has got.
