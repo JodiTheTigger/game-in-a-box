@@ -45,8 +45,8 @@ public:
         maxValue7 = (uint64_t(WrapCount7::max()) + 1),
         maxValueHalf7 = ((uint64_t(WrapCount7::max()) + 1) >> 1),
 
-        maxValue15 = (uint64_t(WrapCount7::max()) + 1),
-        maxValueHalf15 = ((uint64_t(WrapCount7::max()) + 1) >> 1)
+        maxValue15 = (uint64_t(WrapCount15::max()) + 1),
+        maxValueHalf15 = ((uint64_t(WrapCount15::max()) + 1) >> 1)
     };
 };
 
@@ -479,8 +479,8 @@ TYPED_TEST(TestWrappingCounter, TestCreatedOutOfBounds)
     typename TestFixture::WrapCount7 a{TestFixture::maxValue - 1};
     typename TestFixture::WrapCount15 b{TestFixture::maxValue - 1};
 
-    ASSERT_EQ(a.Value(), TestFixture::maxValue7 - 1);
-    ASSERT_EQ(b.Value(), TestFixture::maxValue15 - 1);
+    ASSERT_EQ(a.Value(), (TestFixture::maxValue - 1) & (TestFixture::maxValue7 - 1));
+    ASSERT_EQ(b.Value(), (TestFixture::maxValue - 1) & (TestFixture::maxValue15 - 1));
 }
 
 }} // namespace

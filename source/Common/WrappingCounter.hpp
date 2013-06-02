@@ -47,7 +47,7 @@ public:
     T& Value() { return myValue; }
 
     WrappingCounter() : WrappingCounter(0) {};
-    WrappingCounter(T newValue) : myValue(newValue) {}
+    WrappingCounter(T newValue) : myValue(newValue & max()) {}
     WrappingCounter(const WrappingCounter<T, BITS>& other) : myValue(other.myValue) {};
 
 private:
@@ -59,27 +59,27 @@ template<typename T, int BITS>
 T operator-(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
 {
     // Expecting overflow wraparound.
-    return T(leftHandSide.Value() - rightHandSide.Value());
+    return T((leftHandSide.Value() - rightHandSide.Value()) & WrappingCounter<T, BITS>::max());
 }
 
 template<typename T, int BITS>
 T operator+(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
 {
     // Expecting overflow wraparound.
-    return T(leftHandSide.Value() + rightHandSide.Value());
+    return T((leftHandSide.Value() + rightHandSide.Value()) & WrappingCounter<T, BITS>::max());
 }
 
 template<typename T, int BITS>
 WrappingCounter<T, BITS>& operator+=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
 {
-    leftHandSide.Value() += rightHandSide;
+    leftHandSide.Value() = (leftHandSide.Value() + rightHandSide) & WrappingCounter<T, BITS>::max();
     return leftHandSide;
 }
 
 template<typename T, int BITS>
 WrappingCounter<T, BITS>& operator-=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
 {
-    leftHandSide.Value() -= rightHandSide;
+    leftHandSide.Value() = (leftHandSide.Value() - rightHandSide) & WrappingCounter<T, BITS>::max();
     return leftHandSide;
 }
 
