@@ -197,9 +197,9 @@ TYPED_TEST(TestWrappingCounter, TestSimpleAddAssign)
     for (uint64_t i(0); i < TestFixture::maxValue7; i++)
     {
         typename TestFixture::WrapCount7 a(i);
-        typename TestFixture::WrapCount7 c(i + 100);
+        typename TestFixture::WrapCount7 c(i + 20);
 
-        a += toDelta;
+        a += typename TestFixture::Datum(20);
 
         ASSERT_EQ(a, c);
     }
@@ -231,10 +231,10 @@ TYPED_TEST(TestWrappingCounter, TestSimpleSubtractAssign)
 
     for (uint64_t i(0); i < TestFixture::maxValue7; i++)
     {
-        typename TestFixture::WrapCount7 a(i + 100);
+        typename TestFixture::WrapCount7 a(i + 20);
         typename TestFixture::WrapCount7 b(i);
 
-        a -= toDelta;
+        a -= typename TestFixture::Datum(20);
 
         ASSERT_EQ(a, b);
     }
@@ -317,7 +317,7 @@ TYPED_TEST(TestWrappingCounter, TestSimpleGreaterThanWraparound)
     for (uint64_t i(0); i < TestFixture::maxValue7; i++)
     {
         typename TestFixture::WrapCount7 a(i);
-        typename TestFixture::WrapCount7 b(i+100);
+        typename TestFixture::WrapCount7 b(i+20);
 
         ASSERT_GT(b, a);
     }
@@ -344,7 +344,7 @@ TYPED_TEST(TestWrappingCounter, TestSimpleLessThanWraparound)
     for (uint64_t i(0); i < TestFixture::maxValue7; i++)
     {
         typename TestFixture::WrapCount7 a(i);
-        typename TestFixture::WrapCount7 b(i+100);
+        typename TestFixture::WrapCount7 b(i+20);
 
         ASSERT_LT(a, b);
     }
