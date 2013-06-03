@@ -55,6 +55,11 @@ public:
     void Disconnect(ClientHandle toDisconnect);
     bool IsConnected(ClientHandle client) const;
 
+    // called each time a packet is to be sent to the network, to be used by the state
+    // manager to control throttling. Return true if can send, false otherwise.
+    // If !client it is for handshaking.
+    bool CanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes);
+
     // Delta compression aggression should be inferred by the packet distance,
     // thus how well the packet compresses, therefore how big the packet should get.
     // A large packet delta should require more aggressive delta creation to get
@@ -88,6 +93,8 @@ private:
 
     virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;    
     virtual bool PrivateIsConnected(ClientHandle client) const = 0;
+
+    virtual bool PrivateCanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;
     
     virtual void PrivateDeltaGet(
             ClientHandle client,

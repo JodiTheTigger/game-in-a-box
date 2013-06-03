@@ -44,6 +44,8 @@ public:
     MOCK_METHOD1(PrivateDisconnect, void (ClientHandle));
     MOCK_CONST_METHOD1(PrivateIsConnected, bool (ClientHandle));
 
+    MOCK_METHOD2(PrivateCanPacketSend, bool (OptionalClient, std::size_t));
+
     MOCK_CONST_METHOD5(PrivateDeltaGet, void (
                            ClientHandle,
                            Sequence&,

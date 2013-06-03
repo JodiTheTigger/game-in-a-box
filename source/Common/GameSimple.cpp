@@ -47,6 +47,12 @@ boost::optional<ClientHandle> GameSimple::PrivateConnect(
     return boost::optional<ClientHandle>();
 }
 
+bool GameSimple::PrivateCanPacketSend(boost::optional<ClientHandle>, std::size_t)
+{
+    // RAM: TODO
+    return true;
+}
+
 void GameSimple::PrivateDisconnect(ClientHandle)
 {
     // RAM: TODO
