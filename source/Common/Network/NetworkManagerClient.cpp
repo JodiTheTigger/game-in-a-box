@@ -56,8 +56,6 @@ struct NetworkManagerClient::LiveConnection
     Connection handshake;
 };
 
-// RAM: TODO: Use CanPacketSend()!
-
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
