@@ -68,8 +68,36 @@ void XorCode(
         std::size_t arraySize
         const CodeArrayType (&toCodeAgainst)[Size])
 */
+/*
+template<class Uint8tIteratorWrite,
+         int Size>
+void XorCode(
+    Uint8tIteratorWrite writeBegin,
+    Uint8tIteratorWrite writeEnd,
+    const uint8_t* readBegin)
+{
+    std::size_t index(0);
 
+    while (writeBegin != writeEnd)
+    {
+        *writeBegin = *writeBegin ^ readBegin[index];
+        index = (index + 1) % Size;
 
+        ++writeBegin;
+    }
+}
+
+template<class Uint8tIteratorWrite,
+         class Uint8tIteratorRead,
+         int Size>
+void XorCode(
+    Uint8tIteratorWrite writeBegin,
+    Uint8tIteratorWrite writeEnd,
+    const Uint8tIteratorRead (&readBegin)[Size])
+{
+    XorCode<Uint8tIteratorWrite, Uint8tIteratorRead, Size>(writeBegin, writeEnd, &readBegin);
+}
+*/
 // RAM: TODO! Get rid of duplicate code, deal with c arrays!
 template<class Uint8tIterator,
          class CodeArrayType,
