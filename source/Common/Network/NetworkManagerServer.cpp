@@ -93,21 +93,31 @@ void NetworkManagerServer::PrivateProcessIncomming()
             // connected clients. Deal with that first.
             if (myConnected.count(packet.address) > 0)
             {
-                auto response = myConnected.at(packet.address).Process(move(packet.data));
+                auto &connection = myConnected.at(packet.address);
+                auto response = connection.Process(move(packet.data));
+
                 if (!response.empty())
                 {
-                    responses.emplace_back(move(response), packet.address);
+                    if (myStateManager.CanPacketSend(connection.Handle(), response.size()))
+                    {
+                        responses.emplace_back(move(response), packet.address);
+                    }
                 }
             }
             else
             {
                 // Most packets will be connection handshake or info request packets
                 if (myConnecting.count(packet.address) > 0)
-                {
-                    auto response = myConnecting.at(packet.address).Process(move(packet.data));
+                {                    
+                    auto &connection = myConnected.at(packet.address);
+                    auto response = connection.Process(move(packet.data));
+
                     if (!response.empty())
                     {
-                        responses.emplace_back(move(response), packet.address);
+                        if (myStateManager.CanPacketSend(connection.Handle(), response.size()))
+                        {
+                            responses.emplace_back(move(response), packet.address);
+                        }
                     }
 
                     if (myConnected.at(packet.address).IsConnected())
@@ -129,12 +139,19 @@ void NetworkManagerServer::PrivateProcessIncomming()
                     else
                     {
                         myConnecting.emplace(packet.address, Connection{myStateManager});
-                        myConnecting.at(packet.address).Start(Connection::Mode::Server);
 
-                        auto response = myConnecting.at(packet.address).Process(move(packet.data));
+                        auto &connection = myConnected.at(packet.address);
+
+                        connection.Start(Connection::Mode::Server);
+
+                        auto response = connection.Process(move(packet.data));
+
                         if (!response.empty())
                         {
-                            responses.emplace_back(move(response), packet.address);
+                            if (myStateManager.CanPacketSend(connection.Handle(), response.size()))
+                            {
+                                responses.emplace_back(move(response), packet.address);
+                            }
                         }
                     }
                 }
