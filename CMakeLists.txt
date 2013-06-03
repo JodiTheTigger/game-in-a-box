@@ -138,6 +138,7 @@ FIND_PACKAGE ( Threads )
 ###############
 
 set(COMMON_SOURCE
+source/Common/No.hpp
 source/Common/PrecompiledHeaders.cpp
 source/Common/PrecompiledHeaders.hpp
 source/Common/AutoComplete.hpp
