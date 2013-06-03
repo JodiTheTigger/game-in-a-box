@@ -98,7 +98,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                 if (!response.empty())
                 {
-                    if (myStateManager.CanPacketSend(connection.Handle(), response.size()))
+                    if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
                     {
                         responses.emplace_back(move(response), packet.address);
                     }
@@ -114,7 +114,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                     if (!response.empty())
                     {
-                        if (myStateManager.CanPacketSend(connection.Handle(), response.size()))
+                        if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
                         {
                             responses.emplace_back(move(response), packet.address);
                         }
@@ -148,7 +148,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                         if (!response.empty())
                         {
-                            if (myStateManager.CanPacketSend(connection.Handle(), response.size()))
+                            if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
                             {
                                 responses.emplace_back(move(response), packet.address);
                             }

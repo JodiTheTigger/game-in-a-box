@@ -476,12 +476,12 @@ bool Connection::HasFailed() const
     return myState == State::FailedConnection;
 }
 
-boost::optional<ClientHandle> Connection::Handle() const
+boost::optional<ClientHandle> Connection::IdClient() const
 {
     return myStateHandle;
 }
 
-boost::optional<uint16_t> Connection::ClientId() const
+boost::optional<uint16_t> Connection::IdConnection() const
 {
     return myClientId;
 }

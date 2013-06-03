@@ -60,7 +60,7 @@ TEST_F(TestConnection, CreateCustomTime)
     testTime = Clock::now();
     EXPECT_FALSE(toTest.HasFailed());
     EXPECT_FALSE(toTest.IsConnected());
-    EXPECT_FALSE(toTest.Handle());
+    EXPECT_FALSE(toTest.IdClient());
     EXPECT_EQ("", toTest.FailReason());
 
     auto delta = toTest.GetDefragmentedPacket();

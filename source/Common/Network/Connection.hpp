@@ -76,9 +76,8 @@ public:
     bool IsConnected() const;
     bool HasFailed() const;
 
-    // RAM: TODO: Name the ClientHandle getters the same over all classes!
-    boost::optional<ClientHandle> Handle() const;
-    boost::optional<uint16_t> ClientId() const;
+    boost::optional<ClientHandle> IdClient() const;
+    boost::optional<uint16_t> IdConnection() const;
 
     std::string FailReason() const
     {
