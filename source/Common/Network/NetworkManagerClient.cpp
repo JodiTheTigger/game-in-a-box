@@ -79,7 +79,7 @@ NetworkManagerClient::NetworkManagerClient(
     {
         myNetworks.push_back({move(network), {stateManager}});
 
-        // RAM: TODO! Why doesn't emplace_back compile?
+        // Why doesn't emplace_back compile?
         //myNetworks.emplace_back(move(network), {stateManager});
         //myNetworks.emplace_back({move(network), {stateManager}});
     }
