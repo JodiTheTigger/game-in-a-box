@@ -21,44 +21,16 @@
 #ifndef NO_H
 #define NO_H
 
-class NoCopy
+class NoCopyMoveNorAssign
 {
 protected:
-    NoCopy(const NoCopy&) = delete;
+    NoCopyMoveNorAssign() {}
+    ~NoCopyMoveNorAssign() {}
 
-    NoCopy() = default;
-    //NoCopy(const NoCopy&) = default;
-    NoCopy(NoCopy&&) = default;
-    NoCopy& operator=(const NoCopy&) = default;
-    NoCopy& operator=(NoCopy&&) = default;
-    ~NoCopy() = default;
-};
-
-class NoAssign
-{
-protected:
-    NoAssign &operator=(const NoAssign &) = delete;
-
-    NoAssign() = default;
-    NoAssign(const NoAssign&) = default;
-    NoAssign(NoAssign&&) = default;
-    //NoAssign& operator=(const NoAssign&) = default;
-    NoAssign& operator=(NoAssign&&) = default;
-    ~NoAssign() = default;
-};
-
-class NoMove
-{
-protected:
-    NoMove(NoMove&&) = delete;
-    NoMove &operator=(NoMove&&) = delete;
-
-    NoMove() = default;
-    NoMove(const NoMove&) = default;
-    //NoMove(NoMove&&) = default;
-    NoMove& operator=(const NoMove&) = default;
-    //NoMove& operator=(NoMove&&) = default;
-    ~NoMove() = default;
+    NoCopyMoveNorAssign(const NoCopyMoveNorAssign&) = delete;
+    NoCopyMoveNorAssign(NoCopyMoveNorAssign&&) = delete;
+    NoCopyMoveNorAssign& operator=(const NoCopyMoveNorAssign&) = delete;
+    NoCopyMoveNorAssign& operator=(NoCopyMoveNorAssign&&) = delete;
 };
 
 #endif // NO_H

@@ -27,15 +27,12 @@
 #include <memory>
 #endif
 
-#include "BuildMacros.hpp"
 #include "BitStreamReadOnly.hpp"
 
 namespace GameInABox { namespace Common {
 
 class BitStream : public BitStreamReadOnly
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(BitStream)
-    
 public:
     BitStream(uint32_t initialCapacityInBytes);
     BitStream(std::unique_ptr<std::vector<uint8_t>> sourceBuffer);

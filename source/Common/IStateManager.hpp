@@ -31,6 +31,7 @@
 
 #include "BuildMacros.hpp"
 
+#include "No.hpp"
 #include "Sequence.hpp"
 #include "ClientHandle.hpp"
 
@@ -40,10 +41,8 @@ namespace GameInABox { namespace Common {
 class BitStream;
 class BitStreamReadOnly;
 
-class IStateManager
+class IStateManager : NoCopyMoveNorAssign
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(IStateManager);
-    
 public:
     std::array<uint64_t, 256> GetHuffmanFrequencies() const;
 

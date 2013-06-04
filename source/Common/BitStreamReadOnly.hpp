@@ -26,14 +26,13 @@
 #include <vector>
 #endif
 
+#include "No.hpp"
 #include "BuildMacros.hpp"
 
 namespace GameInABox { namespace Common {
 
-class BitStreamReadOnly
+class BitStreamReadOnly : NoCopyMoveNorAssign
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(BitStreamReadOnly)
- 
 public:
     BitStreamReadOnly(const std::vector<uint8_t>& sourceBuffer);
     virtual ~BitStreamReadOnly();
