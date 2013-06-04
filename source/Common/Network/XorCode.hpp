@@ -25,62 +25,33 @@
 #include <cstdint>
 #include <vector>
 #include <type_traits>
+#include <array>
 #endif
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// TODO! Support std::array as the iterators!
-
 // Only allow uint8_t iterators by checking that the iterator
 // type (T::value_type) is a uint8_t.
-template<class Uint8tIterator,
-         class CodeArrayType,
-         class = typename std::enable_if<
-             std::is_same<typename Uint8tIterator::value_type, std::uint8_t>::value>
-         ::type,
-        class = typename std::enable_if<
-            std::is_same<typename CodeArrayType::value_type, std::uint8_t>::value>
-        ::type>
-void XorCode(
-        Uint8tIterator begin,
-        Uint8tIterator end,
-        const CodeArrayType& toCodeAgainst)
-{
-    if (!toCodeAgainst.empty())
-    {
-        std::size_t codeSize(toCodeAgainst.size());
-        std::size_t index(0);
-
-        for (; begin != end; begin++)
-        {
-            *begin = *begin ^ toCodeAgainst[index];
-            index = (index + 1) % codeSize;
-        }
-    }
-}
-
-// RAM: Take begin, end, begin and size
-/*
-void XorCode(
-        Uint8tIteratorWrite writeBegin,
-        Uint8tIteratorWrite writeEnd,
-        Uint8tIteratorRead readBegin,
-        std::size_t arraySize
-        const CodeArrayType (&toCodeAgainst)[Size])
-*/
-/*
 template<class Uint8tIteratorWrite,
-         int Size>
+         class Uint8tIteratorRead,
+         std::size_t Size,
+         class = typename std::enable_if<
+             std::is_same<typename Uint8tIteratorWrite::value_type, std::uint8_t>::value>
+         ::type,
+         class = typename std::enable_if<
+             std::is_same<typename Uint8tIteratorRead::value_type, std::uint8_t>::value>
+         ::type>
 void XorCode(
     Uint8tIteratorWrite writeBegin,
     Uint8tIteratorWrite writeEnd,
-    const uint8_t* readBegin)
+    const Uint8tIteratorRead &xorBuffer)
 {
-    std::size_t index(0);
+    static_assert(Size != 0, "Buffer to xor Against is empty.");
 
+    std::size_t index(0);
     while (writeBegin != writeEnd)
     {
-        *writeBegin = *writeBegin ^ readBegin[index];
+        *writeBegin = *writeBegin ^ xorBuffer[index];
         index = (index + 1) % Size;
 
         ++writeBegin;
@@ -89,34 +60,53 @@ void XorCode(
 
 template<class Uint8tIteratorWrite,
          class Uint8tIteratorRead,
-         int Size>
+         std::size_t Size>
 void XorCode(
     Uint8tIteratorWrite writeBegin,
     Uint8tIteratorWrite writeEnd,
-    const Uint8tIteratorRead (&readBegin)[Size])
+    const Uint8tIteratorRead (&xorBuffer)[Size])
 {
-    XorCode<Uint8tIteratorWrite, Uint8tIteratorRead, Size>(writeBegin, writeEnd, &readBegin);
+    XorCode<Uint8tIteratorWrite, Uint8tIteratorRead, Size>(writeBegin, writeEnd, xorBuffer);
 }
-*/
-// RAM: TODO! Get rid of duplicate code, deal with c arrays!
-template<class Uint8tIterator,
-         class CodeArrayType,
-         int Size>
-void XorCode(
-        Uint8tIterator begin,
-        Uint8tIterator end,
-        const CodeArrayType (&toCodeAgainst)[Size])
-{
-    // TODO: If (Size > 0) {}
-    std::size_t index(0);
 
-    for (; begin != end; begin++)
+template<class Uint8tIteratorWrite,
+         std::size_t Size,
+         typename T>
+void XorCode(
+    Uint8tIteratorWrite writeBegin,
+    Uint8tIteratorWrite writeEnd,
+    const std::array<T, Size> xorBuffer)
+{
+    XorCode<Uint8tIteratorWrite, std::array<T, Size>, Size>(writeBegin, writeEnd, xorBuffer);
+}
+
+template<class Uint8tIteratorWrite,
+         class Uint8tIteratorRead,
+         class = typename std::enable_if<
+             std::is_same<typename Uint8tIteratorWrite::value_type, std::uint8_t>::value>
+         ::type,
+         class = typename std::enable_if<
+             std::is_same<typename Uint8tIteratorRead::value_type, std::uint8_t>::value>
+         ::type>
+void XorCode(
+        Uint8tIteratorWrite writeBegin,
+        Uint8tIteratorWrite writeEnd,
+        const Uint8tIteratorRead& xorBuffer)
+{
+    if (!xorBuffer.empty())
     {
-        *begin = *begin ^ toCodeAgainst[index];
-        index = (index + 1) % Size;
+        std::size_t codeSize    = xorBuffer.size();
+        std::size_t index       = 0;
+
+        while (writeBegin != writeEnd)
+        {
+            *writeBegin = *writeBegin ^ xorBuffer[index];
+            index = (index + 1) % codeSize;
+
+            ++writeBegin;
+        }
     }
 }
-
 }}} // namespace
 
 #endif // XORCODE_H

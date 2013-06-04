@@ -322,7 +322,7 @@ void NetworkManagerClient::DeltaReceive()
             // that's used to decrypt. Otherwise it's just easily hackable.
             // Reason for excryption in the fist place is to prevent easy man-in-the-middle
             // attacks to control someone else's connection.
-            std::vector<uint8_t> code(4);
+            std::array<uint8_t, 4> code;
             Push(begin(code), delta.GetSequence().Value());
             Push(begin(code) + 2, delta.GetSequenceAck().Value());
             XorCode(begin(code), end(code), myServerKey.data);
