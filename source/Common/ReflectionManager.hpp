@@ -29,8 +29,6 @@
 #include <tuple>
 #endif
 
-#include "BuildMacros.hpp"
-
 namespace GameInABox { namespace Common {
 
 // forward declarations
@@ -40,8 +38,6 @@ enum class ReflectedType;
 
 class ReflectionManager
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(ReflectionManager)
-    
 public:
     ReflectionManager();
     

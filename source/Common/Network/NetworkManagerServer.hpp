@@ -42,8 +42,6 @@ class INetworkProvider;
 
 class NetworkManagerServer : public INetworkManager
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(NetworkManagerServer)
-
 public:
     NetworkManagerServer(
             std::vector<MotleyUniquePointer<INetworkProvider>> networks,

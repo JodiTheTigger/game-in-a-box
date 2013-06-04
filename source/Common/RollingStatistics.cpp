@@ -38,7 +38,7 @@ using namespace std;
 using namespace GameInABox::Common;
 
 RollingStatistics::RollingStatistics(uint32_t rollingBufferSizeInSamples)
-    : mySamples(new deque<float>())
+    : mySamples()
     , mySampleSizeMaximum(rollingBufferSizeInSamples)
     , mySum(0)
     , myAverage(0)
@@ -56,12 +56,12 @@ void RollingStatistics::AddSample(float value)
 {
 	if (mySampleSizeMaximum != 0)
 	{
-		if (mySamples->size() == mySampleSizeMaximum)
+        if (mySamples.size() == mySampleSizeMaximum)
 		{
-			mySamples->pop_back();
+            mySamples.pop_back();
 		}    
 
-		mySamples->push_front(value);
+        mySamples.push_front(value);
 	}
 }
 
@@ -73,7 +73,7 @@ void RollingStatistics::Calculate()
     
     // If you can optimise this for speed (with timings proof), please do!
     
-    if (1 > mySamples->size())
+    if (1 > mySamples.size())
     {
         return;
     }
@@ -84,9 +84,9 @@ void RollingStatistics::Calculate()
     // 3. Sort.
     
     // 1.
-    sorted.reserve(mySamples->size());
+    sorted.reserve(mySamples.size());
     bigSum = 0;
-    for (float toCopy : *mySamples)
+    for (float toCopy : mySamples)
     {
         bigSum += toCopy;
         sorted.push_back(toCopy);
@@ -101,8 +101,8 @@ void RollingStatistics::Calculate()
     {
         bigVariance += (toVariance - myAverage) * (toVariance - myAverage);
     }
-    myVariance = static_cast<float>(bigVariance / mySamples->size());
-    myStandardDeviation = static_cast<float>(std::sqrt(bigVariance / mySamples->size()));
+    myVariance = static_cast<float>(bigVariance / mySamples.size());
+    myStandardDeviation = static_cast<float>(std::sqrt(bigVariance / mySamples.size()));
     
     // 3.
     sort(begin(sorted), end(sorted));

@@ -26,7 +26,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "Common/BuildMacros.hpp"
+#include "Common/No.hpp"
 #include "Common/IReflected.hpp"
 
 // forward declarations
@@ -41,9 +41,8 @@ class INetworkManager;
 
 namespace GameInABox { namespace Server {
 
-class GameInABoxServer final : public GameInABox::Common::IReflected
+class GameInABoxServer final : public GameInABox::Common::IReflected, GameInABox::Common::NoCopyMoveNorAssign
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(GameInABoxServer)
     REFLECTION_BOILERPLATE(GameInABoxServer)
     
 public:

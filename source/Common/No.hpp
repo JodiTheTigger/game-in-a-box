@@ -21,6 +21,8 @@
 #ifndef NO_H
 #define NO_H
 
+namespace GameInABox { namespace Common {
+
 class NoCopyMoveNorAssign
 {
 protected:
@@ -32,5 +34,7 @@ protected:
     NoCopyMoveNorAssign& operator=(const NoCopyMoveNorAssign&) = delete;
     NoCopyMoveNorAssign& operator=(NoCopyMoveNorAssign&&) = delete;
 };
+
+}} // namespace
 
 #endif // NO_H

@@ -28,8 +28,6 @@
 #include <boost/asio/ip/udp.hpp>
 #endif
 
-#include "Common/BuildMacros.hpp"
-
 namespace GameInABox { namespace Common { namespace Network {
 
 class NetworkPacket

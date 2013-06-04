@@ -31,8 +31,6 @@
 #include <string>
 #include "Common/BitStream.hpp"
 
-#include "Common/BuildMacros.hpp"
-
 #include "Common/IReflected.hpp"
 #include "Common/AutoComplete.hpp"
 

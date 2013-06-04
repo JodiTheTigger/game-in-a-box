@@ -27,22 +27,18 @@
 #include <deque>
 #endif
 
-#include "BuildMacros.hpp"
-
 namespace GameInABox { namespace Common {
 
 // TODO: Make this a templated class, and make a std::array
 class RollingStatistics
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(RollingStatistics)
-    
 public:
     RollingStatistics() : RollingStatistics(256) {}
     RollingStatistics(uint32_t rollingBufferSizeInSamples);
 
     // No calculations are done when adding samples.
     void AddSample(float value);
-    uint32_t SampleCount() const { return mySamples->size(); }
+    uint32_t SampleCount() const { return mySamples.size(); }
     uint32_t SampleCountMax() const { return mySampleSizeMaximum; }
     
     // Values are only valid since the last calculation
@@ -59,7 +55,7 @@ public:
     float GetStandardDeviation() const { return myStandardDeviation; }
     
 private:
-    std::unique_ptr<std::deque<float>> mySamples;
+    std::deque<float> mySamples;
     
     std::size_t mySampleSizeMaximum;
     float mySum;

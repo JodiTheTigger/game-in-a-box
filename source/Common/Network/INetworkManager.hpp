@@ -26,14 +26,12 @@
 #include <vector>
 #endif
 
-#include "Common/BuildMacros.hpp"
+#include "Common/No.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class INetworkManager
+class INetworkManager : NoCopyMoveNorAssign
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(INetworkManager);
-
 public:
     // Processes all waiting packets.
     // -Does connection challenges

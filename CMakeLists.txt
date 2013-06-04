@@ -142,7 +142,6 @@ source/Common/No.hpp
 source/Common/PrecompiledHeaders.cpp
 source/Common/PrecompiledHeaders.hpp
 source/Common/AutoComplete.hpp
-source/Common/BuildMacros.hpp
 source/Common/Huffman.hpp
 source/Common/MakeUnique.hpp
 source/Common/ReflectionKey.hpp

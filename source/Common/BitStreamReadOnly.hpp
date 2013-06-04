@@ -27,7 +27,6 @@
 #endif
 
 #include "No.hpp"
-#include "BuildMacros.hpp"
 
 namespace GameInABox { namespace Common {
 

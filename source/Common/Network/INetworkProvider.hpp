@@ -25,15 +25,13 @@
 #include <vector>
 #endif
 
+#include "Common/No.hpp"
 #include "NetworkPacket.hpp"
-#include "Common/BuildMacros.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class INetworkProvider
+class INetworkProvider : NoCopyMoveNorAssign
 {
-    CLASS_NOCOPY_ASSIGN_MOVE(INetworkProvider);
-
 public:
     // Non blocking, can return empty array.
     std::vector<NetworkPacket> Receive();

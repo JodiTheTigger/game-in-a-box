@@ -29,8 +29,6 @@
 #include <boost/optional.hpp>
 #endif
 
-#include "BuildMacros.hpp"
-
 #include "No.hpp"
 #include "Sequence.hpp"
 #include "ClientHandle.hpp"
