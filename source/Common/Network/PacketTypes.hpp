@@ -22,16 +22,14 @@
 #define PACKETQUERIESKEY_H
 
 #include "PacketKey.hpp"
-#include "PacketBuffer.hpp"
+#include "PacketType.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// RAM: TODO: Merge packetKey with packet buffer as they have the same interfaces (Message, GetPayload).
-
 using PacketInfo            = PacketKey<Command::Info>;
-using PacketInfoResponse    = PacketBuffer<Command::InfoResponse>;
+using PacketInfoResponse    = PacketType<Command::InfoResponse>;
 using PacketConnect         = PacketKey<Command::Connect>;
-using PacketConnectResponse = PacketBuffer<Command::ConnectResponse>;
+using PacketConnectResponse = PacketType<Command::ConnectResponse>;
 using PacketDisconnect      = PacketKey<Command::Disconnect>;
 
 }}} // namespace

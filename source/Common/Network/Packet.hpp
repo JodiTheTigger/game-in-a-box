@@ -24,6 +24,7 @@
 #ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
+#include <string>
 #endif
 
 namespace GameInABox { namespace Common { namespace Network {
@@ -46,8 +47,12 @@ public:
     static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
 
     Packet() : Packet(std::vector<uint8_t>()) {}
-    Packet(std::vector<uint8_t> fromBuffer);
-    Packet(Command command);
+
+    explicit Packet(std::vector<uint8_t> fromBuffer);
+    explicit Packet(Command command);
+
+    Packet(Command command, std::vector<uint8_t> payload);
+    Packet(Command command, std::string payload);
 
     Packet(const Packet&) = default;
     Packet(Packet&&) = default;
@@ -58,6 +63,8 @@ public:
     Command GetCommand() const { return GetCommand(data); }
     virtual bool IsValid() const;
 
+    virtual std::size_t OffsetPayload() const { return MinimumPacketSize; }
+
     std::vector<uint8_t> data;
 
 protected:
@@ -65,6 +72,9 @@ protected:
     static const std::size_t OffsetCommand = 2;
 
 };
+
+std::vector<uint8_t> GetPayloadBuffer(const Packet& packet);
+std::string GetPayloadString(const Packet& packet);
 
 }}} // namespace
 

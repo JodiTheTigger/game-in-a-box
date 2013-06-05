@@ -179,19 +179,19 @@ TEST_F(TestPackets, SimplePacketsBuffer)
     PacketConnectResponse connectBuffer(Bytes{0xFF, 0xFF, uint8_t(Command::ConnectResponse), 0x03, 0x20});
 
     ASSERT_TRUE(info.IsValid());
-    EXPECT_EQ(0, info.GetBuffer().size());
+    EXPECT_EQ(0, GetPayloadBuffer(info).size());
 
     ASSERT_TRUE(connect.IsValid());
-    EXPECT_EQ(0, connect.GetBuffer().size());
+    EXPECT_EQ(0, GetPayloadBuffer(connect).size());
 
     ASSERT_TRUE(infoBuffer.IsValid());
-    EXPECT_EQ(1, infoBuffer.GetBuffer().size());
-    EXPECT_EQ(3, infoBuffer.GetBuffer()[0]);
+    EXPECT_EQ(1, GetPayloadBuffer(infoBuffer).size());
+    EXPECT_EQ(3, GetPayloadBuffer(infoBuffer)[0]);
 
     ASSERT_TRUE(connectBuffer.IsValid());
-    EXPECT_EQ(2, connectBuffer.GetBuffer().size());
-    EXPECT_EQ(3, connectBuffer.GetBuffer()[0]);
-    EXPECT_EQ(0x20, connectBuffer.GetBuffer()[1]);
+    EXPECT_EQ(2, GetPayloadBuffer(connectBuffer).size());
+    EXPECT_EQ(3, GetPayloadBuffer(connectBuffer)[0]);
+    EXPECT_EQ(0x20, GetPayloadBuffer(connectBuffer)[1]);
 }
 
 TEST_F(TestPackets, SimplePacketsBufferInvalid)

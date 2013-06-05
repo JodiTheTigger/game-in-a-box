@@ -201,7 +201,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                     if (connection.IsValid())
                     {
                         std::string failReason{};
-                        auto handle = myStateManager->Connect(connection.GetBuffer(), failReason);
+                        auto handle = myStateManager->Connect(GetPayloadBuffer(connection), failReason);
 
                         if (!handle)
                         {
@@ -255,11 +255,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                             if (info.Key() == myKey)
                             {
                                 auto infoData = myStateManager->StateInfo({});
-
-                                // Bah can't just create the packet with std::vector as it'll treat it
-                                // as the entire packet buffer, not just the payload.
-                                PacketInfoResponse packet{};
-                                packet.Append(infoData);
+                                auto packet = PacketInfoResponse::WithBuffer(infoData);
 
                                 // NOTE: Packet will be UDP fragmented if too big.
                                 // But I'm not going to do anything about that.
@@ -285,7 +281,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                 if (!myStateHandle)
                                 {
                                     std::string failMessage{};
-                                    auto handle = myStateManager->Connect(connect.GetBuffer(), failMessage);
+                                    auto handle = myStateManager->Connect(GetPayloadBuffer(connect), failMessage);
 
                                     if (handle)
                                     {
@@ -301,8 +297,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                 if (myStateHandle)
                                 {
                                     auto infoData = myStateManager->StateInfo(myStateHandle);
-                                    PacketConnectResponse response{};
-                                    response.Append(infoData);
+                                    auto response = PacketConnectResponse::WithBuffer(infoData);
 
                                     result = std::move(response.data);
                                     myLastTimestamp = myTimeNow();
@@ -512,7 +507,7 @@ bool Connection::Disconnected(const std::vector<uint8_t> &packet)
         {
             if (disconnect.Key() == myKey)
             {
-                Fail(disconnect.Message());
+                Fail(GetPayloadString(disconnect));
                 return true;
             }
         }

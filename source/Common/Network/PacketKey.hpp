@@ -49,10 +49,10 @@ public:
         data.insert(end(data), begin(key), end(key));
     }
 
-    PacketKey(NetworkKey key, std::string message)
+    PacketKey(NetworkKey key, std::string payloadString)
         : PacketKey(key)
     {
-        data.insert(end(data), begin(message), end(message));
+        data.insert(end(data), begin(payloadString), end(payloadString));
     }
 
     PacketKey(NetworkKey key, std::vector<uint8_t> payload)
@@ -79,11 +79,6 @@ public:
         }
 
         return false;
-    }    
-
-    void Append(std::vector<uint8_t> toAppend)
-    {
-        data.insert(end(data), begin(toAppend), end(toAppend));
     }
 
     NetworkKey Key() const
@@ -101,26 +96,12 @@ public:
         return result;
     }
 
-    std::vector<uint8_t> GetBuffer() const
-    {
-        std::vector<uint8_t> result;
-
-        result.reserve(data.size() - OffsetPayload);
-
-        result.assign(begin(data) + OffsetPayload, end(data));
-
-        return result;
-    }
-
-    std::string Message() const
-    {
-        return std::string(begin(data) + OffsetPayload, end(data));
-    }
+    std::size_t OffsetPayload() const override { return PacketKey::OffsetData; }
 
 protected:
     static const std::size_t PayloadSize = 16;
     static const std::size_t OffsetKey = MinimumPacketSize;
-    static const std::size_t OffsetPayload = OffsetKey + PayloadSize;
+    static const std::size_t OffsetData = OffsetKey + PayloadSize;
 };
 
 }}} // namespace

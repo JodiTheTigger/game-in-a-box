@@ -1,47 +1,46 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
-    Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
-
+    Copyright (C) 2012-2013 Richard Maxwell <jodi.the.tigger@gmail.com>
+    
     This file is part of Game-in-a-box
-
+    
     Game-in-a-box is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
+    
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-
+    
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETBUFFER_H
-#define PACKETBUFFER_H
-
-#ifndef USING_PRECOMPILED_HEADERS
-#include <string>
-#endif
+#ifndef PACKETTYPE_HPP
+#define PACKETTYPE_HPP
 
 #include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketBuffer : public Packet
+class PacketType : public Packet
 {
 public:
-    PacketBuffer() : Packet(TheCommand) {}
-    PacketBuffer(std::vector<uint8_t> buffer) : Packet(buffer) {}
+    static PacketType<TheCommand> WithBuffer(std::vector<uint8_t> payload) { return {TheCommand, payload}; }
+    static PacketType<TheCommand> WithString(std::string payload) { return {TheCommand, payload}; }
 
-    PacketBuffer(std::string message) : PacketBuffer()
-    {
-        data.insert(end(data), begin(message), end(message));
-    }
+    PacketType() : Packet(TheCommand) {}
 
-    virtual ~PacketBuffer() {}
+    explicit PacketType(std::vector<uint8_t> fromBuffer) : Packet(fromBuffer) {}
+
+    PacketType(const PacketType&) = default;
+    PacketType(PacketType&&) = default;
+    PacketType& operator=(const PacketType&) = default;
+    PacketType& operator=(PacketType&&) = default;
+    virtual ~PacketType() {}
 
     virtual bool IsValid() const override
     {
@@ -56,32 +55,11 @@ public:
         return false;
     }
 
-    void Append(std::vector<uint8_t> toAppend)
-    {
-        data.insert(end(data), begin(toAppend), end(toAppend));
-    }
-
-    std::vector<uint8_t> GetBuffer() const
-    {
-        std::vector<uint8_t> result;
-
-        result.reserve(data.size() - OffsetPayload);
-
-        result.assign(begin(data) + OffsetPayload, end(data));
-
-        return result;
-    }
-
-    std::string Message() const
-    {
-        return std::string(begin(data) + OffsetPayload, end(data));
-    }
-
-protected:
-    static const std::size_t MinimumPacketSize = Packet::MinimumPacketSize;
-    static const std::size_t OffsetPayload = 3;
+private:
+    PacketType(Command command, std::vector<uint8_t> payload) : Packet(command, payload) {}
+    PacketType(Command command, std::string payload) : Packet(command, payload) {}
 };
 
 }}} // namespace
 
-#endif // PACKETBUFFER_H
+#endif // PACKETTYPE_HPP

@@ -180,6 +180,8 @@ source/Common/Network/INetworkManager.cpp
 source/Common/Network/PacketDeltaFragmentManager.cpp
 source/Common/Network/INetworkProvider.cpp
 source/Common/Network/Packet.cpp
+source/Common/Network/PacketType.hpp
+source/Common/Network/PacketTypes.hpp
 source/Common/Network/PacketDelta.cpp
 source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/PacketChallengeResponse.cpp
@@ -194,8 +196,6 @@ source/Common/Network/NetworkManagerServer.hpp
 source/Common/Network/INetworkManager.hpp
 source/Common/Network/INetworkProvider.hpp
 source/Common/Network/NetworkManagerClient.hpp
-source/Common/Network/PacketTypes.hpp
-source/Common/Network/PacketBuffer.hpp
 source/Common/Network/DeltaCoder.hpp
 source/Common/Network/DeltaCoder-Implementation.hpp
 source/Common/Network/NetworkManagerClient.cpp

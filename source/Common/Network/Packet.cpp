@@ -38,6 +38,16 @@ Packet::Packet(Command command)
 {
 }
 
+Packet::Packet(Command command, std::vector<uint8_t> payload) : Packet(command)
+{
+    data.insert(end(data), begin(payload), end(payload));
+}
+
+Packet::Packet(Command command, std::string payload) : Packet(command)
+{
+    data.insert(end(data), begin(payload), end(payload));
+}
+
 Packet::~Packet()
 {
 }
@@ -63,4 +73,32 @@ Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
 bool Packet::IsValid() const
 {
     return (GetCommand() != Command::Unrecognised);
+}
+
+
+std::vector<uint8_t> GameInABox::Common::Network::GetPayloadBuffer(const Packet& packet)
+{
+    std::vector<uint8_t> result{};
+
+    if (packet.data.size() > packet.OffsetPayload())
+    {
+        result.reserve(packet.data.size() - packet.OffsetPayload());
+        result.assign(begin(packet.data) + packet.OffsetPayload(), end(packet.data));
+    }
+
+    return result;
+}
+
+
+std::string GameInABox::Common::Network::GetPayloadString(const Packet& packet)
+{
+    std::string result{};
+
+    if (packet.data.size() > packet.OffsetPayload())
+    {
+        result.reserve(packet.data.size() - packet.OffsetPayload());
+        result = std::string{begin(packet.data) + packet.OffsetPayload(), end(packet.data)};
+    }
+
+    return result;
 }
