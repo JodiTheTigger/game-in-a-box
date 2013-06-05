@@ -34,8 +34,8 @@ namespace GameInABox { namespace Common {
 class BitStream : public BitStreamReadOnly
 {
 public:
-    BitStream(uint32_t initialCapacityInBytes);
-    BitStream(std::unique_ptr<std::vector<uint8_t>> sourceBuffer);
+    explicit BitStream(uint32_t initialCapacityInBytes);
+    explicit BitStream(std::unique_ptr<std::vector<uint8_t>> sourceBuffer);
 
     void Push(bool value);
     

@@ -134,7 +134,7 @@ TEST_F(TestPacketDelta, NoDataClient)
 
 TEST_F(TestPacketDelta, NoDataServer)
 {
-    PacketDelta toTest(2,4,6,nullptr,{});
+    PacketDelta toTest(Sequence{2},Sequence{4},6,nullptr,{});
 
     EXPECT_TRUE(toTest.IsValid());
 
@@ -344,7 +344,7 @@ TEST_F(TestPacketDelta, DefragmentTooMany)
 
 TEST_F(TestPacketDelta, DefragmentTooBig)
 {
-    PacketDelta toTest({2,4,6,nullptr,vector<uint8_t>(1024*256, 44)}, 1500, 0);
+    PacketDelta toTest({Sequence{2},Sequence{4},6,nullptr,vector<uint8_t>(1024*256, 44)}, 1500, 0);
 
     EXPECT_FALSE(toTest.IsValid());
 }
@@ -438,7 +438,7 @@ TEST_F(TestPacketDelta, DefragmentFragmentNoFragmentedFragments)
         // throw in a normal packet, should be ignored when defragged.
         if (count == 0)
         {
-            fragments.push_back({2,4,6,nullptr,{2,4,6,8,10,12,14,18}});
+            fragments.push_back({Sequence{2},Sequence{4},6,nullptr,{2,4,6,8,10,12,14,18}});
         }
 
         count++;
@@ -455,7 +455,7 @@ TEST_F(TestPacketDelta, DefragmentSequenceInterleavedNotComplete)
     // of a newer sequence, should be invalid returned.
     std::vector<PacketDelta> fragments;
     PacketDelta first(PacketDelta(delta8BytePayloadServer, 8, 0));
-    PacketDelta second({2,4,6,nullptr,{2,4,6,8,10,12,14,18}}, 8, 0);
+    PacketDelta second({Sequence{2},Sequence{4},6,nullptr,{2,4,6,8,10,12,14,18}}, 8, 0);
 
     fragments.push_back(first);
     fragments.push_back(second);

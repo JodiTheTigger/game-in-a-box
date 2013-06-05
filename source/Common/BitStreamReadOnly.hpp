@@ -33,7 +33,7 @@ namespace GameInABox { namespace Common {
 class BitStreamReadOnly : NoCopyMoveNorAssign
 {
 public:
-    BitStreamReadOnly(const std::vector<uint8_t>& sourceBuffer);
+    explicit BitStreamReadOnly(const std::vector<uint8_t>& sourceBuffer);
     virtual ~BitStreamReadOnly();
     
     bool Pull1Bit();

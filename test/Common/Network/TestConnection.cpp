@@ -188,7 +188,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
 
     testTime += std::chrono::milliseconds(300);
 
-    auto delta = PacketDelta{0, 0xFFFF, 255, 88, Bytes(42,20)};
+    auto delta = PacketDelta{Sequence{0}, Sequence{0xFFFF}, 255, 88, Bytes(42,20)};
     toTestServer.Process(std::move(delta.data));
 
     auto deltaBytes = toTestServer.GetDefragmentedPacket();

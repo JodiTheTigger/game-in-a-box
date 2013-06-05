@@ -47,7 +47,7 @@ class ReflectionKey
 {
 public:
     ReflectionKey();
-    ReflectionKey(ReflectionKeyPrivate* data);
+    explicit ReflectionKey(ReflectionKeyPrivate* data);
     
     const ReflectionKeyPrivate* operator->() const 
     {

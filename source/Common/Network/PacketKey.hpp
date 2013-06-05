@@ -36,7 +36,7 @@ template<Command TheCommand>
 class PacketKey : public Packet
 {
 public:
-    PacketKey(NetworkKey key)
+    explicit PacketKey(NetworkKey key)
         : Packet(TheCommand)
     {
         // Dependent name lookup for C++ templates
@@ -61,7 +61,7 @@ public:
         data.insert(end(data), begin(payload), end(payload));
     }
 
-    PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
+    explicit PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
     virtual ~PacketKey() {}
 

@@ -33,7 +33,7 @@ class PacketChallengeResponse : public PacketKey<Command::ChallengeResponse>
 {
 public:
     PacketChallengeResponse(uint8_t version, NetworkKey key);
-    PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
+    explicit PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
     virtual ~PacketChallengeResponse();
 
     virtual bool IsValid() const override;    

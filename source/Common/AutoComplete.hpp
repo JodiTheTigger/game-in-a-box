@@ -34,7 +34,7 @@ namespace GameInABox { namespace Common {
 class AutoComplete
 {
 public:
-    AutoComplete(std::vector<std::string> wordList);
+    explicit AutoComplete(std::vector<std::string> wordList);
     
     // Returns a list of all complete strings with the prefix of the searchString
     // Can be empty if nothing matches, or only contain one if there is only

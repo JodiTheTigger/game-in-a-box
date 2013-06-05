@@ -77,7 +77,7 @@ NetworkManagerClient::NetworkManagerClient(
 {
     for (auto& network : networks)
     {
-        myNetworks.push_back({move(network), {stateManager}});
+        myNetworks.push_back({move(network), Connection{stateManager}});
 
         // Why doesn't emplace_back compile?
         //myNetworks.emplace_back(move(network), {stateManager});

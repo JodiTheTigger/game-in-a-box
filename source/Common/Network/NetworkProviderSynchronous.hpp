@@ -34,7 +34,7 @@ class NetworkPacket;
 class NetworkProviderSynchronous final: public INetworkProvider
 {
 public:
-    NetworkProviderSynchronous(boost::asio::ip::udp::endpoint bindAddress);
+    explicit NetworkProviderSynchronous(boost::asio::ip::udp::endpoint bindAddress);
     NetworkProviderSynchronous()
         : NetworkProviderSynchronous(boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
     {

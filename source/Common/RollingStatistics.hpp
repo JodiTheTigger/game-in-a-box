@@ -34,7 +34,7 @@ class RollingStatistics
 {
 public:
     RollingStatistics() : RollingStatistics(256) {}
-    RollingStatistics(uint32_t rollingBufferSizeInSamples);
+    explicit RollingStatistics(uint32_t rollingBufferSizeInSamples);
 
     // No calculations are done when adding samples.
     void AddSample(float value);

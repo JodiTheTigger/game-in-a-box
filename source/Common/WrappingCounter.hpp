@@ -47,7 +47,7 @@ public:
     T& Value() { return myValue; }
 
     WrappingCounter() : WrappingCounter(0) {};
-    WrappingCounter(T newValue) : myValue(newValue & max()) {}
+    explicit WrappingCounter(T newValue) : myValue(newValue & max()) {}
     WrappingCounter(const WrappingCounter<T, BITS>& other) : myValue(other.myValue) {};
 
 private:

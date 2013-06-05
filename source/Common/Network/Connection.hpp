@@ -53,7 +53,7 @@ public:
         Server
     };
 
-    Connection(IStateManager& stateManager)
+    explicit Connection(IStateManager& stateManager)
         : Connection(stateManager, std::chrono::steady_clock::now) {}
 
     Connection(
