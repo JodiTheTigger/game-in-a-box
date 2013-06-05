@@ -90,8 +90,7 @@ public:
     bool IsLastFragment() const;
     uint8_t FragmentId() const;
 
-    bool HasIdConnection() const;
-    uint16_t IdConnection() const;
+    boost::optional<uint16_t> IdConnection() const;
 
     // No checks are done here to make sure the packet is valid.
     // It's up the the consumer to check and trust the data.

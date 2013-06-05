@@ -357,31 +357,20 @@ uint8_t PacketDelta::FragmentId() const
     }
 }
 
-bool PacketDelta::HasIdConnection() const
-{
+boost::optional<uint16_t> PacketDelta::IdConnection() const
+{    
     if (IsValid())
     {
-        return (0 == (data[OffsetIsServerFlags] & MaskTopByteIsServerPacket));
-    }
-    else
-    {
-        return false;
-    }
-}
+        if (0 == (data[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
+        {
+            uint16_t id;
 
-uint16_t PacketDelta::IdConnection() const
-{
-    if (HasIdConnection())
-    {
-        uint16_t id;
-        Pull(begin(data) + OffsetConnectionId, id);
+            Pull(begin(data) + OffsetConnectionId, id);
+            return {id};
+        }
+    }
 
-        return id;
-    }
-    else
-    {
-        return 0;
-    }
+    return {};
 }
 
 std::vector<uint8_t> PacketDelta::GetPayload() const
@@ -394,7 +383,7 @@ std::vector<uint8_t> PacketDelta::GetPayload() const
         }
         else
         {
-            if (HasIdConnection())
+            if (0 == (data[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
             {
                 return std::vector<uint8_t>(begin(data) + OffsetDataClient, end(data));
             }

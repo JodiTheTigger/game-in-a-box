@@ -320,10 +320,11 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         if (PacketDelta::IsPacketDelta(packet))
                         {
                             auto delta = PacketDelta{packet};
+                            auto id = delta.IdConnection();
 
-                            if (delta.IsValid() && delta.HasIdConnection())
+                            if (id)
                             {
-                                myClientId.reset(delta.IdConnection());
+                                myClientId = id;
 
                                 Reset(State::Connected);
                                 myFragments.AddPacket(PacketDelta{packet});
