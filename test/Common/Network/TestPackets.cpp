@@ -30,9 +30,6 @@ using Bytes = std::vector<uint8_t>;
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// RAM: TODO! TEST the new features of the KEY packet.
-// and the disconnect packet
-
 // Class definition!
 class TestPackets : public ::testing::Test
 {
@@ -133,6 +130,15 @@ TEST_F(TestPackets, ChallengeResponseCreationZeroKeyInvalid)
     EXPECT_FALSE(source.IsValid());
 }
 
+TEST_F(TestPackets, ChallengeResponsePayloadSize)
+{
+    NetworkKey theKey{{0x12,0x34,0x56,0x78,0xAB,0xCD,0xEF,0x69}};
+    PacketChallengeResponse source(255, theKey);
+
+    EXPECT_EQ(0, GetPayloadBuffer(source).size());
+    EXPECT_EQ(0, GetPayloadString(source).size());
+}
+
 TEST_F(TestPackets, ChallengeResponseFromValidDataInvalidChallengeBadLength)
 {
     Command typeResult;
@@ -145,6 +151,18 @@ TEST_F(TestPackets, ChallengeResponseFromValidDataInvalidChallengeBadLength)
     EXPECT_EQ(Command::ChallengeResponse, typeResult);
     EXPECT_FALSE(challengeResponse.IsValid());
 }
+
+TEST_F(TestPackets, Disconnect)
+{
+    auto theKey = NetworkKey{{0x12,0x34,0x56,0x78,0xAB,0xCD,0xEF,0x69}};
+    auto message = std::string{"Because!"};
+    auto source = PacketDisconnect{theKey, message};
+
+    EXPECT_TRUE(source.IsValid());
+    EXPECT_EQ(theKey, source.Key());
+    EXPECT_EQ(message, GetPayloadString(source));
+}
+
 
 TEST_F(TestPackets, SimplePacketsKey)
 {    
@@ -202,5 +220,6 @@ TEST_F(TestPackets, SimplePacketsBufferInvalid)
     EXPECT_FALSE(infoBuffer.IsValid());
     EXPECT_FALSE(connectBuffer.IsValid());
 }
+
 
 }}} // namespace

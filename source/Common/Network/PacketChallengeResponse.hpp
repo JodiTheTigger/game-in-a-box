@@ -36,7 +36,9 @@ public:
     PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
     virtual ~PacketChallengeResponse();
 
-    virtual bool IsValid() const override;
+    virtual bool IsValid() const override;    
+    virtual std::size_t OffsetPayload() const override { return PacketSize; }
+
     uint8_t Version() const;
 
 private:
