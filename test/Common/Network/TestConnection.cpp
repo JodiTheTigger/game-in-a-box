@@ -196,8 +196,8 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     // client and server should be connected.
     EXPECT_TRUE(toTestServer.IsConnected());
     EXPECT_TRUE(deltaBytes.IsValid());
-    EXPECT_TRUE(deltaBytes.HasClientId());
-    EXPECT_EQ(88, deltaBytes.ClientId());
+    EXPECT_TRUE(deltaBytes.HasIdConnection());
+    EXPECT_EQ(88, deltaBytes.IdConnection());
 }
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)

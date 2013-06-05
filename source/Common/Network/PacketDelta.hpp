@@ -35,7 +35,7 @@ class PacketDelta : public Packet
 {
 public:
     // Delta distance is stored as a byte.
-    static constexpr uint8_t MaximumDeltaDistance() { return std::numeric_limits<uint8_t>::max(); }
+    static constexpr std::size_t MaximumDeltaDistance() { return std::numeric_limits<uint8_t>::max(); }
     static bool IsPacketDelta(const std::vector<uint8_t>& buffer);
 
     PacketDelta() : PacketDelta(std::vector<uint8_t>()) {}
@@ -90,8 +90,8 @@ public:
     bool IsLastFragment() const;
     uint8_t FragmentId() const;
 
-    bool HasClientId() const;
-    uint16_t ClientId() const;
+    bool HasIdConnection() const;
+    uint16_t IdConnection() const;
 
     // No checks are done here to make sure the packet is valid.
     // It's up the the consumer to check and trust the data.
@@ -103,7 +103,7 @@ private:
     static const std::size_t OffsetSequenceAck = 2;
     static const std::size_t OffsetIsServerFlags = 2;
     static const std::size_t OffsetDeltaBase = 4;
-    static const std::size_t OffsetClientId = 5;
+    static const std::size_t OffsetConnectionId = 5;
     static const std::size_t OffsetDataClient = 7;
     static const std::size_t OffsetDataServer = 5;
     static const std::size_t MinimumPacketSizeClient = OffsetDataClient;

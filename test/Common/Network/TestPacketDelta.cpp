@@ -54,7 +54,7 @@ TEST_F(TestPacketDelta, Empty)
     EXPECT_EQ(0, toTest.FragmentId());
     EXPECT_EQ(0, toTest.data.size());
 
-    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_FALSE(toTest.HasIdConnection());
     EXPECT_EQ(0, toTest.GetSequence());
     EXPECT_EQ(0, toTest.GetSequenceAck());
     EXPECT_EQ(0, toTest.GetSequenceBase());
@@ -123,11 +123,11 @@ TEST_F(TestPacketDelta, NoDataClient)
     EXPECT_EQ(0, toTest.FragmentId());
     EXPECT_NE(0, toTest.data.size());
 
-    EXPECT_TRUE(toTest.HasClientId());
+    EXPECT_TRUE(toTest.HasIdConnection());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
-    EXPECT_EQ(4, toTest.ClientId());
+    EXPECT_EQ(4, toTest.IdConnection());
     EXPECT_EQ(7, toTest.data.size());
 }
 
@@ -143,11 +143,11 @@ TEST_F(TestPacketDelta, NoDataServer)
     EXPECT_EQ(0, toTest.FragmentId());
     EXPECT_NE(0, toTest.data.size());
 
-    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_FALSE(toTest.HasIdConnection());
     EXPECT_EQ(2, toTest.GetSequence());
     EXPECT_EQ(4, toTest.GetSequenceAck());
     EXPECT_EQ(0x7FFE, toTest.GetSequenceBase());
-    EXPECT_EQ(0, toTest.ClientId());
+    EXPECT_EQ(0, toTest.IdConnection());
     EXPECT_EQ(5, toTest.data.size());
 }
 
@@ -163,11 +163,11 @@ TEST_F(TestPacketDelta, SimpleServer)
     EXPECT_EQ(0, toTest.FragmentId());
     EXPECT_NE(0, toTest.data.size());
 
-    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_FALSE(toTest.HasIdConnection());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
-    EXPECT_EQ(0, toTest.ClientId());
+    EXPECT_EQ(0, toTest.IdConnection());
     EXPECT_EQ(13, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
 }
@@ -192,11 +192,11 @@ TEST_F(TestPacketDelta, SimpleClient)
     EXPECT_EQ(0, toTest.FragmentId());
     EXPECT_NE(0, toTest.data.size());
 
-    EXPECT_TRUE(toTest.HasClientId());
+    EXPECT_TRUE(toTest.HasIdConnection());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
-    EXPECT_EQ(4, toTest.ClientId());
+    EXPECT_EQ(4, toTest.IdConnection());
     EXPECT_EQ(11, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }
@@ -216,11 +216,11 @@ TEST_F(TestPacketDelta, EncodeDecodeServer)
     EXPECT_NE(0, toTest.data.size());
 
     EXPECT_TRUE(toTest.IsValid());
-    EXPECT_FALSE(toTest.HasClientId());
+    EXPECT_FALSE(toTest.HasIdConnection());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
-    EXPECT_EQ(0, toTest.ClientId());
+    EXPECT_EQ(0, toTest.IdConnection());
     EXPECT_EQ(13, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
 }
@@ -247,11 +247,11 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
     EXPECT_NE(0, toTest.data.size());
 
     EXPECT_TRUE(toTest.IsValid());
-    EXPECT_TRUE(toTest.HasClientId());
+    EXPECT_TRUE(toTest.HasIdConnection());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
     EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
-    EXPECT_EQ(4, toTest.ClientId());
+    EXPECT_EQ(4, toTest.IdConnection());
     EXPECT_EQ(11, toTest.data.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }

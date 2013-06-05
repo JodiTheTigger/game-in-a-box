@@ -357,7 +357,7 @@ uint8_t PacketDelta::FragmentId() const
     }
 }
 
-bool PacketDelta::HasClientId() const
+bool PacketDelta::HasIdConnection() const
 {
     if (IsValid())
     {
@@ -369,12 +369,12 @@ bool PacketDelta::HasClientId() const
     }
 }
 
-uint16_t PacketDelta::ClientId() const
+uint16_t PacketDelta::IdConnection() const
 {
-    if (HasClientId())
+    if (HasIdConnection())
     {
         uint16_t id;
-        Pull(begin(data) + OffsetClientId, id);
+        Pull(begin(data) + OffsetConnectionId, id);
 
         return id;
     }
@@ -394,7 +394,7 @@ std::vector<uint8_t> PacketDelta::GetPayload() const
         }
         else
         {
-            if (HasClientId())
+            if (HasIdConnection())
             {
                 return std::vector<uint8_t>(begin(data) + OffsetDataClient, end(data));
             }

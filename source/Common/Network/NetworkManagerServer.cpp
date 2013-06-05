@@ -133,6 +133,15 @@ void NetworkManagerServer::PrivateProcessIncomming()
                     // connected clients.
                     if (PacketDelta::IsPacketDelta(packet.data))
                     {
+                        auto delta = PacketDelta{packet.data};
+
+                        if (delta.IsValid())
+                        {
+                            if (delta.HasIdConnection())
+                            {
+
+                            }
+                        }
                         // Client packets are not allowed to fragment.
                         //checktoseeifmoved;
                     }
