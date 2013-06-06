@@ -65,7 +65,7 @@ bool GameSimple::PrivateIsConnected(ClientHandle) const
 }
 
 
-void GameSimple::PrivateDeltaGet(
+void GameSimple::PrivateDeltaCreate(
         ClientHandle,
         Sequence&,
         Sequence&,
@@ -75,7 +75,7 @@ void GameSimple::PrivateDeltaGet(
     // RAM: TODO!
 }
 
-void GameSimple::PrivateDeltaSet(
+void GameSimple::PrivateDeltaParse(
         ClientHandle,
         Sequence,
         Sequence,

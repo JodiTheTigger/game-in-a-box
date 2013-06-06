@@ -171,6 +171,9 @@ void NetworkManagerServer::PrivateProcessIncomming()
         }
     }
 
+    // Drop any disconnects, parse any deltas.
+    // Disconnections are handled in privatesendstate.
+
     // RAM: TODO: Process any deltas from the connected clients.
 }
 

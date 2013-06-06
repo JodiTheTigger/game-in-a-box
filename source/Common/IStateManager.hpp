@@ -61,14 +61,14 @@ public:
     // thus how well the packet compresses, therefore how big the packet should get.
     // A large packet delta should require more aggressive delta creation to get
     // smaller packet sizes.
-    void DeltaGet(
+    void DeltaCreate(
             ClientHandle client,
             Sequence& tickTo,
             Sequence& tickFrom,
             Sequence lastTickAcked,
             BitStream& result) const;
 
-    void DeltaSet(
+    void DeltaParse(
             ClientHandle client,
             Sequence tickTo,
             Sequence tickFrom,
@@ -93,7 +93,7 @@ private:
 
     virtual bool PrivateCanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;
     
-    virtual void PrivateDeltaGet(
+    virtual void PrivateDeltaCreate(
             ClientHandle client,
             Sequence& tickTo,
             Sequence& tickFrom,
@@ -101,7 +101,7 @@ private:
             BitStream& result) const = 0;
 
     // may be ignored by the game state or not, we don't care.
-    virtual void PrivateDeltaSet(
+    virtual void PrivateDeltaParse(
             ClientHandle client,
             Sequence tickTo,
             Sequence tickFrom,

@@ -46,13 +46,13 @@ public:
 
     MOCK_METHOD2(PrivateCanPacketSend, bool (OptionalClient, std::size_t));
 
-    MOCK_CONST_METHOD5(PrivateDeltaGet, void (
+    MOCK_CONST_METHOD5(PrivateDeltaCreate, void (
                            ClientHandle,
                            Sequence&,
                            Sequence&,
                            Sequence,
                            BitStream&));
-    MOCK_METHOD4(PrivateDeltaSet, void (ClientHandle,
+    MOCK_METHOD4(PrivateDeltaParse, void (ClientHandle,
                                         Sequence,
                                         Sequence,
                                         BitStreamReadOnly&));

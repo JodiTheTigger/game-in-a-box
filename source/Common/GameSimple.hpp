@@ -50,14 +50,14 @@ private:
     void PrivateDisconnect(ClientHandle playerToDisconnect) override;
     bool PrivateIsConnected(ClientHandle client) const override;
         
-    virtual void PrivateDeltaGet(
+    virtual void PrivateDeltaCreate(
             ClientHandle client,
             Sequence& tickTo,
             Sequence& tickFrom,
             Sequence lastTickAcked,
             BitStream& result) const override;
 
-    virtual void PrivateDeltaSet(
+    virtual void PrivateDeltaParse(
             ClientHandle client,
             Sequence tickTo,
             Sequence tickFrom,

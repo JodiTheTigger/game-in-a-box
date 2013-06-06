@@ -338,7 +338,7 @@ void NetworkManagerClient::DeltaReceive()
 
             // Pass to gamestate (which will decompress the delta itself).
             BitStreamReadOnly payloadBitstream(*decompressed);
-            myStateManager.DeltaSet(
+            myStateManager.DeltaParse(
                 *myStateHandle,
                 delta.GetSequence(),
                 delta.GetSequenceBase(),
@@ -360,7 +360,7 @@ void NetworkManagerClient::DeltaSend()
     // thus how well the packet compresses, therefore how big the packet should get.
     // A large packet delta should require more aggressive delta creation to get
     // smaller packet sizes.
-    myStateManager.DeltaGet(
+    myStateManager.DeltaCreate(
                 *myStateHandle,
                 to,
                 from,
