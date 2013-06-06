@@ -30,8 +30,6 @@
 
 #include "Common/Logging/Logging.hpp"
 #include "Common/IStateManager.hpp"
-#include "Common/BitStream.hpp"
-#include "Common/BitStreamReadOnly.hpp"
 
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
@@ -337,12 +335,15 @@ void NetworkManagerClient::DeltaReceive()
             auto decompressed = move(myCompressor.Decode(payload));
 
             // Pass to gamestate (which will decompress the delta itself).
-            BitStreamReadOnly payloadBitstream(*decompressed);
+            // RAM: TODO! Change Decode to return a buffer, not a unique_ptr. Or deal with the unique_ptr.
+            auto deltaData = Delta{
+                    delta.GetSequenceBase(),
+                    delta.GetSequence(),
+                    *decompressed};
+
             myStateManager.DeltaParse(
                 *myStateHandle,
-                delta.GetSequence(),
-                delta.GetSequenceBase(),
-                payloadBitstream);
+                deltaData);
 
             // Now see what the last packet the other end has got.
             myLastSequenceAcked = delta.GetSequenceAck();
@@ -352,34 +353,27 @@ void NetworkManagerClient::DeltaReceive()
 
 void NetworkManagerClient::DeltaSend()
 {
-    BitStream payloadBitstream(MaxPacketSizeInBytes);
-    Sequence from;
-    Sequence to;
-
     // Delta compression aggression should be inferred by the packet distance,
     // thus how well the packet compresses, therefore how big the packet should get.
     // A large packet delta should require more aggressive delta creation to get
     // smaller packet sizes.
-    myStateManager.DeltaCreate(
-                *myStateHandle,
-                to,
-                from,
-                myLastSequenceAcked,
-                payloadBitstream);
+    auto deltaData = myStateManager.DeltaCreate(
+                *myStateHandle,                
+                myLastSequenceAcked);
 
-    if (payloadBitstream.SizeInBytes() <= MaxPacketSizeInBytes)
+    if (deltaData.deltaPayload.size() <= MaxPacketSizeInBytes)
     {
         // ignore if the delta distance is greater than 255, as we
         // store the distance as a byte.
-        auto distance = to - from;
+        auto distance = deltaData.to - deltaData.base;
         if (distance <= PacketDelta::MaximumDeltaDistance())
         {
             PacketDelta delta(
-                    from,
+                    deltaData.base,
                     myLastSequenceProcessed,
                     uint8_t(distance),
                     {myClientId},
-                    *(payloadBitstream.TakeBuffer()));
+                    move(deltaData.deltaPayload));
 
             // Fragment (if needed)
             std::vector<NetworkPacket> packets;

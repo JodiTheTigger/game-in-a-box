@@ -65,21 +65,17 @@ bool GameSimple::PrivateIsConnected(ClientHandle) const
 }
 
 
-void GameSimple::PrivateDeltaCreate(
+Delta GameSimple::PrivateDeltaCreate(
         ClientHandle,
-        Sequence&,
-        Sequence&,
-        Sequence,
-        BitStream&) const
+        Sequence) const
 {
     // RAM: TODO!
+    return {};
 }
 
 void GameSimple::PrivateDeltaParse(
         ClientHandle,
-        Sequence,
-        Sequence,
-        BitStreamReadOnly&)
+        const Delta &)
 {
     // RAM: TODO!
 }

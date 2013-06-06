@@ -49,19 +49,14 @@ private:
 
     void PrivateDisconnect(ClientHandle playerToDisconnect) override;
     bool PrivateIsConnected(ClientHandle client) const override;
-        
-    virtual void PrivateDeltaCreate(
+
+    virtual Delta PrivateDeltaCreate(
             ClientHandle client,
-            Sequence& tickTo,
-            Sequence& tickFrom,
-            Sequence lastTickAcked,
-            BitStream& result) const override;
+            Sequence lastAcked) const override;
 
     virtual void PrivateDeltaParse(
             ClientHandle client,
-            Sequence tickTo,
-            Sequence tickFrom,
-            BitStreamReadOnly& source) override;
+            const Delta& payload) override;
 };
 
 }} // namespace

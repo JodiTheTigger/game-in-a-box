@@ -39,6 +39,23 @@ namespace GameInABox { namespace Common {
 class BitStream;
 class BitStreamReadOnly;
 
+struct Delta
+{
+    Sequence base{};
+    Sequence to{};
+    std::vector<uint8_t> deltaPayload{};
+
+    Delta(Sequence newBase, Sequence newTo, std::vector<uint8_t> newPayload)
+        : base(newBase)
+        , to(newTo)
+        , deltaPayload(newPayload)
+    {
+    }
+
+    Delta() = default;
+    Delta(const Delta&) = default;
+};
+
 class IStateManager : NoCopyMoveNorAssign
 {
 public:
@@ -61,18 +78,13 @@ public:
     // thus how well the packet compresses, therefore how big the packet should get.
     // A large packet delta should require more aggressive delta creation to get
     // smaller packet sizes.
-    void DeltaCreate(
+    Delta DeltaCreate(
             ClientHandle client,
-            Sequence& tickTo,
-            Sequence& tickFrom,
-            Sequence lastTickAcked,
-            BitStream& result) const;
+            Sequence lastAcked) const;
 
     void DeltaParse(
             ClientHandle client,
-            Sequence tickTo,
-            Sequence tickFrom,
-            BitStreamReadOnly& source);
+            const Delta& payload);
 
 protected:
     // Don't allow deletion or creation of the interface.
@@ -91,21 +103,15 @@ private:
     virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;    
     virtual bool PrivateIsConnected(ClientHandle client) const = 0;
 
-    virtual bool PrivateCanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;
-    
-    virtual void PrivateDeltaCreate(
-            ClientHandle client,
-            Sequence& tickTo,
-            Sequence& tickFrom,
-            Sequence lastTickAcked,
-            BitStream& result) const = 0;
+    virtual bool PrivateCanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;    
 
-    // may be ignored by the game state or not, we don't care.
+    virtual Delta PrivateDeltaCreate(
+            ClientHandle client,
+            Sequence lastAcked) const = 0;
+
     virtual void PrivateDeltaParse(
             ClientHandle client,
-            Sequence tickTo,
-            Sequence tickFrom,
-            BitStreamReadOnly& source) = 0;
+            const Delta& payload) = 0;
 };
 
 }} // namespace

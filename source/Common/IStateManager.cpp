@@ -61,21 +61,16 @@ bool IStateManager::IsConnected(ClientHandle client) const
     return PrivateIsConnected(client);
 }
 
-void IStateManager::DeltaCreate(
+Delta IStateManager::DeltaCreate(
         ClientHandle client,
-        Sequence& tickTo,
-        Sequence& tickFrom,
-        Sequence lastTickAcked,
-        BitStream& result) const
+        Sequence lastAcked) const
 {
-    PrivateDeltaCreate(client, tickTo, tickFrom, lastTickAcked, result);
+    return PrivateDeltaCreate(client, lastAcked);
 }
 
 void IStateManager::DeltaParse(
         ClientHandle client,
-        Sequence tickTo,
-        Sequence tickFrom,
-        BitStreamReadOnly& source)
+        const Delta& payload)
 {
-    PrivateDeltaParse(client, tickTo, tickFrom, source);
+    PrivateDeltaParse(client, payload);
 }
