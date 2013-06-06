@@ -53,9 +53,7 @@ private:
     std::vector<MotleyUniquePointer<INetworkProvider>> myNetworks;
     IStateManager& myStateManager;
 
-    std::unordered_map<boost::asio::ip::udp::endpoint, Connection> myConnecting;
-    std::unordered_map<boost::asio::ip::udp::endpoint, Connection> myConnected;
-    std::unordered_map<uint16_t, boost::asio::ip::udp::endpoint> myConnectedClients;
+    std::unordered_map<boost::asio::ip::udp::endpoint, Connection> myConnections;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;

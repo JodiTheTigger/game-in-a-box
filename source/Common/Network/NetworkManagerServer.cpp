@@ -64,9 +64,7 @@ NetworkManagerServer::NetworkManagerServer(
     : INetworkManager()
     , myNetworks(move(networks))
     , myStateManager(stateManager)
-    , myConnecting()
-    , myConnected()
-    , myConnectedClients()
+    , myConnections()
 {
 }
 
@@ -81,19 +79,26 @@ void NetworkManagerServer::PrivateProcessIncomming()
     // connected clients. That would work fine for 8-64 players.
     // However I would assume > 64 players hashing might be better.
     // But, assumption == nullptr. Do metrics or shut up.
+
+    // Only keep a hash of network address to connetions.
+    // If we get delta packets from an unrecognised endpoint
+    // check the connection array incase it's an exisiting connection
+    // that's had its port changed, otherwise ignore.
+    // All other packets from an unrecognised address are treated as a new
+    // connection.
     for (auto& network : myNetworks)
     {
         std::vector<NetworkPacket> responses{};
 
         auto packets = network->Receive();
 
+        // process all the packets.
+
         for (auto& packet: packets)
         {
-            // Most packets will be delta packets of already
-            // connected clients. Deal with that first.
-            if (myConnected.count(packet.address) > 0)
+            if (myConnections.count(packet.address) > 0)
             {
-                auto &connection = myConnected.at(packet.address);
+                auto &connection = myConnections.at(packet.address);
                 auto response = connection.Process(move(packet.data));
 
                 if (!response.empty())
@@ -106,10 +111,47 @@ void NetworkManagerServer::PrivateProcessIncomming()
             }
             else
             {
-                // Most packets will be connection handshake or info request packets
-                if (myConnecting.count(packet.address) > 0)
-                {                    
-                    auto &connection = myConnected.at(packet.address);
+                // If it's a delta packet, see if it's an existing connection.
+                if (PacketDelta::IsPacketDelta(packet.data))
+                {
+                    auto delta = PacketDelta{packet.data};
+                    if (delta.IsValid())
+                    {
+                        auto id = delta.IdConnection();
+
+                        if (id)
+                        {
+                            //for (auto &connection : myConnections)
+                            for (auto &connection : myConnections)
+                            {
+                                // same address?
+                                if (connection.first.address() == packet.address.address())
+                                {
+                                    auto currentId = connection.second.IdConnection();
+
+                                    if (currentId == id)
+                                    {
+                                        // copy the connection, don't care. Use move if metrics
+                                        // say that this is too slow.
+                                        myConnections.emplace(packet.address, connection.second);
+
+                                        // remove the last one
+                                        myConnections.erase(connection.first);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    myConnections.emplace(packet.address, Connection{myStateManager});
+
+                    auto &connection = myConnections.at(packet.address);
+
+                    connection.Start(Connection::Mode::Server);
+
                     auto response = connection.Process(move(packet.data));
 
                     if (!response.empty())
@@ -119,111 +161,14 @@ void NetworkManagerServer::PrivateProcessIncomming()
                             responses.emplace_back(move(response), packet.address);
                         }
                     }
-
-                    if (myConnected.at(packet.address).IsConnected())
-                    {
-                        myConnected.emplace(packet.address, std::move(myConnecting.at(packet.address)));
-                        myConnecting.erase(packet.address);
-                    }
                 }
-                else
-                {
-                    // Next are new connetion requests followed by
-                    // the least frequent packets: port or address hopping
-                    // connected clients.
-                    if (PacketDelta::IsPacketDelta(packet.data))
-                    {
-                        auto delta = PacketDelta{packet.data};
-
-                        if (delta.IsValid())
-                        {
-                            if (delta.HasIdConnection())
-                            {
-
-                            }
-                        }
-                        // Client packets are not allowed to fragment.
-                        //checktoseeifmoved;
-                    }
-                    else
-                    {
-                        myConnecting.emplace(packet.address, Connection{myStateManager});
-
-                        auto &connection = myConnected.at(packet.address);
-
-                        connection.Start(Connection::Mode::Server);
-
-                        auto response = connection.Process(move(packet.data));
-
-                        if (!response.empty())
-                        {
-                            if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
-                            {
-                                responses.emplace_back(move(response), packet.address);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-            /*
-            if (PacketDelta::IsPacketDelta(packet))
-            {
-                PacketDelta delta{move(packet.data)};
-
-                if (delta.HasClientId())
-                {
-                    if (myConnectedClients.count(delta.ClientId()) > 0)
-                    {
-                        // already connected client.
-                        // Test
-                    }
-                }
-                else
-                {
-                    // wtf? ignore
-                    Logging::Log(Logging::LogLevel::Debug, "PacketDelta doesn't have a ClientId.");
-                }
-            }
-            else
-            {
-
-            }
-            */
-            /*
-            if (myConnections.count(packet.address) == 0)
-            {
-                // if it's a delta packet, see if the client id is recognised.
-                if (PacketDelta::IsPacketDelta(packet.data))
-                {
-
-                }
-                else
-                {
-                    // new connection.
-                    // Well, bother. The line below doesn't work as connection
-                    // doesn't have assignment or move constructors because
-                    // it requires a reference to IStateManager, which is not
-                    // assignable or moveable. Crap.
-                    //myConnections[packet.address] = Connection( myStateManager );
-                    myConnections.at(packet.address).Start(Connection::Mode::Server);
-                }
-            }
-
-            // Can't use the [] index as it requires a default constrcutor.
-            auto response = myConnections.at(packet.address).Process(move(packet.data));
-
-            if (!response.empty())
-            {
-                responses.emplace_back(move(response), packet.address);
             }
         }
 
         if (!responses.empty())
         {
             network->Send(responses);
-        }*/
+        }
     }
 
     // RAM: TODO: Process any deltas from the connected clients.
