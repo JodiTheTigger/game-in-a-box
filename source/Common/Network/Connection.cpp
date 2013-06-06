@@ -408,7 +408,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
         case State::Connecting:
         {
-            // RAM: duplicate code! remove!
+            // RAM: TODO: duplicate code! remove!
 
             if (myPacketCount > HandshakeRetries)
             {
