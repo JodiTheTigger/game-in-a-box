@@ -386,33 +386,18 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
         // Client
         // ///////////////////
         case State::Challenging:
-        {
-            if (myPacketCount > HandshakeRetries)
-            {
-                Fail("Timeout: Challenging.");
-            }
-            else
-            {
-                auto sinceLastPacket = myTimeNow() - myLastTimestamp;
-
-                if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
-                {
-                    result = std::move(PacketChallenge().data);
-                    myLastTimestamp = myTimeNow();
-                    ++myPacketCount;
-                }
-            }
-
-            break;
-        }
-
         case State::Connecting:
         {
-            // RAM: TODO: duplicate code! remove!
-
             if (myPacketCount > HandshakeRetries)
             {
-                Fail("Timeout: Connecting.");
+                if (myState == State::Challenging)
+                {
+                    Fail("Timeout: Challenging.");
+                }
+                else
+                {
+                    Fail("Timeout: Connecting.");
+                }
             }
             else
             {
@@ -420,13 +405,22 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                 if (duration_cast<milliseconds>(sinceLastPacket) > HandshakeRetryPeriod())
                 {
-                    auto info = myStateManager->StateInfo({});
+                    if (myState == State::Challenging)
+                    {
+                        result = std::move(PacketChallenge().data);
+                    }
+                    else
+                    {
+                        auto info = myStateManager->StateInfo({});
 
-                    // may be so big it UDP fragments, not my problem.
-                    result = std::move(PacketConnect(myKey, info).data);
+                        // may be so big it UDP fragments, not my problem.
+                        result = std::move(PacketConnect(myKey, info).data);
+                    }
+
                     myLastTimestamp = myTimeNow();
                     ++myPacketCount;
                 }
+
             }
 
             break;
