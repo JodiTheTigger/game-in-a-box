@@ -39,8 +39,8 @@ class Huffman
 public:
     explicit Huffman(const std::array<uint64_t, 256>& frequencies);
     
-    std::unique_ptr<std::vector<uint8_t>> Encode(const std::vector<uint8_t>& data) const;
-    std::unique_ptr<std::vector<uint8_t>> Decode(const std::vector<uint8_t>& data) const;
+    std::vector<uint8_t> Encode(const std::vector<uint8_t>& data) const;
+    std::vector<uint8_t> Decode(const std::vector<uint8_t>& data) const;
     
 private:
     // Not 0xFFFF as it gives me +1 wraparound bugs

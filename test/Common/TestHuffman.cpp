@@ -45,21 +45,20 @@ public:
         int i;
         int j;
         int count;
-        vector<uint8_t> *frequencies;
+        vector<uint8_t> frequencies;
         
         // Simple phrase so I could check the tree against online tree creators.
         testPhrase = "SILLY SALLY SAW SIXTYSIX THICK THISTLE STICKS";
-        myTestBuffers.push_back(new vector<uint8_t>(begin(testPhrase), end(testPhrase)));
+        myTestBuffers.emplace_back(begin(testPhrase), end(testPhrase));
 
         testPhrase = "Silly Sally saw sixty-six thick thistle sticks";
-        myTestBuffers.push_back(new vector<uint8_t>(begin(testPhrase), end(testPhrase)));
+        myTestBuffers.emplace_back(begin(testPhrase), end(testPhrase));
         
         // Do a Fibonacci Sequence to generate an unbalanced tree.
         // This is used to test codewords greater than 9 bits.
         count = 0;
         i = 0;
         j = 1;
-        frequencies = new vector<uint8_t>();
         while (count < 12)
         {
             int sum;
@@ -68,7 +67,7 @@ public:
             
             for (int repeat = 0; repeat < sum; repeat++)
             {
-                frequencies->push_back('A' + count);
+                frequencies.push_back('A' + count);
             }
             
             i = j;
@@ -76,11 +75,11 @@ public:
             count++;
         }
         
-        myTestBuffers.push_back(frequencies);
+        myTestBuffers.emplace_back(move(frequencies));
     }
     
 protected:
-    std::vector<std::vector<uint8_t>*> myTestBuffers; 
+    std::vector<std::vector<uint8_t>> myTestBuffers;
 };
 
 TEST_F(TestHuffman, TestBuffersSingle) 
@@ -90,7 +89,7 @@ TEST_F(TestHuffman, TestBuffersSingle)
         // generate frequencies
         array<uint64_t, 256> frequencies = {{0}};
         
-        for (uint8_t item : *buffer)
+        for (uint8_t item : buffer)
         {
             frequencies[item]++;
         }
@@ -101,13 +100,13 @@ TEST_F(TestHuffman, TestBuffersSingle)
         // don't test buffers with other's trees.
         auto bufferToTest = buffer;
         {
-            unique_ptr<vector<uint8_t>> encoded;
-            unique_ptr<vector<uint8_t>> decoded;
+            vector<uint8_t> encoded{};
+            vector<uint8_t> decoded{};
             
-            encoded = toTest.Encode(*bufferToTest);
-            decoded = toTest.Decode(*encoded);
+            encoded = toTest.Encode(bufferToTest);
+            decoded = toTest.Decode(encoded);
             
-            EXPECT_EQ(*bufferToTest, *decoded);
+            EXPECT_EQ(bufferToTest, decoded);
         }        
     }
 }
@@ -136,13 +135,13 @@ TEST_F(TestHuffman, TestBufferFull)
     // don't test buffers with other's trees.
     for (auto bufferToTest : myTestBuffers)
     {
-        unique_ptr<vector<uint8_t>> encoded;
-        unique_ptr<vector<uint8_t>> decoded;
+        vector<uint8_t> encoded;
+        vector<uint8_t> decoded;
 
-        encoded = toTest.Encode(*bufferToTest);
-        decoded = toTest.Decode(*encoded);
+        encoded = toTest.Encode(bufferToTest);
+        decoded = toTest.Decode(encoded);
 
-        EXPECT_EQ(*bufferToTest, *decoded);
+        EXPECT_EQ(bufferToTest, decoded);
     }
 }
 

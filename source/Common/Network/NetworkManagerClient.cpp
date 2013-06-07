@@ -335,11 +335,10 @@ void NetworkManagerClient::DeltaReceive()
             auto decompressed = move(myCompressor.Decode(payload));
 
             // Pass to gamestate (which will decompress the delta itself).
-            // RAM: TODO! Change Decode to return a buffer, not a unique_ptr. Or deal with the unique_ptr.
             auto deltaData = Delta{
                     delta.GetSequenceBase(),
                     delta.GetSequence(),
-                    *decompressed};
+                    move(decompressed)};
 
             myStateManager.DeltaParse(
                 *myStateHandle,

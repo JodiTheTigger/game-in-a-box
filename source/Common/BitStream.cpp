@@ -29,21 +29,22 @@ using namespace std;
 using namespace GameInABox::Common;
 
 BitStream::BitStream(uint32_t initialCapacityInBytes)
-    : BitStreamReadOnly(vector<uint8_t>())
-    , myBuffer(new vector<uint8_t>())
+    : BitStreamReadOnly({})
+    , myBuffer()
     , myBitIndexWrite(0)
     , myCurrentBitCount(0)
 {
-    Reset(*myBuffer);
-    myBuffer->reserve(initialCapacityInBytes);
+    Reset(myBuffer);
+    myBuffer.reserve(initialCapacityInBytes);
 }
 
-BitStream::BitStream(unique_ptr<vector<uint8_t>> sourceBuffer)
-    : BitStreamReadOnly(*sourceBuffer)
+BitStream::BitStream(std::vector<uint8_t> sourceBuffer)
+    : BitStreamReadOnly({})
     , myBuffer(move(sourceBuffer))
     , myBitIndexWrite(0)
-    , myCurrentBitCount(myBuffer->size() * 8)
-{
+    , myCurrentBitCount(myBuffer.size() * 8)
+{    
+    Reset(myBuffer);
 }
 
 void BitStream::Push(bool value)
@@ -51,7 +52,7 @@ void BitStream::Push(bool value)
     // new byte needed?
     if (0 == (myBitIndexWrite & 0x07))
     {
-        myBuffer->push_back(0);
+        myBuffer.push_back(0);
     }
 
     if (value)
@@ -62,7 +63,7 @@ void BitStream::Push(bool value)
         byteIndex = (uint32_t) (myBitIndexWrite / 8);
         bitIndex = (uint8_t) myBitIndexWrite & 0x07;
 
-        (*myBuffer)[byteIndex] |= 0x80 >> bitIndex;
+        myBuffer[byteIndex] |= 0x80 >> bitIndex;
     }
 
     ++myBitIndexWrite;
@@ -94,17 +95,17 @@ void BitStream::Push(uint8_t value, uint8_t bitsToPush)
 
     if (bitIndex == 0)
     {
-        myBuffer->push_back(0);
-        (*myBuffer)[byteIndex] = topAligned;
+        myBuffer.push_back(0);
+        myBuffer[byteIndex] = topAligned;
     }
     else
     {
-        (*myBuffer)[byteIndex] |= topAligned >> bitIndex;
+        myBuffer[byteIndex] |= topAligned >> bitIndex;
 
         if (bitsToPush > (8 - bitIndex))
         {
-            myBuffer->push_back(0);
-            (*myBuffer)[byteIndex + 1] |= topAligned << (8 - bitIndex);
+            myBuffer.push_back(0);
+            myBuffer[byteIndex + 1] |= topAligned << (8 - bitIndex);
         }
     }
 
@@ -149,17 +150,14 @@ void BitStream::Push(uint32_t value, uint8_t bitsToPush)
     }
 }
 
-unique_ptr<vector<uint8_t>> BitStream::TakeBuffer()
+vector<uint8_t> BitStream::TakeBuffer()
 {
-    unique_ptr<vector<uint8_t>> result;
-
-    result = move(myBuffer);
+    vector<uint8_t> result{move(myBuffer)};
 
     // class is pretty much dead after this point.
     myBitIndexWrite = 0;
     myCurrentBitCount = 0;
-    myBuffer.reset(new vector<uint8_t>());
-    Reset(*myBuffer);
+    Reset(myBuffer);
 
     return move(result);
 }

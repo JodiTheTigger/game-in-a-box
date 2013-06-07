@@ -272,7 +272,7 @@ void Huffman::GenerateDecodeMap()
     }
 }
 
-std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>& data) const
+std::vector<uint8_t> Huffman::Encode(const std::vector<uint8_t>& data) const
 {
     BitStream encoded(data.size());
 
@@ -287,12 +287,10 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Encode(const std::vector<uint8_t>
     return move(encoded.TakeBuffer());
 }
 
-std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>& data) const
+std::vector<uint8_t> Huffman::Decode(const std::vector<uint8_t>& data) const
 {
-    unique_ptr<vector<uint8_t>> result;
+    vector<uint8_t> result{};
     BitStreamReadOnly inBuffer(data);
-    
-    result.reset(new vector<uint8_t>());
    
     while ((inBuffer.PositionReadBits() / 8) < data.size())
     {
@@ -311,7 +309,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
         
         if (codeWord.value < 256)
         {
-            result->push_back(static_cast<uint8_t>(codeWord.value));
+            result.push_back(static_cast<uint8_t>(codeWord.value));
             inBuffer.Rewind(9 - codeWord.bits);
         }        
         else
@@ -341,7 +339,7 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
 
 			if (codeWord.value < 256)
 			{            
-				result->push_back(static_cast<uint8_t>(codeWord.value));
+                result.push_back(static_cast<uint8_t>(codeWord.value));
 				inBuffer.Rewind(7 - codeWord.bits);
 			}
 			else
@@ -352,5 +350,5 @@ std::unique_ptr<std::vector<uint8_t>> Huffman::Decode(const std::vector<uint8_t>
         }
     }
     
-    return result;
+    return std::move(result);
 }

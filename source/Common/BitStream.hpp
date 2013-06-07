@@ -35,7 +35,7 @@ class BitStream : public BitStreamReadOnly
 {
 public:
     explicit BitStream(uint32_t initialCapacityInBytes);
-    explicit BitStream(std::unique_ptr<std::vector<uint8_t>> sourceBuffer);
+    explicit BitStream(std::vector<uint8_t> sourceBuffer);
 
     void Push(bool value);
     
@@ -47,13 +47,12 @@ public:
 
     uint64_t SizeInBits() const { return myCurrentBitCount; }
 
-    std::unique_ptr<std::vector<uint8_t>> TakeBuffer();
+    std::vector<uint8_t> TakeBuffer();
 
 private:
-    std::unique_ptr<std::vector<uint8_t>> myBuffer;
+    std::vector<uint8_t> myBuffer;
     uint64_t myBitIndexWrite;
     uint64_t myCurrentBitCount;
-
 };
 
 }} // namespace

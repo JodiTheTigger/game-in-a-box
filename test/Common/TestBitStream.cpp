@@ -32,9 +32,9 @@ class TestBitStream : public ::testing::Test
 
 TEST_F(TestBitStream, FromPointer) 
 {
-  unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
+  vector<uint8_t> dude{};
   
-  dude->push_back(1);
+  dude.push_back(1);
   
   BitStream result(move(dude));
   
@@ -46,7 +46,7 @@ TEST_F(TestBitStream, FromPointer)
 TEST_F(TestBitStream, ZeroSize) 
 {
   BitStream testStream(8);
-  unique_ptr<vector<uint8_t>> dude(new vector<uint8_t>());
+  vector<uint8_t> dude{};
   
   EXPECT_EQ(0, testStream.SizeInBits());
   EXPECT_EQ(0, testStream.PositionReadBits());
@@ -54,7 +54,7 @@ TEST_F(TestBitStream, ZeroSize)
   dude = testStream.TakeBuffer();
   
   // haven't added any data - so expect the size of the array to be 0.
-  EXPECT_EQ(0, dude->size());
+  EXPECT_EQ(0, dude.size());
 }
 
 TEST_F(TestBitStream, AddOneBit)
@@ -182,21 +182,19 @@ TEST_F(TestBitStream, AddLotsOfStuff)
 TEST_F(TestBitStream, TakeBuffer)
 {
   BitStream source(69);
-  unique_ptr<vector<uint8_t>> result;
   
   source.Push((uint16_t) 0x1234, 16);
   EXPECT_EQ(16, source.SizeInBits());
   
-  result = source.TakeBuffer();  
+  auto result = source.TakeBuffer();
   
-  EXPECT_EQ(0x12, (*result)[0]);
-  EXPECT_EQ(0x34, (*result)[1]);
+  EXPECT_EQ(0x12, result[0]);
+  EXPECT_EQ(0x34, result[1]);
 }
 
 TEST_F(TestBitStream, HuffmanZeroBug)
 {
   BitStream source(69);
-  unique_ptr<vector<uint8_t>> result;
   
   source.Push((uint16_t) 0, 2);
   source.Push((uint16_t) 3, 3);
@@ -204,16 +202,15 @@ TEST_F(TestBitStream, HuffmanZeroBug)
   source.Push((uint16_t) 12, 4);
   EXPECT_EQ(12, source.SizeInBits());
   
-  result = source.TakeBuffer();  
+  auto result = source.TakeBuffer();
   
-  EXPECT_EQ(28, (*result)[0]);
-  EXPECT_EQ(0xC0, (*result)[1]);
+  EXPECT_EQ(28, result[0]);
+  EXPECT_EQ(0xC0, result[1]);
 }
 
 TEST_F(TestBitStream, HuffmanMissingTopBitBug)
 {
   BitStream source(69);
-  unique_ptr<vector<uint8_t>> result;
   
   source.Push((uint16_t) 3, 3);
   source.Push((uint16_t) 1, 3);
@@ -231,18 +228,17 @@ TEST_F(TestBitStream, HuffmanMissingTopBitBug)
   
   EXPECT_EQ(32, source.SizeInBits());
   
-  result = source.TakeBuffer();  
+  auto result = source.TakeBuffer();
   
-  EXPECT_EQ(0x65, (*result)[0]);
-  EXPECT_EQ(0x2D, (*result)[1]);
-  EXPECT_EQ(0x0E, (*result)[2]);
-  EXPECT_EQ(0x92, (*result)[3]);
+  EXPECT_EQ(0x65, result[0]);
+  EXPECT_EQ(0x2D, result[1]);
+  EXPECT_EQ(0x0E, result[2]);
+  EXPECT_EQ(0x92, result[3]);
 }
 
 TEST_F(TestBitStream, Huffman12BitsBug)
 {
   BitStream source(69);
-  unique_ptr<vector<uint8_t>> result;
   
   source.Push((uint16_t) 0xFFE, 12);
   source.Push((uint16_t) 0x7FE, 11);
@@ -250,13 +246,13 @@ TEST_F(TestBitStream, Huffman12BitsBug)
     
   EXPECT_EQ(34, source.SizeInBits());
   
-  result = source.TakeBuffer();  
+  auto result = source.TakeBuffer();
   
-  EXPECT_EQ(0xFF, (*result)[0]);
-  EXPECT_EQ(0xEF, (*result)[1]);
-  EXPECT_EQ(0xFD, (*result)[2]);
-  EXPECT_EQ(0xFF, (*result)[3]);
-  EXPECT_EQ(0x80, (*result)[4]);
+  EXPECT_EQ(0xFF, result[0]);
+  EXPECT_EQ(0xEF, result[1]);
+  EXPECT_EQ(0xFD, result[2]);
+  EXPECT_EQ(0xFF, result[3]);
+  EXPECT_EQ(0x80, result[4]);
 
 }
 
