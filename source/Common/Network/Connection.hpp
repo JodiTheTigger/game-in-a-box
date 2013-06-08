@@ -71,7 +71,11 @@ public:
 
     // Input, packets to process, output, packets to send.
     std::vector<uint8_t> Process(std::vector<uint8_t> packet);
+
+    // Output, delta packets and last asked.
     PacketDelta GetDefragmentedPacket();
+    Sequence LastSequence() const;
+    Sequence LastSequenceAck() const;
 
     bool IsConnected() const;
     bool HasFailed() const;

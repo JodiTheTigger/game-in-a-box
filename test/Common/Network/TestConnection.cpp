@@ -42,6 +42,7 @@ using Clock = std::chrono::steady_clock;
 using Oclock = Clock::time_point;
 
 // NOTE: Don't test what you don't know from the public interface.
+// RAM: TODO: Test Sequence, and SequenceAck.
 class TestConnection : public ::testing::Test
 {
 public:

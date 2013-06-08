@@ -456,6 +456,18 @@ PacketDelta Connection::GetDefragmentedPacket()
     return myFragments.GetDefragmentedPacket();
 }
 
+Sequence Connection::LastSequence() const
+{
+    // RAM: TODO!
+    return {};
+}
+
+Sequence Connection::LastSequenceAck() const
+{
+    // RAM: TODO!
+    return {};
+}
+
 bool Connection::IsConnected() const
 {
     return myState == State::Connected;
