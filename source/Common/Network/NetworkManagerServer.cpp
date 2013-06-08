@@ -29,6 +29,7 @@
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
 #include "PacketDelta.hpp"
+#include "PacketDeltaFragmentManager.hpp"
 
 #include "NetworkManagerServer.hpp"
 
@@ -59,10 +60,10 @@ using namespace GameInABox::Common::Network;
 // to the state.
 
 NetworkManagerServer::NetworkManagerServer(
-        std::vector<MotleyUniquePointer<INetworkProvider>> networks,
+        MotleyUniquePointer<INetworkProvider> network,
         IStateManager& stateManager)
     : INetworkManager()
-    , myNetworks(move(networks))
+    , myNetwork(move(network))
     , myStateManager(stateManager)
     , myConnections()
 {
@@ -86,19 +87,70 @@ void NetworkManagerServer::PrivateProcessIncomming()
     // that's had its port changed, otherwise ignore.
     // All other packets from an unrecognised address are treated as a new
     // connection.
-    for (auto& network : myNetworks)
+    std::vector<NetworkPacket> responses{};
+
+    auto packets = myNetwork->Receive();
+
+    // process all the packets.
+
+    for (auto& packet: packets)
     {
-        std::vector<NetworkPacket> responses{};
-
-        auto packets = network->Receive();
-
-        // process all the packets.
-
-        for (auto& packet: packets)
+        if (myConnections.count(packet.address) > 0)
         {
-            if (myConnections.count(packet.address) > 0)
+            auto &connection = myConnections.at(packet.address);
+            auto response = connection.Process(move(packet.data));
+
+            if (!response.empty())
             {
+                if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
+                {
+                    responses.emplace_back(move(response), packet.address);
+                }
+            }
+        }
+        else
+        {
+            // If it's a delta packet, see if it's an existing connection.
+            if (PacketDelta::IsPacketDelta(packet.data))
+            {
+                auto delta = PacketDelta{packet.data};
+                if (delta.IsValid())
+                {
+                    auto id = delta.IdConnection();
+
+                    if (id)
+                    {
+                        //for (auto &connection : myConnections)
+                        for (auto &connection : myConnections)
+                        {
+                            // same address?
+                            if (connection.first.address() == packet.address.address())
+                            {
+                                auto currentId = connection.second.IdConnection();
+
+                                if (currentId == id)
+                                {
+                                    // copy the connection, don't care. Use move if metrics
+                                    // say that this is too slow.
+                                    myConnections.emplace(packet.address, connection.second);
+
+                                    // remove the last one
+                                    myConnections.erase(connection.first);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                myConnections.emplace(packet.address, Connection{myStateManager});
+
                 auto &connection = myConnections.at(packet.address);
+
+                connection.Start(Connection::Mode::Server);
+
                 auto response = connection.Process(move(packet.data));
 
                 if (!response.empty())
@@ -109,66 +161,12 @@ void NetworkManagerServer::PrivateProcessIncomming()
                     }
                 }
             }
-            else
-            {
-                // If it's a delta packet, see if it's an existing connection.
-                if (PacketDelta::IsPacketDelta(packet.data))
-                {
-                    auto delta = PacketDelta{packet.data};
-                    if (delta.IsValid())
-                    {
-                        auto id = delta.IdConnection();
-
-                        if (id)
-                        {
-                            //for (auto &connection : myConnections)
-                            for (auto &connection : myConnections)
-                            {
-                                // same address?
-                                if (connection.first.address() == packet.address.address())
-                                {
-                                    auto currentId = connection.second.IdConnection();
-
-                                    if (currentId == id)
-                                    {
-                                        // copy the connection, don't care. Use move if metrics
-                                        // say that this is too slow.
-                                        myConnections.emplace(packet.address, connection.second);
-
-                                        // remove the last one
-                                        myConnections.erase(connection.first);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    myConnections.emplace(packet.address, Connection{myStateManager});
-
-                    auto &connection = myConnections.at(packet.address);
-
-                    connection.Start(Connection::Mode::Server);
-
-                    auto response = connection.Process(move(packet.data));
-
-                    if (!response.empty())
-                    {
-                        if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
-                        {
-                            responses.emplace_back(move(response), packet.address);
-                        }
-                    }
-                }
-            }
         }
+    }
 
-        if (!responses.empty())
-        {
-            network->Send(responses);
-        }
+    if (!responses.empty())
+    {
+        myNetwork->Send(responses);
     }
 
     // Drop any disconnects, parse any deltas.
@@ -202,7 +200,8 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
 void NetworkManagerServer::PrivateSendState()
 {
-    // TODO!
+    // RAM: TODO: what to do if not connected?
+    std::vector<NetworkPacket> responses{};
     for (auto& connection : myConnections)
     {
         if (connection.second.IsConnected())
@@ -214,7 +213,40 @@ void NetworkManagerServer::PrivateSendState()
                 if (myStateManager.IsConnected(*client))
                 {
                     // get the packet, and fragment it, then send it.
-                    // RAM: TODO!
+                    auto deltaData = myStateManager.DeltaCreate(*client, connection.second.LastSequenceAck());
+
+                    auto distance = deltaData.to - deltaData.base;
+                    if (distance <= PacketDelta::MaximumDeltaDistance())
+                    {
+                        auto deltaPacket = PacketDelta{
+                                deltaData.to,
+                                connection.second.LastSequence(),
+                                static_cast<uint8_t>(distance),
+                                {},
+                                deltaData.deltaPayload};
+
+                        if (deltaPacket.data.size() < MaxPacketSizeInBytes)
+                        {
+                            auto fragments = PacketDeltaFragmentManager::FragmentPacket(deltaPacket);
+
+                            for (auto& fragment: fragments)
+                            {
+                                if (myStateManager.CanPacketSend(*client, fragment.data.size()))
+                                {
+                                    // RAM: FIX! responses.emplace_back(move(fragment.data), connection.second);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // TOO BIG, RAM: TODO: Log?
+                        }
+                    }
+                    else
+                    {
+                        // Delta distance to too far. fail.
+                        // RAM: TODO! Log? what?
+                    }
                 }
                 else
                 {

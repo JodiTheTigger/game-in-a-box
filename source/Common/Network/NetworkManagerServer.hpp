@@ -44,13 +44,15 @@ class NetworkManagerServer : public INetworkManager
 {
 public:
     NetworkManagerServer(
-            std::vector<MotleyUniquePointer<INetworkProvider>> networks,
+            MotleyUniquePointer<INetworkProvider> network,
             IStateManager& stateManager);
 
     virtual ~NetworkManagerServer();
 
 private:
-    std::vector<MotleyUniquePointer<INetworkProvider>> myNetworks;
+    static const uint64_t MaxPacketSizeInBytes{65535};
+
+    MotleyUniquePointer<INetworkProvider> myNetwork;
     IStateManager& myStateManager;
 
     std::unordered_map<boost::asio::ip::udp::endpoint, Connection> myConnections;
