@@ -370,7 +370,7 @@ void NetworkManagerClient::DeltaSend()
             PacketDelta delta(
                     deltaData.base,
                     myLastSequenceProcessed,
-                    uint8_t(distance),
+                    static_cast<uint8_t>(distance),
                     {myClientId},
                     move(deltaData.deltaPayload));
 
