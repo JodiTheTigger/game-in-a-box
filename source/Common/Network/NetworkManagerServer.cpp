@@ -171,11 +171,15 @@ void NetworkManagerServer::PrivateProcessIncomming()
         }
     }
 
+    // Drop any disconnects, parse any deltas.
+    // Disconnections are handled in privatesendstate by testing myStateManager.IsConnected().
     for (auto& connection : myConnections)
     {
         if (connection.second.HasFailed())
         {
             myConnections.erase(connection.first);
+
+            // RAM: TODO: Log this?
         }
 
         if (connection.second.IsConnected())
@@ -184,8 +188,6 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
             if (delta.IsValid())
             {
-                // RAM: TODO: How to tell the state has disconnected us?
-                // tell the client.
                 auto client = connection.second.IdClient();
                 auto deltaData = Delta{delta.GetSequenceBase(), delta.GetSequence(), GetPayloadBuffer(delta)};
 
@@ -196,18 +198,43 @@ void NetworkManagerServer::PrivateProcessIncomming()
             }
         }
     }
-
-    // Drop any disconnects, parse any deltas.
-    // Disconnections are handled in privatesendstate.
-
-    // RAM: TODO: Process any deltas from the connected clients.
 }
 
 void NetworkManagerServer::PrivateSendState()
 {
     // TODO!
+    for (auto& connection : myConnections)
+    {
+        if (connection.second.IsConnected())
+        {
+            auto client = connection.second.IdClient();
+
+            if (client)
+            {
+                if (myStateManager.IsConnected(*client))
+                {
+                    // get the packet, and fragment it, then send it.
+                    // RAM: TODO!
+                }
+                else
+                {
+                    connection.second.Disconnect("IStateManager: Not Connected.");
+                }
+            }
+            else
+            {
+                // RAM: LOG?
+                // WTF?
+                // Ah well, clean up anyway.
+                connection.second.Disconnect("Connection with no ClientId, wtf?");
+            }
+        }
+    }
 }
 
 void NetworkManagerServer::Disconnect()
 {
+    // RAM: TODO!
+    // RAM: Disconnect all clients, send their last packet,
+    // flush the network buffers, disable them then quit.
 }
