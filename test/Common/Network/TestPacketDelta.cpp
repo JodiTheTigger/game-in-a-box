@@ -58,7 +58,7 @@ TEST_F(TestPacketDelta, Empty)
     EXPECT_EQ(0, toTest.GetSequence());
     EXPECT_EQ(0, toTest.GetSequenceAck());
     EXPECT_EQ(0, toTest.GetSequenceBase());
-    EXPECT_EQ(0, toTest.GetPayload().size());
+    EXPECT_EQ(0, GetPayloadBuffer(toTest).size());
     EXPECT_EQ(0, toTest.data.size());
 }
 
@@ -153,7 +153,7 @@ TEST_F(TestPacketDelta, NoDataServer)
 TEST_F(TestPacketDelta, SimpleServer)
 {
     PacketDelta& toTest = delta8BytePayloadServer;
-    std::vector<uint8_t> payload(toTest.GetPayload());
+    std::vector<uint8_t> payload(GetPayloadBuffer(toTest));
 
     EXPECT_TRUE(toTest.IsValid());
 
@@ -181,7 +181,7 @@ TEST_F(TestPacketDelta, SimpleClient)
                 {clientId},
                 {1,2,3,4});
 
-    std::vector<uint8_t> payload(toTest.GetPayload());
+    std::vector<uint8_t> payload(GetPayloadBuffer(toTest));
 
     EXPECT_TRUE(toTest.IsValid());
 
@@ -204,7 +204,7 @@ TEST_F(TestPacketDelta, EncodeDecodeServer)
     PacketDelta& source = delta8BytePayloadServer;
     PacketDelta toTest(std::move(source.data));
 
-    std::vector<uint8_t> payload(toTest.GetPayload());
+    std::vector<uint8_t> payload(GetPayloadBuffer(toTest));
 
     EXPECT_FALSE(source.IsValid());
 
@@ -234,7 +234,7 @@ TEST_F(TestPacketDelta, EncodeDecodeClient)
                 {1,2,3,4});
 
     PacketDelta toTest(std::move(source.data));
-    std::vector<uint8_t> payload(toTest.GetPayload());
+    std::vector<uint8_t> payload(GetPayloadBuffer(toTest));
 
     EXPECT_FALSE(source.IsValid());
 
@@ -283,8 +283,8 @@ TEST_F(TestPacketDelta, Fragments)
 {
     PacketDelta toTest1(delta8BytePayloadServer, 10, 0);
     PacketDelta toTest2(delta8BytePayloadServer, 10, 1);
-    std::vector<uint8_t> payload1(toTest1.GetPayload());
-    std::vector<uint8_t> payload2(toTest2.GetPayload());
+    std::vector<uint8_t> payload1(GetPayloadBuffer(toTest1));
+    std::vector<uint8_t> payload2(GetPayloadBuffer(toTest2));
 
     // first
     EXPECT_TRUE(toTest1.IsValid());

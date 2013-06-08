@@ -92,9 +92,7 @@ public:
 
     boost::optional<uint16_t> IdConnection() const;
 
-    // No checks are done here to make sure the packet is valid.
-    // It's up the the consumer to check and trust the data.
-    std::vector<uint8_t> GetPayload() const;
+    std::size_t OffsetPayload() const override;
 private:
     // No, I'm not going to use a struct to determine offsets.
     static const std::size_t OffsetSequence = 0;

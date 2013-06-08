@@ -373,28 +373,28 @@ boost::optional<uint16_t> PacketDelta::IdConnection() const
     return {};
 }
 
-std::vector<uint8_t> PacketDelta::GetPayload() const
+std::size_t PacketDelta::OffsetPayload() const
 {
     if (IsValid())
     {
         if (IsFragmented())
         {
-            return std::vector<uint8_t>(begin(data) + OffsetFragmentPayload, end(data));
+            return OffsetFragmentPayload;
         }
         else
         {
             if (0 == (data[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
             {
-                return std::vector<uint8_t>(begin(data) + OffsetDataClient, end(data));
+                return OffsetDataClient;
             }
             else
             {
-                return std::vector<uint8_t>(begin(data) + OffsetDataServer, end(data));
+                return OffsetDataServer;
             }
         }
     }
     else
     {
-        return std::vector<uint8_t>();
+        return 0;
     }
 }

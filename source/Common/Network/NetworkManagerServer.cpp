@@ -171,6 +171,32 @@ void NetworkManagerServer::PrivateProcessIncomming()
         }
     }
 
+    for (auto& connection : myConnections)
+    {
+        if (connection.second.HasFailed())
+        {
+            myConnections.erase(connection.first);
+        }
+
+        if (connection.second.IsConnected())
+        {
+            auto delta = connection.second.GetDefragmentedPacket();
+
+            if (delta.IsValid())
+            {
+                // RAM: TODO: How to tell the state has disconnected us?
+                // tell the client.
+                auto client = connection.second.IdClient();
+                auto deltaData = Delta{delta.GetSequenceBase(), delta.GetSequence(), GetPayloadBuffer(delta)};
+
+                if (client)
+                {
+                    myStateManager.DeltaParse(*client, deltaData);
+                }
+            }
+        }
+    }
+
     // Drop any disconnects, parse any deltas.
     // Disconnections are handled in privatesendstate.
 

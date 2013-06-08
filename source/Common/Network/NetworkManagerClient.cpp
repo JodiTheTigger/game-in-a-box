@@ -311,7 +311,7 @@ void NetworkManagerClient::DeltaReceive()
             latestSequence = delta.GetSequence();
 
             // First copy
-            std::vector<uint8_t> payload(delta.GetPayload());
+            std::vector<uint8_t> payload(GetPayloadBuffer(delta));
 
             // Decrypt (XOR based).
             // NOTE: nothing too complex for encryption, even more simple than q3.
