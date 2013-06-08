@@ -213,7 +213,7 @@ source/Common/Logging/Logging.cpp
 # Server 
 ###############    
 # RAM: Debug, get clang to find the bits/c++config.h file!
-include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
+#include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
