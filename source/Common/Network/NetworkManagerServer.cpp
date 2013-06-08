@@ -225,7 +225,7 @@ void NetworkManagerServer::PrivateSendState()
                                 {},
                                 deltaData.deltaPayload};
 
-                        if (deltaPacket.data.size() < MaxPacketSizeInBytes)
+                        if (deltaPacket.data.size() <= MaxPacketSizeInBytes)
                         {
                             auto fragments = PacketDeltaFragmentManager::FragmentPacket(deltaPacket);
 
@@ -233,19 +233,19 @@ void NetworkManagerServer::PrivateSendState()
                             {
                                 if (myStateManager.CanPacketSend(*client, fragment.data.size()))
                                 {
-                                    // RAM: FIX! responses.emplace_back(move(fragment.data), connection.second);
+                                    responses.emplace_back(move(fragment.data), connection.first);
                                 }
                             }
                         }
                         else
                         {
-                            // TOO BIG, RAM: TODO: Log?
+                            Logging::Log(Logging::LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
                         }
                     }
                     else
                     {
                         // Delta distance to too far. fail.
-                        // RAM: TODO! Log? what?
+                        Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
                     }
                 }
                 else
@@ -255,18 +255,41 @@ void NetworkManagerServer::PrivateSendState()
             }
             else
             {
-                // RAM: LOG?
                 // WTF?
                 // Ah well, clean up anyway.
                 connection.second.Disconnect("Connection with no ClientId, wtf?");
+                Logging::Log(Logging::LogLevel::Warning, "Connection with no ClientId, wtf?");
             }
         }
+        else
+        {
+            auto response = connection.second.Process({});
+            if (myStateManager.CanPacketSend(connection.second.IdClient(), response.size()))
+            {
+                responses.emplace_back(move(response), connection.first);
+            }
+        }
+    }
+
+    if (!responses.empty())
+    {
+        myNetwork->Send(responses);
     }
 }
 
 void NetworkManagerServer::Disconnect()
 {
-    // RAM: TODO!
-    // RAM: Disconnect all clients, send their last packet,
+    // Disconnect all clients, send their last packet,
     // flush the network buffers, disable them then quit.
+    for (auto& connection : myConnections)
+    {
+        if (connection.second.IsConnected())
+        {
+            connection.second.Disconnect("Server shutdown.");
+        }
+    }
+
+    PrivateSendState();
+    myNetwork->Flush();
+    myNetwork->Disable();
 }
