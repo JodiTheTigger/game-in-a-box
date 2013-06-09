@@ -47,6 +47,7 @@ using namespace GameInABox::Common::Network;
 // RAM: TODO! Add Network throttling here
 // RAM: TODO! Add Network throttling per destination as well (so global throttle, and per connection)
 // RAM: TODO! use function pointers (std::function) to do throttling and stats. However that would be
+// RAM: TODO! Don't send 0 sized packets!
 // Set at constructor time, so isn't part of the interface. Should I make setters for those
 // Things in the interface itself?
 // eg:
@@ -200,8 +201,8 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
 void NetworkManagerServer::PrivateSendState()
 {
-    // RAM: TODO: what to do if not connected?
     std::vector<NetworkPacket> responses{};
+
     for (auto& connection : myConnections)
     {
         if (connection.second.IsConnected())

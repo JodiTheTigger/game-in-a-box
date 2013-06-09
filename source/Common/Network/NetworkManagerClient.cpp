@@ -54,6 +54,7 @@ struct NetworkManagerClient::LiveConnection
     Connection handshake;
 };
 
+// RAM: TODO! Don't send 0 sized packets.
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
