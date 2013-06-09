@@ -49,7 +49,7 @@ public:
     MOCK_CONST_METHOD2(PrivateDeltaCreate, Delta (
                            ClientHandle,
                            Sequence));
-    MOCK_METHOD2(PrivateDeltaParse, void (
+    MOCK_METHOD2(PrivateDeltaParse, Sequence (
                     ClientHandle,
                     const Delta&));
 };

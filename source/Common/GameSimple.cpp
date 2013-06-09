@@ -73,9 +73,10 @@ Delta GameSimple::PrivateDeltaCreate(
     return {};
 }
 
-void GameSimple::PrivateDeltaParse(
+Sequence GameSimple::PrivateDeltaParse(
         ClientHandle,
         const Delta &)
 {
     // RAM: TODO!
+    return {};
 }

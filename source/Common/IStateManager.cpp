@@ -68,9 +68,9 @@ Delta IStateManager::DeltaCreate(
     return PrivateDeltaCreate(client, lastAcked);
 }
 
-void IStateManager::DeltaParse(
+Sequence IStateManager::DeltaParse(
         ClientHandle client,
         const Delta& payload)
 {
-    PrivateDeltaParse(client, payload);
+    return PrivateDeltaParse(client, payload);
 }

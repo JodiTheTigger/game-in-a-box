@@ -54,7 +54,7 @@ private:
             ClientHandle client,
             Sequence lastAcked) const override;
 
-    virtual void PrivateDeltaParse(
+    virtual Sequence PrivateDeltaParse(
             ClientHandle client,
             const Delta& payload) override;
 };

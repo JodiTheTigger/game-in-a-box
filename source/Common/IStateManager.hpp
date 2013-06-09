@@ -82,7 +82,9 @@ public:
             ClientHandle client,
             Sequence lastAcked) const;
 
-    void DeltaParse(
+    // Returns the sequence of the payload, or if it couldn't parse the delta
+    // the sequence it wants the next delta's base to be.
+    Sequence DeltaParse(
             ClientHandle client,
             const Delta& payload);
 
@@ -109,7 +111,7 @@ private:
             ClientHandle client,
             Sequence lastAcked) const = 0;
 
-    virtual void PrivateDeltaParse(
+    virtual Sequence PrivateDeltaParse(
             ClientHandle client,
             const Delta& payload) = 0;
 };
