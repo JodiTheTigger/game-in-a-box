@@ -34,10 +34,12 @@ class INetworkProvider : NoCopyMoveNorAssign
 {
 public:
     // Can return empty array.
+    // Can return 0 sized packets.
     std::vector<NetworkPacket> Receive();
     
     // Adds the packets to the send queue.
     // Will ignore packets that are the wrong type (ipv4 send for ip6 provider).
+    // It will send 0 sized packets (i.e. data.empty()).
     void Send(std::vector<NetworkPacket> packets);
 
     // Disable and release all sockets and resources, clear all buffers. Reopens the socket.
