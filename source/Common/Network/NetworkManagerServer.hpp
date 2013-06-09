@@ -29,6 +29,7 @@
 #endif
 
 #include "Common/MotleyUniquePointer.hpp"
+#include "Common/Sequence.hpp"
 
 #include "Hash.hpp"
 #include "INetworkManager.hpp"
@@ -52,10 +53,17 @@ public:
 private:
     static const uint64_t MaxPacketSizeInBytes{65535};
 
+    struct ConnectState
+    {
+        Connection connection;
+        Sequence lastAcked;
+    };
+
     MotleyUniquePointer<INetworkProvider> myNetwork;
     IStateManager& myStateManager;
 
     std::unordered_map<boost::asio::ip::udp::endpoint, Connection> myConnections;
+    //std::unordered_map<boost::asio::ip::udp::endpoint, ConnectState> myConnections; // RAM: Do this instead!
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;

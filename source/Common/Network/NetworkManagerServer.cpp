@@ -121,7 +121,6 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                     if (id)
                     {
-                        //for (auto &connection : myConnections)
                         for (auto &connection : myConnections)
                         {
                             // same address?
@@ -178,7 +177,8 @@ void NetworkManagerServer::PrivateProcessIncomming()
         {
             myConnections.erase(connection.first);
 
-            // RAM: TODO: Log this?
+            // RAM: TODO: Log what I just disconnected - ie the address.
+            //Logging::Log(Logging::LogLevel::Notice, "Disconnecting client at address: xxx");
         }
 
         if (connection.second.IsConnected())
@@ -192,6 +192,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                 if (client)
                 {
+                    // RAM: TODO! Where do I store the ack?
                     myStateManager.DeltaParse(*client, deltaData);
                 }
             }
