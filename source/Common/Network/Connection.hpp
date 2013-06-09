@@ -74,7 +74,6 @@ public:
 
     // Output, delta packets and last asked.
     PacketDelta GetDefragmentedPacket();
-    Sequence LastSequence() const;
     Sequence LastSequenceAck() const;
 
     bool IsConnected() const;
@@ -99,6 +98,7 @@ private:
     NetworkKey                              myKey;
     int                                     myPacketCount;
     std::chrono::steady_clock::time_point   myLastTimestamp;
+    Sequence                                myLastSequenceAck;
     boost::optional<ClientHandle>           myStateHandle;
     boost::optional<uint16_t>               myClientId;
     PacketDeltaFragmentManager              myFragments;

@@ -220,7 +220,7 @@ void NetworkManagerServer::PrivateSendState()
                     {
                         auto deltaPacket = PacketDelta{
                                 deltaData.to,
-                                connection.second.LastSequence(),
+                                {}, // RAM: TODO! connection.second.LastSequence(),
                                 static_cast<uint8_t>(distance),
                                 {},
                                 deltaData.deltaPayload};

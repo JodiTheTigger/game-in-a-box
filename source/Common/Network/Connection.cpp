@@ -64,6 +64,7 @@ Connection::Connection(
     , myKey(GetNetworkKeyNil())
     , myPacketCount(0)
     , myLastTimestamp(Timepoint::min())
+    , myLastSequenceAck()
     , myStateHandle()
     , myClientId()
     , myFragments()
@@ -453,19 +454,24 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
 PacketDelta Connection::GetDefragmentedPacket()
 {
-    return myFragments.GetDefragmentedPacket();
-}
+    auto result = myFragments.GetDefragmentedPacket();
 
-Sequence Connection::LastSequence() const
-{
-    // RAM: TODO!
-    return {};
+    if (result.IsValid())
+    {
+        auto ack = result.GetSequenceAck();
+
+        if (ack > myLastSequenceAck)
+        {
+            myLastSequenceAck = ack;
+        }
+    }
+
+    return result;
 }
 
 Sequence Connection::LastSequenceAck() const
 {
-    // RAM: TODO!
-    return {};
+    return myLastSequenceAck;
 }
 
 bool Connection::IsConnected() const
