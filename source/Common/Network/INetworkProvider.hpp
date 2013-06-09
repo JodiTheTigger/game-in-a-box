@@ -33,10 +33,10 @@ namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider : NoCopyMoveNorAssign
 {
 public:
-    // Non blocking, can return empty array.
+    // Can return empty array.
     std::vector<NetworkPacket> Receive();
     
-    // Adds the packets to the send queue. Non-blocking.
+    // Adds the packets to the send queue.
     // Will ignore packets that are the wrong type (ipv4 send for ip6 provider).
     void Send(std::vector<NetworkPacket> packets);
 
