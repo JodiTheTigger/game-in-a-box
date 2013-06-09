@@ -63,6 +63,7 @@ TEST_F(TestConnection, CreateCustomTime)
     EXPECT_FALSE(toTest.IsConnected());
     EXPECT_FALSE(toTest.IdClient());
     EXPECT_EQ("", toTest.FailReason());
+    EXPECT_EQ(Sequence{}, toTest.LastSequenceAck());
 
     auto delta = toTest.GetDefragmentedPacket();
     EXPECT_FALSE(delta.IsValid());
@@ -107,6 +108,7 @@ TEST_F(TestConnection, TimeoutClient)
     EXPECT_TRUE(toTest.HasFailed());
     EXPECT_FALSE(toTest.IsConnected());
     EXPECT_NE("", toTest.FailReason());
+    EXPECT_EQ(Sequence{}, toTest.LastSequenceAck());
 }
 
 TEST_F(TestConnection, EmptyDisconnect)
@@ -199,6 +201,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     EXPECT_TRUE(deltaBytes.IsValid());
     EXPECT_TRUE(deltaBytes.IdConnection());
     EXPECT_EQ(88, deltaBytes.IdConnection().get());
+    EXPECT_EQ(Sequence{0x7FFF}, toTestServer.LastSequenceAck());
 }
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
