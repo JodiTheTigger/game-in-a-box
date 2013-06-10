@@ -48,6 +48,7 @@ using namespace GameInABox::Common::Network;
 // RAM: TODO! Add Network throttling per destination as well (so global throttle, and per connection)
 // RAM: TODO! use function pointers (std::function) to do throttling and stats. However that would be
 // RAM: TODO! Don't send 0 sized packets!
+// RAM: TODO! for (auto XXXX : myConnections) -> choose a better name for XXXX other than connectionMap.
 // Set at constructor time, so isn't part of the interface. Should I make setters for those
 // Things in the interface itself?
 // eg:
@@ -98,7 +99,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
     {
         if (myConnections.count(packet.address) > 0)
         {
-            auto &connection = myConnections.at(packet.address);
+            auto &connection = myConnections.at(packet.address).connection;
             auto response = connection.Process(move(packet.data));
 
             if (!response.empty())
@@ -121,21 +122,21 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                     if (id)
                     {
-                        for (auto &connection : myConnections)
+                        for (auto &connectionMap : myConnections)
                         {
                             // same address?
-                            if (connection.first.address() == packet.address.address())
+                            if (connectionMap.first.address() == packet.address.address())
                             {
-                                auto currentId = connection.second.IdConnection();
+                                auto currentId = connectionMap.second.connection.IdConnection();
 
                                 if (currentId == id)
                                 {
                                     // copy the connection, don't care. Use move if metrics
                                     // say that this is too slow.
-                                    myConnections.emplace(packet.address, connection.second);
+                                    myConnections.emplace(packet.address, connectionMap.second);
 
                                     // remove the last one
-                                    myConnections.erase(connection.first);
+                                    myConnections.erase(connectionMap.first);
                                     break;
                                 }
                             }
@@ -145,9 +146,9 @@ void NetworkManagerServer::PrivateProcessIncomming()
             }
             else
             {
-                myConnections.emplace(packet.address, Connection{myStateManager});
+                // RAM: TODO: FIX! myConnections.emplace(packet.address, Connection{myStateManager});
 
-                auto &connection = myConnections.at(packet.address);
+                auto &connection = myConnections.at(packet.address).connection;
 
                 connection.Start(Connection::Mode::Server);
 
@@ -171,23 +172,25 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
     // Drop any disconnects, parse any deltas.
     // Disconnections are handled in privatesendstate by testing myStateManager.IsConnected().
-    for (auto& connection : myConnections)
+    for (auto& connectionMap : myConnections)
     {
-        if (connection.second.HasFailed())
+        auto& connection = connectionMap.second.connection;
+
+        if (connection.HasFailed())
         {
-            myConnections.erase(connection.first);
+            myConnections.erase(connectionMap.first);
 
             // RAM: TODO: Log what I just disconnected - ie the address.
             //Logging::Log(Logging::LogLevel::Notice, "Disconnecting client at address: xxx");
         }
 
-        if (connection.second.IsConnected())
+        if (connection.IsConnected())
         {
-            auto delta = connection.second.GetDefragmentedPacket();
+            auto delta = connection.GetDefragmentedPacket();
 
             if (delta.IsValid())
             {
-                auto client = connection.second.IdClient();
+                auto client = connection.IdClient();
                 auto deltaData = Delta{delta.GetSequenceBase(), delta.GetSequence(), GetPayloadBuffer(delta)};
 
                 if (client)
@@ -204,18 +207,20 @@ void NetworkManagerServer::PrivateSendState()
 {
     std::vector<NetworkPacket> responses{};
 
-    for (auto& connection : myConnections)
+    for (auto& connectionMap : myConnections)
     {
-        if (connection.second.IsConnected())
+        auto& connection = connectionMap.second.connection;
+
+        if (connection.IsConnected())
         {
-            auto client = connection.second.IdClient();
+            auto client = connection.IdClient();
 
             if (client)
             {
                 if (myStateManager.IsConnected(*client))
                 {
                     // get the packet, and fragment it, then send it.
-                    auto deltaData = myStateManager.DeltaCreate(*client, connection.second.LastSequenceAck());
+                    auto deltaData = myStateManager.DeltaCreate(*client, connection.LastSequenceAck());
 
                     auto distance = deltaData.to - deltaData.base;
                     if (distance <= PacketDelta::MaximumDeltaDistance())
@@ -235,7 +240,7 @@ void NetworkManagerServer::PrivateSendState()
                             {
                                 if (myStateManager.CanPacketSend(*client, fragment.data.size()))
                                 {
-                                    responses.emplace_back(move(fragment.data), connection.first);
+                                    responses.emplace_back(move(fragment.data), connectionMap.first);
                                 }
                             }
                         }
@@ -252,23 +257,23 @@ void NetworkManagerServer::PrivateSendState()
                 }
                 else
                 {
-                    connection.second.Disconnect("IStateManager: Not Connected.");
+                    connection.Disconnect("IStateManager: Not Connected.");
                 }
             }
             else
             {
                 // WTF?
                 // Ah well, clean up anyway.
-                connection.second.Disconnect("Connection with no ClientId, wtf?");
+                connection.Disconnect("Connection with no ClientId, wtf?");
                 Logging::Log(Logging::LogLevel::Warning, "Connection with no ClientId, wtf?");
             }
         }
         else
         {
-            auto response = connection.second.Process({});
-            if (myStateManager.CanPacketSend(connection.second.IdClient(), response.size()))
+            auto response = connection.Process({});
+            if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
             {
-                responses.emplace_back(move(response), connection.first);
+                responses.emplace_back(move(response), connectionMap.first);
             }
         }
     }
@@ -285,9 +290,9 @@ void NetworkManagerServer::Disconnect()
     // flush the network buffers, disable them then quit.
     for (auto& connection : myConnections)
     {
-        if (connection.second.IsConnected())
+        if (connection.second.connection.IsConnected())
         {
-            connection.second.Disconnect("Server shutdown.");
+            connection.second.connection.Disconnect("Server shutdown.");
         }
     }
 
