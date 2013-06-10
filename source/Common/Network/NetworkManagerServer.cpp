@@ -30,13 +30,14 @@
 #include "NetworkPacket.hpp"
 #include "PacketDelta.hpp"
 #include "PacketDeltaFragmentManager.hpp"
+#include "XorCode.hpp"
+#include "BufferSerialisation.hpp"
 
 #include "NetworkManagerServer.hpp"
 
 using namespace GameInABox::Common::Network;
 
-// RAM: TODO: Compress and emcrypt the delta packets!
-// RAM: TODO: Fully understand sequence, sequence base, and sequence ack! You're confused!
+// RAM: TODO: Compress and encrypt the delta packets!
 NetworkManagerServer::NetworkManagerServer(
         MotleyUniquePointer<INetworkProvider> network,
         IStateManager& stateManager)
@@ -44,6 +45,7 @@ NetworkManagerServer::NetworkManagerServer(
     , myNetwork(move(network))
     , myStateManager(stateManager)
     , myAddressToState()
+    , myCompressor(stateManager.GetHuffmanFrequencies())
 {
 }
 
@@ -171,10 +173,26 @@ void NetworkManagerServer::PrivateProcessIncomming()
             if (delta.IsValid())
             {
                 auto client = connection.IdClient();
-                auto deltaData = Delta{delta.GetSequenceBase(), delta.GetSequence(), GetPayloadBuffer(delta)};
 
                 if (client)
                 {
+                    // decrypt, decompress, parse.
+                    std::vector<uint8_t> payload(GetPayloadBuffer(delta));
+
+                    std::array<uint8_t, 4> code;
+                    Push(begin(code), delta.GetSequence().Value());
+                    Push(begin(code) + 2, delta.GetSequenceAck().Value());
+                    XorCode(begin(code), end(code), connection.Key().data);
+                    XorCode(begin(payload), end(payload), code);
+
+                    auto decompressed = move(myCompressor.Decode(payload));
+
+                    // Pass to gamestate (which will decompress the delta itself).
+                    auto deltaData = Delta{
+                            delta.GetSequenceBase(),
+                            delta.GetSequence(),
+                            move(decompressed)};
+
                     addressToState.second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
                 }
             }
@@ -204,12 +222,21 @@ void NetworkManagerServer::PrivateSendState()
                     auto distance = deltaData.to - deltaData.base;
                     if (distance <= PacketDelta::MaximumDeltaDistance())
                     {
+                        // Compress, encrypt, send
+                        auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
+
+                        std::array<uint8_t, 4> code;
+                        Push(begin(code), deltaData.to.Value());
+                        Push(begin(code) + 2, addressToState.second.lastAcked.Value());
+                        XorCode(begin(code), end(code), connection.Key().data);
+                        XorCode(begin(compressed), end(compressed), code);
+
                         auto deltaPacket = PacketDelta{
                                 deltaData.to,
                                 addressToState.second.lastAcked,
                                 static_cast<uint8_t>(distance),
                                 {},
-                                deltaData.deltaPayload};
+                                move(compressed)};
 
                         if (deltaPacket.data.size() <= MaxPacketSizeInBytes)
                         {

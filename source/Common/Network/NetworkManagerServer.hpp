@@ -30,6 +30,7 @@
 
 #include "Common/MotleyUniquePointer.hpp"
 #include "Common/Sequence.hpp"
+#include "Common/Huffman.hpp"
 
 #include "Hash.hpp"
 #include "INetworkManager.hpp"
@@ -63,6 +64,8 @@ private:
     IStateManager& myStateManager;
 
     std::unordered_map<boost::asio::ip::udp::endpoint, State> myAddressToState;
+
+    Huffman myCompressor;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
