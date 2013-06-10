@@ -171,28 +171,31 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
             if (delta.IsValid())
             {
-                auto client = connection.IdClient();
-
-                if (client)
+                if (delta.GetSequence() > addressToState.second.lastAcked)
                 {
-                    // decrypt, decompress, parse.
-                    std::vector<uint8_t> payload(GetPayloadBuffer(delta));
+                    auto client = connection.IdClient();
 
-                    std::array<uint8_t, 4> code;
-                    Push(begin(code), delta.GetSequence().Value());
-                    Push(begin(code) + 2, delta.GetSequenceAck().Value());
-                    XorCode(begin(code), end(code), connection.Key().data);
-                    XorCode(begin(payload), end(payload), code);
+                    if (client)
+                    {
+                        // decrypt, decompress, parse.
+                        std::vector<uint8_t> payload(GetPayloadBuffer(delta));
 
-                    auto decompressed = move(myCompressor.Decode(payload));
+                        std::array<uint8_t, 4> code;
+                        Push(begin(code), delta.GetSequence().Value());
+                        Push(begin(code) + 2, delta.GetSequenceAck().Value());
+                        XorCode(begin(code), end(code), connection.Key().data);
+                        XorCode(begin(payload), end(payload), code);
 
-                    // Pass to gamestate (which will decompress the delta itself).
-                    auto deltaData = Delta{
-                            delta.GetSequenceBase(),
-                            delta.GetSequence(),
-                            move(decompressed)};
+                        auto decompressed = move(myCompressor.Decode(payload));
 
-                    addressToState.second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
+                        // Pass to gamestate (which will decompress the delta itself).
+                        auto deltaData = Delta{
+                                delta.GetSequenceBase(),
+                                delta.GetSequence(),
+                                move(decompressed)};
+
+                        addressToState.second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
+                    }
                 }
             }
         }
