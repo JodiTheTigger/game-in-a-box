@@ -71,7 +71,6 @@ NetworkManagerClient::NetworkManagerClient(
     , myClientId(0)
     , myCompressor(stateManager.GetHuffmanFrequencies())
     , myLastSequenceProcessed(0)
-    , myLastSequenceAcked(0)
     , myPacketSentCount(0)
     , myLastPacketSent()
 {
@@ -103,7 +102,6 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     myFailReason = "";
 
     myLastSequenceProcessed = Sequence(0);
-    myLastSequenceAcked = Sequence(0);
 
     myPacketSentCount = 0;
     myLastPacketSent = std::chrono::steady_clock::time_point::min();
@@ -353,12 +351,9 @@ void NetworkManagerClient::DeltaReceive()
                     delta.GetSequence(),
                     move(decompressed)};
 
-            myStateManager.DeltaParse(
+           myLastSequenceProcessed = myStateManager.DeltaParse(
                 *myStateHandle,
                 deltaData);
-
-            // Now see what the last packet the other end has got.
-            myLastSequenceAcked = delta.GetSequenceAck();
         }
     }
 }
@@ -371,7 +366,7 @@ void NetworkManagerClient::DeltaSend()
     // smaller packet sizes.
     auto deltaData = myStateManager.DeltaCreate(
                 *myStateHandle,                
-                myLastSequenceAcked);
+                myConnectedNetwork->handshake.LastSequenceAck());
 
     if (deltaData.deltaPayload.size() <= MaxPacketSizeInBytes)
     {

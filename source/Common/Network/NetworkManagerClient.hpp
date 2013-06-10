@@ -103,7 +103,6 @@ private:
     Huffman myCompressor;
 
     Sequence myLastSequenceProcessed;
-    Sequence myLastSequenceAcked;
 
     uint8_t myPacketSentCount;
     std::chrono::steady_clock::time_point myLastPacketSent;

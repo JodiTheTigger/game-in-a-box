@@ -36,6 +36,7 @@
 using namespace GameInABox::Common::Network;
 
 // RAM: TODO: Compress and emcrypt the delta packets!
+// RAM: TODO: Fully understand sequence, sequence base, and sequence ack! You're confused!
 NetworkManagerServer::NetworkManagerServer(
         MotleyUniquePointer<INetworkProvider> network,
         IStateManager& stateManager)
