@@ -37,7 +37,6 @@
 
 using namespace GameInABox::Common::Network;
 
-// RAM: TODO: Compress and encrypt the delta packets!
 NetworkManagerServer::NetworkManagerServer(
         MotleyUniquePointer<INetworkProvider> network,
         IStateManager& stateManager)

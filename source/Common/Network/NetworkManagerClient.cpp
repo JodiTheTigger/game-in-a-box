@@ -54,8 +54,6 @@ struct NetworkManagerClient::LiveConnection
     Connection handshake;
 };
 
-// RAM: TODO! Use Connection Last Acked.
-// RAM: TODO! Use IStateManager.DeltaParse return value.
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
