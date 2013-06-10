@@ -42,8 +42,6 @@ using Clock = std::chrono::steady_clock;
 using Oclock = Clock::time_point;
 
 // NOTE: Don't test what you don't know from the public interface.
-// RAM: TODO: Test Sequence, and SequenceAck.
-// RAM: TODO: Test Key
 class TestConnection : public ::testing::Test
 {
 public:
@@ -79,6 +77,32 @@ TEST_F(TestConnection, NothingwhenNotStarted)
     {
         EXPECT_EQ(empty, toTest.Process({}));
     }
+}
+
+TEST_F(TestConnection, KeyNotStarted)
+{
+    Connection toTest(stateMockStrict);
+
+    EXPECT_EQ(GetNetworkKeyNil(), toTest.Key());
+}
+
+
+TEST_F(TestConnection, KeyFreshClient)
+{
+    Connection toTest(stateMockStrict);
+
+    toTest.Start(Connection::Mode::Client);
+
+    EXPECT_EQ(GetNetworkKeyNil(), toTest.Key());
+}
+
+TEST_F(TestConnection, KeyFreshServer)
+{
+    Connection toTest(stateMockStrict);
+
+    toTest.Start(Connection::Mode::Server);
+
+    EXPECT_NE(GetNetworkKeyNil(), toTest.Key());
 }
 
 // Value-Parameterized Tests require too much setup.
@@ -203,6 +227,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     EXPECT_TRUE(deltaBytes.IdConnection());
     EXPECT_EQ(88, deltaBytes.IdConnection().get());
     EXPECT_EQ(Sequence{0x7FFF}, toTestServer.LastSequenceAck());
+    EXPECT_EQ(toTestServer.Key(), toTestClient.Key());
 }
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
