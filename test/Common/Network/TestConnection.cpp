@@ -43,6 +43,7 @@ using Oclock = Clock::time_point;
 
 // NOTE: Don't test what you don't know from the public interface.
 // RAM: TODO: Test Sequence, and SequenceAck.
+// RAM: TODO: Test Key
 class TestConnection : public ::testing::Test
 {
 public:

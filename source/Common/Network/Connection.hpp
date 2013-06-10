@@ -81,6 +81,7 @@ public:
 
     boost::optional<ClientHandle> IdClient() const;
     boost::optional<uint16_t> IdConnection() const;
+    NetworkKey Key() const;
 
     std::string FailReason() const
     {

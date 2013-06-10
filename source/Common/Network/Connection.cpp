@@ -494,6 +494,11 @@ boost::optional<uint16_t> Connection::IdConnection() const
     return myClientId;
 }
 
+NetworkKey Connection::Key() const
+{
+    return myKey;
+}
+
 void Connection::Reset(State resetState)
 {
     myState         = resetState;
