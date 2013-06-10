@@ -54,7 +54,6 @@ struct NetworkManagerClient::LiveConnection
     Connection handshake;
 };
 
-// RAM: TODO! Don't send 0 sized packets.
 // RAM: TODO! Use Connection Last Acked.
 // RAM: TODO! Use IStateManager.DeltaParse return value.
 NetworkManagerClient::NetworkManagerClient(
@@ -78,11 +77,7 @@ NetworkManagerClient::NetworkManagerClient(
 {
     for (auto& network : networks)
     {
-        myNetworks.push_back({move(network), Connection{stateManager}});
-
-        // Why doesn't emplace_back compile?
-        //myNetworks.emplace_back(move(network), {stateManager});
-        //myNetworks.emplace_back({move(network), {stateManager}});
+        myNetworks.emplace_back(LiveConnection{move(network), Connection{stateManager}});
     }
 }
 
@@ -135,9 +130,13 @@ void NetworkManagerClient::PrivateProcessIncomming()
                 if (packet.address == myServerAddress)
                 {
                     auto response = myConnectedNetwork->handshake.Process(packet.data);
-                    if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+
+                    if (!response.empty())
                     {
-                        myConnectedNetwork->transport->Send({{response, myServerAddress}});
+                        if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+                        {
+                            myConnectedNetwork->transport->Send({{response, myServerAddress}});
+                        }
                     }
 
                     if (myConnectedNetwork->handshake.HasFailed())
@@ -176,9 +175,13 @@ void NetworkManagerClient::PrivateProcessIncomming()
                     if (packet.address == myServerAddress)
                     {
                         auto response = network.handshake.Process(packet.data);
-                        if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+
+                        if (!response.empty())
                         {
-                            toSend.emplace_back(response, myServerAddress);
+                            if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+                            {
+                                toSend.emplace_back(response, myServerAddress);
+                            }
                         }
 
                         // Win, lose or nothing?
@@ -255,9 +258,13 @@ void NetworkManagerClient::PrivateSendState()
             if (!network.transport->IsDisabled())
             {
                 auto response = network.handshake.Process({});
-                if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+
+                if (!response.empty())
                 {
-                    network.transport->Send({{response, myServerAddress}});
+                    if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+                    {
+                        network.transport->Send({{response, myServerAddress}});
+                    }
                 }
 
                 // Lose?
@@ -285,9 +292,12 @@ void NetworkManagerClient::Fail(std::string failReason)
                 network.handshake.Disconnect(failReason);
                 auto lastPacket = network.handshake.Process({});
 
-                if (myStateManager.CanPacketSend(myStateHandle, lastPacket.size()))
+                if (!lastPacket.empty())
                 {
-                    network.transport->Send({{lastPacket, myServerAddress}});
+                    if (myStateManager.CanPacketSend(myStateHandle, lastPacket.size()))
+                    {
+                        network.transport->Send({{lastPacket, myServerAddress}});
+                    }
                 }
             }
 
@@ -381,10 +391,13 @@ void NetworkManagerClient::DeltaSend()
             std::vector<NetworkPacket> packets;
             auto fragments(PacketDeltaFragmentManager::FragmentPacket(delta));
             for (auto& fragment : fragments)
-            {                
-                if (myStateManager.CanPacketSend(myStateHandle, fragment.data.size()))
+            {
+                if (!fragment.data.empty())
                 {
-                    packets.emplace_back(std::move(fragment.data), myServerAddress);
+                    if (myStateManager.CanPacketSend(myStateHandle, fragment.data.size()))
+                    {
+                        packets.emplace_back(std::move(fragment.data), myServerAddress);
+                    }
                 }
             }
 
