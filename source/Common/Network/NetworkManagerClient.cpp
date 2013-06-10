@@ -64,7 +64,6 @@ NetworkManagerClient::NetworkManagerClient(
     , myConnectedNetwork(nullptr)
     , myStateManager(stateManager)
     , myState(State::Idle)
-    , myServerKey(GetNetworkKeyNil())
     , myServerAddress()
     , myStateHandle()
     , myFailReason()
@@ -96,7 +95,6 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
 
     myState = State::Challenging;
     myConnectedNetwork = nullptr;
-    myServerKey = GetNetworkKeyNil();
     myServerAddress = serverAddress;
     myStateHandle = {};
     myFailReason = "";
@@ -331,7 +329,7 @@ void NetworkManagerClient::DeltaReceive()
             std::array<uint8_t, 4> code;
             Push(begin(code), delta.GetSequence().Value());
             Push(begin(code) + 2, delta.GetSequenceAck().Value());
-            XorCode(begin(code), end(code), myServerKey.data);
+            XorCode(begin(code), end(code), myConnectedNetwork->handshake.Key().data);
             XorCode(begin(payload), end(payload), code);
 
             // Bah, I wrote Huffman and Bitstream before I knew about iterators
@@ -378,7 +376,7 @@ void NetworkManagerClient::DeltaSend()
             std::array<uint8_t, 4> code;
             Push(begin(code), deltaData.to.Value());
             Push(begin(code) + 2, myLastSequenceProcessed.Value());
-            XorCode(begin(code), end(code), myServerKey.data);
+            XorCode(begin(code), end(code), myConnectedNetwork->handshake.Key().data);
             XorCode(begin(compressed), end(compressed), code);
 
             PacketDelta delta(
