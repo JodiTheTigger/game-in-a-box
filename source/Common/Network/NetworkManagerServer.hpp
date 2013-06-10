@@ -53,8 +53,7 @@ public:
 private:
     static const uint64_t MaxPacketSizeInBytes{65535};
 
-    // RAM: TODO! Choose better names!
-    struct ConnectState
+    struct State
     {
         Connection connection;
         Sequence lastAcked;
@@ -63,7 +62,7 @@ private:
     MotleyUniquePointer<INetworkProvider> myNetwork;
     IStateManager& myStateManager;
 
-    std::unordered_map<boost::asio::ip::udp::endpoint, ConnectState> myConnections;
+    std::unordered_map<boost::asio::ip::udp::endpoint, State> myAddressToState;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
