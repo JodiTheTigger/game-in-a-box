@@ -313,14 +313,11 @@ void NetworkManagerClient::Fail(std::string failReason)
 void NetworkManagerClient::DeltaReceive()
 {
     auto delta = myConnectedNetwork->handshake.GetDefragmentedPacket();
-    Sequence latestSequence(myLastSequenceProcessed);
 
     if (delta.IsValid())
     {
-        if (delta.GetSequence() > latestSequence)
+        if (delta.GetSequence() > myLastSequenceProcessed)
         {
-            latestSequence = delta.GetSequence();
-
             // First copy
             std::vector<uint8_t> payload(GetPayloadBuffer(delta));
 
@@ -375,24 +372,29 @@ void NetworkManagerClient::DeltaSend()
         auto distance = deltaData.to - deltaData.base;
         if (distance <= PacketDelta::MaximumDeltaDistance())
         {
+            // Compress, encrypt, send
+            auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
+
+            std::array<uint8_t, 4> code;
+            Push(begin(code), deltaData.to.Value());
+            Push(begin(code) + 2, myLastSequenceProcessed.Value());
+            XorCode(begin(code), end(code), myServerKey.data);
+            XorCode(begin(compressed), end(compressed), code);
+
             PacketDelta delta(
-                    deltaData.base,
+                    deltaData.to,
                     myLastSequenceProcessed,
                     static_cast<uint8_t>(distance),
                     {myClientId},
-                    move(deltaData.deltaPayload));
+                    move(compressed));
 
-            // Fragment (if needed)
+            // client packets are not fragmented.
             std::vector<NetworkPacket> packets;
-            auto fragments(PacketDeltaFragmentManager::FragmentPacket(delta));
-            for (auto& fragment : fragments)
+            if (!delta.data.empty())
             {
-                if (!fragment.data.empty())
+                if (myStateManager.CanPacketSend(myStateHandle, delta.data.size()))
                 {
-                    if (myStateManager.CanPacketSend(myStateHandle, fragment.data.size()))
-                    {
-                        packets.emplace_back(std::move(fragment.data), myServerAddress);
-                    }
+                    packets.emplace_back(std::move(delta.data), myServerAddress);
                 }
             }
 
