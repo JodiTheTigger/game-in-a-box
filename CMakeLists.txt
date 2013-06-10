@@ -56,6 +56,7 @@ project(game-in-a-box C CXX)
 # Check compiler options
 check_cxx_compiler_flag("-std=c++11" HAS_CPP11)
 check_cxx_compiler_flag("-std=c++0x" HAS_CPP0X)
+check_cxx_compiler_flag("-std=c++11 -stdlib=libc++" HAS_CPP11_AND_LIB)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Wall HAS_WALL)
 check_cxx_compiler_flag(-W4 HAS_W4)
@@ -85,7 +86,9 @@ if (MSVC11)
 endif()
 
 # apply compiler options
-if (HAS_CPP11)
+if (HAS_CPP11_AND_LIB)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+elseif (HAS_CPP11)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 elseif(HAS_CPP0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
