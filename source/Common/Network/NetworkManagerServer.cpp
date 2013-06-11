@@ -159,10 +159,11 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
             Logging::Log(
                 Logging::LogLevel::Notice,
-                "Disconnecting client at address: ",
                 addressToState.first.address().to_string().c_str(),
                 ": ",
-                addressToState.first.port());
+                addressToState.first.port(),
+                " failed due to: ",
+                connection.FailReason().c_str());
         }
 
         if (connection.IsConnected())

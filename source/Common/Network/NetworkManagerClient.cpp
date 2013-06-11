@@ -303,7 +303,13 @@ void NetworkManagerClient::Fail(std::string failReason)
     myFailReason = failReason;
     myState = State::FailedConnection;
 
-    Logging::Log(Logging::LogLevel::Notice, failReason.c_str());
+    Logging::Log(
+        Logging::LogLevel::Notice,
+        myServerAddress.address().to_string().c_str(),
+        ": ",
+        myServerAddress.port(),
+        " failed due to: ",
+        failReason.c_str());
 }
 
 void NetworkManagerClient::DeltaReceive()
