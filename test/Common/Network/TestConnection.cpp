@@ -216,7 +216,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
 
     testTime += std::chrono::milliseconds(300);
 
-    auto delta = PacketDelta{Sequence{0}, Sequence{0xFFFF}, 255, 88, Bytes(42,20)};
+    auto delta = PacketDelta{Sequence{0}, Sequence{0x4}, 255, 88, Bytes(42,20)};
     toTestServer.Process(std::move(delta.data));
 
     auto deltaBytes = toTestServer.GetDefragmentedPacket();
@@ -226,7 +226,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     EXPECT_TRUE(deltaBytes.IsValid());
     EXPECT_TRUE(deltaBytes.IdConnection());
     EXPECT_EQ(88, deltaBytes.IdConnection().get());
-    EXPECT_EQ(Sequence{0x7FFF}, toTestServer.LastSequenceAck());
+    EXPECT_EQ(Sequence{0x4}, toTestServer.LastSequenceAck());
     EXPECT_EQ(toTestServer.Key(), toTestClient.Key());
 }
 
