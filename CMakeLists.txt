@@ -183,6 +183,8 @@ source/Common/Network/Packet.cpp
 source/Common/Network/PacketType.hpp
 source/Common/Network/PacketTypes.hpp
 source/Common/Network/PacketDelta.cpp
+source/Common/Network/PacketFragment.cpp
+source/Common/Network/PacketFragment.hpp
 source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/PacketChallengeResponse.cpp
 source/Common/Network/PacketChallenge.cpp
@@ -262,6 +264,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestConnection.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragment.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
