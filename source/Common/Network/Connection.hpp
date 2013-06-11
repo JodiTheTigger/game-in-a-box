@@ -102,6 +102,9 @@ private:
     Sequence                                myLastSequenceAck;
     boost::optional<ClientHandle>           myStateHandle;
     boost::optional<uint16_t>               myClientId;
+
+    // RAM: TODO: Not needed for the server, as clients
+    // cannot send fragmented packets.
     PacketDeltaFragmentManager              myFragments;
     TimeFunction                            myTimeNow;
 

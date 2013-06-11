@@ -328,7 +328,9 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                 myClientId = id;
 
                                 Reset(State::Connected);
-                                myFragments.AddPacket(PacketDelta{packet});
+                                myFragments.AddPacket(std::move(delta));
+
+                                // RAM: TODO: Do we set myLastSequenceAck here? Think about it please.
                             }
                         }
 
