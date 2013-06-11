@@ -71,20 +71,11 @@ public:
     PacketDelta& operator=(PacketDelta&&) = default;
     virtual ~PacketDelta() = default;
 
-    // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
-    // Should be non static non method, but since it compares a non-public member, I'll keep it as a member.
-    inline bool operator==(const PacketDelta& other) const {return this->data == other.data; }
-    inline bool operator!=(const PacketDelta& other) const {return !operator==(other);}
-    inline bool operator< (const PacketDelta& other) const {return (this->data < other.data);}
-    inline bool operator> (const PacketDelta& other) const {return (this->data > other.data);}
-    inline bool operator<=(const PacketDelta& other) const {return !operator>(other);}
-    inline bool operator>=(const PacketDelta& other) const {return !operator<(other);}
-
     Sequence GetSequence() const;
     Sequence GetSequenceBase() const;
     Sequence GetSequenceAck() const;
 
-    bool IsValid() const;    
+    bool IsValid() const override;
 
     bool IsFragmented() const;
     bool IsLastFragment() const;

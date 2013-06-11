@@ -73,6 +73,14 @@ protected:
 
 };
 
+// http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
+inline bool operator==(const Packet& lhs, const Packet& rhs){return lhs.data == rhs.data;}
+inline bool operator!=(const Packet& lhs, const Packet& rhs){return !operator==(lhs,rhs);}
+inline bool operator< (const Packet& lhs, const Packet& rhs){return lhs.data < rhs.data;}
+inline bool operator> (const Packet& lhs, const Packet& rhs){return  operator< (rhs,lhs);}
+inline bool operator<=(const Packet& lhs, const Packet& rhs){return !operator> (lhs,rhs);}
+inline bool operator>=(const Packet& lhs, const Packet& rhs){return !operator< (lhs,rhs);}
+
 std::vector<uint8_t> GetPayloadBuffer(const Packet& packet);
 std::string GetPayloadString(const Packet& packet);
 
