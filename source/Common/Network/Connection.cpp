@@ -329,8 +329,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                                 Reset(State::Connected);
                                 myFragments.AddPacket(std::move(delta));
-
-                                // RAM: TODO: Do we set myLastSequenceAck here? Think about it please.
                             }
                         }
 
@@ -460,12 +458,11 @@ PacketDelta Connection::GetDefragmentedPacket()
 
     if (result.IsValid())
     {
-        auto ack = result.GetSequenceAck();
-
-        if (ack > myLastSequenceAck)
-        {
-            myLastSequenceAck = ack;
-        }
+        // PacketDeltaFragmentManager only returns new
+        // fragments, and ignores old ones. Due to this
+        // we can assume that more recent packets have more
+        // recent acks.
+        myLastSequenceAck = result.GetSequenceAck();
     }
 
     return result;
@@ -507,7 +504,7 @@ void Connection::Reset(State resetState)
     myPacketCount   = 0;
 
     // If I use Timepoint::min(), I end up with -ve durations.
-    // This breaks the timestamping mechnamise. bah.
+    // This breaks the timestamping mechanism. bah.
     myLastTimestamp = myTimeNow() - (HandshakeRetryPeriod() * 2);
 }
 
