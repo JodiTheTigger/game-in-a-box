@@ -244,6 +244,11 @@
 # define GTEST_OS_NACL 1
 #endif  // __CYGWIN__
 
+#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+// Compiling in at least C++11 mode.
+# define GTEST_LANG_CXX11 1
+#endif
+
 // Brings in definitions for functions used in the testing::internal::posix
 // namespace (read, write, close, chdir, isatty, stat). We do not currently
 // use them on Windows Mobile.
@@ -443,13 +448,15 @@
 // The user didn't tell us, so we need to figure it out.
 
 // We use our own TR1 tuple if we aren't sure the user has an
-// implementation of it already.  At this time, GCC 4.0.0+ and MSVC
-// 2010 are the only mainstream compilers that come with a TR1 tuple
-// implementation.  NVIDIA's CUDA NVCC compiler pretends to be GCC by
-// defining __GNUC__ and friends, but cannot compile GCC's tuple
-// implementation.  MSVC 2008 (9.0) provides TR1 tuple in a 323 MB
-// Feature Pack download, which we cannot assume the user has.
+// implementation of it already.  At this time, libstdc++ 4.0.0+, MSVC
+// 2010, and libc++ in C++11 mode are the only mainstream standard
+// libraries that come with a TR1 tuple implementation.  NVIDIA's CUDA
+// NVCC compiler pretends to be GCC by defining __GNUC__ and friends,
+// but cannot compile GCC's tuple implementation.  MSVC 2008 (9.0)
+// provides TR1 tuple in a 323 MB Feature Pack download, which we
+// cannot assume the user has.  
 # if (defined(__GNUC__) && !defined(__CUDACC__) && (GTEST_GCC_VER_ >= 40000)) \
+    && (GTEST_LANG_CXX11 || !defined(_LIBCPP_VERSION))) \
     || _MSC_VER >= 1600
 #  define GTEST_USE_OWN_TR1_TUPLE 0
 # else
@@ -465,6 +472,19 @@
 
 # if GTEST_USE_OWN_TR1_TUPLE
 #  include "gtest/internal/gtest-tuple.h"
+# elif GTEST_LANG_CXX11
+#  include <tuple>
+// C++11 puts its tuple into the ::std namespace rather than
+// ::std::tr1.  gtest expects tuple to live in ::std::tr1, so put it there.
+namespace std {
+namespace tr1 {
+using ::std::get;
+using ::std::make_tuple;
+using ::std::tuple;
+using ::std::tuple_element;
+using ::std::tuple_size;
+}
+}
 # elif GTEST_OS_SYMBIAN
 
 // On Symbian, BOOST_HAS_TR1_TUPLE causes Boost's TR1 tuple library to
