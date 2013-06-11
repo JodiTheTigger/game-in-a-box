@@ -90,21 +90,6 @@ TEST_F(TestPacketDelta, TestMoveCopy)
     EXPECT_FALSE(delta8BytePayloadServer.IsValid());
 }
 
-TEST_F(TestPacketDelta, TakeBuffer)
-{
-    uint16_t clientId(4);
-
-    PacketDelta toTest(
-                Sequence(1),
-                Sequence(2),
-                3,
-                {clientId},
-                std::vector<uint8_t>());
-
-    EXPECT_TRUE(toTest.IsValid());
-    EXPECT_EQ(7, toTest.data.size());
-}
-
 TEST_F(TestPacketDelta, NoDataClient)
 {
     uint16_t clientId(4);
