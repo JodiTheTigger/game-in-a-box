@@ -25,8 +25,11 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketDeltaClient : private PacketDelta2
+class PacketDeltaClient : public PacketDelta2
 {
+    // Wart: Since I want to avoid code duplicate, I make PacketDeltaClient "is-a" PacketDelta2
+    // However even though the class "is-a", the data isn't so IsValid will return false.
+
 public:
     static constexpr std::size_t MaximumDeltaDistance() { return PacketDelta2::MaximumDeltaDistance(); }
     static bool IsPacket(const std::vector<uint8_t>& buffer);
@@ -48,10 +51,6 @@ public:
     PacketDeltaClient& operator=(PacketDeltaClient&&) = default;
     virtual ~PacketDeltaClient() = default;
 
-    using PacketDelta2::GetSequence;
-    using PacketDelta2::GetSequenceBase;
-    using PacketDelta2::GetSequenceAck;
-
     bool IsValid() const override { return IsPacket(data); }
 
     uint16_t IdConnection() const;
@@ -59,7 +58,6 @@ public:
     std::size_t OffsetPayload() const override { return OffsetDataClient; }
 
 private:
-
     // No, I'm not going to use a struct to determine offsets.
     static const std::size_t OffsetConnectionId = 5;
     static const std::size_t OffsetDataClient = 7;

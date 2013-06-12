@@ -271,6 +271,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestConnection.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaClient.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragment.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
