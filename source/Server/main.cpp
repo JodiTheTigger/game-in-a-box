@@ -18,102 +18,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <cstdint>
-#include "GameInABoxServer.hpp"
-
-// Linux
-#include <signal.h>
-
-// For the Scratch code
 #include <iostream>
 #include <chrono>
+#include "common/BitStream.h"
 #include <thread>
-#include <string>
-#include "Common/BitStream.hpp"
 
-#include "Common/IReflected.hpp"
-#include "Common/AutoComplete.hpp"
-
-using namespace GameInABox::Server;
-using namespace GameInABox::Common;
-
-// Globals for signal use.
-GameInABoxServer* theGame = nullptr;
-
-// Linux signal handlers
-// TODO: Use boost asio to handle these.
-extern "C"
-{
-    void SignalSigHup(int signal)
-    {
-        if (signal == SIGHUP)
-        {
-            if (theGame != nullptr)
-            {
-                // RAM: TODO! formalise this debug please
-                std::cout << std::endl << "Received SIGHUP" << std::endl;
-                std::cout << std::flush;
-                theGame->Stop();
-            }
-        }
-    }
-    
-    void SignalSigInt(int signal)
-    {
-        if (signal == SIGINT)
-        {
-            if (theGame != nullptr)
-            {
-                // RAM: TODO! formalise this debug please
-                std::cout << std::endl << "Received SIGINT" << std::endl;
-                std::cout << std::flush;
-                theGame->Stop();
-            }
-        }
-    }
-}
-
-void Scratch();
-
-int main(int argc, char** argv)
-{
-    // call testing scratch code
-    Scratch();
-    
-    // make the game
-    theGame = new GameInABoxServer(argc, (uint8_t**)argv);
-
-    // Register linux signal handlers
-    signal(SIGHUP, SignalSigHup);
-    signal(SIGINT, SignalSigInt);
-    
-    // runs until theGame.Stop() is called.
-    theGame->Run();
-    
-    delete theGame;
-    
-    return 0;
-}
-
-void Scratch() 
+int main(int, char**) 
 {
   // ///////////////////////////
   // The Ugly
   // ///////////////////////////
-  
-      AutoComplete toTest = AutoComplete(std::vector<std::string> 
-    {
-        "OneWordInList.Happy()",
-        "OneWordInList.RealHappy",
-        "OneWordInList.RealHappy",
-        "TwoThings",
-        "Tree.One()",
-        "Tree.Two",
-        "Tree.Tree.Trie"        
-    } );
-      
-      std::cout << "Tr -> " << toTest.GetNextBestMatch("Tr") << std::endl;
-        
   // This is scratch code at the moment. Testing ideas and the C++11 std libraries.
     std::cout << "Hello, world!" << std::endl;
     
@@ -123,8 +37,8 @@ void Scratch()
     {
       using namespace std::chrono;
       
-      system_clock::time_point t1 = high_resolution_clock::now();
-      system_clock::time_point t2 = high_resolution_clock::now();
+      auto t1 = high_resolution_clock::now();
+      auto t2 = high_resolution_clock::now();
       
       std::cout << t1.time_since_epoch().count() << " " << t2.time_since_epoch().count() << std::endl;
       
@@ -133,8 +47,8 @@ void Scratch()
       
       while ((std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()) < 16)
       {
-	// wait
-	t2 = high_resolution_clock::now();
+          // wait
+          t2 = high_resolution_clock::now();
       }
       
       millis = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
@@ -150,18 +64,21 @@ void Scratch()
     
     std::cout << " lets try thread sleeping " << std::endl;
     
-    for (int i = 0; i < 2 ; i++)
+    for (int i = 0; i < 100 ; i++)
     {
       using namespace std::chrono;
       
-      system_clock::time_point ttt1 = high_resolution_clock::now();
+      auto ttt1 = high_resolution_clock::now();
       
       //boost::this_thread::sleep( boost::posix_time::milliseconds(16) );
       std::this_thread::sleep_for( std::chrono::milliseconds(16) );
       
-      system_clock::time_point ttt2 = high_resolution_clock::now();
+      auto ttt2 = high_resolution_clock::now();
       
       std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(ttt2-ttt1).count() << std::endl;
       
     }
+    
+    return 0;
 }
+

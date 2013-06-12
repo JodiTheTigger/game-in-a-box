@@ -456,7 +456,7 @@
 // provides TR1 tuple in a 323 MB Feature Pack download, which we
 // cannot assume the user has.  
 # if (defined(__GNUC__) && !defined(__CUDACC__) && (GTEST_GCC_VER_ >= 40000)) \
-    && (GTEST_LANG_CXX11 || !defined(_LIBCPP_VERSION))) \
+    && (GTEST_LANG_CXX11 || !defined(_LIBCPP_VERSION)) \
     || _MSC_VER >= 1600
 #  define GTEST_USE_OWN_TR1_TUPLE 0
 # else
