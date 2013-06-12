@@ -37,8 +37,8 @@ int main(int, char**)
     {
       using namespace std::chrono;
       
-      system_clock::time_point t1 = high_resolution_clock::now();
-      system_clock::time_point t2 = high_resolution_clock::now();
+      auto t1 = high_resolution_clock::now();
+      auto t2 = high_resolution_clock::now();
       
       std::cout << t1.time_since_epoch().count() << " " << t2.time_since_epoch().count() << std::endl;
       
@@ -47,8 +47,8 @@ int main(int, char**)
       
       while ((std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()) < 16)
       {
-	// wait
-	t2 = high_resolution_clock::now();
+          // wait
+          t2 = high_resolution_clock::now();
       }
       
       millis = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
@@ -68,12 +68,12 @@ int main(int, char**)
     {
       using namespace std::chrono;
       
-      system_clock::time_point ttt1 = high_resolution_clock::now();
+      auto ttt1 = high_resolution_clock::now();
       
       //boost::this_thread::sleep( boost::posix_time::milliseconds(16) );
       std::this_thread::sleep_for( std::chrono::milliseconds(16) );
       
-      system_clock::time_point ttt2 = high_resolution_clock::now();
+      auto ttt2 = high_resolution_clock::now();
       
       std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(ttt2-ttt1).count() << std::endl;
       
