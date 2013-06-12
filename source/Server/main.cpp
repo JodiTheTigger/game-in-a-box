@@ -20,8 +20,10 @@
 
 #include <iostream>
 #include <chrono>
-#include "common/BitStream.h"
+#include "Common/BitStream.hpp"
 #include <thread>
+
+using namespace GameInABox::Common;
 
 int main(int, char**) 
 {
