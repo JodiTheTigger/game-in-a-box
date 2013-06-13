@@ -72,26 +72,26 @@ void PacketDeltaFragmentManager::AddPacket(PacketFragment fragment)
         if (myFragments.empty())
         {
             myCurrentSequence = fragment.GetSequence();
-            myFragments2.push_back(fragment);
+            myFragments.push_back(fragment);
         }
         else
         {
             if (myCurrentSequence == fragment.GetSequence())
             {
-                myFragments2.push_back(fragment);
+                myFragments.push_back(fragment);
             }
         }
     }
 }
 
-PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket2()
+PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket()
 {
-    if (!myFragments2.empty())
+    if (!myFragments.empty())
     {
-        std::vector<PacketFragment*> sorted(myFragments2.size());
+        std::vector<PacketFragment*> sorted(myFragments.size());
 
         // deduplicate
-        for (auto& fragment : myFragments2)
+        for (auto& fragment : myFragments)
         {
             // take the last duplicate.
             sorted[fragment.FragmentId()] = &fragment;

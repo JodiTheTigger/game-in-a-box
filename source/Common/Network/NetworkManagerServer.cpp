@@ -29,6 +29,7 @@
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
 #include "PacketDelta.hpp"
+#include "PacketDeltaClient.hpp"
 #include "PacketDeltaFragmentManager.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
@@ -90,9 +91,9 @@ void NetworkManagerServer::PrivateProcessIncomming()
         else
         {
             // If it's a delta packet, see if it's an existing connection.
-            if (PacketDelta::IsPacketDelta(packet.data))
+            if (PacketDeltaClient::IsPacket(packet.data))
             {
-                auto delta = PacketDelta{packet.data};
+                auto delta = PacketDeltaClient{packet.data};
                 if (delta.IsValid())
                 {
                     auto id = delta.IdConnection();
@@ -238,7 +239,6 @@ void NetworkManagerServer::PrivateSendState()
                                 deltaData.to,
                                 addressToState.second.lastAcked,
                                 static_cast<uint8_t>(distance),
-                                {},
                                 move(compressed)};
 
                         if (deltaPacket.data.size() <= MaxPacketSizeInBytes)

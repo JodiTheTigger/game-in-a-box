@@ -32,6 +32,7 @@
 #include "PacketChallenge.hpp"
 #include "PacketChallengeResponse.hpp"
 #include "PacketDelta.hpp"
+#include "PacketDeltaClient.hpp"
 
 #include "Connection.hpp"
 
@@ -143,9 +144,9 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
         case State::Connected:
         {
-            if (PacketDelta::IsPacketDelta(packet))
+            if (PacketDelta::IsPacket(packet))
             {
-                myFragments.AddPacket(PacketDelta{packet});
+                // RAM: TODO: FIX! myFragments.AddPacket(PacketDelta{packet});
             }
             else
             {
@@ -318,9 +319,9 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                     case Command::Unrecognised:
                     {
                         // If we get deltas, that means we're connected.
-                        if (PacketDelta::IsPacketDelta(packet))
+                        if (PacketDeltaClient::IsPacket(packet))
                         {
-                            auto delta = PacketDelta{packet};
+                            auto delta = PacketDeltaClient{packet};
                             auto id = delta.IdConnection();
 
                             if (id)
@@ -328,7 +329,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                 myClientId = id;
 
                                 Reset(State::Connected);
-                                myFragments.AddPacket(std::move(delta));
+                                // RAM: TODO: FIX! myFragments.AddPacket(std::move(delta));
                             }
                         }
 

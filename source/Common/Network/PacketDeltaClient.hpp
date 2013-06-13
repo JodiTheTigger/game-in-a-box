@@ -21,17 +21,17 @@
 #ifndef PACKETDELTACLIENT_HPP
 #define PACKETDELTACLIENT_HPP
 
-#include "PacketDelta2.hpp"
+#include "PacketDelta.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketDeltaClient : public PacketDelta2
+class PacketDeltaClient : public PacketDelta
 {
     // Wart: Since I want to avoid code duplicate, I make PacketDeltaClient "is-a" PacketDelta2
     // However even though the class "is-a", the data isn't so IsValid will return false.
 
 public:
-    static constexpr std::size_t MaximumDeltaDistance() { return PacketDelta2::MaximumDeltaDistance(); }
+    static constexpr std::size_t MaximumDeltaDistance() { return PacketDelta::MaximumDeltaDistance(); }
     static bool IsPacket(const std::vector<uint8_t>& buffer);
 
     PacketDeltaClient() : PacketDeltaClient(std::vector<uint8_t>()) {}

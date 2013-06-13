@@ -49,7 +49,7 @@ bool PacketDeltaClient::IsPacket(const std::vector<uint8_t>& buffer)
 }
 
 PacketDeltaClient::PacketDeltaClient(std::vector<uint8_t> rawData)
-    : PacketDelta2(rawData)
+    : PacketDelta(rawData)
 {
 }
 
