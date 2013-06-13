@@ -75,6 +75,41 @@ PacketFragment::PacketFragment(Sequence sequence,
     data.insert(end(data), begin(payload), end(payload));
 }
 
+PacketFragment::PacketFragment(
+        Sequence sequence,
+        const std::vector<uint8_t>& payload,
+        std::size_t maxPacketSize,
+        uint8_t fragmentId)
+    : Packet()
+{
+    if (fragmentId < 0x80)
+    {
+        auto size = (maxPacketSize - OffsetFragmentPayload);
+        auto offset = size * fragmentId;
+
+        if (offset < payload.size())
+        {
+            // tail end?
+            if (offset + size > payload.size())
+            {
+                size = payload.size() - offset;
+                fragmentId |= MaskIsLastFragment;
+            }
+
+            // right, let's go.
+            data.reserve(OffsetFragmentPayload + size);
+
+            auto inserter = back_inserter(data);
+            Push(inserter, sequence.Value());
+            data.push_back(fragmentId);
+
+            data[OffsetSequence] |= MaskTopByteIsFragmented;
+
+            data.insert(end(data), begin(payload) + offset, begin(payload) + offset + size);
+        }
+    }
+}
+
 Sequence PacketFragment::GetSequence() const
 {
     if (IsValid())

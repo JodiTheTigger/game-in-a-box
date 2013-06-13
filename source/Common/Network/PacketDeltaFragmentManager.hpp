@@ -26,6 +26,7 @@
 #endif
 
 #include "PacketDelta.hpp"
+#include "PacketFragment.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
@@ -40,6 +41,7 @@ public:
     // Returned array might not contain fragmented packets
     // if the passed PacketDelta is small enough.
     static std::vector<PacketDelta> FragmentPacket(PacketDelta toFragment);
+    static std::vector<PacketFragment> FragmentPacket2(PacketDelta toFragment);
 
     PacketDeltaFragmentManager();
 

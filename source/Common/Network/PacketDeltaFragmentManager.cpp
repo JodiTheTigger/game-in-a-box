@@ -57,6 +57,33 @@ std::vector<PacketDelta> PacketDeltaFragmentManager::FragmentPacket(PacketDelta 
     return result;
 }
 
+std::vector<PacketFragment> PacketDeltaFragmentManager::FragmentPacket2(PacketDelta toFragment)
+{
+    std::vector<PacketFragment> result;
+    bool keepGoing(true);
+    uint8_t count(0);
+
+    while (keepGoing)
+    {
+        auto fragment = PacketFragment{
+                toFragment.GetSequence(),
+                toFragment.data,
+                SizeMaxPacketSize,
+                count++};
+
+        if ((count == 255) || (!fragment.IsValid()))
+        {
+            keepGoing = false;
+        }
+        else
+        {
+            result.push_back(fragment);
+        }
+    }
+
+    return result;
+}
+
 void PacketDeltaFragmentManager::AddPacket(PacketDelta fragmentToAdd)
 {
     if (myCurrentSequence < fragmentToAdd.GetSequence())

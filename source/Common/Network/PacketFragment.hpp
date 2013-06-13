@@ -49,6 +49,12 @@ public:
             Fragment fragment,
             std::vector<uint8_t> payload);
 
+    PacketFragment(
+            Sequence sequence,
+            const std::vector<uint8_t>& payload,
+            std::size_t maxPacketSize,
+            uint8_t fragmentId);
+
     PacketFragment(const PacketFragment&) = default;
     PacketFragment(PacketFragment&&) = default;
     PacketFragment& operator=(const PacketFragment&) = default;
