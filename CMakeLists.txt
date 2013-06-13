@@ -186,8 +186,6 @@ source/Common/Network/Packet.cpp
 source/Common/Network/PacketType.hpp
 source/Common/Network/PacketTypes.hpp
 source/Common/Network/PacketDelta.cpp
-source/Common/Network/PacketDelta2.cpp
-source/Common/Network/PacketDelta2.hpp
 source/Common/Network/PacketDeltaClient.cpp
 source/Common/Network/PacketDeltaClient.hpp
 source/Common/Network/PacketFragment.cpp
@@ -271,7 +269,6 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestConnection.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta2.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaClient.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragment.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp

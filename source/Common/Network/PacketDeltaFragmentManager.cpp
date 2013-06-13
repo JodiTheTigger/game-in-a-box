@@ -29,35 +29,11 @@ using namespace GameInABox::Common::Network;
 
 PacketDeltaFragmentManager::PacketDeltaFragmentManager()
     : myFragments()
-    , myComplete()
     , myCurrentSequence()
 {
 }
 
-std::vector<PacketDelta> PacketDeltaFragmentManager::FragmentPacket(PacketDelta toFragment)
-{
-    std::vector<PacketDelta> result;
-    bool keepGoing(true);
-    uint8_t count(0);
-
-    while (keepGoing)
-    {
-        PacketDelta fragment(toFragment, SizeMaxPacketSize, count++);
-
-        if ((count == 255) || (!fragment.IsValid()))
-        {
-            keepGoing = false;
-        }
-        else
-        {
-            result.push_back(fragment);
-        }
-    }
-
-    return result;
-}
-
-std::vector<PacketFragment> PacketDeltaFragmentManager::FragmentPacket2(PacketDelta toFragment)
+std::vector<PacketFragment> PacketDeltaFragmentManager::FragmentPacket(PacketDelta toFragment)
 {
     std::vector<PacketFragment> result;
     bool keepGoing(true);
@@ -82,34 +58,6 @@ std::vector<PacketFragment> PacketDeltaFragmentManager::FragmentPacket2(PacketDe
     }
 
     return result;
-}
-
-void PacketDeltaFragmentManager::AddPacket(PacketDelta fragmentToAdd)
-{
-    if (myCurrentSequence < fragmentToAdd.GetSequence())
-    {
-        myFragments.clear();
-    }
-
-    if (fragmentToAdd.IsFragmented())
-    {
-        if (myFragments.empty())
-        {
-            myCurrentSequence = fragmentToAdd.GetSequence();
-            myFragments.push_back(fragmentToAdd);
-        }
-        else
-        {
-            if (myCurrentSequence == fragmentToAdd.GetSequence())
-            {
-                myFragments.push_back(fragmentToAdd);
-            }
-        }
-    }
-    else
-    {
-        myComplete = fragmentToAdd;
-    }
 }
 
 void PacketDeltaFragmentManager::AddPacket(PacketFragment fragment)
@@ -188,32 +136,3 @@ PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket2()
 
     return {};
 }
-
-
-PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket()
-{
-    PacketDelta defragmented(myFragments);
-
-    if (defragmented.IsValid())
-    {
-        if (myComplete.IsValid())
-        {
-            if (defragmented.GetSequence() > myComplete.GetSequence())
-            {
-                myComplete = defragmented;
-            }
-            else
-            {
-                // leave alone.
-            }
-        }
-        else
-        {
-            myComplete = defragmented;
-        }
-    }
-
-    return myComplete;
-}
-
-

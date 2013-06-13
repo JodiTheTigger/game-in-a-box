@@ -40,17 +40,14 @@ class PacketDeltaFragmentManager
 public:
     // Returned array might not contain fragmented packets
     // if the passed PacketDelta is small enough.
-    static std::vector<PacketDelta> FragmentPacket(PacketDelta toFragment);
-    static std::vector<PacketFragment> FragmentPacket2(PacketDelta toFragment);
+    static std::vector<PacketFragment> FragmentPacket(PacketDelta toFragment);
 
     PacketDeltaFragmentManager();
 
     // Takes both fragmented and non-fragmented packets
     // returns the most recent complete packet.
-    void AddPacket(PacketDelta fragmentToAdd);
     void AddPacket(PacketFragment packet);
     PacketDelta GetDefragmentedPacket();
-    PacketDelta GetDefragmentedPacket2();
 
 private:    
     static const std::size_t MtuIp4 = 576;
@@ -64,9 +61,7 @@ private:
 
     static const std::size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
 
-    std::vector<PacketDelta> myFragments;
-    std::vector<PacketFragment> myFragments2;
-    PacketDelta myComplete;
+    std::vector<PacketFragment> myFragments;
     Sequence myCurrentSequence;
 };
 

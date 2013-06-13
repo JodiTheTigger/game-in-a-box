@@ -18,13 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETDELTA_H
-#define PACKETDELTA_H
-
-#ifndef USING_PRECOMPILED_HEADERS
-#include <vector>
-#include <boost/optional.hpp>
-#endif
+#ifndef PACKETDELTA_HPP
+#define PACKETDELTA_HPP
 
 #include "Common/Sequence.hpp"
 #include "Packet.hpp"
@@ -36,7 +31,7 @@ class PacketDelta : public Packet
 public:
     // Delta distance is stored as a byte.
     static constexpr std::size_t MaximumDeltaDistance() { return std::numeric_limits<uint8_t>::max(); }
-    static bool IsPacketDelta(const std::vector<uint8_t>& buffer);
+    static bool IsPacket(const std::vector<uint8_t>& buffer);
 
     PacketDelta() : PacketDelta(std::vector<uint8_t>()) {}
     explicit PacketDelta(std::vector<uint8_t> rawData);
@@ -45,24 +40,7 @@ public:
             Sequence sequence,
             Sequence sequenceAck,
             uint8_t sequenceAckDelta,
-            boost::optional<uint16_t> clientId,
             std::vector<uint8_t> deltaPayload);
-
-    PacketDelta(
-            PacketDelta toFragment,
-            std::size_t maxPacketSize,
-            uint8_t fragmentId);
-
-    // Returns a valid delta only if all fragments to one sequence are supplied.
-    // If different sequencies supplied interleaved, returns the last sequenced delta.
-    // Even if complete delta could be made, won't be valid if it's interleaved with
-    // a newer sequenced delta fragment (that isn't complete).
-    // Ignores non-fragmented packets.
-    // NOTE: Buffer can be corrupted if someone spoofs the "last packet" with an
-    // in correct packet size. Fix by sending the actual total packet length
-    // along with the current packet length start with each packet (for 65k max
-    // that's an extra 3 bytes header overhead per packet.)
-    explicit PacketDelta(std::vector<PacketDelta> fragments);
 
     // Rule of 5 (class contents are just one vector, so use defaults).
     PacketDelta(const PacketDelta&) = default;
@@ -75,33 +53,20 @@ public:
     Sequence GetSequenceBase() const;
     Sequence GetSequenceAck() const;
 
-    bool IsValid() const override;
+    bool IsValid() const override { return IsPacket(data); }
 
-    bool IsFragmented() const;
-    bool IsLastFragment() const;
-    uint8_t FragmentId() const;
+    std::size_t OffsetPayload() const override { return OffsetData; }
 
-    boost::optional<uint16_t> IdConnection() const;
+protected:
 
-    std::size_t OffsetPayload() const override;
-private:
     // No, I'm not going to use a struct to determine offsets.
     static const std::size_t OffsetSequence = 0;
     static const std::size_t OffsetIsFragmented = OffsetSequence;
     static const std::size_t OffsetSequenceAck = 2;
     static const std::size_t OffsetIsServerFlags = 2;
     static const std::size_t OffsetDeltaBase = 4;
-    static const std::size_t OffsetConnectionId = 5;
-    static const std::size_t OffsetDataClient = 7;
-    static const std::size_t OffsetDataServer = 5;
-    static const std::size_t MinimumPacketSizeClient = OffsetDataClient;
-    static const std::size_t MinimumPacketSizeServer = OffsetDataServer;
-
-    // Fragmented packets
-    static const std::size_t OffsetFragmentId = 2;
-    static const std::size_t OffsetFragmentPayload = 3;
-    static const std::size_t MinimumPacketSizeFragment = OffsetFragmentPayload;
-    static const uint8_t MaskIsLastFragment = 0x80;
+    static const std::size_t OffsetData = 5;
+    static const std::size_t MinimumPacketSize = OffsetData;
 
     static const uint8_t MaskTopByteIsServerPacket = 0x80;
     static const uint8_t MaskTopByteIsFragmented = 0x80;
@@ -110,9 +75,8 @@ private:
     static const uint16_t MaskSequenceAck = MaskIsServerPacket - 1;
     static const uint16_t MaskSequence = MaskIsFragmented - 1;
 
-    static const std::size_t MinimumPacketSizeCommon = MinimumPacketSizeFragment;
 };
 
 }}} // namespace
 
-#endif // PACKETDELTA_H
+#endif // PACKETDELTA_HPP

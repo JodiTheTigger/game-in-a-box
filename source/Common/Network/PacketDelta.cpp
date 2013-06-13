@@ -18,70 +18,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef USING_PRECOMPILED_HEADERS
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
-
 #include "PacketDelta.hpp"
 #include "BufferSerialisation.hpp"
 
 using namespace GameInABox::Common;
 using namespace GameInABox::Common::Network;
 
-bool PacketDelta::IsPacketDelta(const std::vector<uint8_t>& buffer)
+bool PacketDelta::IsPacket(const std::vector<uint8_t>& buffer)
 {
-    bool result(false);
-
     if (!buffer.empty())
     {
-        if (buffer.size() >= MinimumPacketSizeCommon)
+        if (buffer.size() >= MinimumPacketSize)
         {
             if ((buffer[0] != 0xFF) && (buffer[1] != 0xFF))
             {
                 // Fragmented?
-                if ((buffer[OffsetSequence] & MaskTopByteIsFragmented) != 0)
+                if ((buffer[OffsetSequence] & MaskTopByteIsFragmented) == 0)
                 {
-                    // zero payload fragment is invalid.
-                    if (buffer.size() > MinimumPacketSizeFragment)
+                    // Server packet?
+                    if (0 != (buffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
                     {
-                        result = true;
+                        return true;
                     }
                 }
-                else
-                {
-                    if (buffer.size() >= MinimumPacketSizeServer)
-                    {
-                        // high byte first.
-                        if (0 == (buffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
-                        {
-                            // top bit set of ack == server packet
-                            if (buffer.size() >= MinimumPacketSizeClient)
-                            {
-                                result = true;
-                            }
-                        }
-                        else
-                        {
-                            if (buffer.size() >= MinimumPacketSizeServer)
-                            {
-                                result = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            if (buffer.size() >= MinimumPacketSizeFragment)
-            {
-                result = (0 != (buffer[OffsetIsFragmented] & MaskTopByteIsFragmented));
             }
         }
     }
 
-    return result;
+    return false;
 }
 
 PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
@@ -89,184 +53,23 @@ PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
 {
 }
 
-PacketDelta::PacketDelta(Sequence sequence,
+PacketDelta::PacketDelta(
+        Sequence sequence,
         Sequence sequenceAck,
         uint8_t sequenceAckDelta,
-        boost::optional<uint16_t> clientId,
         std::vector<uint8_t> deltaPayload)
     : PacketDelta()
 {
-    if (clientId)
-    {
-        data.reserve(MinimumPacketSizeClient + deltaPayload.size());
-    }
-    else
-    {
-        data.reserve(MinimumPacketSizeServer + deltaPayload.size());
-    }
+    data.reserve(MinimumPacketSize + deltaPayload.size());
 
     auto inserter = back_inserter(data);
     Push(inserter, sequence.Value());
     Push(inserter, sequenceAck.Value());
     data.push_back(sequenceAckDelta);
 
-    if (clientId)
-    {
-        Push(inserter, *clientId);
-    }
-    else
-    {
-        data[OffsetIsServerFlags] |= MaskTopByteIsServerPacket;
-    }
+    data[OffsetIsServerFlags] |= MaskTopByteIsServerPacket;
 
     data.insert(end(data), begin(deltaPayload), end(deltaPayload));
-}
-
-PacketDelta::PacketDelta(
-        PacketDelta toFragment,
-        std::size_t maxPacketSize,
-        uint8_t fragmentId)
-    : PacketDelta()
-{
-    if (
-            toFragment.IsValid() &&
-            (!toFragment.IsFragmented()) &&
-            (fragmentId < MaskIsLastFragment) &&
-            (maxPacketSize > MinimumPacketSizeFragment)
-       )
-    {
-        std::size_t maxSize((maxPacketSize - MinimumPacketSizeFragment) * (MaskIsLastFragment - 1));
-
-        // too big to fit?
-        if ((toFragment.data.size() - OffsetSequenceAck) <= maxSize)
-        {
-            // test it needs fragmenting
-            if ((toFragment.data.size() < maxPacketSize) && (fragmentId == 0))
-            {
-                // just copy, no fragmentation needed.
-                data = toFragment.data;
-            }
-            else
-            {
-                std::size_t start;
-                std::size_t count;
-
-                count = (maxPacketSize - OffsetFragmentPayload);
-                start = OffsetSequenceAck + fragmentId * count;
-
-                // Past the end?
-                if (start <= toFragment.data.size())
-                {
-                    // last packet?
-                    if ((start + count) >= toFragment.data.size())
-                    {
-                        fragmentId |= MaskIsLastFragment;
-                        count = toFragment.data.size() - start;
-                    }
-
-                    data.reserve(count + OffsetFragmentPayload);
-
-                    // write out the sequence and fragment id
-                    Push(back_inserter(data), toFragment.GetSequence().Value());
-                    data.push_back(fragmentId);
-
-                    // it's a fragment!
-                    data[OffsetSequence] |= MaskTopByteIsFragmented;
-
-                    data.insert(
-                        end(data),
-                        begin(toFragment.data) + start,
-                        begin(toFragment.data) + start + count);
-                }
-            }
-        }
-    }
-}
-
-PacketDelta::PacketDelta(std::vector<PacketDelta> fragments)
-    : PacketDelta()
-{
-    if (!fragments.empty())
-    {
-        std::vector<PacketDelta*> sorted(fragments.size());
-
-        // deduplicate
-        for (auto& fragment : fragments)
-        {
-            if (fragment.IsFragmented())
-            {
-                // take the last duplicate.
-                sorted[fragment.FragmentId()] = &fragment;
-            }
-        }
-
-        if (sorted.size() < MaskIsLastFragment)
-        {
-            if (sorted[0] != nullptr)
-            {
-                if (sorted[0]->IsValid())
-                {
-                    std::size_t maxFragmentSize(sorted[0]->data.size() - OffsetFragmentPayload);
-                    std::size_t bufferSize(2 + (sorted.size() * maxFragmentSize));
-                    std::vector<uint8_t> buffer;
-                    Sequence fragmentSequence(sorted[0]->GetSequence());
-                    bool isValid(true);
-
-                    buffer.reserve(bufferSize);
-
-                    // copy the sequence to the buffer
-                    // (IsValid() so we assume the size is > 2).
-                    Push(back_inserter(buffer), fragmentSequence.Value());
-
-                    // verify and join.
-                    for (auto& fragment : sorted)
-                    {
-                        if (fragment == nullptr)
-                        {
-                            isValid = false;
-                            break;
-                        }
-
-                        if (!fragment->IsValid())
-                        {
-                            isValid = false;
-                            break;
-                        }
-
-                        if (!fragment->IsFragmented())
-                        {
-                            isValid = false;
-                            break;
-                        }
-
-                        if (fragment->GetSequence() != fragmentSequence)
-                        {
-                            isValid = false;
-                            break;
-                        }
-
-                        buffer.insert(
-                            end(buffer),
-                            begin(fragment->data) + OffsetFragmentPayload,
-                            end(fragment->data));
-
-                        // last fragment id?
-                        if (fragment->IsLastFragment())
-                        {
-                            break;
-                        }
-                    }
-
-                    // any holes in the list (missing fragments) will be caught in the
-                    // iterator due to the fragment pointer being nullptr.
-                    if (isValid)
-                    {
-                        std::swap(data, buffer);
-                    }
-                }
-            }
-        }
-    }
 }
 
 Sequence PacketDelta::GetSequence() const
@@ -288,11 +91,11 @@ Sequence PacketDelta::GetSequenceBase() const
 {
     if (IsValid())
     {
-        uint16_t base;
-        Pull(begin(data) + OffsetSequenceAck, base);
-        base &= MaskSequenceAck;
+        uint16_t to;
+        Pull(begin(data) + OffsetSequence, to);
+        to &= MaskSequenceAck;
 
-        return Sequence(base - data[OffsetDeltaBase]);
+        return Sequence{Sequence{to} - Sequence{data[OffsetDeltaBase]}};
     }
     else
     {
@@ -312,89 +115,5 @@ Sequence PacketDelta::GetSequenceAck() const
     else
     {
         return Sequence(0);
-    }
-}
-
-bool PacketDelta::IsValid() const
-{
-    return IsPacketDelta(data);
-}
-
-
-bool PacketDelta::IsFragmented() const
-{
-    if (IsValid())
-    {
-        return (0 != (data[OffsetIsFragmented] & MaskTopByteIsFragmented));
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool PacketDelta::IsLastFragment() const
-{
-    if (IsFragmented())
-    {
-        return ((data[OffsetFragmentId] & MaskIsLastFragment) != 0);
-    }
-    else
-    {
-        return false;
-    }
-}
-
-uint8_t PacketDelta::FragmentId() const
-{
-    if (IsValid() && IsFragmented())
-    {
-        return data[OffsetFragmentId] & (0xFF ^ MaskIsLastFragment);
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-boost::optional<uint16_t> PacketDelta::IdConnection() const
-{    
-    if (IsValid())
-    {
-        if (0 == (data[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
-        {
-            uint16_t id;
-
-            Pull(begin(data) + OffsetConnectionId, id);
-            return {id};
-        }
-    }
-
-    return {};
-}
-
-std::size_t PacketDelta::OffsetPayload() const
-{
-    if (IsValid())
-    {
-        if (IsFragmented())
-        {
-            return OffsetFragmentPayload;
-        }
-        else
-        {
-            if (0 == (data[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
-            {
-                return OffsetDataClient;
-            }
-            else
-            {
-                return OffsetDataServer;
-            }
-        }
-    }
-    else
-    {
-        return 0;
     }
 }

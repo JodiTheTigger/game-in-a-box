@@ -224,4 +224,230 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOldComplete)
     EXPECT_EQ(testResult, delta8BytePayloadServer66);
 }
 
+// RAM: TODO: Include these tests too.
+/*
+// =================================================
+// Fragment testing
+// =================================================
+TEST_F(TestPacketDelta, FragmentEmpty)
+{
+    PacketDelta toTest(PacketDelta(), 0, 0);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, FragmentIdPastEnd)
+{
+    PacketDelta toTest(delta8BytePayloadServer, 4, 100);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, FragmentNotFragmented)
+{
+    PacketDelta toTest(delta8BytePayloadServer, 1024, 0);
+
+    EXPECT_FALSE(toTest.IsFragmented());
+    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_EQ(toTest.data.size(), delta8BytePayloadServer.data.size());
+}
+
+TEST_F(TestPacketDelta, Fragments)
+{
+    PacketDelta toTest1(delta8BytePayloadServer, 10, 0);
+    PacketDelta toTest2(delta8BytePayloadServer, 10, 1);
+    std::vector<uint8_t> payload1(GetPayloadBuffer(toTest1));
+    std::vector<uint8_t> payload2(GetPayloadBuffer(toTest2));
+
+    // first
+    EXPECT_TRUE(toTest1.IsValid());
+    EXPECT_TRUE(toTest1.IsFragmented());
+    EXPECT_EQ(0, toTest1.FragmentId());
+    EXPECT_FALSE(toTest1.IsLastFragment());
+    EXPECT_EQ(toTest1.data.size(), 10);
+    EXPECT_EQ(7, payload1.size());
+
+    // second
+    EXPECT_TRUE(toTest2.IsValid());
+    EXPECT_TRUE(toTest2.IsFragmented());
+    EXPECT_EQ(1, toTest2.FragmentId());
+    EXPECT_TRUE(toTest2.IsLastFragment());
+    EXPECT_EQ(toTest2.data.size(), 3 + ((delta8BytePayloadServer.data.size() - 2) - 7));
+}
+
+TEST_F(TestPacketDelta, DefragmentEmpty)
+{
+    auto buffer = std::vector<PacketDelta>();
+    PacketDelta toTest(buffer);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, DefragmentSingleNotFragmented)
+{
+    auto buffer = std::vector<PacketDelta>(1, delta8BytePayloadServer);
+
+    PacketDelta toTest(buffer);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, DefragmentMultipleNotFragmented)
+{
+    auto buffer = std::vector<PacketDelta>(3, delta8BytePayloadServer);
+
+    PacketDelta toTest(buffer);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, DefragmentTooMany)
+{
+    PacketDelta fragment(delta8BytePayloadServer, 10, 0);
+
+    auto buffer = std::vector<PacketDelta>(128, fragment);
+
+    PacketDelta toTest(buffer);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, DefragmentTooBig)
+{
+    PacketDelta toTest({Sequence{2},Sequence{4},6,{},vector<uint8_t>(1024*256, 44)}, 1500, 0);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, DefragmentSimple)
+{
+    std::vector<PacketDelta> fragments;
+
+    // Oh comon, this is c++11, do this using lambdas or iterators or something.
+    uint8_t count(0);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+        fragments.push_back(result);
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+TEST_F(TestPacketDelta, DefragmentOutOfOrder)
+{
+    std::vector<PacketDelta> fragments;
+
+    uint8_t count(3);
+    while (count < 4)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        fragments.push_back(result);
+        count--;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+
+TEST_F(TestPacketDelta, DefragmentSimpleMissingOne)
+{
+    std::vector<PacketDelta> fragments;
+
+    // Oh comon, this is c++11, do this using lambdas or iterators or something.
+    uint8_t count(0);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+
+        // miss a fragment.
+        if (count != 1)
+        {
+            fragments.push_back(result);
+        }
+
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketDelta, DefragmentFragmentNoFragmentedFragments)
+{
+    std::vector<PacketDelta> fragments;
+
+    // Oh comon, this is c++11, do this using lambdas or iterators or something.
+    uint8_t count(0);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+        fragments.push_back(result);
+
+        // throw in a normal packet, should be ignored when defragged.
+        if (count == 0)
+        {
+            fragments.push_back({Sequence{2},Sequence{4},6,{},{2,4,6,8,10,12,14,18}});
+        }
+
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_EQ(toTest, delta8BytePayloadServer);
+}
+
+TEST_F(TestPacketDelta, DefragmentSequenceInterleavedNotComplete)
+{
+    // send complete delta fragments, but interleaved with one
+    // of a newer sequence, should be invalid returned.
+    std::vector<PacketDelta> fragments;
+    PacketDelta first(PacketDelta(delta8BytePayloadServer, 8, 0));
+    PacketDelta second({Sequence{2},Sequence{4},6,{},{2,4,6,8,10,12,14,18}}, 8, 0);
+
+    fragments.push_back(first);
+    fragments.push_back(second);
+
+    uint8_t count(1);
+    bool go(true);
+    while (go)
+    {
+        PacketDelta result(PacketDelta(delta8BytePayloadServer, 8, count));
+        if (result.IsLastFragment())
+        {
+            go = false;
+        }
+        fragments.push_back(result);
+        count++;
+    }
+
+    PacketDelta toTest(fragments);
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+*/
+
+
 }}} // namespace
