@@ -48,7 +48,9 @@ public:
     // Takes both fragmented and non-fragmented packets
     // returns the most recent complete packet.
     void AddPacket(PacketDelta fragmentToAdd);
+    void AddPacket(PacketFragment packet);
     PacketDelta GetDefragmentedPacket();
+    PacketDelta GetDefragmentedPacket2();
 
 private:    
     static const std::size_t MtuIp4 = 576;
@@ -63,6 +65,7 @@ private:
     static const std::size_t SizeMaxPacketSize = SizeMaxMtu - (SizeIpHeaderMinimum + SizeUdpHeader);
 
     std::vector<PacketDelta> myFragments;
+    std::vector<PacketFragment> myFragments2;
     PacketDelta myComplete;
     Sequence myCurrentSequence;
 };

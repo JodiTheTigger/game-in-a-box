@@ -112,6 +112,84 @@ void PacketDeltaFragmentManager::AddPacket(PacketDelta fragmentToAdd)
     }
 }
 
+void PacketDeltaFragmentManager::AddPacket(PacketFragment fragment)
+{
+    if (fragment.IsValid())
+    {
+        if (myCurrentSequence < fragment.GetSequence())
+        {
+            myFragments.clear();
+        }
+
+        if (myFragments.empty())
+        {
+            myCurrentSequence = fragment.GetSequence();
+            myFragments2.push_back(fragment);
+        }
+        else
+        {
+            if (myCurrentSequence == fragment.GetSequence())
+            {
+                myFragments2.push_back(fragment);
+            }
+        }
+    }
+}
+
+PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket2()
+{
+    if (!myFragments2.empty())
+    {
+        std::vector<PacketFragment*> sorted(myFragments2.size());
+
+        // deduplicate
+        for (auto& fragment : myFragments2)
+        {
+            // take the last duplicate.
+            sorted[fragment.FragmentId()] = &fragment;
+        }
+
+        // have we got all the packets?
+        if ((sorted.back() != nullptr) && (sorted.front() != nullptr))
+        {
+            if (sorted.back()->IsLastFragment())
+            {
+                if (myFragments.size() > sorted.back()->FragmentId())
+                {
+                    std::vector<uint8_t> buffer;
+                    const auto offsetPayload = sorted[0]->OffsetPayload();
+                    auto maxFragmentSize = sorted[0]->data.size() - offsetPayload;
+                    auto bufferSize = sorted.size() * maxFragmentSize;
+
+                    buffer.reserve(bufferSize);
+
+                    // verify and join.
+                    for (auto& fragment : sorted)
+                    {
+                        if (fragment == nullptr)
+                        {
+                            // not a complete buffer, quit
+                            return {};
+                        }
+
+                        buffer.insert(
+                            end(buffer),
+                            begin(fragment->data) + offsetPayload,
+                            end(fragment->data));
+                    }
+
+                    // any holes in the list (missing fragments) will be caught in the
+                    // iterator due to the fragment pointer being nullptr.
+                    return PacketDelta{buffer};
+                }
+            }
+        }
+    }
+
+    return {};
+}
+
+
 PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket()
 {
     PacketDelta defragmented(myFragments);
