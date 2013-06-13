@@ -95,9 +95,11 @@ TEST_F(TestPacketDeltaClient, Simple)
 
     EXPECT_NE(0, toTest.data.size());
 
+    Sequence base = Sequence{Sequence(1) - Sequence(3)};
+
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    // RAM: TODO: FIX TEST! EXPECT_EQ(0x7FFE, toTest.GetSequenceBase());
+    EXPECT_EQ(base, toTest.GetSequenceBase());
     EXPECT_EQ(7337, toTest.IdConnection());
     EXPECT_EQ(8, GetPayloadBuffer(toTest).size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), GetPayloadBuffer(toTest));
@@ -115,9 +117,11 @@ TEST_F(TestPacketDeltaClient, NoDataClient)
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_NE(0, toTest.data.size());
 
+    Sequence base = Sequence{Sequence(1) - Sequence(3)};
+
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
+    EXPECT_EQ(base, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.IdConnection());
     EXPECT_EQ(0, GetPayloadBuffer(toTest).size());
 }
@@ -138,10 +142,12 @@ TEST_F(TestPacketDeltaClient, EncodeDecodeClient)
 
     EXPECT_NE(0, toTest.data.size());
 
+    Sequence base = Sequence{Sequence(1) - Sequence(3)};
+
     EXPECT_TRUE(toTest.IsValid());
     EXPECT_EQ(1, toTest.GetSequence());
     EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(0x7FFF, toTest.GetSequenceBase());
+    EXPECT_EQ(base, toTest.GetSequenceBase());
     EXPECT_EQ(4, toTest.IdConnection());
     EXPECT_EQ(4, payload.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);

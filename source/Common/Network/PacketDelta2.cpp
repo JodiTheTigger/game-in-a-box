@@ -91,11 +91,11 @@ Sequence PacketDelta2::GetSequenceBase() const
 {
     if (IsValid())
     {
-        uint16_t base;
-        Pull(begin(data) + OffsetSequenceAck, base);
-        base &= MaskSequenceAck;
+        uint16_t to;
+        Pull(begin(data) + OffsetSequence, to);
+        to &= MaskSequenceAck;
 
-        return Sequence(base - data[OffsetDeltaBase]);
+        return Sequence{Sequence{to} - Sequence{data[OffsetDeltaBase]}};
     }
     else
     {
