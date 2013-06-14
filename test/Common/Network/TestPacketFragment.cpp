@@ -117,4 +117,23 @@ TEST_F(TestPacketFragment, DefragmentSingleNotFragmented)
     EXPECT_FALSE(toTest.IsValid());
 }
 
+
+TEST_F(TestPacketFragment, Fragments)
+{
+    auto toTest1 = PacketFragment{Sequence(0), {0,1,2,3,4,5,6,7}, 6, 0};
+    auto toTest2 = PacketFragment{Sequence(0), {0,1,2,3,4,5,6,7}, 6, 1};
+    std::vector<uint8_t> payload1(GetPayloadBuffer(toTest1));
+    std::vector<uint8_t> payload2(GetPayloadBuffer(toTest2));
+
+    // first
+    EXPECT_TRUE(toTest1.IsValid());
+    EXPECT_EQ(0, toTest1.FragmentId());
+    EXPECT_FALSE(toTest1.IsLastFragment());
+
+    // second
+    EXPECT_TRUE(toTest2.IsValid());
+    EXPECT_EQ(1, toTest2.FragmentId());
+    EXPECT_TRUE(toTest2.IsLastFragment());
+}
+
 }}} // namespace
