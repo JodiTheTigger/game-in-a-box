@@ -48,18 +48,6 @@ bool PacketFragment::IsPacket(const std::vector<uint8_t>& buffer)
     return false;
 }
 
-std::size_t PacketFragment::MaxTotalPayloadSize(std::size_t maxPacketSize)
-{
-    if (maxPacketSize < OffsetFragmentPayload)
-    {
-        return 0;
-    }
-    else
-    {
-        return (MaskIsLastFragment - 1) * (maxPacketSize - OffsetFragmentPayload);
-    }
-}
-
 PacketFragment::PacketFragment(std::vector<uint8_t> rawData)
     : Packet(rawData)
 {

@@ -33,7 +33,10 @@ class PacketFragment : public Packet
 {
 public:
     static bool IsPacket(const std::vector<uint8_t>& buffer);
-    static std::size_t MaxTotalPayloadSize(std::size_t maxPacketSize);
+    static constexpr std::size_t MaxTotalPayloadSize(std::size_t maxPacketSize)
+    {
+        return (maxPacketSize < OffsetFragmentPayload) ? 0 : (MaskIsLastFragment - 1) * (maxPacketSize - OffsetFragmentPayload);
+    }
 
     PacketFragment() : PacketFragment(std::vector<uint8_t>()) {}
     explicit PacketFragment(std::vector<uint8_t> rawData);
