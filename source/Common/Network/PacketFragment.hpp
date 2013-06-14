@@ -32,23 +32,10 @@ namespace GameInABox { namespace Common { namespace Network {
 class PacketFragment : public Packet
 {
 public:
-    enum class Fragment
-    {
-        Normal,
-        Last
-    };
-
     static bool IsPacket(const std::vector<uint8_t>& buffer);
 
     PacketFragment() : PacketFragment(std::vector<uint8_t>()) {}
     explicit PacketFragment(std::vector<uint8_t> rawData);
-
-    // RAM: TODO: REMOVE!
-    PacketFragment(
-            Sequence sequence,
-            uint8_t fragmentIndex,
-            Fragment fragment,
-            std::vector<uint8_t> payload);
 
     PacketFragment(
             Sequence sequence,

@@ -53,28 +53,6 @@ PacketFragment::PacketFragment(std::vector<uint8_t> rawData)
 {
 }
 
-PacketFragment::PacketFragment(Sequence sequence,
-        uint8_t fragmentIndex,
-        Fragment fragment,
-        std::vector<uint8_t> payload)
-    : Packet()
-{
-    data.reserve(OffsetFragmentPayload + payload.size());
-
-    auto inserter = back_inserter(data);
-    Push(inserter, sequence.Value());
-    data.push_back(fragmentIndex);
-
-    data[OffsetSequence] |= MaskTopByteIsFragmented;
-
-    if (fragment == Fragment::Last)
-    {
-        data[OffsetFragmentId] |= MaskIsLastFragment;
-    }
-
-    data.insert(end(data), begin(payload), end(payload));
-}
-
 PacketFragment::PacketFragment(
         Sequence sequence,
         const std::vector<uint8_t>& payload,

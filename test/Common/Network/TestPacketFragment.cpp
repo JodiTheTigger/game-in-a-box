@@ -31,7 +31,7 @@ namespace GameInABox { namespace Common { namespace Network {
 class TestPacketFragment : public ::testing::Test
 {
 public:
-    PacketFragment testFragment{Sequence(44), 2, PacketFragment::Fragment::Normal, {1,2,3,4}};
+    PacketFragment testFragment{Sequence(44), {1,2,3,4}, 1024, 0 };
 };
 
 TEST_F(TestPacketFragment, Empty)
@@ -55,9 +55,8 @@ TEST_F(TestPacketFragment, Valid)
 
     EXPECT_TRUE(toTest.IsValid());
 
-    EXPECT_FALSE(toTest.IsLastFragment());
-    EXPECT_EQ(2, toTest.FragmentId());
-    EXPECT_EQ(7, toTest.data.size());
+    EXPECT_TRUE(toTest.IsLastFragment());
+    EXPECT_EQ(0, toTest.FragmentId());
 
     EXPECT_EQ(44, toTest.GetSequence());
     EXPECT_EQ(4, GetPayloadBuffer(toTest).size());
@@ -92,7 +91,7 @@ TEST_F(TestPacketFragment, TestMoveCopy)
 
 TEST_F(TestPacketFragment, TestLast)
 {
-    PacketFragment toTest{Sequence(44), 63, PacketFragment::Fragment::Last, {1,2,3,4}};
+    PacketFragment toTest{Sequence(44), {1,2,3,4}, 10, 0};
 
     EXPECT_TRUE(toTest.IsLastFragment());
 }
