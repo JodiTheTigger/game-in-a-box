@@ -45,7 +45,8 @@ enum class State
 {
     Idle,
     FailedConnection,
-    Connected,
+    ConnectedClient,
+    ConnectedServer,
     Disconnecting,
 
     // Server States
@@ -69,6 +70,7 @@ Connection::Connection(
     , myStateHandle()
     , myClientId()
     , myFragments()
+    , myLastDelta()
     , myTimeNow(timepiece)
 {
     if (!myTimeNow)
@@ -142,11 +144,33 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
             break;
         }
 
-        case State::Connected:
+        case State::ConnectedClient:
         {
             if (PacketDelta::IsPacket(packet))
             {
-                // RAM: TODO: FIX! myFragments.AddPacket(PacketDelta{packet});
+                myLastDelta = PacketDelta{packet};
+            }
+            else
+            {
+                if (PacketFragment::IsPacket(packet))
+                {
+                    myFragments.AddPacket(PacketFragment{packet});
+                }
+                else
+                {
+                    // check to see if we disconnect.
+                    Disconnected(packet);
+                }
+            }
+
+            break;
+        }            
+
+        case State::ConnectedServer:
+        {
+            if (PacketDeltaClient::IsPacket(packet))
+            {
+                myLastDelta = PacketDelta{packet};
             }
             else
             {
@@ -213,7 +237,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         else
                         {
                             myStateHandle = handle;
-                            Reset(State::Connected);
+                            Reset(State::ConnectedClient);
                         }
                     }
                 }
@@ -318,18 +342,18 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                     case Command::Unrecognised:
                     {
-                        // If we get deltas, that means we're connected.
-                        if (PacketDeltaClient::IsPacket(packet))
+                        // Don't bother if we're not connected-but-waiting-for-delta
+                        if (myStateHandle)
                         {
                             auto delta = PacketDeltaClient{packet};
-                            auto id = delta.IdConnection();
 
-                            if (id)
+                            // If we get deltas, that means we're connected.
+                            if (delta.IsValid())
                             {
-                                myClientId = id;
+                                myClientId = delta.IdConnection();
 
-                                Reset(State::Connected);
-                                // RAM: TODO: FIX! myFragments.AddPacket(std::move(delta));
+                                Reset(State::ConnectedServer);
+                                myLastDelta = delta;
                             }
                         }
 
@@ -369,7 +393,8 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
             break;
         }
 
-        case State::Connected:
+        case State::ConnectedClient:
+        case State::ConnectedServer:
         {
             // check to see if we disconnect.
             Disconnected(packet);
@@ -455,7 +480,24 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
 PacketDelta Connection::GetDefragmentedPacket()
 {
-    auto result = myFragments.GetDefragmentedPacket();
+    PacketDelta result{};
+
+    // RAM: TODO: Sort out this mess!
+    // How to tell if it's a new delta or not?
+    // What about fragmented deltas from the server?
+    // ConectedClient, ConnectedServer, do those make sense?
+    if (myState == State::ConnectedClient)
+    {
+        result = myFragments.GetDefragmentedPacket();
+    }
+    else
+    {
+        if (myState == State::ConnectedServer)
+        {
+
+        }
+    }
+
 
     if (result.IsValid())
     {
@@ -476,7 +518,7 @@ Sequence Connection::LastSequenceAck() const
 
 bool Connection::IsConnected() const
 {
-    return myState == State::Connected;
+    return ((myState == State::ConnectedClient) || (myState == State::ConnectedServer));
 }
 
 bool Connection::HasFailed() const

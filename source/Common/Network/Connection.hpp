@@ -103,6 +103,8 @@ private:
     boost::optional<ClientHandle>           myStateHandle;
     boost::optional<uint16_t>               myClientId;
     PacketDeltaFragmentManager              myFragments;
+    PacketDelta                             myLastDelta;
+    Sequence                                myLastSequenceRecieved;
     TimeFunction                            myTimeNow;
 
     static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
