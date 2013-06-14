@@ -40,7 +40,7 @@ class PacketDeltaFragmentManager
 public:
     // Returned array might not contain fragmented packets
     // if the passed PacketDelta is small enough.
-    static std::vector<PacketFragment> FragmentPacket(PacketDelta toFragment);
+    static std::vector<std::vector<uint8_t>> FragmentPacket(PacketDelta toFragment);
 
     PacketDeltaFragmentManager();
 

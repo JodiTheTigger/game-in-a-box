@@ -19,6 +19,7 @@
 */
 
 #include <Common/Network/PacketFragment.hpp>
+#include <Common/Network/PacketDelta.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
@@ -94,6 +95,27 @@ TEST_F(TestPacketFragment, TestLast)
     PacketFragment toTest{Sequence(44), 63, PacketFragment::Fragment::Last, {1,2,3,4}};
 
     EXPECT_TRUE(toTest.IsLastFragment());
+}
+
+TEST_F(TestPacketFragment, FragmentEmpty)
+{
+    auto toTest = PacketFragment{Sequence(0), {}, 1000, 0};
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketFragment, FragmentIdPastEnd)
+{
+    auto toTest = PacketFragment{Sequence(0), {1,2,3,4,5,6,7}, 1000, 123};
+
+    EXPECT_FALSE(toTest.IsValid());
+}
+
+TEST_F(TestPacketFragment, DefragmentSingleNotFragmented)
+{
+    auto toTest = PacketFragment{PacketDelta(Sequence{0}, Sequence{0}, 0, {1,2,3,4}).data};
+
+    EXPECT_FALSE(toTest.IsValid());
 }
 
 }}} // namespace

@@ -66,33 +66,33 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentSmallReturnsNotFragmented)
     auto testResult = PacketDeltaFragmentManager::FragmentPacket(delta8BytePayloadServer);
 
     ASSERT_EQ(testResult.size(), 1);
-    EXPECT_EQ(testResult[0], delta8BytePayloadServer);
+    EXPECT_EQ(PacketDelta(testResult[0]), delta8BytePayloadServer);
 }
 
 TEST_F(TestPacketDeltaFragmentManager, LargeGetsFragmentedCorrectlyAndInOrder)
 {
-    /* RAM: TODO: FIX!
     auto testResult = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
 
     ASSERT_GT(testResult.size(), 1);
 
     // make sure they are all valid and the fragment id is as expected.
     // Also tests the returned values are sorted by fragmentId asending.
-    PacketDelta* last(nullptr);
+    PacketFragment last;
     uint8_t count(0);
+
     for (auto& fragment : testResult)
     {
-        EXPECT_TRUE(fragment.IsValid());
-        EXPECT_TRUE(fragment.IsFragmented());
-        EXPECT_EQ(fragment.FragmentId(), count);
+        PacketFragment toTest(fragment);
+
+        EXPECT_TRUE(toTest.IsValid());
+        EXPECT_EQ(toTest.FragmentId(), count);
         count++;
-        last = &fragment;
+        last = toTest;
     }
 
     // expect the last packet is recognised as such
-    ASSERT_NE(last, nullptr);
-    EXPECT_TRUE(last->IsLastFragment());
-    */
+    ASSERT_TRUE(last.IsValid());
+    EXPECT_TRUE(last.IsLastFragment());
 }
 
 TEST_F(TestPacketDeltaFragmentManager, EmptyReturnsInvalid)
@@ -108,17 +108,7 @@ TEST_F(TestPacketDeltaFragmentManager, AddNothing)
     PacketDeltaFragmentManager toTest;
 
     // shouldn't crash
-    // RAM: TODO: FIX! toTest.AddPacket(PacketDelta());
-}
-
-TEST_F(TestPacketDeltaFragmentManager, AddNotFragmentedReturnsValid)
-{
-    PacketDeltaFragmentManager toTest;
-
-    // RAM: TODO: FIX! toTest.AddPacket(delta8BytePayloadServer);
-
-    PacketDelta testResult(toTest.GetDefragmentedPacket());
-    EXPECT_TRUE(testResult.IsValid());
+    toTest.AddPacket({});
 }
 
 TEST_F(TestPacketDeltaFragmentManager, FragmentDefragment)
@@ -129,7 +119,7 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragment)
 
     for (auto fragment : halfWay)
     {
-        toTest.AddPacket(fragment);
+        toTest.AddPacket(PacketFragment(fragment));
     }
 
     PacketDelta testResult(toTest.GetDefragmentedPacket());
@@ -145,12 +135,12 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentOldThenNew)
 
     for (auto fragment : halfWayOld)
     {
-        toTest.AddPacket(fragment);
+        toTest.AddPacket(PacketFragment(fragment));
     }
 
     for (auto fragment : halfWayNew)
     {
-        toTest.AddPacket(fragment);
+        toTest.AddPacket(PacketFragment(fragment));
     }
 
     // always expect the older one.
@@ -167,59 +157,17 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOld)
 
     for (auto fragment : halfWayNew)
     {
-        toTest.AddPacket(fragment);
+        toTest.AddPacket(PacketFragment(fragment));
     }
 
     for (auto fragment : halfWayOld)
     {
-        toTest.AddPacket(fragment);
+        toTest.AddPacket(PacketFragment(fragment));
     }
 
     // always expect the highest sequence.
-    PacketDelta testResult(toTest.GetDefragmentedPacket());
+    auto testResult = toTest.GetDefragmentedPacket();
     EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
-}
-
-TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentOldThenNewComplete)
-{
-    auto halfWayNew = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
-
-    PacketDeltaFragmentManager toTest;
-
-    // RAM: TODO: FIX! toTest.AddPacket(delta8BytePayloadServer);
-
-    for (auto fragment : halfWayNew)
-    {
-        toTest.AddPacket(fragment);
-    }
-
-    // always expect the highest sequence.
-    PacketDelta testResult(toTest.GetDefragmentedPacket());
-    EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
-}
-
-TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOldComplete)
-{
-    auto halfWayNew = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
-
-    PacketDelta delta8BytePayloadServer66(
-                  Sequence(66),
-                  Sequence(2),
-                  3,
-                  {1,2,3,4,5,6,7,8});
-
-    PacketDeltaFragmentManager toTest;
-
-    // RAM: TODO: FIX! toTest.AddPacket(delta8BytePayloadServer66);
-
-    for (auto fragment : halfWayNew)
-    {
-        toTest.AddPacket(fragment);
-    }
-
-    // always expect the highest sequence.
-    PacketDelta testResult(toTest.GetDefragmentedPacket());
-    EXPECT_EQ(testResult, delta8BytePayloadServer66);
 }
 
 // RAM: TODO: Include these tests too.
@@ -227,28 +175,7 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOldComplete)
 // =================================================
 // Fragment testing
 // =================================================
-TEST_F(TestPacketDelta, FragmentEmpty)
-{
-    PacketDelta toTest(PacketDelta(), 0, 0);
 
-    EXPECT_FALSE(toTest.IsValid());
-}
-
-TEST_F(TestPacketDelta, FragmentIdPastEnd)
-{
-    PacketDelta toTest(delta8BytePayloadServer, 4, 100);
-
-    EXPECT_FALSE(toTest.IsValid());
-}
-
-TEST_F(TestPacketDelta, FragmentNotFragmented)
-{
-    PacketDelta toTest(delta8BytePayloadServer, 1024, 0);
-
-    EXPECT_FALSE(toTest.IsFragmented());
-    EXPECT_TRUE(toTest.IsValid());
-    EXPECT_EQ(toTest.data.size(), delta8BytePayloadServer.data.size());
-}
 
 TEST_F(TestPacketDelta, Fragments)
 {
@@ -271,14 +198,6 @@ TEST_F(TestPacketDelta, Fragments)
     EXPECT_EQ(1, toTest2.FragmentId());
     EXPECT_TRUE(toTest2.IsLastFragment());
     EXPECT_EQ(toTest2.data.size(), 3 + ((delta8BytePayloadServer.data.size() - 2) - 7));
-}
-
-TEST_F(TestPacketDelta, DefragmentEmpty)
-{
-    auto buffer = std::vector<PacketDelta>();
-    PacketDelta toTest(buffer);
-
-    EXPECT_FALSE(toTest.IsValid());
 }
 
 TEST_F(TestPacketDelta, DefragmentSingleNotFragmented)

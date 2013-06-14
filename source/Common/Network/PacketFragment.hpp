@@ -43,6 +43,7 @@ public:
     PacketFragment() : PacketFragment(std::vector<uint8_t>()) {}
     explicit PacketFragment(std::vector<uint8_t> rawData);
 
+    // RAM: TODO: REMOVE!
     PacketFragment(
             Sequence sequence,
             uint8_t fragmentIndex,

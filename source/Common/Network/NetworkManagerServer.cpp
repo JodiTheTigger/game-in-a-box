@@ -247,11 +247,11 @@ void NetworkManagerServer::PrivateSendState()
 
                             for (auto& fragment: fragments)
                             {
-                                if (!fragment.data.empty())
+                                if (!fragment.empty())
                                 {
-                                    if (myStateManager.CanPacketSend(*client, fragment.data.size()))
+                                    if (myStateManager.CanPacketSend(*client, fragment.size()))
                                     {
-                                        responses.emplace_back(move(fragment.data), addressToState.first);
+                                        responses.emplace_back(move(fragment), addressToState.first);
                                     }
                                 }
                             }

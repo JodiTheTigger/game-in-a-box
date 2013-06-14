@@ -33,31 +33,44 @@ PacketDeltaFragmentManager::PacketDeltaFragmentManager()
 {
 }
 
-std::vector<PacketFragment> PacketDeltaFragmentManager::FragmentPacket(PacketDelta toFragment)
+std::vector<std::vector<uint8_t>> PacketDeltaFragmentManager::FragmentPacket(PacketDelta toFragment)
 {
-    std::vector<PacketFragment> result;
-    bool keepGoing(true);
-    uint8_t count(0);
-
-    while (keepGoing)
+    if (toFragment.IsValid())
     {
-        auto fragment = PacketFragment{
-                toFragment.GetSequence(),
-                toFragment.data,
-                SizeMaxPacketSize,
-                count++};
+        std::vector<std::vector<uint8_t>> result;
 
-        if ((count == 255) || (!fragment.IsValid()))
+        if (toFragment.data.size() > SizeMaxPacketSize)
         {
-            keepGoing = false;
+            bool keepGoing(true);
+            uint8_t count(0);
+
+            while (keepGoing)
+            {
+                auto fragment = PacketFragment{
+                        toFragment.GetSequence(),
+                        toFragment.data,
+                        SizeMaxPacketSize,
+                        count++};
+
+                if ((count == 255) || (!fragment.IsValid()))
+                {
+                    keepGoing = false;
+                }
+                else
+                {
+                    result.emplace_back(move(fragment.data));
+                }
+            }
         }
         else
         {
-            result.push_back(fragment);
+            result.emplace_back(move(toFragment.data));
         }
+
+        return result;
     }
 
-    return result;
+    return {};
 }
 
 void PacketDeltaFragmentManager::AddPacket(PacketFragment fragment)
