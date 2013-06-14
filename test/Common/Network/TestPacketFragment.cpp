@@ -120,8 +120,8 @@ TEST_F(TestPacketFragment, DefragmentSingleNotFragmented)
 
 TEST_F(TestPacketFragment, Fragments)
 {
-    auto toTest1 = PacketFragment{Sequence(0), {0,1,2,3,4,5,6,7}, 6, 0};
-    auto toTest2 = PacketFragment{Sequence(0), {0,1,2,3,4,5,6,7}, 6, 1};
+    auto toTest1 = PacketFragment{Sequence(0), {0,1,2,3,4,5,6,7}, 7, 0};
+    auto toTest2 = PacketFragment{Sequence(0), {0,1,2,3,4,5,6,7}, 7, 1};
     std::vector<uint8_t> payload1(GetPayloadBuffer(toTest1));
     std::vector<uint8_t> payload2(GetPayloadBuffer(toTest2));
 

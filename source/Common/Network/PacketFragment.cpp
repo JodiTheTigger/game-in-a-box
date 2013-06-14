@@ -68,7 +68,7 @@ PacketFragment::PacketFragment(
         if (offset < payload.size())
         {
             // tail end?
-            if (offset + size > payload.size())
+            if (offset + size >= payload.size())
             {
                 size = payload.size() - offset;
                 fragmentId |= MaskIsLastFragment;
