@@ -33,6 +33,7 @@ class PacketFragment : public Packet
 {
 public:
     static bool IsPacket(const std::vector<uint8_t>& buffer);
+    static std::size_t MaxTotalPayloadSize(std::size_t maxPacketSize);
 
     PacketFragment() : PacketFragment(std::vector<uint8_t>()) {}
     explicit PacketFragment(std::vector<uint8_t> rawData);
@@ -57,6 +58,8 @@ public:
     uint8_t FragmentId() const;
 
     std::size_t OffsetPayload() const override;
+
+    std::size_t MaxTotalPayloadSize();
 
 private:
     static const std::size_t OffsetSequence = 0;

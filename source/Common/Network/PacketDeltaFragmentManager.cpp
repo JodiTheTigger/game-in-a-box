@@ -35,39 +35,42 @@ PacketDeltaFragmentManager::PacketDeltaFragmentManager()
 
 std::vector<std::vector<uint8_t>> PacketDeltaFragmentManager::FragmentPacket(PacketDelta toFragment)
 {
-    if (toFragment.IsValid())
+    if (toFragment.data.size() < PacketFragment::MaxTotalPayloadSize(SizeMaxPacketSize))
     {
-        std::vector<std::vector<uint8_t>> result;
-
-        if (toFragment.data.size() > SizeMaxPacketSize)
+        if (toFragment.IsValid())
         {
-            bool keepGoing(true);
-            uint8_t count(0);
+            std::vector<std::vector<uint8_t>> result;
 
-            while (keepGoing)
+            if (toFragment.data.size() > SizeMaxPacketSize)
             {
-                auto fragment = PacketFragment{
-                        toFragment.GetSequence(),
-                        toFragment.data,
-                        SizeMaxPacketSize,
-                        count++};
+                bool keepGoing(true);
+                uint8_t count(0);
 
-                if ((count == 255) || (!fragment.IsValid()))
+                while (keepGoing)
                 {
-                    keepGoing = false;
-                }
-                else
-                {
-                    result.emplace_back(move(fragment.data));
+                    auto fragment = PacketFragment{
+                            toFragment.GetSequence(),
+                            toFragment.data,
+                            SizeMaxPacketSize,
+                            count++};
+
+                    if ((count == 255) || (!fragment.IsValid()))
+                    {
+                        keepGoing = false;
+                    }
+                    else
+                    {
+                        result.emplace_back(move(fragment.data));
+                    }
                 }
             }
-        }
-        else
-        {
-            result.emplace_back(move(toFragment.data));
-        }
+            else
+            {
+                result.emplace_back(move(toFragment.data));
+            }
 
-        return result;
+            return result;
+        }
     }
 
     return {};
