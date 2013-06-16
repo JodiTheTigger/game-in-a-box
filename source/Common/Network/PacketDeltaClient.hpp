@@ -25,6 +25,13 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
+// RAM: TODO
+// remove this class, and add the following functions
+//uint16_t GetClientId(const PacketDelta& delta);
+//uint16_t GetClientId(const PacketDeltaNoAck& delta);
+//std::vector<uint8_t> GetClientPayload(PacketDelta delta);
+//std::vector<uint8_t> GetClientPayload(PacketDeltaNoAck delta);
+
 class PacketDeltaClient : public PacketDelta
 {
     // Wart: Since I want to avoid code duplicate, I make PacketDeltaClient "is-a" PacketDelta2
