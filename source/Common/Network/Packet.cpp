@@ -24,9 +24,9 @@
 #endif
 
 #include "Packet.hpp"
+#include "BufferSerialisation.hpp"
 
-using namespace std;
-using namespace GameInABox::Common::Network;
+namespace GameInABox { namespace Common { namespace Network {
 
 Packet::Packet(std::vector<uint8_t> fromBuffer)
     : data(fromBuffer)
@@ -34,7 +34,7 @@ Packet::Packet(std::vector<uint8_t> fromBuffer)
 }
 
 Packet::Packet(Command command)
-    : Packet({0xFF, 0xFF, uint8_t(command)})
+    : Packet({0x0, 0x0, static_cast<uint8_t>(static_cast<uint8_t>(command) | MaskTopByteIsCommand)})
 {
 }
 
@@ -56,18 +56,37 @@ Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
 {
     if (bufferToCheck.size() >= MinimumPacketSize)
     {
-        if ((bufferToCheck[0] == 0xFF) && (bufferToCheck[1] == 0xFF))
+        if ((bufferToCheck[OffsetIsFragmented] & MaskTopByteIsFragmented) == 0)
         {
-            auto value = bufferToCheck[OffsetCommand];
-
-            if (value <= static_cast<uint8_t> (Command::Disconnect))
+            if ((bufferToCheck[OffsetIsCommand] & MaskTopByteIsCommand) == 1)
             {
-                return static_cast<Command>(value);
+                auto value = bufferToCheck[OffsetCommand] & (0xFF ^ MaskTopByteIsCommand);
+
+                if (value <= static_cast<uint8_t> (Command::Disconnect))
+                {
+                    return static_cast<Command>(value);
+                }
             }
         }
     }
 
     return Command::Unrecognised;
+}
+
+Sequence Packet::GetSequence(const std::vector<uint8_t>& bufferToCheck)
+{
+    if (bufferToCheck.size() >= MinimumPacketSize)
+    {
+        uint16_t result;
+
+        Pull(begin(bufferToCheck), result);
+
+        return Sequence(result & MaskSequence);
+    }
+    else
+    {
+        return {};
+    }
 }
 
 bool Packet::IsValid() const
@@ -76,7 +95,7 @@ bool Packet::IsValid() const
 }
 
 
-std::vector<uint8_t> GameInABox::Common::Network::GetPayloadBuffer(const Packet& packet)
+std::vector<uint8_t> GetPayloadBuffer(const Packet& packet)
 {
     std::vector<uint8_t> result{};
 
@@ -90,7 +109,7 @@ std::vector<uint8_t> GameInABox::Common::Network::GetPayloadBuffer(const Packet&
 }
 
 
-std::string GameInABox::Common::Network::GetPayloadString(const Packet& packet)
+std::string GetPayloadString(const Packet& packet)
 {
     std::string result{};
 
@@ -102,3 +121,5 @@ std::string GameInABox::Common::Network::GetPayloadString(const Packet& packet)
 
     return result;
 }
+
+}}} // namespace

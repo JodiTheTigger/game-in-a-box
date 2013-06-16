@@ -27,6 +27,8 @@
 #include <string>
 #endif
 
+#include "Common/Sequence.hpp"
+
 namespace GameInABox { namespace Common { namespace Network {
 
 enum class Command : uint8_t
@@ -38,6 +40,7 @@ enum class Command : uint8_t
     InfoResponse,
     Connect,
     ConnectResponse,
+    DeltaNoAck,
     Disconnect,
 };
 
@@ -45,11 +48,15 @@ class Packet
 {
 public:
     static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
+    static Common::Sequence GetSequence(const std::vector<uint8_t>& bufferToCheck);
 
     Packet() : Packet(std::vector<uint8_t>()) {}
 
     explicit Packet(std::vector<uint8_t> fromBuffer);
     explicit Packet(Command command);
+
+    // RAM: TODO!
+    //Packet(Command command, Sequence sequence);
 
     Packet(Command command, std::vector<uint8_t> payload);
     Packet(Command command, std::string payload);
@@ -61,6 +68,10 @@ public:
     virtual ~Packet();
 
     Command GetCommand() const { return GetCommand(data); }
+
+    // The result is undefined if !IsValid().
+    Common::Sequence GetSequence() const { return GetSequence(data); }
+
     virtual bool IsValid() const;
 
     virtual std::size_t OffsetPayload() const { return MinimumPacketSize; }
@@ -71,6 +82,15 @@ protected:
     static const std::size_t MinimumPacketSize = 3;
     static const std::size_t OffsetCommand = 2;
 
+    static const std::size_t OffsetSequence = 0;
+    static const std::size_t OffsetIsFragmented = OffsetSequence;
+    static const std::size_t OffsetSequenceAck = 2;
+    static const std::size_t OffsetIsCommand = OffsetSequenceAck;
+
+    static const uint8_t MaskTopByteIsCommand = 0x80;
+    static const uint8_t MaskTopByteIsFragmented = 0x80;
+
+    static const uint16_t MaskSequence = (MaskTopByteIsFragmented << 8) - 1;
 };
 
 // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719

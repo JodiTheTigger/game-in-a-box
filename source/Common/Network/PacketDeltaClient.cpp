@@ -36,7 +36,7 @@ bool PacketDeltaClient::IsPacket(const std::vector<uint8_t>& buffer)
                 if ((buffer[OffsetSequence] & MaskTopByteIsFragmented) == 0)
                 {
                     // Server packet?
-                    if (0 == (buffer[OffsetIsServerFlags] & MaskTopByteIsServerPacket))
+                    if (0 == (buffer[OffsetIsServerFlags] & MaskTopByteIsCommand))
                     {
                         return true;
                     }
@@ -68,8 +68,6 @@ PacketDeltaClient::PacketDeltaClient(
     Push(inserter, sequenceAck.Value());
     data.push_back(sequenceAckDelta);
     Push(inserter, idConnection);
-
-    data[OffsetIsServerFlags] &= (0xFF ^ MaskTopByteIsServerPacket);
 
     data.insert(end(data), begin(deltaPayload), end(deltaPayload));
 }

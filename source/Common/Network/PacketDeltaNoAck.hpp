@@ -18,56 +18,46 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETDELTA_HPP
-#define PACKETDELTA_HPP
+#ifndef PACKETDELTANOACK_HPP
+#define PACKETDELTANOACK_HPP
 
-#include "Common/Sequence.hpp"
-#include "Packet.hpp"
+#include "PacketType.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketDelta : public Packet
+class PacketDeltaNoAck : public PacketType<Command::DeltaNoAck>
 {
 public:
     // Delta distance is stored as a byte.
     static constexpr std::size_t MaximumDeltaDistance() { return std::numeric_limits<uint8_t>::max(); }
     static bool IsPacket(const std::vector<uint8_t>& buffer);
 
-    PacketDelta() : PacketDelta(std::vector<uint8_t>()) {}
-    explicit PacketDelta(std::vector<uint8_t> rawData);
+    PacketDeltaNoAck() : PacketDeltaNoAck(std::vector<uint8_t>()) {}
+    explicit PacketDeltaNoAck(std::vector<uint8_t> rawData);
 
-    PacketDelta(
+    PacketDeltaNoAck(
             Sequence sequence,
-            Sequence sequenceAck,
-            uint8_t sequenceDelta,
+            uint8_t sequenceAckDelta,
             std::vector<uint8_t> deltaPayload);
 
-    // Rule of 5 (class contents are just one vector, so use defaults).
-    PacketDelta(const PacketDelta&) = default;
-    PacketDelta(PacketDelta&&) = default;
-    PacketDelta& operator=(const PacketDelta&) = default;
-    PacketDelta& operator=(PacketDelta&&) = default;
-    virtual ~PacketDelta() = default;
+    PacketDeltaNoAck(const PacketDeltaNoAck&) = default;
+    PacketDeltaNoAck(PacketDeltaNoAck&&) = default;
+    PacketDeltaNoAck& operator=(const PacketDeltaNoAck&) = default;
+    PacketDeltaNoAck& operator=(PacketDeltaNoAck&&) = default;
+    virtual ~PacketDeltaNoAck() = default;
 
     // Values are undefined if !IsValid().
     Sequence GetSequenceBase() const;
-    Sequence GetSequenceAck() const;
 
     bool IsValid() const override { return IsPacket(data); }
 
-    std::size_t OffsetPayload() const override { return OffsetData; }
+    std::size_t OffsetPayload() const override { return MinimumPacketSize; }
 
 protected:
-    // No, I'm not going to use a struct to determine offsets.
-    static const std::size_t OffsetSequenceAck = 2;
-    static const std::size_t OffsetIsServerFlags = 2;
-    static const std::size_t OffsetDeltaBase = 4;
-    static const std::size_t OffsetData = 5;
-    static const std::size_t MinimumPacketSize = OffsetData;
-
-    static const uint16_t MaskSequenceAck = MaskSequence;
+    static const std::size_t OffsetDeltaBase = Packet::MinimumPacketSize;
+    static const std::size_t MinimumPacketSize = OffsetDeltaBase + 1;
 };
 
 }}} // namespace
 
-#endif // PACKETDELTA_HPP
+#endif // PACKETDELTANOACK_HPP

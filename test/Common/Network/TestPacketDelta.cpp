@@ -118,6 +118,22 @@ TEST_F(TestPacketDelta, Simple)
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
 }
 
+TEST_F(TestPacketDelta, LastSequence)
+{
+    PacketDelta toTest = {Sequence{Sequence::max()}, Sequence{Sequence::max()}, 0, {1,2,3,4}};
+    std::vector<uint8_t> payload(GetPayloadBuffer(toTest));
+
+    EXPECT_TRUE(toTest.IsValid());
+
+    EXPECT_NE(0, toTest.data.size());
+
+    EXPECT_EQ(Sequence::max(), toTest.GetSequence().Value());
+    EXPECT_EQ(Sequence::max(), toTest.GetSequenceAck().Value());
+    EXPECT_EQ(0, toTest.GetSequenceBase().Value());
+    EXPECT_EQ(4, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
+}
+
 TEST_F(TestPacketDelta, EncodeDecode)
 {
     PacketDelta& source = delta8BytePayloadServer;

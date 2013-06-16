@@ -53,8 +53,6 @@ public:
     PacketFragment& operator=(PacketFragment&&) = default;
     virtual ~PacketFragment() = default;
 
-    Sequence GetSequence() const;
-
     bool IsValid() const override;
 
     bool IsLastFragment() const;
@@ -65,8 +63,6 @@ public:
     std::size_t MaxTotalPayloadSize();
 
 private:
-    static const std::size_t OffsetSequence = 0;
-
     static const std::size_t OffsetFragmentId = 2;
     static const std::size_t OffsetFragmentPayload = 3;
 
@@ -74,9 +70,6 @@ private:
     static const std::size_t MinimumPacketSizeFragment = OffsetFragmentPayload + 1;
 
     static const uint8_t MaskIsLastFragment = 0x80;
-    static const uint8_t MaskTopByteIsFragmented = 0x80;
-    static const uint16_t MaskIsFragmented = MaskTopByteIsFragmented << 8;
-    static const uint16_t MaskSequence = MaskIsFragmented - 1;
 };
 
 }}} // namespace

@@ -186,6 +186,8 @@ source/Common/Network/Packet.cpp
 source/Common/Network/PacketType.hpp
 source/Common/Network/PacketTypes.hpp
 source/Common/Network/PacketDelta.cpp
+source/Common/Network/PacketDeltaNoAck.cpp
+source/Common/Network/PacketDeltaNoAck.hpp
 source/Common/Network/PacketDeltaClient.cpp
 source/Common/Network/PacketDeltaClient.hpp
 source/Common/Network/PacketFragment.cpp

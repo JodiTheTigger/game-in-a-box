@@ -31,17 +31,11 @@ using namespace GameInABox::Common::Network;
 
 bool PacketFragment::IsPacket(const std::vector<uint8_t>& buffer)
 {
-    if (!buffer.empty())
+    if (buffer.size() >= MinimumPacketSizeFragment)
     {
-        if (buffer.size() >= MinimumPacketSizeFragment)
+        if ((buffer[OffsetSequence] & MaskTopByteIsFragmented) != 0)
         {
-            if ((buffer[OffsetSequence] & MaskTopByteIsFragmented) != 0)
-            {
-                if ((buffer[0] != 0xFF) && (buffer[1] != 0xFF))
-                {
-                    return true;
-                }
-            }
+            return true;
         }
     }
 
@@ -85,21 +79,6 @@ PacketFragment::PacketFragment(
 
             data.insert(end(data), begin(payload) + offset, begin(payload) + offset + size);
         }
-    }
-}
-
-Sequence PacketFragment::GetSequence() const
-{
-    if (IsValid())
-    {
-        uint16_t rawSequence;
-        Pull(begin(data) + OffsetSequence, rawSequence);
-
-        return Sequence(rawSequence & MaskSequence);
-    }
-    else
-    {
-        return Sequence(0);
     }
 }
 
