@@ -114,6 +114,7 @@ private:
 
     void Reset(State resetState);
     void Fail(std::string failReason);
+    void CheckDelta(PacketDelta delta);
     bool Disconnected(const std::vector<uint8_t>& packet);
 };
 

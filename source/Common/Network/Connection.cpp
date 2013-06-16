@@ -39,22 +39,27 @@
 using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;
 
+
+// RAM: TODO: Setting the delta distance to zero should also mean we reset
+// the ack as well? think how this would go wrong.
+
 namespace GameInABox { namespace Common { namespace Network {
 
 enum class State
 {
     Idle,
     FailedConnection,
-    ConnectedClient,
-    ConnectedServer,
     Disconnecting,
 
     // Server States
     Listening,
+    ConnectedToClient,
 
     // Client States
     Challenging,
     Connecting,
+    ConnectedToServerWaitingForDelta,
+    ConnectedToServer
 };
 
 Connection::Connection(
@@ -144,40 +149,55 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
             break;
         }
 
-        case State::ConnectedClient:
+        case State::ConnectedToServerWaitingForDelta:
         {
-            if (PacketDelta::IsPacket(packet))
+            auto fragment = PacketFragment{packet};
+
+            if (fragment.IsValid())
             {
-                myLastDelta = PacketDelta{packet};
+                // RAM: FIX! myLastSequenceRecieved = Sequence{fragment.GetSequence() - 1};
             }
             else
             {
-                if (PacketFragment::IsPacket(packet))
+                auto delta = PacketDelta{packet};
+
+                if (delta.IsValid())
                 {
-                    myFragments.AddPacket(PacketFragment{packet});
-                }
-                else
-                {
-                    // check to see if we disconnect.
-                    Disconnected(packet);
+                    // RAM: FIX! myLastSequenceRecieved = Sequence{delta.GetSequence() - 1};
                 }
             }
 
+            // Fall though to ConnectedToServer on purpose. We now want to parse the
+            // actual deltas now.
+        }
+
+        case State::ConnectedToServer:
+        {            
+            auto fragment = PacketFragment{packet};
+            auto delta = PacketDelta{};
+
+            if (fragment.IsValid())
+            {
+                if (fragment.GetSequence() > myLastSequenceRecieved)
+                {
+                    myFragments.AddPacket(fragment);
+
+                    // test to see if the fragment is finished.
+                    delta = myFragments.GetDefragmentedPacket();
+                }
+            }
+            else
+            {
+                delta = PacketDelta{packet};
+            }
+
+            CheckDelta(delta);
             break;
         }            
 
-        case State::ConnectedServer:
+        case State::ConnectedToClient:
         {
-            if (PacketDeltaClient::IsPacket(packet))
-            {
-                myLastDelta = PacketDelta{packet};
-            }
-            else
-            {
-                // check to see if we disconnect.
-                Disconnected(packet);
-            }
-
+            CheckDelta(PacketDeltaClient{packet});
             break;
         }
 
@@ -237,7 +257,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         else
                         {
                             myStateHandle = handle;
-                            Reset(State::ConnectedClient);
+                            Reset(State::ConnectedToServer);
                         }
                     }
                 }
@@ -352,8 +372,9 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                             {
                                 myClientId = delta.IdConnection();
 
-                                Reset(State::ConnectedServer);
+                                Reset(State::ConnectedToClient);
                                 myLastDelta = delta;
+                                myLastSequenceRecieved = delta.GetSequence();
                             }
                         }
 
@@ -393,8 +414,10 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
             break;
         }
 
-        case State::ConnectedClient:
-        case State::ConnectedServer:
+        // RAM: ConnectedToServerWaitingForDelta? wtf? what am i doing here?
+        case State::ConnectedToServerWaitingForDelta:
+        case State::ConnectedToServer:
+        case State::ConnectedToClient:
         {
             // check to see if we disconnect.
             Disconnected(packet);
@@ -468,7 +491,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
             if (duration_cast<milliseconds>(sinceLastPacket) > (HandshakeRetryPeriod() * int{HandshakeRetries}))
             {
                 // Meh, timeout.
-                Fail("Timeout: Connecting to server.");
+                Fail("Timeout: Client.");
             }
 
             break;
@@ -485,14 +508,14 @@ PacketDelta Connection::GetDefragmentedPacket()
     // RAM: TODO: Sort out this mess!
     // How to tell if it's a new delta or not?
     // What about fragmented deltas from the server?
-    // ConectedClient, ConnectedServer, do those make sense?
-    if (myState == State::ConnectedClient)
+    // ConectedClient, ConnectedToClient, do those make sense?
+    if (myState == State::ConnectedToServer)
     {
         result = myFragments.GetDefragmentedPacket();
     }
     else
     {
-        if (myState == State::ConnectedServer)
+        if (myState == State::ConnectedToClient)
         {
 
         }
@@ -518,7 +541,7 @@ Sequence Connection::LastSequenceAck() const
 
 bool Connection::IsConnected() const
 {
-    return ((myState == State::ConnectedClient) || (myState == State::ConnectedServer));
+    return ((myState == State::ConnectedToServer) || (myState == State::ConnectedToClient));
 }
 
 bool Connection::HasFailed() const
@@ -555,6 +578,24 @@ void Connection::Fail(std::string failReason)
 {
     myState = State::FailedConnection;
     myFailReason = failReason;
+}
+
+void Connection::CheckDelta(PacketDelta delta)
+{
+    if (delta.IsValid())
+    {
+        if (delta.GetSequence() > myLastSequenceRecieved)
+        {
+            myLastDelta = delta;
+            myLastSequenceRecieved = delta.GetSequence();
+            myLastSequenceAck = delta.GetSequenceAck();
+        }
+    }
+    else
+    {
+        // check to see if we disconnect.
+        Disconnected(delta.data);
+    }
 }
 
 bool Connection::Disconnected(const std::vector<uint8_t> &packet)
