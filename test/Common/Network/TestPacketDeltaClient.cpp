@@ -19,140 +19,76 @@
 */
 
 #include <Common/Network/PacketDeltaClient.hpp>
+#include <Common/Network/PacketDelta.hpp>
+#include <Common/Network/PacketDeltaNoAck.hpp>
 #include <gmock/gmock.h>
-/* RAM: TODO: Fix the entire lot!
-
-using namespace std;
-using GameInABox::Common::WrappingCounter;
 
 namespace GameInABox { namespace Common { namespace Network {
 
 // Class definition!
 class TestPacketDeltaClient : public ::testing::Test
 {
-public:
-    TestPacketDeltaClient()
-        : delta8BytePayload(
-              Sequence(1),
-              Sequence(2),
-              3,
-              7337,
-              {1,2,3,4,5,6,7,8})
-    {
-    }
 
-    PacketDeltaClient delta8BytePayload;
 };
 
-TEST_F(TestPacketDeltaClient, Empty)
+TEST_F(TestPacketDeltaClient, EmptyDelta)
 {
-    PacketDeltaClient toTest;
+    auto connectionId = IdConnection(PacketDelta{});
+    auto payload = ClientPayload(PacketDelta{});
 
-    EXPECT_FALSE(toTest.IsValid());
+    EXPECT_FALSE(connectionId);
 
-    EXPECT_EQ(0, toTest.data.size());
-
-    EXPECT_EQ(0, toTest.IdConnection());
-    EXPECT_EQ(0, toTest.GetSequence());
-    EXPECT_EQ(0, toTest.GetSequenceAck());
-    EXPECT_EQ(0, toTest.GetSequenceBase());
-    EXPECT_EQ(0, GetPayloadBuffer(toTest).size());
-    EXPECT_EQ(0, toTest.data.size());
-}
-
-TEST_F(TestPacketDeltaClient, TestCopy)
-{
-    PacketDeltaClient toTest(delta8BytePayload);
-    EXPECT_EQ(toTest, delta8BytePayload);
+    EXPECT_EQ(0, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>(), payload);
 }
 
 
-TEST_F(TestPacketDeltaClient, TestAssignCopy)
+TEST_F(TestPacketDeltaClient, EmptyNoAck)
 {
-    PacketDeltaClient toTest = delta8BytePayload;
-    EXPECT_EQ(toTest, delta8BytePayload);
+    auto connectionId = IdConnection(PacketDeltaNoAck{});
+    auto payload = ClientPayload(PacketDeltaNoAck{});
+
+    EXPECT_FALSE(connectionId);
+
+    EXPECT_EQ(0, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>(), payload);
 }
 
-
-TEST_F(TestPacketDeltaClient, TestMoveAssign)
+TEST_F(TestPacketDeltaClient, Delta)
 {
-    PacketDeltaClient toTest = std::move(delta8BytePayload);
-    EXPECT_TRUE(toTest.IsValid());
-    EXPECT_FALSE(delta8BytePayload.IsValid());
+    auto delta = PacketDelta{
+            Sequence(1),
+            Sequence(2),
+            3,
+            // note, big endian, 1,2 -> 0x0102
+    {1,2,3,4,5,6,7,8}};
+
+    auto connectionId = IdConnection(delta);
+    auto payload = ClientPayload(delta);
+
+    EXPECT_TRUE(connectionId);
+    EXPECT_EQ(0x0102, *connectionId);
+
+    EXPECT_EQ(6, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>({3,4,5,6,7,8}), payload);
 }
 
-TEST_F(TestPacketDeltaClient, TestMoveCopy)
+TEST_F(TestPacketDeltaClient, DeltaNoAck)
 {
-    PacketDeltaClient toTest(std::move(delta8BytePayload));
-    EXPECT_TRUE(toTest.IsValid());
-    EXPECT_FALSE(delta8BytePayload.IsValid());
-}
+    auto noAck = PacketDeltaNoAck{
+            Sequence(1),
+            24,
+            {1,2,3,4,5,6,7,8}};
 
-TEST_F(TestPacketDeltaClient, Simple)
-{
-    PacketDeltaClient toTest = delta8BytePayload;
+    auto connectionId = IdConnection(noAck);
+    auto payload = ClientPayload(noAck);
 
-    EXPECT_TRUE(toTest.IsValid());
+    EXPECT_TRUE(connectionId);
+    EXPECT_EQ(0x0102, *connectionId);
 
-    EXPECT_NE(0, toTest.data.size());
-
-    Sequence base = Sequence{Sequence(1) - Sequence(3)};
-
-    EXPECT_EQ(1, toTest.GetSequence());
-    EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(base, toTest.GetSequenceBase());
-    EXPECT_EQ(7337, toTest.IdConnection());
-    EXPECT_EQ(8, GetPayloadBuffer(toTest).size());
-    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), GetPayloadBuffer(toTest));
-}
-
-TEST_F(TestPacketDeltaClient, NoDataClient)
-{
-    PacketDeltaClient toTest(
-                Sequence(1),
-                Sequence(2),
-                3,
-                4,
-                std::vector<uint8_t>());
-
-    EXPECT_TRUE(toTest.IsValid());
-    EXPECT_NE(0, toTest.data.size());
-
-    Sequence base = Sequence{Sequence(1) - Sequence(3)};
-
-    EXPECT_EQ(1, toTest.GetSequence());
-    EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(base, toTest.GetSequenceBase());
-    EXPECT_EQ(4, toTest.IdConnection());
-    EXPECT_EQ(0, GetPayloadBuffer(toTest).size());
-}
-
-TEST_F(TestPacketDeltaClient, EncodeDecodeClient)
-{
-    PacketDeltaClient source(
-                Sequence(1),
-                Sequence(2),
-                3,
-                4,
-                {1,2,3,4});
-
-    PacketDeltaClient toTest(std::move(source.data));
-    std::vector<uint8_t> payload(GetPayloadBuffer(toTest));
-
-    EXPECT_FALSE(source.IsValid());
-
-    EXPECT_NE(0, toTest.data.size());
-
-    Sequence base = Sequence{Sequence(1) - Sequence(3)};
-
-    EXPECT_TRUE(toTest.IsValid());
-    EXPECT_EQ(1, toTest.GetSequence());
-    EXPECT_EQ(2, toTest.GetSequenceAck());
-    EXPECT_EQ(base, toTest.GetSequenceBase());
-    EXPECT_EQ(4, toTest.IdConnection());
-    EXPECT_EQ(4, payload.size());
-    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
+    EXPECT_EQ(6, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>({3,4,5,6,7,8}), payload);
 }
 
 }}} // namespace
-*/
+

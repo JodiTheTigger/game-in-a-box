@@ -25,13 +25,41 @@
 #include <boost/optional.hpp>
 #endif
 
+#include "BufferSerialisation.hpp"
+
 namespace GameInABox { namespace Common { namespace Network {
 
 template<class DELTA>
-boost::optional<uint16_t> IdConnection(const DELTA& delta);
+boost::optional<uint16_t> IdConnection(const DELTA& delta)
+{
+    if (delta.data.size() >= (delta.OffsetPayload() + 2))
+    {
+        if (delta.IsValid())
+        {
+            uint16_t result;
+
+            Pull(begin(delta.data) + delta.OffsetPayload(), result);
+
+            return {result};
+        }
+    }
+
+    return {};
+}
 
 template<class DELTA>
-std::vector<uint8_t> GetClientPayload(DELTA delta);
+std::vector<uint8_t> ClientPayload(const DELTA& delta)
+{
+    if (delta.data.size() > (delta.OffsetPayload() + 2))
+    {
+        if (delta.IsValid())
+        {
+            return {begin(delta.data) + delta.OffsetPayload() + 2, end(delta.data)};
+        }
+    }
+
+    return {};
+}
 
 }}} // namespace
 
