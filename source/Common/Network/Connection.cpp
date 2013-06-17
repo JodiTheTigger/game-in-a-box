@@ -197,7 +197,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
         case State::ConnectedToClient:
         {
-            CheckDelta(PacketDeltaClient{packet});
+            // RAM: TODO: So broken now. fix? CheckDelta(PacketDeltaClient{packet});
             break;
         }
 
@@ -365,7 +365,8 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         // Don't bother if we're not connected-but-waiting-for-delta
                         if (myStateHandle)
                         {
-                            auto delta = PacketDeltaClient{packet};
+                            // RAM: TODO: So broken now. fix?
+                            /*auto delta = PacketDeltaClient{packet};
 
                             // If we get deltas, that means we're connected.
                             if (delta.IsValid())
@@ -375,7 +376,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                                 Reset(State::ConnectedToClient);
                                 myLastDelta = delta;
                                 myLastSequenceRecieved = delta.GetSequence();
-                            }
+                            }*/
                         }
 
                         break;

@@ -372,7 +372,9 @@ void NetworkManagerClient::DeltaSend()
     {
         // ignore if the delta distance is greater than 255, as we
         // store the distance as a byte.
+        /* RAM: TODO: no client packet anymore. Soo broken.
         auto distance = deltaData.to - deltaData.base;
+
         if (distance <= PacketDeltaClient::MaximumDeltaDistance())
         {
             // Compress, encrypt, send
@@ -404,7 +406,7 @@ void NetworkManagerClient::DeltaSend()
             // send
             myConnectedNetwork->transport->Send(packets);
         }
-        else
+        else */
         {
             Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
         }

@@ -91,6 +91,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
         else
         {
             // If it's a delta packet, see if it's an existing connection.
+            /* RAM: TODO: soooo broken!
             if (PacketDeltaClient::IsPacket(packet.data))
             {
                 auto delta = PacketDeltaClient{packet.data};
@@ -122,7 +123,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
                     }
                 }
             }
-            else
+            else */
             {
                 myAddressToState.emplace(packet.address, State{Connection{myStateManager}, Sequence{0}});
 

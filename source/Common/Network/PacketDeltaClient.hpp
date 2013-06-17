@@ -21,55 +21,17 @@
 #ifndef PACKETDELTACLIENT_HPP
 #define PACKETDELTACLIENT_HPP
 
-#include "PacketDelta.hpp"
+#ifndef USING_PRECOMPILED_HEADERS
+#include <boost/optional.hpp>
+#endif
 
 namespace GameInABox { namespace Common { namespace Network {
 
-// RAM: TODO
-// remove this class, and add the following functions
-//uint16_t GetClientId(const PacketDelta& delta);
-//uint16_t GetClientId(const PacketDeltaNoAck& delta);
-//std::vector<uint8_t> GetClientPayload(PacketDelta delta);
-//std::vector<uint8_t> GetClientPayload(PacketDeltaNoAck delta);
+template<class DELTA>
+boost::optional<uint16_t> IdConnection(const DELTA& delta);
 
-class PacketDeltaClient : public PacketDelta
-{
-    // Wart: Since I want to avoid code duplicate, I make PacketDeltaClient "is-a" PacketDelta2
-    // However even though the class "is-a", the data isn't so IsValid will return false.
-
-public:
-    static constexpr std::size_t MaximumDeltaDistance() { return PacketDelta::MaximumDeltaDistance(); }
-    static bool IsPacket(const std::vector<uint8_t>& buffer);
-
-    PacketDeltaClient() : PacketDeltaClient(std::vector<uint8_t>()) {}
-    explicit PacketDeltaClient(std::vector<uint8_t> rawData);
-
-    PacketDeltaClient(
-            Sequence sequence,
-            Sequence sequenceAck,
-            uint8_t sequenceAckDelta,
-            uint16_t idConnection,
-            std::vector<uint8_t> deltaPayload);
-
-    // Rule of 5 (class contents are just one vector, so use defaults).
-    PacketDeltaClient(const PacketDeltaClient&) = default;
-    PacketDeltaClient(PacketDeltaClient&&) = default;
-    PacketDeltaClient& operator=(const PacketDeltaClient&) = default;
-    PacketDeltaClient& operator=(PacketDeltaClient&&) = default;
-    virtual ~PacketDeltaClient() = default;
-
-    bool IsValid() const override { return IsPacket(data); }
-
-    uint16_t IdConnection() const;
-
-    std::size_t OffsetPayload() const override { return OffsetDataClient; }
-
-private:
-    // No, I'm not going to use a struct to determine offsets.
-    static const std::size_t OffsetConnectionId = 5;
-    static const std::size_t OffsetDataClient = 7;
-    static const std::size_t MinimumPacketSizeClient = OffsetDataClient;
-};
+template<class DELTA>
+std::vector<uint8_t> GetClientPayload(DELTA delta);
 
 }}} // namespace
 

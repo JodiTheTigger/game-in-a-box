@@ -24,65 +24,37 @@
 using namespace GameInABox::Common;
 using namespace GameInABox::Common::Network;
 
-bool PacketDeltaClient::IsPacket(const std::vector<uint8_t>& buffer)
+
+template<class DELTA>
+boost::optional<uint16_t> GetIdConnection(const DELTA& delta)
 {
-    if (!buffer.empty())
+    if (delta.data.size() >= (delta.OffsetPayload() + 2))
     {
-        if (buffer.size() >= MinimumPacketSizeClient)
+        if (delta.IsValid())
         {
-            if ((buffer[0] != 0xFF) && (buffer[1] != 0xFF))
-            {
-                // Fragmented?
-                if ((buffer[OffsetSequence] & MaskTopByteIsFragmented) == 0)
-                {
-                    // Server packet?
-                    if (0 == (buffer[OffsetIsServerFlags] & MaskTopByteIsCommand))
-                    {
-                        return true;
-                    }
-                }
-            }
+            uint16_t result;
+
+            Pull(begin(delta.data) + delta.OffsetPayload(), result);
+
+            return {result};
         }
     }
 
-    return false;
+    return {};
 }
 
-PacketDeltaClient::PacketDeltaClient(std::vector<uint8_t> rawData)
-    : PacketDelta(rawData)
+template<class DELTA>
+std::vector<uint8_t> GetClientPayload(const DELTA& delta)
 {
-}
-
-PacketDeltaClient::PacketDeltaClient(
-        Sequence sequence,
-        Sequence sequenceAck,
-        uint8_t sequenceAckDelta,
-        uint16_t idConnection,
-        std::vector<uint8_t> deltaPayload)
-    : PacketDeltaClient()
-{
-    data.reserve(MinimumPacketSize + deltaPayload.size());
-
-    auto inserter = back_inserter(data);
-    Push(inserter, sequence.Value());
-    Push(inserter, sequenceAck.Value());
-    data.push_back(sequenceAckDelta);
-    Push(inserter, idConnection);
-
-    data.insert(end(data), begin(deltaPayload), end(deltaPayload));
-}
-
-
-uint16_t PacketDeltaClient::IdConnection() const
-{
-    if (IsValid())
+    if (delta.data.size() > (delta.OffsetPayload() + 2))
     {
-        uint16_t id;
+        if (delta.IsValid())
+        {
+            uint16_t result;
 
-        Pull(begin(data) + OffsetConnectionId, id);
-        return id;
+            return {begin(delta.data) + delta.OffsetPayload() + 2, end(delta.data)};
+        }
     }
 
-    return 0;
+    return {};
 }
-
