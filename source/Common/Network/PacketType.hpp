@@ -36,7 +36,7 @@ public:
     PacketType() : Packet(TheCommand) {}
 
     explicit PacketType(std::vector<uint8_t> fromBuffer) : Packet(fromBuffer) {}
-    explicit PacketType(Common::Sequence sequence) : Packet(TheCommand, sequence) {}
+    explicit PacketType(Common::Sequence sequence) : Packet(sequence, TheCommand) {}
 
     PacketType(const PacketType&) = default;
     PacketType(PacketType&&) = default;
@@ -47,8 +47,8 @@ public:
     virtual bool IsValid() const override { return IsPacket(data); }
 
 private:
-    PacketType(Command command, std::vector<uint8_t> payload) : Packet(command, payload) {}
-    PacketType(Command command, std::string payload) : Packet(command, payload) {}
+    PacketType(Command command, std::vector<uint8_t> payload) : Packet({}, command, payload) {}
+    PacketType(Command command, std::string payload) : Packet({}, command, payload) {}
 };
 
 }}} // namespace

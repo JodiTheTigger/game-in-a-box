@@ -33,7 +33,7 @@ using namespace GameInABox::Common::Network;
 const std::string PacketChallenge::ChallengeMessage = "Why, Hello there.";
 
 PacketChallenge::PacketChallenge()
-    : Packet(Command::Challenge, PacketChallenge::ChallengeMessage)
+    : Packet({}, Command::Challenge, PacketChallenge::ChallengeMessage)
 {
 }
 
@@ -48,14 +48,11 @@ PacketChallenge::~PacketChallenge()
 
 bool PacketChallenge::IsValid() const
 {
-    if (Packet::IsValid())
+    if (Packet::GetCommand(data) == Command::Challenge)
     {
-        if (GetCommand() == Command::Challenge)
+        if (GetPayloadString(*this) == PacketChallenge::ChallengeMessage)
         {
-            if (GetPayloadString(*this) == PacketChallenge::ChallengeMessage)
-            {
-                return true;
-            }
+            return true;
         }
     }
 

@@ -33,22 +33,21 @@ Packet::Packet(std::vector<uint8_t> fromBuffer)
 {
 }
 
-Packet::Packet(Command command)
-    : Packet({0x0, 0x0, static_cast<uint8_t>(static_cast<uint8_t>(command) | MaskTopByteIsCommand)})
+Packet::Packet(Common::Sequence sequence, Command command)
+    : Packet()
 {
+    Push(back_inserter(data), sequence.Value());
+    data.push_back(static_cast<uint8_t>(static_cast<uint8_t>(command) | MaskTopByteIsCommand));
 }
 
-Packet::Packet(Command command, Common::Sequence sequence) : Packet(command)
-{
-    Push(begin(data), sequence.Value());
-}
-
-Packet::Packet(Command command, std::vector<uint8_t> payload) : Packet(command)
+Packet::Packet(Common::Sequence sequence, Command command, std::vector<uint8_t> payload)
+    : Packet(sequence, command)
 {
     data.insert(end(data), begin(payload), end(payload));
 }
 
-Packet::Packet(Command command, std::string payload) : Packet(command)
+Packet::Packet(Common::Sequence sequence, Command command, std::string payload)
+    : Packet(sequence, command)
 {
     data.insert(end(data), begin(payload), end(payload));
 }

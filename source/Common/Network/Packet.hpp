@@ -47,18 +47,21 @@ enum class Command : uint8_t
 class Packet
 {
 public:
+    // ////////////////////////
+    // Static
+    // ////////////////////////
     static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
     static Common::Sequence GetSequence(const std::vector<uint8_t>& bufferToCheck);
     static bool IsPacket(const std::vector<uint8_t>& buffer);
 
-    Packet() : Packet(std::vector<uint8_t>()) {}
-
+    // ////////////////////////
+    // Constructors
+    // ////////////////////////
     explicit Packet(std::vector<uint8_t> fromBuffer);
-    explicit Packet(Command command);
+    explicit Packet(Command command) : Packet({}, command) {}
 
-    Packet(Command command, Common::Sequence sequence);
-    Packet(Command command, std::vector<uint8_t> payload);
-    Packet(Command command, std::string payload);
+    Packet() : Packet(std::vector<uint8_t>()) {}
+    Packet(Common::Sequence sequence, Command command);
 
     Packet(const Packet&) = default;
     Packet(Packet&&) = default;
@@ -66,15 +69,22 @@ public:
     Packet& operator=(Packet&&) = default;
     virtual ~Packet();
 
-    Command GetCommand() const { return GetCommand(data); }
-
+    // ////////////////////////
+    // Methods
+    // ////////////////////////
     // The result is undefined if !IsValid().
     Common::Sequence GetSequence() const { return GetSequence(data); }
+    Command GetCommand() const { return GetCommand(data); }
 
+    // ////////////////////////
+    // Virtual Methods
+    // ////////////////////////
     virtual bool IsValid() const;
-
     virtual std::size_t OffsetPayload() const { return MinimumPacketSize; }
 
+    // ////////////////////////
+    // Data
+    // ////////////////////////
     std::vector<uint8_t> data;
 
 protected:
@@ -90,6 +100,12 @@ protected:
     static const uint8_t MaskTopByteIsFragmented = 0x80;
 
     static const uint16_t MaskSequence = (MaskTopByteIsFragmented << 8) - 1;
+
+    // ////////////////////////
+    // Constructors
+    // ////////////////////////
+    Packet(Common::Sequence sequence, Command command, std::vector<uint8_t> payload);
+    Packet(Common::Sequence sequence, Command command, std::string payload);
 };
 
 // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719
