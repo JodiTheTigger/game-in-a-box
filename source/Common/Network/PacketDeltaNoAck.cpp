@@ -28,7 +28,7 @@ bool PacketDeltaNoAck::IsPacket(const std::vector<uint8_t>& buffer)
 {
     if (buffer.size() >= MinimumPacketSize)
     {
-        PacketType<Command::DeltaNoAck>::IsPacket(buffer);
+        return PacketType<Command::DeltaNoAck>::IsPacket(buffer);
     }
 
     return false;

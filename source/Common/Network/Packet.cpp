@@ -63,7 +63,7 @@ Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
     {
         if ((bufferToCheck[OffsetIsFragmented] & MaskTopByteIsFragmented) == 0)
         {
-            if ((bufferToCheck[OffsetIsCommand] & MaskTopByteIsCommand) == 1)
+            if ((bufferToCheck[OffsetIsCommand] & MaskTopByteIsCommand) != 0)
             {
                 auto value = bufferToCheck[OffsetCommand] & (0xFF ^ MaskTopByteIsCommand);
 
