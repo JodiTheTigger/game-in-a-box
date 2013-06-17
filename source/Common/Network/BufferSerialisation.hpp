@@ -26,7 +26,7 @@
 #include <type_traits>
 #include <iterator>
 #endif
-
+// RAM: TODO: Use static cast, and do random access iterator pull.
 namespace GameInABox { namespace Common { namespace Network {
 
 // =======================

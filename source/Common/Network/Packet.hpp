@@ -49,15 +49,14 @@ class Packet
 public:
     static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
     static Common::Sequence GetSequence(const std::vector<uint8_t>& bufferToCheck);
+    static bool IsPacket(const std::vector<uint8_t>& buffer);
 
     Packet() : Packet(std::vector<uint8_t>()) {}
 
     explicit Packet(std::vector<uint8_t> fromBuffer);
     explicit Packet(Command command);
 
-    // RAM: TODO!
-    //Packet(Command command, Sequence sequence);
-
+    Packet(Command command, Common::Sequence sequence);
     Packet(Command command, std::vector<uint8_t> payload);
     Packet(Command command, std::string payload);
 

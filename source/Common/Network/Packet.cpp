@@ -38,6 +38,11 @@ Packet::Packet(Command command)
 {
 }
 
+Packet::Packet(Command command, Common::Sequence sequence) : Packet(command)
+{
+    Push(begin(data), sequence.Value());
+}
+
 Packet::Packet(Command command, std::vector<uint8_t> payload) : Packet(command)
 {
     data.insert(end(data), begin(payload), end(payload));
@@ -73,6 +78,11 @@ Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
     return Command::Unrecognised;
 }
 
+bool Packet::IsPacket(const std::vector<uint8_t>& buffer)
+{
+    return (GetCommand(buffer) != Command::Unrecognised);
+}
+
 Sequence Packet::GetSequence(const std::vector<uint8_t>& bufferToCheck)
 {
     if (bufferToCheck.size() >= MinimumPacketSize)
@@ -91,9 +101,8 @@ Sequence Packet::GetSequence(const std::vector<uint8_t>& bufferToCheck)
 
 bool Packet::IsValid() const
 {
-    return (GetCommand() != Command::Unrecognised);
+    return IsPacket(data);
 }
-
 
 std::vector<uint8_t> GetPayloadBuffer(const Packet& packet)
 {

@@ -31,10 +31,12 @@ class PacketType : public Packet
 public:
     static PacketType<TheCommand> WithBuffer(std::vector<uint8_t> payload) { return {TheCommand, payload}; }
     static PacketType<TheCommand> WithString(std::string payload) { return {TheCommand, payload}; }
+    static bool IsPacket(const std::vector<uint8_t>& buffer) { return Packet::GetCommand(buffer) == TheCommand; }
 
     PacketType() : Packet(TheCommand) {}
 
     explicit PacketType(std::vector<uint8_t> fromBuffer) : Packet(fromBuffer) {}
+    explicit PacketType(Common::Sequence sequence) : Packet(TheCommand, sequence) {}
 
     PacketType(const PacketType&) = default;
     PacketType(PacketType&&) = default;
@@ -42,18 +44,7 @@ public:
     PacketType& operator=(PacketType&&) = default;
     virtual ~PacketType() {}
 
-    virtual bool IsValid() const override
-    {
-        if (data.size() >= MinimumPacketSize)
-        {
-            if (Packet::GetCommand() == TheCommand)
-            {
-                return Packet::IsValid();
-            }
-        }
-
-        return false;
-    }
+    virtual bool IsValid() const override { return IsPacket(data); }
 
 private:
     PacketType(Command command, std::vector<uint8_t> payload) : Packet(command, payload) {}

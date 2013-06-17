@@ -28,13 +28,7 @@ bool PacketDeltaNoAck::IsPacket(const std::vector<uint8_t>& buffer)
 {
     if (buffer.size() >= MinimumPacketSize)
     {
-        if ((buffer[OffsetIsFragmented] & MaskTopByteIsFragmented) == 0)
-        {
-            if ((buffer[OffsetIsCommand] & MaskTopByteIsCommand) == 0)
-            {
-                return true;
-            }
-        }
+        PacketType<Command::DeltaNoAck>::IsPacket(buffer);
     }
 
     return false;
@@ -46,10 +40,10 @@ PacketDeltaNoAck::PacketDeltaNoAck(std::vector<uint8_t> rawData)
 }
 
 PacketDeltaNoAck::PacketDeltaNoAck(
-        Sequence, // RAM: TODO: FIX!  sequence,
+        Sequence sequence,
         uint8_t sequenceDelta,
         std::vector<uint8_t> deltaPayload)
-    : PacketDeltaNoAck()
+    : PacketType<Command::DeltaNoAck>(sequence)
 {
     data.reserve(MinimumPacketSize + deltaPayload.size());
     data.push_back(sequenceDelta);

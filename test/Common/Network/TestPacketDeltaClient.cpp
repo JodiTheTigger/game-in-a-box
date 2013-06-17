@@ -66,7 +66,7 @@ TEST_F(TestPacketDeltaClient, Delta)
     auto connectionId = IdConnection(delta);
     auto payload = ClientPayload(delta);
 
-    EXPECT_TRUE(connectionId);
+    ASSERT_TRUE(connectionId);
     EXPECT_EQ(0x0102, *connectionId);
 
     EXPECT_EQ(6, payload.size());
@@ -83,7 +83,7 @@ TEST_F(TestPacketDeltaClient, DeltaNoAck)
     auto connectionId = IdConnection(noAck);
     auto payload = ClientPayload(noAck);
 
-    EXPECT_TRUE(connectionId);
+    ASSERT_TRUE(connectionId);
     EXPECT_EQ(0x0102, *connectionId);
 
     EXPECT_EQ(6, payload.size());

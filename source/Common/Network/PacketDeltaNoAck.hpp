@@ -49,9 +49,8 @@ public:
     // Values are undefined if !IsValid().
     Sequence GetSequenceBase() const;
 
-    bool IsValid() const override { return IsPacket(data); }
-
-    std::size_t OffsetPayload() const override { return MinimumPacketSize; }
+    virtual bool IsValid() const override { return IsPacket(data); }
+    virtual std::size_t OffsetPayload() const override { return MinimumPacketSize; }
 
 protected:
     static const std::size_t OffsetDeltaBase = Packet::MinimumPacketSize;
