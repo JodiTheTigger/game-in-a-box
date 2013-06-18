@@ -52,7 +52,7 @@ private:
 
     virtual Delta PrivateDeltaCreate(
             ClientHandle client,
-            Sequence lastAcked) const override;
+            boost::optional<Sequence> lastAcked) const override;
 
     virtual Sequence PrivateDeltaParse(
             ClientHandle client,

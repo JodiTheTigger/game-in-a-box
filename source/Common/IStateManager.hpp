@@ -80,10 +80,9 @@ public:
     // smaller packet sizes.
     Delta DeltaCreate(
             ClientHandle client,
-            Sequence lastAcked) const;
+            boost::optional<Sequence> lastAcked) const;
 
-    // Returns the sequence of the payload, or if it couldn't parse the delta
-    // the sequence it wants the next delta's base to be.
+    // Returns the ack sequence of the payload (not necessarly equal to Delta::to).
     Sequence DeltaParse(
             ClientHandle client,
             const Delta& payload);
@@ -109,7 +108,7 @@ private:
 
     virtual Delta PrivateDeltaCreate(
             ClientHandle client,
-            Sequence lastAcked) const = 0;
+            boost::optional<Sequence> lastAcked) const = 0;
 
     virtual Sequence PrivateDeltaParse(
             ClientHandle client,

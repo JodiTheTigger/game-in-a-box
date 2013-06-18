@@ -63,7 +63,7 @@ bool IStateManager::IsConnected(ClientHandle client) const
 
 Delta IStateManager::DeltaCreate(
         ClientHandle client,
-        Sequence lastAcked) const
+        boost::optional<Sequence> lastAcked) const
 {
     return PrivateDeltaCreate(client, lastAcked);
 }

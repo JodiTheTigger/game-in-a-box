@@ -67,7 +67,7 @@ bool GameSimple::PrivateIsConnected(ClientHandle) const
 
 Delta GameSimple::PrivateDeltaCreate(
         ClientHandle,
-        Sequence) const
+        boost::optional<Sequence>) const
 {
     // RAM: TODO!
     return {};
