@@ -25,6 +25,9 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
+// RAM: TODO! Remove this class, replace with normal delta where
+// the sequence packets are 0xFFFF. Then change PacketCommand to
+// handle the "command" of 0xFF which is #127 with the top bit set.
 class PacketDeltaNoAck : public PacketCommand<Command::DeltaNoAck>
 {
 public:

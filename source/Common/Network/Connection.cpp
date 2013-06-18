@@ -64,7 +64,7 @@ Connection::Connection(
     , myLastTimestamp(Timepoint::min())
     , myLastSequenceAck()
     , myStateHandle()
-    , myClientId()
+    , myIdConnection()
     , myFragments()
     , myLastDelta()
     , myTimeNow(timepiece)
@@ -357,16 +357,22 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                         if (myStateHandle)
                         {
                             // RAM: TODO: So broken now. fix?
-                            /*auto delta = PacketDeltaClient{packet};
+                            // RAM: TODO: We have PacketDelta and PacketDeltaNoAck. Deal with it!
+                            /*
+                            auto delta = PacketDelta{packet};
 
-                            // If we get deltas, that means we're connected.
                             if (delta.IsValid())
                             {
-                                myClientId = delta.IdConnection();
+                                auto idConnection = Network::IdConnection(delta);
 
-                                Reset(State::ConnectedToClient);
-                                myLastDelta = delta;
-                                myLastSequenceRecieved = delta.GetSequence();
+                                if (idConnection)
+                                {
+                                    myIdConnection = idConnection;
+
+                                    Reset(State::ConnectedToClient);
+                                    myLastDelta = delta;
+                                    myLastSequenceRecieved = delta.GetSequence();
+                                }
                             }*/
                         }
 
@@ -526,7 +532,7 @@ PacketDelta Connection::GetDefragmentedPacket()
     return result;
 }
 
-Sequence Connection::LastSequenceAck() const
+boost::optional<Sequence> Connection::LastSequenceAck() const
 {
     return myLastSequenceAck;
 }
@@ -548,7 +554,7 @@ boost::optional<ClientHandle> Connection::IdClient() const
 
 boost::optional<uint16_t> Connection::IdConnection() const
 {
-    return myClientId;
+    return myIdConnection;
 }
 
 NetworkKey Connection::Key() const
