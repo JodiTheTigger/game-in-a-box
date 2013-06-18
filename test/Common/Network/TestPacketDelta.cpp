@@ -101,6 +101,14 @@ TEST_F(TestPacketDelta, NoData)
     EXPECT_EQ(4, toTest.GetSequenceAck().get());
 }
 
+TEST_F(TestPacketDelta, NoAck)
+{
+    PacketDelta toTest(Sequence{2},{},6,{});
+
+    EXPECT_TRUE(toTest.IsValid());
+    ASSERT_FALSE(toTest.GetSequenceAck());
+}
+
 TEST_F(TestPacketDelta, Simple)
 {
     PacketDelta& toTest = delta8BytePayloadServer;

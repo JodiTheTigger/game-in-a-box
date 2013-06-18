@@ -34,6 +34,17 @@ bool PacketDelta::IsPacket(const std::vector<uint8_t>& buffer)
             {
                 return true;
             }
+            else
+            {
+                // No ack is a special case.
+                if  (
+                        (buffer[OffsetSequenceAck] == (InvalidSequence >> 8)) &&
+                        (buffer[OffsetSequenceAck + 1] == (InvalidSequence & 0xFF))
+                    )
+                {
+                    return true;
+                }
+            }
         }
     }
 
