@@ -27,10 +27,17 @@
 
 using namespace GameInABox::Common::Network;
 
-PacketChallengeResponse::PacketChallengeResponse(uint8_t version, NetworkKey key)
-    : PacketKey(key)
+PacketChallengeResponse::PacketChallengeResponse(uint8_t version, NetworkKey key, std::vector<uint8_t> payload)
+    : PacketCommandWithKey(key)
 {
+    data.reserve(payload.size() + OffsetPayload());
     data.push_back(version);
+    data.insert(end(data), begin(payload), end(payload));
+}
+
+PacketChallengeResponse::PacketChallengeResponse(uint8_t version, NetworkKey key)
+    : PacketChallengeResponse(version, key, {})
+{
 }
 
 PacketChallengeResponse::~PacketChallengeResponse()
@@ -39,9 +46,9 @@ PacketChallengeResponse::~PacketChallengeResponse()
 
 bool PacketChallengeResponse::IsValid() const
 {
-    if (PacketKey::IsValid())
+    if (PacketCommandWithKey::IsValid())
     {
-        if (data.size() == PacketSize)
+        if (data.size() >= PacketSize)
         {
             if (Version() != 0)
             {

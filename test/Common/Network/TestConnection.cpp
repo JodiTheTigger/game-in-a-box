@@ -26,7 +26,6 @@
 
 #include <Common/Network/Connection.hpp>
 #include <Common/Network/PacketDelta.hpp>
-#include <Common/Network/PacketDeltaClient.hpp>
 #include <Common/MockIStateManager.hpp>
 
 using ::testing::Return;
@@ -259,7 +258,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
     toTestServer.Process(PacketDelta{Bytes(42,20)}.data);
 
     // Right, everyone is connected now. Lets Disconnect via the client.
-    auto reason = std::string{"Because."};
+    auto reason = std::string{"Because I called Disconnect()."};
 
     toTestClient.Disconnect(reason);
 

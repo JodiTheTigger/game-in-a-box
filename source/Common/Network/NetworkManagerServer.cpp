@@ -29,7 +29,6 @@
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
 #include "PacketDelta.hpp"
-#include "PacketDeltaClient.hpp"
 #include "PacketDeltaFragmentManager.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"

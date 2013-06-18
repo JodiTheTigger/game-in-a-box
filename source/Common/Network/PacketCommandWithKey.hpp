@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETKEY_H
-#define PACKETKEY_H
+#ifndef PACKETCOMMANDWITHKEY_H
+#define PACKETCOMMANDWITHKEY_H
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
@@ -33,10 +33,10 @@
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketKey : public Packet
+class PacketCommandWithKey : public Packet
 {
 public:
-    explicit PacketKey(NetworkKey key)
+    explicit PacketCommandWithKey(NetworkKey key)
         : Packet(TheCommand)
     {
         // Dependent name lookup for C++ templates
@@ -49,21 +49,21 @@ public:
         data.insert(end(data), begin(key), end(key));
     }
 
-    PacketKey(NetworkKey key, std::string payloadString)
-        : PacketKey(key)
+    PacketCommandWithKey(NetworkKey key, std::string payloadString)
+        : PacketCommandWithKey(key)
     {
         data.insert(end(data), begin(payloadString), end(payloadString));
     }
 
-    PacketKey(NetworkKey key, std::vector<uint8_t> payload)
-        : PacketKey(key)
+    PacketCommandWithKey(NetworkKey key, std::vector<uint8_t> payload)
+        : PacketCommandWithKey(key)
     {
         data.insert(end(data), begin(payload), end(payload));
     }
 
-    explicit PacketKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
+    explicit PacketCommandWithKey(std::vector<uint8_t> buffer) : Packet(buffer) {}
 
-    virtual ~PacketKey() {}
+    virtual ~PacketCommandWithKey() {}
 
     virtual bool IsValid() const override
     {
@@ -96,7 +96,7 @@ public:
         return result;
     }
 
-    std::size_t OffsetPayload() const override { return PacketKey::OffsetData; }
+    std::size_t OffsetPayload() const override { return PacketCommandWithKey::OffsetData; }
 
 protected:
     static const std::size_t PayloadSize = 16;
@@ -106,4 +106,4 @@ protected:
 
 }}} // namespace
 
-#endif // PACKETKEY_H
+#endif // PACKETCOMMANDWITHKEY_H

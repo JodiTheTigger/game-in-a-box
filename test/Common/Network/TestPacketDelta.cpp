@@ -129,7 +129,7 @@ TEST_F(TestPacketDelta, LastSequence)
 
     EXPECT_EQ(Sequence::max(), toTest.GetSequence().Value());
     EXPECT_EQ(Sequence::max(), toTest.GetSequenceAck().Value());
-    EXPECT_EQ(0, toTest.GetSequenceBase().Value());
+    EXPECT_EQ(Sequence::max(), toTest.GetSequenceBase().Value());
     EXPECT_EQ(4, payload.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
 }

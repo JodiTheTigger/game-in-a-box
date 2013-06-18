@@ -18,11 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketTypes.hpp>
-#include <Common/Network/PacketChallenge.hpp>
-#include <Common/Network/PacketChallengeResponse.hpp>
-#include <Common/Network/PacketDelta.hpp>
-#include <Common/Network/PacketKey.hpp>
+#include <Common/Network/Packets.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
@@ -63,20 +59,20 @@ TEST_F(TestPackets, ChallengeFromNotACommand)
 {
     Command typeResult;
 
-    PacketChallenge challenge = PacketChallenge({0xFF, 0x01, 0x02, 0x03});
+    auto challenge = PacketChallenge{PacketInfoResponse().data};
 
     typeResult = challenge.GetCommand();
 
-    EXPECT_EQ(Command::Unrecognised, typeResult);
+    EXPECT_NE(Command::Challenge, typeResult);
     EXPECT_FALSE(challenge.IsValid());
 }
 
-
 TEST_F(TestPackets, ChallengeFromValidDataInvalidChallengeBadLength)
 {
-    Command typeResult;
+    Command typeResult;    
 
-    PacketChallenge challenge = PacketChallenge({0xFF, 0xFF, uint8_t(Command::Challenge), 0x03});
+    auto challenge = PacketChallengeResponse{Packet(Command::Challenge).data};
+    challenge.data.push_back(0x03);
 
     typeResult = challenge.GetCommand();
 
@@ -115,11 +111,13 @@ TEST_F(TestPackets, ChallengeFromValidData)
 TEST_F(TestPackets, ChallengeResponseCreation)
 {
     NetworkKey theKey{{0x12,0x34,0x56,0x78,0xAB,0xCD,0xEF,0x69}};
-    PacketChallengeResponse source(13, theKey);
+    auto payload = std::vector<uint8_t>{1,2,3,4};
+    PacketChallengeResponse source(13, theKey, payload);
 
+    ASSERT_TRUE(source.IsValid());
     EXPECT_EQ(13, source.Version());
     EXPECT_EQ(theKey, source.Key());
-    EXPECT_TRUE(source.IsValid());
+    EXPECT_EQ(GetPayloadBuffer(source), payload);
 }
 
 TEST_F(TestPackets, ChallengeResponseCreationZeroKeyInvalid)
@@ -143,8 +141,8 @@ TEST_F(TestPackets, ChallengeResponseFromValidDataInvalidChallengeBadLength)
 {
     Command typeResult;
 
-    PacketChallengeResponse challengeResponse =
-            PacketChallengeResponse({0xFF, 0xFF, uint8_t(Command::ChallengeResponse), 0x03});
+    auto challengeResponse = PacketChallengeResponse{Packet(Command::ChallengeResponse).data};
+    challengeResponse.data.push_back(0x03);
 
     typeResult = challengeResponse.GetCommand();
 
@@ -193,8 +191,8 @@ TEST_F(TestPackets, SimplePacketsBuffer)
     PacketInfoResponse info;
     PacketConnectResponse connect;
 
-    PacketInfoResponse infoBuffer(Bytes{0xFF, 0xFF, uint8_t(Command::InfoResponse), 0x03});
-    PacketConnectResponse connectBuffer(Bytes{0xFF, 0xFF, uint8_t(Command::ConnectResponse), 0x03, 0x20});
+    auto infoBuffer = PacketInfoResponse::WithBuffer({0x03});
+    auto connectBuffer = PacketConnectResponse::WithBuffer({0x03, 0x20});
 
     ASSERT_TRUE(info.IsValid());
     EXPECT_EQ(0, GetPayloadBuffer(info).size());
@@ -214,11 +212,70 @@ TEST_F(TestPackets, SimplePacketsBuffer)
 
 TEST_F(TestPackets, SimplePacketsBufferInvalid)
 {
-    PacketInfoResponse infoBuffer(Bytes{0xFF, 0xFF, 42, 0x03});
-    PacketConnectResponse connectBuffer(Bytes{0xFF, 0xFF, 77, 0x03, 0x20});
+    PacketInfoResponse infoBuffer(PacketConnectResponse().data);
+    PacketConnectResponse connectBuffer(PacketInfoResponse().data);
 
     EXPECT_FALSE(infoBuffer.IsValid());
     EXPECT_FALSE(connectBuffer.IsValid());
+}
+
+TEST_F(TestPackets, ClientEmptyDelta)
+{
+    auto connectionId = IdConnection(PacketDelta{});
+    auto payload = ClientPayload(PacketDelta{});
+
+    EXPECT_FALSE(connectionId);
+
+    EXPECT_EQ(0, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>(), payload);
+}
+
+
+TEST_F(TestPackets, ClientEmptyNoAck)
+{
+    auto connectionId = IdConnection(PacketDeltaNoAck{});
+    auto payload = ClientPayload(PacketDeltaNoAck{});
+
+    EXPECT_FALSE(connectionId);
+
+    EXPECT_EQ(0, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>(), payload);
+}
+
+TEST_F(TestPackets, ClientDelta)
+{
+    auto delta = PacketDelta{
+            Sequence(1),
+            Sequence(2),
+            3,
+            // note, big endian, 1,2 -> 0x0102
+    {1,2,3,4,5,6,7,8}};
+
+    auto connectionId = IdConnection(delta);
+    auto payload = ClientPayload(delta);
+
+    ASSERT_TRUE(connectionId);
+    EXPECT_EQ(0x0102, *connectionId);
+
+    EXPECT_EQ(6, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>({3,4,5,6,7,8}), payload);
+}
+
+TEST_F(TestPackets, ClientDeltaNoAck)
+{
+    auto noAck = PacketDeltaNoAck{
+            Sequence(1),
+            24,
+            {1,2,3,4,5,6,7,8}};
+
+    auto connectionId = IdConnection(noAck);
+    auto payload = ClientPayload(noAck);
+
+    ASSERT_TRUE(connectionId);
+    EXPECT_EQ(0x0102, *connectionId);
+
+    EXPECT_EQ(6, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>({3,4,5,6,7,8}), payload);
 }
 
 

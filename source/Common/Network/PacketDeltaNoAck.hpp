@@ -21,20 +21,25 @@
 #ifndef PACKETDELTANOACK_HPP
 #define PACKETDELTANOACK_HPP
 
-#include "PacketType.hpp"
+#include "PacketCommand.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketDeltaNoAck : public PacketType<Command::DeltaNoAck>
+class PacketDeltaNoAck : public PacketCommand<Command::DeltaNoAck>
 {
 public:
-    // Delta distance is stored as a byte.
+    // ////////////////////////
+    // Static
+    // ////////////////////////
     static constexpr std::size_t MaximumDeltaDistance() { return std::numeric_limits<uint8_t>::max(); }
-    static bool IsPacket(const std::vector<uint8_t>& buffer);
+    static bool IsPacket(const std::vector<uint8_t>& buffer);    
 
-    PacketDeltaNoAck() : PacketDeltaNoAck(std::vector<uint8_t>()) {}
+    // ////////////////////////
+    // Constructors
+    // ////////////////////////
     explicit PacketDeltaNoAck(std::vector<uint8_t> rawData);
 
+    PacketDeltaNoAck() : PacketDeltaNoAck(std::vector<uint8_t>()) {}
     PacketDeltaNoAck(
             Sequence sequence,
             uint8_t sequenceAckDelta,
@@ -46,9 +51,15 @@ public:
     PacketDeltaNoAck& operator=(PacketDeltaNoAck&&) = default;
     virtual ~PacketDeltaNoAck() = default;
 
+    // ////////////////////////
+    // Methods
+    // ////////////////////////
     // Values are undefined if !IsValid().
     Sequence GetSequenceBase() const;
 
+    // ////////////////////////
+    // Overridden Methods
+    // ////////////////////////
     virtual bool IsValid() const override { return IsPacket(data); }
     virtual std::size_t OffsetPayload() const override { return MinimumPacketSize; }
 

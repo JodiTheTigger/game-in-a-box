@@ -18,39 +18,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETTYPE_HPP
-#define PACKETTYPE_HPP
+#ifndef PACKETCOMMAND_HPP
+#define PACKETCOMMAND_HPP
 
 #include "Packet.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 template<Command TheCommand>
-class PacketType : public Packet
+class PacketCommand : public Packet
 {
 public:
-    static PacketType<TheCommand> WithBuffer(std::vector<uint8_t> payload) { return {TheCommand, payload}; }
-    static PacketType<TheCommand> WithString(std::string payload) { return {TheCommand, payload}; }
+    static PacketCommand<TheCommand> WithBuffer(std::vector<uint8_t> payload) { return {TheCommand, payload}; }
+    static PacketCommand<TheCommand> WithString(std::string payload) { return {TheCommand, payload}; }
     static bool IsPacket(const std::vector<uint8_t>& buffer) { return Packet::GetCommand(buffer) == TheCommand; }
 
-    PacketType() : Packet(TheCommand) {}
+    PacketCommand() : Packet(TheCommand) {}
 
-    explicit PacketType(std::vector<uint8_t> fromBuffer) : Packet(fromBuffer) {}
-    explicit PacketType(Common::Sequence sequence) : Packet(sequence, TheCommand) {}
+    explicit PacketCommand(std::vector<uint8_t> fromBuffer) : Packet(fromBuffer) {}
+    explicit PacketCommand(Common::Sequence sequence) : Packet(sequence, TheCommand) {}
 
-    PacketType(const PacketType&) = default;
-    PacketType(PacketType&&) = default;
-    PacketType& operator=(const PacketType&) = default;
-    PacketType& operator=(PacketType&&) = default;
-    virtual ~PacketType() {}
+    PacketCommand(const PacketCommand&) = default;
+    PacketCommand(PacketCommand&&) = default;
+    PacketCommand& operator=(const PacketCommand&) = default;
+    PacketCommand& operator=(PacketCommand&&) = default;
+    virtual ~PacketCommand() {}
 
     virtual bool IsValid() const override { return IsPacket(data); }
 
 private:
-    PacketType(Command command, std::vector<uint8_t> payload) : Packet({}, command, payload) {}
-    PacketType(Command command, std::string payload) : Packet({}, command, payload) {}
+    PacketCommand(Command command, std::vector<uint8_t> payload) : Packet({}, command, payload) {}
+    PacketCommand(Command command, std::string payload) : Packet({}, command, payload) {}
 };
 
 }}} // namespace
 
-#endif // PACKETTYPE_HPP
+#endif // PACKETCOMMAND_HPP

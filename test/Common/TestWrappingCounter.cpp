@@ -481,4 +481,27 @@ TYPED_TEST(TestWrappingCounter, TestCreatedOutOfBounds)
     ASSERT_EQ(b.Value(), (TestFixture::maxValue - 1) & (TestFixture::maxValue15 - 1));
 }
 
+TYPED_TEST(TestWrappingCounter, MaxMinusMax)
+{
+    auto a1 = typename TestFixture::WrapCount{TestFixture::WrapCount::max()};
+    auto a2 = a1;
+
+    auto b1 = typename TestFixture::WrapCount7{TestFixture::WrapCount7::max()};
+    auto b2 = b1;
+
+    auto c1 = typename TestFixture::WrapCount15{TestFixture::WrapCount15::max()};
+    auto c2 = c1;
+
+    //typename TestFixture::WrapCount a{TestFixture::maxValue - 1}
+    //typename TestFixture::WrapCount7 b{TestFixture::maxValue - 1};
+    //typename TestFixture::WrapCount15 c{TestFixture::maxValue - 1};
+    auto toTestA = a1 - a2;
+    auto toTestB = b1 - b2;
+    auto toTestC = c1 - c2;
+
+    ASSERT_EQ(typename TestFixture::Datum{0}, toTestA);
+    ASSERT_EQ(typename TestFixture::Datum{0}, toTestB);
+    ASSERT_EQ(typename TestFixture::Datum{0}, toTestC);
+}
+
 }} // namespace

@@ -25,15 +25,16 @@
 #include <cstdint>
 #endif
 
-#include "PacketKey.hpp"
+#include "PacketCommandWithKey.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
-class PacketChallengeResponse : public PacketKey<Command::ChallengeResponse>
+class PacketChallengeResponse : public PacketCommandWithKey<Command::ChallengeResponse>
 {
 public:
     PacketChallengeResponse(uint8_t version, NetworkKey key);
-    explicit PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketKey(buffer) {}
+    PacketChallengeResponse(uint8_t version, NetworkKey key, std::vector<uint8_t> payload);
+    explicit PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketCommandWithKey(buffer) {}
     virtual ~PacketChallengeResponse();
 
     virtual bool IsValid() const override;    
@@ -42,7 +43,7 @@ public:
     uint8_t Version() const;
 
 private:
-    static const std::size_t OffsetVersion = PacketKey::OffsetKey + PacketKey::PayloadSize;
+    static const std::size_t OffsetVersion = PacketCommandWithKey::OffsetKey + PacketCommandWithKey::PayloadSize;
     static const std::size_t PacketSize = OffsetVersion + sizeof(uint8_t);
 };
 

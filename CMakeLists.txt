@@ -183,15 +183,14 @@ source/Common/Network/INetworkManager.cpp
 source/Common/Network/PacketDeltaFragmentManager.cpp
 source/Common/Network/INetworkProvider.cpp
 source/Common/Network/Packet.cpp
-source/Common/Network/PacketType.hpp
-source/Common/Network/PacketTypes.hpp
+source/Common/Network/Packets.hpp
+source/Common/Network/PacketCommand.hpp
+source/Common/Network/PacketCommandWithKey.hpp
 source/Common/Network/PacketDelta.cpp
 source/Common/Network/PacketDeltaNoAck.cpp
 source/Common/Network/PacketDeltaNoAck.hpp
-source/Common/Network/PacketDeltaClient.hpp
 source/Common/Network/PacketFragment.cpp
 source/Common/Network/PacketFragment.hpp
-source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/PacketChallengeResponse.cpp
 source/Common/Network/PacketChallenge.cpp
 source/Common/Network/PacketDeltaFragmentManager.hpp
@@ -199,7 +198,7 @@ source/Common/Network/PacketDelta.hpp
 source/Common/Network/PacketChallenge.hpp
 source/Common/Network/Packet.hpp
 source/Common/Network/PacketChallengeResponse.hpp
-source/Common/Network/PacketKey.hpp
+source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/NetworkManagerServer.hpp
 source/Common/Network/INetworkManager.hpp
 source/Common/Network/INetworkProvider.hpp
@@ -270,7 +269,6 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestConnection.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaClient.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragment.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp

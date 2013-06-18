@@ -33,11 +33,7 @@
 
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
-#include "PacketChallenge.hpp"
-#include "PacketChallengeResponse.hpp"
-#include "PacketDelta.hpp"
-#include "PacketDeltaClient.hpp"
-#include "PacketTypes.hpp"
+#include "Packets.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
 #include "Connection.hpp"

@@ -83,7 +83,7 @@ public:
     virtual std::size_t OffsetPayload() const { return MinimumPacketSize; }
 
     // ////////////////////////
-    // Data
+    // Members
     // ////////////////////////
     std::vector<uint8_t> data;
 

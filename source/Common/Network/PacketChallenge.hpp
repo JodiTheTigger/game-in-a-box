@@ -21,18 +21,30 @@
 #ifndef PACKETCHALLENGE_H
 #define PACKETCHALLENGE_H
 
-#include "PacketType.hpp"
+#include "PacketCommand.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 
 class PacketChallenge : public Packet
 {
 public:
-    PacketChallenge();
+    // ////////////////////////
+    // Constructors
+    // ////////////////////////
     explicit PacketChallenge(std::vector<uint8_t> fromBuffer);
+    PacketChallenge();
 
+    PacketChallenge(const PacketChallenge&) = default;
+    PacketChallenge(PacketChallenge&&) = default;
+    PacketChallenge& operator=(const PacketChallenge&) = default;
+    PacketChallenge& operator=(PacketChallenge&&) = default;
     virtual ~PacketChallenge();
+
+    // ////////////////////////
+    // Overridden Methods
+    // ////////////////////////
     virtual bool IsValid() const override;
+
 private:
     static const std::string ChallengeMessage;
 };

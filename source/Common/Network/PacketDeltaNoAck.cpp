@@ -28,14 +28,14 @@ bool PacketDeltaNoAck::IsPacket(const std::vector<uint8_t>& buffer)
 {
     if (buffer.size() >= MinimumPacketSize)
     {
-        return PacketType<Command::DeltaNoAck>::IsPacket(buffer);
+        return PacketCommand<Command::DeltaNoAck>::IsPacket(buffer);
     }
 
     return false;
 }
 
 PacketDeltaNoAck::PacketDeltaNoAck(std::vector<uint8_t> rawData)
-    : PacketType<Command::DeltaNoAck>(rawData)
+    : PacketCommand<Command::DeltaNoAck>(rawData)
 {
 }
 
@@ -43,7 +43,7 @@ PacketDeltaNoAck::PacketDeltaNoAck(
         Sequence sequence,
         uint8_t sequenceDelta,
         std::vector<uint8_t> deltaPayload)
-    : PacketType<Command::DeltaNoAck>(sequence)
+    : PacketCommand<Command::DeltaNoAck>(sequence)
 {
     data.reserve(MinimumPacketSize + deltaPayload.size());
     data.push_back(sequenceDelta);

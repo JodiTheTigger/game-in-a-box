@@ -28,12 +28,7 @@
 
 #include "Common/IStateManager.hpp"
 #include "NetworkPacket.hpp"
-#include "PacketTypes.hpp"
-#include "PacketChallenge.hpp"
-#include "PacketChallengeResponse.hpp"
-#include "PacketDelta.hpp"
-#include "PacketDeltaClient.hpp"
-
+#include "Packets.hpp"
 #include "Connection.hpp"
 
 using namespace std::chrono;
