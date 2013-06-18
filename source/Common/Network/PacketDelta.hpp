@@ -21,6 +21,10 @@
 #ifndef PACKETDELTA_HPP
 #define PACKETDELTA_HPP
 
+#ifndef USING_PRECOMPILED_HEADERS
+#include <boost/optional.hpp>
+#endif
+
 #include "Common/Sequence.hpp"
 #include "Packet.hpp"
 
@@ -38,7 +42,7 @@ public:
 
     PacketDelta(
             Sequence sequence,
-            Sequence sequenceAck,
+            boost::optional<Sequence> sequenceAck,
             uint8_t sequenceDelta,
             std::vector<uint8_t> deltaPayload);
 
@@ -51,7 +55,7 @@ public:
 
     // Values are undefined if !IsValid().
     Sequence GetSequenceBase() const;
-    Sequence GetSequenceAck() const;
+    boost::optional<Sequence> GetSequenceAck() const;
 
     bool IsValid() const override { return IsPacket(data); }
 
@@ -65,8 +69,12 @@ protected:
     static const std::size_t OffsetData = 5;
     static const std::size_t MinimumPacketSize = OffsetData;
 
+    static const uint16_t InvalidSequence = 0xFFFF;
     static const uint16_t MaskSequenceAck = MaskSequence;
 };
+
+boost::optional<uint16_t> IdConnection(const PacketDelta& delta);
+std::vector<uint8_t> ClientPayload(const PacketDelta& delta);
 
 }}} // namespace
 

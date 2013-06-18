@@ -47,7 +47,7 @@ PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
 
 PacketDelta::PacketDelta(
         Sequence sequence,
-        Sequence sequenceAck,
+        boost::optional<Sequence> sequenceAck,
         uint8_t sequenceDelta,
         std::vector<uint8_t> deltaPayload)
     : PacketDelta()
@@ -56,7 +56,14 @@ PacketDelta::PacketDelta(
 
     auto inserter = back_inserter(data);
     Push(inserter, sequence.Value());
-    Push(inserter, sequenceAck.Value());
+    if(sequenceAck)
+    {
+        Push(inserter, sequenceAck->Value());
+    }
+    else
+    {
+        Push(inserter, InvalidSequence);
+    }
     data.push_back(sequenceDelta);
 
     data.insert(end(data), begin(deltaPayload), end(deltaPayload));
@@ -74,17 +81,48 @@ Sequence PacketDelta::GetSequenceBase() const
     }
 }
 
-Sequence PacketDelta::GetSequenceAck() const
+boost::optional<Sequence> PacketDelta::GetSequenceAck() const
 {
     if (data.size() >= MinimumPacketSize)
     {
         uint16_t rawSequence;
         Pull(begin(data) + OffsetSequenceAck, rawSequence);
 
-        return Sequence(rawSequence & MaskSequence);
+        if (rawSequence != InvalidSequence)
+        {
+            return Sequence(rawSequence & MaskSequence);
+        }
     }
-    else
+
+    return {};
+}
+
+boost::optional<uint16_t> IdConnection(const PacketDelta& delta)
+{
+    if (delta.data.size() >= (delta.OffsetPayload() + 2))
     {
-        return Sequence(0);
+        if (delta.IsValid())
+        {
+            uint16_t result;
+
+            Pull(begin(delta.data) + delta.OffsetPayload(), result);
+
+            return {result};
+        }
     }
+
+    return {};
+}
+
+std::vector<uint8_t> ClientPayload(const PacketDelta& delta)
+{
+    if (delta.data.size() > (delta.OffsetPayload() + 2))
+    {
+        if (delta.IsValid())
+        {
+            return {begin(delta.data) + delta.OffsetPayload() + 2, end(delta.data)};
+        }
+    }
+
+    return {};
 }

@@ -188,8 +188,6 @@ source/Common/Network/Packets.hpp
 source/Common/Network/PacketCommand.hpp
 source/Common/Network/PacketCommandWithKey.hpp
 source/Common/Network/PacketDelta.cpp
-source/Common/Network/PacketDeltaNoAck.cpp
-source/Common/Network/PacketDeltaNoAck.hpp
 source/Common/Network/PacketFragment.cpp
 source/Common/Network/PacketFragment.hpp
 source/Common/Network/PacketChallengeResponse.cpp

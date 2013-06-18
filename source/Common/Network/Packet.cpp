@@ -66,7 +66,7 @@ Command Packet::GetCommand(const std::vector<uint8_t>& bufferToCheck)
             {
                 auto value = bufferToCheck[OffsetCommand] & (0xFF ^ MaskTopByteIsCommand);
 
-                if (value <= static_cast<uint8_t> (Command::Disconnect))
+                if (value <= static_cast<uint8_t> (Command::LastValidCommand))
                 {
                     return static_cast<Command>(value);
                 }

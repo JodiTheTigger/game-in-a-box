@@ -40,8 +40,14 @@ enum class Command : uint8_t
     InfoResponse,
     Connect,
     ConnectResponse,
-    DeltaNoAck,
     Disconnect,
+
+    LastValidCommand = Disconnect,
+
+    // Special case for invalid ack sequence (DeltaNoAck)
+    // Even though we get this, we don't treat it as a valid
+    // Command.
+    DeltaNoAck = 0x7F
 };
 
 class Packet

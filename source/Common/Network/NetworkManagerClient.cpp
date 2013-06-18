@@ -329,7 +329,7 @@ void NetworkManagerClient::DeltaReceive()
             // attacks to control someone else's connection.
             std::array<uint8_t, 4> code;
             Push(begin(code), delta.GetSequence().Value());
-            Push(begin(code) + 2, delta.GetSequenceAck().Value());
+            // RAM: TODO: FIX! Push(begin(code) + 2, delta.GetSequenceAck().Value());
             XorCode(begin(code), end(code), myConnectedNetwork->handshake.Key().data);
             XorCode(begin(payload), end(payload), code);
 
