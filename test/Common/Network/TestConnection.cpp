@@ -42,7 +42,6 @@ using Clock = std::chrono::steady_clock;
 using Oclock = Clock::time_point;
 
 // NOTE: Don't test what you don't know from the public interface.
-// RAM: TODO! Test optional ack for IStateManager.
 class TestConnection : public ::testing::Test
 {
 public:
@@ -217,20 +216,34 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
 
     testTime += std::chrono::milliseconds(300);
 
-    // RAM: TODO: Fix broken client stuff
-    /*
-    auto delta = PacketDeltaClient{Sequence{0}, Sequence{0x4}, 255, 88, Bytes(42,20)};
-    toTestServer.Process(std::move(delta.data));
+    // No ack, connection id is the 1st two bytes of the payload
+    auto delta = PacketDelta{Sequence{0}, {}, 0, Bytes(42,0x20)};
+    toTestServer.Process(delta.data);
 
-    auto deltaBytes = toTestServer.GetDefragmentedPacket();
+    auto deltaResult = toTestServer.GetDefragmentedPacket();
+    auto id = Network::IdConnection(deltaResult);
+    auto payload = Network::ClientPayload(deltaResult);
 
     // client and server should be connected.
     EXPECT_TRUE(toTestServer.IsConnected());
-    EXPECT_TRUE(deltaBytes.IsValid());
-    // RAM: TODO: FIX! EXPECT_TRUE(deltaBytes.IdConnection());
-    // RAM: TODO: FIX! EXPECT_EQ(88, deltaBytes.IdConnection().get());
-    EXPECT_EQ(Sequence{0x4}, toTestServer.LastSequenceAck());
-    EXPECT_EQ(toTestServer.Key(), toTestClient.Key());*/
+    EXPECT_EQ(deltaResult, delta);
+    EXPECT_FALSE(toTestServer.LastSequenceAck());
+    EXPECT_EQ(toTestServer.Key(), toTestClient.Key());
+
+    ASSERT_TRUE(toTestServer.IdConnection());
+    EXPECT_EQ(toTestServer.IdConnection().get(), 0x2020);
+
+    // test a normal delta,
+    toTestServer.Process(PacketDelta{Sequence{1}, Sequence{55}, 0, Bytes(42,0x20)}.data);
+    auto deltaResult2 = toTestServer.GetDefragmentedPacket();
+    ASSERT_TRUE(toTestServer.LastSequenceAck());
+    EXPECT_EQ(55, toTestServer.LastSequenceAck()->Value());
+
+    // test old packet.
+    toTestServer.Process(PacketDelta{Sequence{0}, Sequence{66}, 0, Bytes(42,0x20)}.data);
+    auto deltaResult3 = toTestServer.GetDefragmentedPacket();
+    EXPECT_FALSE(deltaResult3.IsValid());
+    EXPECT_EQ(55, toTestServer.LastSequenceAck()->Value());
 }
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
