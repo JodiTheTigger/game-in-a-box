@@ -35,7 +35,7 @@
 #include "Common/MotleyUniquePointer.hpp"
 
 #include "INetworkManager.hpp"
-#include "PacketDeltaFragmentManager.hpp"
+#include "PacketFragmentManager.hpp"
 #include "NetworkKey.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {

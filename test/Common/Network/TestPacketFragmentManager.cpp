@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketDeltaFragmentManager.hpp>
+#include <Common/Network/PacketFragmentManager.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
@@ -27,10 +27,10 @@ using GameInABox::Common::WrappingCounter;
 namespace GameInABox { namespace Common { namespace Network {
 
 // Class definition!
-class TestPacketDeltaFragmentManager : public ::testing::Test
+class TestPacketFragmentManager : public ::testing::Test
 {
 public:
-    TestPacketDeltaFragmentManager()
+    TestPacketFragmentManager()
         : delta4kBytePayloadServerSequence22(
               Sequence(22),
               Sequence(2),
@@ -54,24 +54,24 @@ public:
     PacketDelta delta8BytePayloadServer;
 };
 
-TEST_F(TestPacketDeltaFragmentManager, FragmentNothingReturnsNothing)
+TEST_F(TestPacketFragmentManager, FragmentNothingReturnsNothing)
 {
-    auto testResult = PacketDeltaFragmentManager::FragmentPacket(PacketDelta());
+    auto testResult = PacketFragmentManager::FragmentPacket(PacketDelta());
 
     EXPECT_EQ(testResult.size(), 0);
 }
 
-TEST_F(TestPacketDeltaFragmentManager, FragmentSmallReturnsNotFragmented)
+TEST_F(TestPacketFragmentManager, FragmentSmallReturnsNotFragmented)
 {
-    auto testResult = PacketDeltaFragmentManager::FragmentPacket(delta8BytePayloadServer);
+    auto testResult = PacketFragmentManager::FragmentPacket(delta8BytePayloadServer);
 
     ASSERT_EQ(testResult.size(), 1);
     EXPECT_EQ(PacketDelta(testResult[0]), delta8BytePayloadServer);
 }
 
-TEST_F(TestPacketDeltaFragmentManager, LargeGetsFragmentedCorrectlyAndInOrder)
+TEST_F(TestPacketFragmentManager, LargeGetsFragmentedCorrectlyAndInOrder)
 {
-    auto testResult = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
+    auto testResult = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
 
     ASSERT_GT(testResult.size(), 1);
 
@@ -95,27 +95,27 @@ TEST_F(TestPacketDeltaFragmentManager, LargeGetsFragmentedCorrectlyAndInOrder)
     EXPECT_TRUE(last.IsLastFragment());
 }
 
-TEST_F(TestPacketDeltaFragmentManager, EmptyReturnsInvalid)
+TEST_F(TestPacketFragmentManager, EmptyReturnsInvalid)
 {
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
     auto testResult = toTest.GetDefragmentedPacket();
 
     EXPECT_FALSE(testResult.IsValid());
 }
 
-TEST_F(TestPacketDeltaFragmentManager, AddNothing)
+TEST_F(TestPacketFragmentManager, AddNothing)
 {
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     // shouldn't crash
     toTest.AddPacket({});
 }
 
-TEST_F(TestPacketDeltaFragmentManager, FragmentDefragment)
+TEST_F(TestPacketFragmentManager, FragmentDefragment)
 {
-    auto halfWay = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
+    auto halfWay = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
 
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     for (auto fragment : halfWay)
     {
@@ -126,12 +126,12 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragment)
     EXPECT_EQ(testResult, delta4kBytePayloadServerSequence22);
 }
 
-TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentOldThenNew)
+TEST_F(TestPacketFragmentManager, FragmentDefragmentOldThenNew)
 {
-    auto halfWayOld = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
-    auto halfWayNew = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
+    auto halfWayOld = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
+    auto halfWayNew = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
 
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     for (auto fragment : halfWayOld)
     {
@@ -148,12 +148,12 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentOldThenNew)
     EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
 }
 
-TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOld)
+TEST_F(TestPacketFragmentManager, FragmentDefragmentNewThenOld)
 {
-    auto halfWayOld = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
-    auto halfWayNew = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
+    auto halfWayOld = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
+    auto halfWayNew = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
 
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     for (auto fragment : halfWayNew)
     {
@@ -170,9 +170,9 @@ TEST_F(TestPacketDeltaFragmentManager, FragmentDefragmentNewThenOld)
     EXPECT_EQ(testResult, delta4kBytePayloadServerSequence44);
 }
 
-TEST_F(TestPacketDeltaFragmentManager, DefragmentTooMany)
+TEST_F(TestPacketFragmentManager, DefragmentTooMany)
 {
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     auto fragment = PacketFragment{Sequence(0), delta8BytePayloadServer.data, 7, 0};
     auto buffer = std::vector<PacketFragment>(128, fragment);
@@ -185,22 +185,22 @@ TEST_F(TestPacketDeltaFragmentManager, DefragmentTooMany)
     EXPECT_FALSE(toTest.GetDefragmentedPacket().IsValid());
 }
 
-TEST_F(TestPacketDeltaFragmentManager, DefragmentTooBig)
+TEST_F(TestPacketFragmentManager, DefragmentTooBig)
 {
     auto big = PacketDelta{Sequence{2},Sequence{4},6,vector<uint8_t>(1024*256, 44)};
 
-    auto result = PacketDeltaFragmentManager::FragmentPacket(big);
+    auto result = PacketFragmentManager::FragmentPacket(big);
 
     EXPECT_EQ(0, result.size());
 }
 
-TEST_F(TestPacketDeltaFragmentManager, DefragmentOutOfOrder)
+TEST_F(TestPacketFragmentManager, DefragmentOutOfOrder)
 {
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     auto big = PacketDelta{Sequence{2},Sequence{4},6,vector<uint8_t>(1024*20, 44)};
 
-    auto halfway = PacketDeltaFragmentManager::FragmentPacket(big);
+    auto halfway = PacketFragmentManager::FragmentPacket(big);
 
     for (std::size_t i = 0; i < halfway.size(); ++i)
     {
@@ -228,13 +228,13 @@ TEST_F(TestPacketDeltaFragmentManager, DefragmentOutOfOrder)
     EXPECT_EQ(big, toTest.GetDefragmentedPacket());
 }
 
-TEST_F(TestPacketDeltaFragmentManager, DefragmentMissingOne)
+TEST_F(TestPacketFragmentManager, DefragmentMissingOne)
 {
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     auto big = PacketDelta{Sequence{2},Sequence{4},6,vector<uint8_t>(1024*20, 44)};
 
-    auto halfway = PacketDeltaFragmentManager::FragmentPacket(big);
+    auto halfway = PacketFragmentManager::FragmentPacket(big);
 
     for (std::size_t i = 0; i < halfway.size(); ++i)
     {
@@ -251,12 +251,12 @@ TEST_F(TestPacketDeltaFragmentManager, DefragmentMissingOne)
     EXPECT_FALSE(result.IsValid());
 }
 
-TEST_F(TestPacketDeltaFragmentManager, DefragmentSequenceInterleavedNotComplete)
+TEST_F(TestPacketFragmentManager, DefragmentSequenceInterleavedNotComplete)
 {
-    auto halfWayOld = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
-    auto halfWayNew = PacketDeltaFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
+    auto halfWayOld = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence22);
+    auto halfWayNew = PacketFragmentManager::FragmentPacket(delta4kBytePayloadServerSequence44);
 
-    PacketDeltaFragmentManager toTest;
+    PacketFragmentManager toTest;
 
     for (auto fragment : halfWayOld)
     {

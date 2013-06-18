@@ -180,7 +180,8 @@ source/Common/Network/BufferSerialisation.hpp
 source/Common/Network/DeltaMapItem.hpp
 source/Common/Network/XorCode.hpp
 source/Common/Network/INetworkManager.cpp
-source/Common/Network/PacketDeltaFragmentManager.cpp
+source/Common/Network/PacketFragmentManager.hpp
+source/Common/Network/PacketFragmentManager.cpp
 source/Common/Network/INetworkProvider.cpp
 source/Common/Network/Packet.cpp
 source/Common/Network/Packets.hpp
@@ -193,7 +194,6 @@ source/Common/Network/PacketFragment.cpp
 source/Common/Network/PacketFragment.hpp
 source/Common/Network/PacketChallengeResponse.cpp
 source/Common/Network/PacketChallenge.cpp
-source/Common/Network/PacketDeltaFragmentManager.hpp
 source/Common/Network/PacketDelta.hpp
 source/Common/Network/PacketChallenge.hpp
 source/Common/Network/Packet.hpp
@@ -270,7 +270,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragment.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDeltaFragmentManager.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragmentManager.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestBufferSerialisation.cpp

@@ -23,17 +23,17 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "PacketDeltaFragmentManager.hpp"
+#include "PacketFragmentManager.hpp"
 
 using namespace GameInABox::Common::Network;
 
-PacketDeltaFragmentManager::PacketDeltaFragmentManager()
+PacketFragmentManager::PacketFragmentManager()
     : myFragments()
     , myCurrentSequence()
 {
 }
 
-std::vector<std::vector<uint8_t>> PacketDeltaFragmentManager::FragmentPacket(PacketDelta toFragment)
+std::vector<std::vector<uint8_t>> PacketFragmentManager::FragmentPacket(PacketDelta toFragment)
 {
     if (toFragment.data.size() < PacketFragment::MaxTotalPayloadSize(SizeMaxPacketSize))
     {
@@ -76,7 +76,7 @@ std::vector<std::vector<uint8_t>> PacketDeltaFragmentManager::FragmentPacket(Pac
     return {};
 }
 
-void PacketDeltaFragmentManager::AddPacket(PacketFragment fragment)
+void PacketFragmentManager::AddPacket(PacketFragment fragment)
 {
     if (fragment.IsValid())
     {
@@ -100,7 +100,7 @@ void PacketDeltaFragmentManager::AddPacket(PacketFragment fragment)
     }
 }
 
-PacketDelta PacketDeltaFragmentManager::GetDefragmentedPacket()
+PacketDelta PacketFragmentManager::GetDefragmentedPacket()
 {
     if (!myFragments.empty())
     {

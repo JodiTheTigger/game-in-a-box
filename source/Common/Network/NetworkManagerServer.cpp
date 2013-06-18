@@ -29,7 +29,7 @@
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
 #include "PacketDelta.hpp"
-#include "PacketDeltaFragmentManager.hpp"
+#include "PacketFragmentManager.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
 
@@ -243,7 +243,7 @@ void NetworkManagerServer::PrivateSendState()
 
                         if (deltaPacket.data.size() <= MaxPacketSizeInBytes)
                         {
-                            auto fragments = PacketDeltaFragmentManager::FragmentPacket(deltaPacket);
+                            auto fragments = PacketFragmentManager::FragmentPacket(deltaPacket);
 
                             for (auto& fragment: fragments)
                             {

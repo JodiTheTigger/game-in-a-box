@@ -34,10 +34,6 @@
 using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;
 
-
-// RAM: TODO: Setting the delta distance to zero should also mean we reset
-// the ack as well? think how this would go wrong.
-
 namespace GameInABox { namespace Common { namespace Network {
 
 enum class State
@@ -520,7 +516,7 @@ PacketDelta Connection::GetDefragmentedPacket()
 
     if (result.IsValid())
     {
-        // PacketDeltaFragmentManager only returns new
+        // PacketFragmentManager only returns new
         // fragments, and ignores old ones. Due to this
         // we can assume that more recent packets have more
         // recent acks.

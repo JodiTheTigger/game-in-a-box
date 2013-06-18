@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETDELTAFRAGENTMANAGER_H
-#define PACKETDELTAFRAGENTMANAGER_H
+#ifndef PACKETPacketFragmentManager_H
+#define PACKETPacketFragmentManager_H
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
@@ -31,18 +31,18 @@
 namespace GameInABox { namespace Common { namespace Network {
 
 // Fragments and defragments packets of a fixed size
-// of PacketDeltaFragmentManager::SizeMaxPacketSize.
+// of PacketFragmentManager::SizeMaxPacketSize.
 // If we need to generalise this, turn it into a template
 // with the packet size a template parameter so that the static
 // function uses the generalised fragment size as well.
-class PacketDeltaFragmentManager
+class PacketFragmentManager
 {
 public:
     // Returned array might not contain fragmented packets
     // if the passed PacketDelta is small enough.
     static std::vector<std::vector<uint8_t>> FragmentPacket(PacketDelta toFragment);
 
-    PacketDeltaFragmentManager();
+    PacketFragmentManager();
 
     // Takes both fragmented and non-fragmented packets
     // returns the most recent complete packet.
@@ -67,4 +67,4 @@ private:
 
 }}} // namespace
 
-#endif // PACKETDELTAFRAGENTMANAGER_H
+#endif // PACKETPacketFragmentManager_H

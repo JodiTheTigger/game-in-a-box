@@ -31,7 +31,7 @@
 
 #include "Common/ClientHandle.hpp"
 #include "NetworkKey.hpp"
-#include "PacketDeltaFragmentManager.hpp"
+#include "PacketFragmentManager.hpp"
 
 namespace GameInABox { namespace Common {
 class IStateManager;
@@ -102,7 +102,7 @@ private:
     Sequence                                myLastSequenceAck;
     boost::optional<ClientHandle>           myStateHandle;
     boost::optional<uint16_t>               myClientId;
-    PacketDeltaFragmentManager              myFragments;
+    PacketFragmentManager                   myFragments;
     PacketDelta                             myLastDelta;
     Sequence                                myLastSequenceRecieved;
     TimeFunction                            myTimeNow;
