@@ -33,7 +33,7 @@
 
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
-#include "Packets.hpp"
+#include "PacketDelta.hpp"
 #include "XorCode.hpp"
 #include "BufferSerialisation.hpp"
 #include "Connection.hpp"
@@ -328,8 +328,10 @@ void NetworkManagerClient::DeltaReceive()
             // Reason for excryption in the fist place is to prevent easy man-in-the-middle
             // attacks to control someone else's connection.
             std::array<uint8_t, 4> code;
+            auto ack = delta.GetSequenceAck();
+            uint16_t rawAck = ack ? ack->Value() : 0;
             Push(begin(code), delta.GetSequence().Value());
-            // RAM: TODO: FIX! Push(begin(code) + 2, delta.GetSequenceAck().Value());
+            Push(begin(code) + 2, rawAck);
             XorCode(begin(code), end(code), myConnectedNetwork->handshake.Key().data);
             XorCode(begin(payload), end(payload), code);
 
@@ -368,10 +370,9 @@ void NetworkManagerClient::DeltaSend()
     {
         // ignore if the delta distance is greater than 255, as we
         // store the distance as a byte.
-        /* RAM: TODO: no client packet anymore. Soo broken.
         auto distance = deltaData.to - deltaData.base;
 
-        if (distance <= PacketDeltaClient::MaximumDeltaDistance())
+        if (distance <= PacketDelta::MaximumDeltaDistance())
         {
             // Compress, encrypt, send
             auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
@@ -382,7 +383,8 @@ void NetworkManagerClient::DeltaSend()
             XorCode(begin(code), end(code), myConnectedNetwork->handshake.Key().data);
             XorCode(begin(compressed), end(compressed), code);
 
-            PacketDeltaClient delta(
+            // Add the client id and payload.
+            PacketDelta delta(
                     deltaData.to,
                     myLastSequenceProcessed,
                     static_cast<uint8_t>(distance),
@@ -390,19 +392,17 @@ void NetworkManagerClient::DeltaSend()
                     move(compressed));
 
             // client packets are not fragmented.
-            std::vector<NetworkPacket> packets;
             if (!delta.data.empty())
             {
                 if (myStateManager.CanPacketSend(myStateHandle, delta.data.size()))
-                {
-                    packets.emplace_back(std::move(delta.data), myServerAddress);
+                {                    
+                    // RAM: TODO: FIX! myConnectedNetwork->transport->Send({std::move(delta.data), myServerAddress});
                 }
             }
 
             // send
-            myConnectedNetwork->transport->Send(packets);
         }
-        else */
+        else
         {
             Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
         }
