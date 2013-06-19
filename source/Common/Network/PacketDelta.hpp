@@ -46,6 +46,14 @@ public:
             uint8_t sequenceDelta,
             std::vector<uint8_t> deltaPayload);
 
+    // Client Delta
+    PacketDelta(
+            Sequence sequence,
+            boost::optional<Sequence> sequenceAck,
+            uint8_t sequenceDelta,
+            uint16_t idConnection,
+            std::vector<uint8_t> deltaPayload);
+
     // Rule of 5 (class contents are just one vector, so use defaults).
     PacketDelta(const PacketDelta&) = default;
     PacketDelta(PacketDelta&&) = default;
@@ -71,6 +79,13 @@ protected:
 
     static const uint16_t InvalidSequence = 0xFFFF;
     static const uint16_t MaskSequenceAck = MaskSequence;
+
+private:
+    explicit PacketDelta(
+            std::size_t payloadSize,
+            Sequence sequence,
+            boost::optional<Sequence> sequenceAck,
+            uint8_t sequenceDelta);
 };
 
 boost::optional<uint16_t> IdConnection(const PacketDelta& delta);

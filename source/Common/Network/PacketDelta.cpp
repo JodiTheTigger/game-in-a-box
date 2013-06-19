@@ -56,14 +56,15 @@ PacketDelta::PacketDelta(std::vector<uint8_t> rawData)
 {
 }
 
+
 PacketDelta::PacketDelta(
+        std::size_t payloadSize,
         Sequence sequence,
         boost::optional<Sequence> sequenceAck,
-        uint8_t sequenceDelta,
-        std::vector<uint8_t> deltaPayload)
+        uint8_t sequenceDelta)
     : PacketDelta()
 {
-    data.reserve(MinimumPacketSize + deltaPayload.size());
+    data.reserve(MinimumPacketSize + payloadSize);
 
     auto inserter = back_inserter(data);
     Push(inserter, sequence.Value());
@@ -76,6 +77,28 @@ PacketDelta::PacketDelta(
         Push(inserter, InvalidSequence);
     }
     data.push_back(sequenceDelta);
+}
+
+PacketDelta::PacketDelta(
+        Sequence sequence,
+        boost::optional<Sequence> sequenceAck,
+        uint8_t sequenceDelta,
+        std::vector<uint8_t> deltaPayload)
+    : PacketDelta(deltaPayload.size(), sequence, sequenceAck, sequenceDelta)
+{
+    data.insert(end(data), begin(deltaPayload), end(deltaPayload));
+}
+
+PacketDelta::PacketDelta(
+        Sequence sequence,
+        boost::optional<Sequence> sequenceAck,
+        uint8_t sequenceDelta,
+        uint16_t idConnection,
+        std::vector<uint8_t> deltaPayload)
+    : PacketDelta(deltaPayload.size() + 2, sequence, sequenceAck, sequenceDelta)
+{
+    auto inserter = back_inserter(data);
+    Push(inserter, idConnection);
 
     data.insert(end(data), begin(deltaPayload), end(deltaPayload));
 }
