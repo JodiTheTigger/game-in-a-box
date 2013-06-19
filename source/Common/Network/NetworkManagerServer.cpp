@@ -90,41 +90,39 @@ void NetworkManagerServer::PrivateProcessIncomming()
         else
         {
             // If it's a delta packet, see if it's an existing connection.
-            /* RAM: TODO: soooo broken!
-            if (PacketDeltaClient::IsPacket(packet.data))
+            // So we can update the sneders address.
+            // Going to this effort as QW,Q2,Q3 did.
+            if (PacketDelta::IsPacket(packet.data))
             {
-                auto delta = PacketDeltaClient{packet.data};
-                if (delta.IsValid())
+                auto delta = PacketDelta{packet.data};
+                auto id = IdConnection(delta);
+
+                if (id)
                 {
-                    auto id = delta.IdConnection();
-
-                    if (id)
+                    for (auto &addressToState : myAddressToState)
                     {
-                        for (auto &addressToState : myAddressToState)
+                        // same address?
+                        if (addressToState.first.address() == packet.address.address())
                         {
-                            // same address?
-                            if (addressToState.first.address() == packet.address.address())
+                            auto currentId = addressToState.second.connection.IdConnection();
+
+                            if (currentId == id)
                             {
-                                auto currentId = addressToState.second.connection.IdConnection();
+                                // copy the connection, don't care. Use move if metrics
+                                // say that this is too slow.
+                                myAddressToState.emplace(packet.address, addressToState.second);
 
-                                if (currentId == id)
-                                {
-                                    // copy the connection, don't care. Use move if metrics
-                                    // say that this is too slow.
-                                    myAddressToState.emplace(packet.address, addressToState.second);
-
-                                    // remove the last one
-                                    myAddressToState.erase(addressToState.first);
-                                    break;
-                                }
+                                // remove the last one
+                                myAddressToState.erase(addressToState.first);
+                                break;
                             }
                         }
                     }
                 }
             }
-            else */
+            else
             {
-                myAddressToState.emplace(packet.address, State{Connection{myStateManager}, Sequence{0}});
+                myAddressToState.emplace(packet.address, State{Connection{myStateManager}, {}});
 
                 auto &connection = myAddressToState.at(packet.address).connection;
 
@@ -169,35 +167,35 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
         if (connection.IsConnected())
         {
+            // This is either empty, or the most recent packet.
             auto delta = connection.GetDefragmentedPacket();
 
             if (delta.IsValid())
             {
-                if (delta.GetSequence() > addressToState.second.lastAcked)
+                auto client = connection.IdClient();
+
+                if (client)
                 {
-                    auto client = connection.IdClient();
+                    // decrypt, decompress, parse.
+                    std::vector<uint8_t> payload(GetPayloadBuffer(delta));
 
-                    if (client)
-                    {
-                        // decrypt, decompress, parse.
-                        std::vector<uint8_t> payload(GetPayloadBuffer(delta));
+                    std::array<uint8_t, 4> code;
+                    auto ack = delta.GetSequenceAck();
+                    uint16_t rawAck = ack ? ack->Value() : 0;
+                    Push(begin(code), delta.GetSequence().Value());
+                    Push(begin(code) + 2, rawAck);
+                    XorCode(begin(code), end(code), connection.Key().data);
+                    XorCode(begin(payload), end(payload), code);
 
-                        std::array<uint8_t, 4> code;
-                        Push(begin(code), delta.GetSequence().Value());
-                        // RAM: TODO: FIX! Push(begin(code) + 2, delta.GetSequenceAck().Value());
-                        XorCode(begin(code), end(code), connection.Key().data);
-                        XorCode(begin(payload), end(payload), code);
+                    auto decompressed = move(myCompressor.Decode(payload));
 
-                        auto decompressed = move(myCompressor.Decode(payload));
+                    // Pass to gamestate (which will decompress the delta itself).
+                    auto deltaData = Delta{
+                            delta.GetSequenceBase(),
+                            delta.GetSequence(),
+                            move(decompressed)};
 
-                        // Pass to gamestate (which will decompress the delta itself).
-                        auto deltaData = Delta{
-                                delta.GetSequenceBase(),
-                                delta.GetSequence(),
-                                move(decompressed)};
-
-                        addressToState.second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
-                    }
+                    addressToState.second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
                 }
             }
         }

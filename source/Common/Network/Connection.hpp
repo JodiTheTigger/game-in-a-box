@@ -72,7 +72,10 @@ public:
     // Input, packets to process, output, packets to send.
     std::vector<uint8_t> Process(std::vector<uint8_t> packet);
 
-    // Output, delta packets and last asked.
+    // Returns the most recent recieved delta packet
+    // It auto drops old out of order packets, so
+    // you can assume this is always the most recent
+    // packet.
     PacketDelta GetDefragmentedPacket();
     boost::optional<Sequence> LastSequenceAck() const;
 

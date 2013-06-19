@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
+#include <boost/optional.hpp>
 #include <boost/asio/ip/udp.hpp>
 #endif
 
