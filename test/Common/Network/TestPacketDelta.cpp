@@ -25,7 +25,7 @@ using namespace std;
 using GameInABox::Common::WrappingCounter;
 
 namespace GameInABox { namespace Common { namespace Network {
-
+// RAM: TODO: Create clientid packetdelta constructor tests.
 // Class definition!
 class TestPacketDelta : public ::testing::Test
 {
