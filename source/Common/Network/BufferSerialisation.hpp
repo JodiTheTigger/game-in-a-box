@@ -26,7 +26,7 @@
 #include <type_traits>
 #include <iterator>
 #endif
-// RAM: TODO: Use static cast, and do random access iterator pull.
+
 namespace GameInABox { namespace Common { namespace Network {
 
 // =======================
@@ -51,17 +51,17 @@ void Push(Iterator buffer, uint8_t value, std::random_access_iterator_tag, BigEn
 template <typename Iterator>
 void Push(Iterator buffer, uint16_t value, std::random_access_iterator_tag, BigEndian)
 {
-    buffer[0] = uint8_t(value >> 8);
-    buffer[1] = uint8_t(value);
+    buffer[0] = static_cast<uint8_t>(value >> 8);
+    buffer[1] = static_cast<uint8_t>(value);
 }
 
 template <typename Iterator>
 void Push(Iterator buffer, uint32_t value, std::random_access_iterator_tag, BigEndian)
 {
-    buffer[0] = uint8_t(value >> 24);
-    buffer[1] = uint8_t(value >> 16);
-    buffer[2] = uint8_t(value >> 8);
-    buffer[3] = uint8_t(value);
+    buffer[0] = static_cast<uint8_t>(value >> 24);
+    buffer[1] = static_cast<uint8_t>(value >> 16);
+    buffer[2] = static_cast<uint8_t>(value >> 8);
+    buffer[3] = static_cast<uint8_t>(value);
 }
 
 template <typename Iterator>
@@ -73,7 +73,7 @@ void Pull(Iterator buffer, uint8_t& result, std::random_access_iterator_tag, Big
 template <typename Iterator>
 void Pull(Iterator buffer, uint16_t& result, std::random_access_iterator_tag, BigEndian)
 {
-    result = uint16_t(
+    result = static_cast<uint16_t>(
             (buffer[0] << 8) |
             buffer[1]);
 }
@@ -81,7 +81,7 @@ void Pull(Iterator buffer, uint16_t& result, std::random_access_iterator_tag, Bi
 template <typename Iterator>
 void Pull(Iterator buffer, uint32_t& result, std::random_access_iterator_tag, BigEndian)
 {
-    result = uint32_t(
+    result = static_cast<uint32_t>(
             (buffer[0] << 24) |
             (buffer[1] << 16) |
             (buffer[2] << 8) |
@@ -98,17 +98,17 @@ void Push(Iterator buffer, uint8_t value, std::output_iterator_tag, BigEndian)
 template <typename Iterator>
 void Push(Iterator buffer, uint16_t value, std::output_iterator_tag, BigEndian)
 {
-    *buffer++ = uint8_t(value >> 8);
-    *buffer++ = uint8_t(value);
+    *buffer++ = static_cast<uint8_t>(value >> 8);
+    *buffer++ = static_cast<uint8_t>(value);
 }
 
 template <typename Iterator>
 void Push(Iterator buffer, uint32_t value, std::output_iterator_tag, BigEndian)
 {
-    *buffer++ = uint8_t(value >> 24);
-    *buffer++ = uint8_t(value >> 16);
-    *buffer++ = uint8_t(value >> 8);
-    *buffer++ = uint8_t(value);
+    *buffer++ = static_cast<uint8_t>(value >> 24);
+    *buffer++ = static_cast<uint8_t>(value >> 16);
+    *buffer++ = static_cast<uint8_t>(value >> 8);
+    *buffer++ = static_cast<uint8_t>(value);
 }
 
 template <typename Iterator>
@@ -120,7 +120,7 @@ void Pull(Iterator buffer, uint8_t& result, std::input_iterator_tag, BigEndian)
 template <typename Iterator>
 void Pull(Iterator buffer, uint16_t& result, std::input_iterator_tag, BigEndian)
 {
-    result = uint16_t(
+    result = static_cast<uint16_t>(
             (*buffer++ << 8) |
             *buffer);
 }
@@ -128,7 +128,7 @@ void Pull(Iterator buffer, uint16_t& result, std::input_iterator_tag, BigEndian)
 template <typename Iterator>
 void Pull(Iterator buffer, uint32_t& result, std::input_iterator_tag, BigEndian)
 {
-    result = uint32_t(
+    result = static_cast<uint32_t>(
             (*buffer++ << 24) |
             (*buffer++ << 16) |
             (*buffer++ << 8) |
