@@ -25,7 +25,7 @@ using namespace std;
 using GameInABox::Common::WrappingCounter;
 
 namespace GameInABox { namespace Common { namespace Network {
-// RAM: TODO: Create clientid packetdelta constructor tests.
+
 // Class definition!
 class TestPacketDelta : public ::testing::Test
 {
@@ -128,6 +128,34 @@ TEST_F(TestPacketDelta, Simple)
     EXPECT_EQ(2, toTest.GetSequenceAck().get());
 }
 
+TEST_F(TestPacketDelta, SimpleConnectionIdNoPayload)
+{
+    auto toTest = PacketDelta{Sequence(0), Sequence(1), 32, 4633, {}};
+
+    EXPECT_TRUE(toTest.IsValid());
+
+    EXPECT_NE(0, toTest.data.size());
+
+    auto id = IdConnection(toTest);
+
+    ASSERT_TRUE(id);
+    EXPECT_EQ(4633, id.get());
+    EXPECT_EQ(0, ClientPayload(toTest).size());
+}
+
+TEST_F(TestPacketDelta, SimpleConnectionId)
+{
+    auto toTest = PacketDelta{Sequence(0), Sequence(1), 32, 4633, {1,2,3,4}};
+
+    EXPECT_TRUE(toTest.IsValid());
+
+    EXPECT_NE(0, toTest.data.size());
+
+    auto payload = ClientPayload(toTest);
+
+    EXPECT_EQ(std::vector<uint8_t>({1,2,3,4}), payload);
+}
+
 TEST_F(TestPacketDelta, LastSequence)
 {
     PacketDelta toTest = {Sequence{Sequence::max()}, Sequence{Sequence::max()}, 0, {1,2,3,4}};
@@ -164,6 +192,36 @@ TEST_F(TestPacketDelta, EncodeDecode)
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
     ASSERT_TRUE(toTest.GetSequenceAck());
     EXPECT_EQ(2, toTest.GetSequenceAck().get());
+}
+
+TEST_F(TestPacketDelta, ClientEmptyDelta)
+{
+    auto connectionId = IdConnection(PacketDelta{});
+    auto payload = ClientPayload(PacketDelta{});
+
+    EXPECT_FALSE(connectionId);
+
+    EXPECT_EQ(0, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>(), payload);
+}
+
+TEST_F(TestPacketDelta, ClientDelta)
+{
+    auto delta = PacketDelta{
+            Sequence(1),
+            Sequence(2),
+            3,
+            // note, big endian, 1,2 -> 0x0102
+            {1,2,3,4,5,6,7,8}};
+
+    auto connectionId = IdConnection(delta);
+    auto payload = ClientPayload(delta);
+
+    ASSERT_TRUE(connectionId);
+    EXPECT_EQ(0x0102, *connectionId);
+
+    EXPECT_EQ(6, payload.size());
+    EXPECT_EQ(std::vector<uint8_t>({3,4,5,6,7,8}), payload);
 }
 
 }}} // namespace
