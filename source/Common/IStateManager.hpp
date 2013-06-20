@@ -56,6 +56,7 @@ struct Delta
     Delta(const Delta&) = default;
 };
 
+// All methods are assumed to be multithreading and reentrance UNSAFE, unless told otherwise.
 class IStateManager : NoCopyMoveNorAssign
 {
 public:
@@ -69,10 +70,11 @@ public:
     void Disconnect(ClientHandle toDisconnect);
     bool IsConnected(ClientHandle client) const;
 
-    // called each time a packet is to be sent to the network, to be used by the state
-    // manager to control throttling. Return true if can send, false otherwise.
+    // Called for each datagram received or to be sent, to be used by the state
+    // manager for metrics and to control throttling. Return true to process the datagram further, false otherwise.
     // If !client it is for handshaking.
-    bool CanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes);
+    bool CanReceive(boost::optional<ClientHandle> client, std::size_t bytes);
+    bool CanSend(boost::optional<ClientHandle> client, std::size_t bytes);
 
     // Delta compression aggression should be inferred by the packet distance,
     // thus how well the packet compresses, therefore how big the packet should get.
@@ -104,7 +106,8 @@ private:
     virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;    
     virtual bool PrivateIsConnected(ClientHandle client) const = 0;
 
-    virtual bool PrivateCanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;    
+    virtual bool PrivateCanReceive(boost::optional<ClientHandle> client, std::size_t bytes) = 0;
+    virtual bool PrivateCanSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;
 
     virtual Delta PrivateDeltaCreate(
             ClientHandle client,

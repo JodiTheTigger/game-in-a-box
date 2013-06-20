@@ -37,6 +37,7 @@
 
 using namespace GameInABox::Common::Network;
 
+// RAM: TODO: Call myStateManager.CanReceive.
 NetworkManagerServer::NetworkManagerServer(
         MotleyUniquePointer<INetworkProvider> network,
         IStateManager& stateManager)
@@ -81,7 +82,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
             if (!response.empty())
             {
-                if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
+                if (myStateManager.CanSend(connection.IdClient(), response.size()))
                 {
                     responses.emplace_back(move(response), packet.address);
                 }
@@ -132,7 +133,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                 if (!response.empty())
                 {
-                    if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
+                    if (myStateManager.CanSend(connection.IdClient(), response.size()))
                     {
                         responses.emplace_back(move(response), packet.address);
                     }
@@ -247,7 +248,7 @@ void NetworkManagerServer::PrivateSendState()
                             {
                                 if (!fragment.empty())
                                 {
-                                    if (myStateManager.CanPacketSend(*client, fragment.size()))
+                                    if (myStateManager.CanSend(*client, fragment.size()))
                                     {
                                         responses.emplace_back(move(fragment), addressToState.first);
                                     }
@@ -284,7 +285,7 @@ void NetworkManagerServer::PrivateSendState()
 
             if (!response.empty())
             {
-                if (myStateManager.CanPacketSend(connection.IdClient(), response.size()))
+                if (myStateManager.CanSend(connection.IdClient(), response.size()))
                 {
                     responses.emplace_back(move(response), addressToState.first);
                 }

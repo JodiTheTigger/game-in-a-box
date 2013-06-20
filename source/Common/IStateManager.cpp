@@ -51,9 +51,14 @@ void IStateManager::Disconnect(ClientHandle toDisconnect)
     PrivateDisconnect(toDisconnect);
 }
 
-bool IStateManager::CanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes)
+bool IStateManager::CanReceive(boost::optional<ClientHandle> client, std::size_t bytes)
 {
-    return PrivateCanPacketSend(client, bytes);
+    return PrivateCanReceive(client, bytes);
+}
+
+bool IStateManager::CanSend(boost::optional<ClientHandle> client, std::size_t bytes)
+{
+    return PrivateCanSend(client, bytes);
 }
 
 bool IStateManager::IsConnected(ClientHandle client) const

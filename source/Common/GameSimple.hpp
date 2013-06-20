@@ -45,7 +45,8 @@ private:
             std::vector<uint8_t> connectData,
             std::string& failReason) override;
 
-    bool PrivateCanPacketSend(boost::optional<ClientHandle> client, std::size_t bytes) override;
+    bool PrivateCanSend(boost::optional<ClientHandle> client, std::size_t bytes) override;
+    bool PrivateCanReceive(boost::optional<ClientHandle> client, std::size_t bytes) override;
 
     void PrivateDisconnect(ClientHandle playerToDisconnect) override;
     bool PrivateIsConnected(ClientHandle client) const override;

@@ -51,6 +51,7 @@ struct NetworkManagerClient::LiveConnection
     Connection handshake;
 };
 
+// RAM: TODO: Call myStateManager.CanReceive.
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
@@ -124,7 +125,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
 
                     if (!response.empty())
                     {
-                        if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+                        if (myStateManager.CanSend(myStateHandle, response.size()))
                         {
                             myConnectedNetwork->transport->Send({{response, myServerAddress}});
                         }
@@ -169,7 +170,7 @@ void NetworkManagerClient::PrivateProcessIncomming()
 
                         if (!response.empty())
                         {
-                            if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+                            if (myStateManager.CanSend(myStateHandle, response.size()))
                             {
                                 toSend.emplace_back(response, myServerAddress);
                             }
@@ -252,7 +253,7 @@ void NetworkManagerClient::PrivateSendState()
 
                 if (!response.empty())
                 {
-                    if (myStateManager.CanPacketSend(myStateHandle, response.size()))
+                    if (myStateManager.CanSend(myStateHandle, response.size()))
                     {
                         network.transport->Send({{response, myServerAddress}});
                     }
@@ -285,7 +286,7 @@ void NetworkManagerClient::Fail(std::string failReason)
 
                 if (!lastPacket.empty())
                 {
-                    if (myStateManager.CanPacketSend(myStateHandle, lastPacket.size()))
+                    if (myStateManager.CanSend(myStateHandle, lastPacket.size()))
                     {
                         network.transport->Send({{lastPacket, myServerAddress}});
                     }
@@ -394,7 +395,7 @@ void NetworkManagerClient::DeltaSend()
             // client packets are not fragmented.
             if (!delta.data.empty())
             {
-                if (myStateManager.CanPacketSend(myStateHandle, delta.data.size()))
+                if (myStateManager.CanSend(myStateHandle, delta.data.size()))
                 {                    
                     myConnectedNetwork->transport->Send({{std::move(delta.data), myServerAddress}});
                 }
