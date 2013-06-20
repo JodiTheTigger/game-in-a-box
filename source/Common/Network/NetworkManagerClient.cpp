@@ -396,7 +396,7 @@ void NetworkManagerClient::DeltaSend()
             {
                 if (myStateManager.CanPacketSend(myStateHandle, delta.data.size()))
                 {                    
-                    // RAM: TODO: FIX! myConnectedNetwork->transport->Send({std::move(delta.data), myServerAddress});
+                    myConnectedNetwork->transport->Send({{std::move(delta.data), myServerAddress}});
                 }
             }
 
