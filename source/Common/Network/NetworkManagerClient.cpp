@@ -51,7 +51,6 @@ struct NetworkManagerClient::LiveConnection
     Connection handshake;
 };
 
-// RAM: TODO: Call myStateManager.CanReceive.
 NetworkManagerClient::NetworkManagerClient(
         std::vector<MotleyUniquePointer<INetworkProvider>> networks,
         IStateManager& stateManager)
@@ -121,20 +120,23 @@ void NetworkManagerClient::PrivateProcessIncomming()
             {
                 if (packet.address == myServerAddress)
                 {
-                    auto response = myConnectedNetwork->handshake.Process(packet.data);
-
-                    if (!response.empty())
+                    if (myStateManager.CanReceive(myStateHandle, packet.data.size()))
                     {
-                        if (myStateManager.CanSend(myStateHandle, response.size()))
+                        auto response = myConnectedNetwork->handshake.Process(packet.data);
+
+                        if (!response.empty())
                         {
-                            myConnectedNetwork->transport->Send({{response, myServerAddress}});
+                            if (myStateManager.CanSend(myStateHandle, response.size()))
+                            {
+                                myConnectedNetwork->transport->Send({{response, myServerAddress}});
+                            }
                         }
-                    }
 
-                    if (myConnectedNetwork->handshake.HasFailed())
-                    {
-                        Fail(myConnectedNetwork->handshake.FailReason());
-                        break;
+                        if (myConnectedNetwork->handshake.HasFailed())
+                        {
+                            Fail(myConnectedNetwork->handshake.FailReason());
+                            break;
+                        }
                     }
                 }
             }
@@ -166,37 +168,41 @@ void NetworkManagerClient::PrivateProcessIncomming()
                 {
                     if (packet.address == myServerAddress)
                     {
-                        auto response = network.handshake.Process(packet.data);
-
-                        if (!response.empty())
+                        // process
+                        if (myStateManager.CanReceive(myStateHandle, packet.data.size()))
                         {
-                            if (myStateManager.CanSend(myStateHandle, response.size()))
+                            auto response = network.handshake.Process(packet.data);
+
+                            if (!response.empty())
                             {
-                                toSend.emplace_back(response, myServerAddress);
+                                if (myStateManager.CanSend(myStateHandle, response.size()))
+                                {
+                                    toSend.emplace_back(response, myServerAddress);
+                                }
                             }
-                        }
 
-                        // Win, lose or nothing?
-                        if (network.handshake.IsConnected())
-                        {
-                            // Win
-                            myConnectedNetwork = &network;
-                            break;
-                        }
-                        else
-                        {
-                            if (network.handshake.HasFailed())
+                            // Win, lose or nothing?
+                            if (network.handshake.IsConnected())
                             {
-                                // Lose.
-                                network.transport->Send(toSend);
-                                network.transport->Flush();
-                                network.transport->Disable();
+                                // Win
+                                myConnectedNetwork = &network;
                                 break;
                             }
                             else
                             {
-                                // Nothing.
-                                fail = false;
+                                if (network.handshake.HasFailed())
+                                {
+                                    // Lose.
+                                    network.transport->Send(toSend);
+                                    network.transport->Flush();
+                                    network.transport->Disable();
+                                    break;
+                                }
+                                else
+                                {
+                                    // Nothing.
+                                    fail = false;
+                                }
                             }
                         }
                     }

@@ -37,7 +37,6 @@
 
 using namespace GameInABox::Common::Network;
 
-// RAM: TODO: Call myStateManager.CanReceive.
 NetworkManagerServer::NetworkManagerServer(
         MotleyUniquePointer<INetworkProvider> network,
         IStateManager& stateManager)
@@ -78,13 +77,17 @@ void NetworkManagerServer::PrivateProcessIncomming()
         if (myAddressToState.count(packet.address) > 0)
         {
             auto &connection = myAddressToState.at(packet.address).connection;
-            auto response = connection.Process(move(packet.data));
 
-            if (!response.empty())
+            if (myStateManager.CanReceive(connection.IdClient(), packet.address.size()))
             {
-                if (myStateManager.CanSend(connection.IdClient(), response.size()))
+                auto response = connection.Process(move(packet.data));
+
+                if (!response.empty())
                 {
-                    responses.emplace_back(move(response), packet.address);
+                    if (myStateManager.CanSend(connection.IdClient(), response.size()))
+                    {
+                        responses.emplace_back(move(response), packet.address);
+                    }
                 }
             }
         }
@@ -105,9 +108,10 @@ void NetworkManagerServer::PrivateProcessIncomming()
                         // same address?
                         if (addressToState.first.address() == packet.address.address())
                         {
-                            auto currentId = addressToState.second.connection.IdConnection();
+                            auto &connection = addressToState.second.connection;
+                            auto idConnection = connection.IdConnection();
 
-                            if (currentId == id)
+                            if (idConnection == id)
                             {
                                 // copy the connection, don't care. Use move if metrics
                                 // say that this is too slow.
@@ -115,6 +119,20 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
                                 // remove the last one
                                 myAddressToState.erase(addressToState.first);
+
+                                // Process the data.
+                                if (myStateManager.CanReceive(connection.IdClient(), packet.address.size()))
+                                {
+                                    auto response = connection.Process(move(packet.data));
+
+                                    if (!response.empty())
+                                    {
+                                        if (myStateManager.CanSend(connection.IdClient(), response.size()))
+                                        {
+                                            responses.emplace_back(move(response), packet.address);
+                                        }
+                                    }
+                                }
                                 break;
                             }
                         }
@@ -122,20 +140,23 @@ void NetworkManagerServer::PrivateProcessIncomming()
                 }
             }
             else
-            {
-                myAddressToState.emplace(packet.address, State{Connection{myStateManager}, {}});
-
-                auto &connection = myAddressToState.at(packet.address).connection;
-
-                connection.Start(Connection::Mode::Server);
-
-                auto response = connection.Process(move(packet.data));
-
-                if (!response.empty())
+            {                
+                if (myStateManager.CanReceive({}, packet.data.size()))
                 {
-                    if (myStateManager.CanSend(connection.IdClient(), response.size()))
+                    myAddressToState.emplace(packet.address, State{Connection{myStateManager}, {}});
+
+                    auto &connection = myAddressToState.at(packet.address).connection;
+
+                    connection.Start(Connection::Mode::Server);
+
+                    auto response = connection.Process(move(packet.data));
+
+                    if (!response.empty())
                     {
-                        responses.emplace_back(move(response), packet.address);
+                        if (myStateManager.CanSend(connection.IdClient(), response.size()))
+                        {
+                            responses.emplace_back(move(response), packet.address);
+                        }
                     }
                 }
             }
