@@ -207,6 +207,8 @@ source/Common/Network/NetworkManagerClient.cpp
 source/Common/Network/NetworkPacket.hpp
 source/Common/Network/NetworkProviderSynchronous.cpp
 source/Common/Network/NetworkProviderSynchronous.hpp
+source/Common/Network/NetworkProviderInMemory.cpp
+source/Common/Network/NetworkProviderInMemory.hpp
 )
 
 set(COMMON_SOURCE_LOGGING
