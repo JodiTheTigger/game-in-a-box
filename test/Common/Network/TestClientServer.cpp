@@ -21,6 +21,7 @@
 #include <gmock/gmock.h>
 
 #include <Common/Network/NetworkManagerClient.hpp>
+#include <Common/Network/NetworkManagerServer.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
 #include <Common/MockIStateManager.hpp>
 #include <Common/MotleyUniquePointer.hpp>
@@ -41,25 +42,42 @@ using ::testing::AtLeast;
 namespace GameInABox { namespace Common { namespace Network {
 
 // Class definition!
-class TestNetworkManagerClient : public ::testing::Test
+class TestClientServer : public ::testing::Test
 {
 public:
-    TestNetworkManagerClient()
+    TestClientServer()
         : ipMock1(make_unique_motley<INetworkProvider, MockINetworkProvider>())
         , ipMock2(make_unique_motley<INetworkProvider, MockINetworkProvider>())
         , stateMock()
-    {        
+    {
         // all equally probable.
         frequencies.fill(1);
+
+        // all set or all zero more probable.
+        frequenciesUseful.fill(1);
+
+        // 8 bits
+        frequenciesUseful[0x00] = 10;
+        frequenciesUseful[0xFF] = 10;
+
+        // 7 bits
+        frequenciesUseful[0x7F] = 9;
+        frequenciesUseful[0xFE] = 9;
+
+        // 6 bits
+        frequenciesUseful[0x3F] = 8;
+        frequenciesUseful[0x7E] = 8;
+        frequenciesUseful[0xFC] = 8;
     }
 
     MotleyUniquePointer<INetworkProvider> ipMock1;
     MotleyUniquePointer<INetworkProvider> ipMock2;
     MockIStateManager stateMock;
     std::array<uint64_t, 256> frequencies;
+    std::array<uint64_t, 256> frequenciesUseful;
 };
 
-TEST_F(TestNetworkManagerClient, CreateNoNet)
+TEST_F(TestClientServer, CreateClientNoNet)
 {
     // right, what do we expect?
     EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
@@ -73,7 +91,7 @@ TEST_F(TestNetworkManagerClient, CreateNoNet)
     EXPECT_EQ("", toTest.FailReason());
 }
 
-TEST_F(TestNetworkManagerClient, CreateTwoNet)
+TEST_F(TestClientServer, CreateClientTwoNet)
 {
     std::vector<MotleyUniquePointer<INetworkProvider>> networks;
 
@@ -88,4 +106,16 @@ TEST_F(TestNetworkManagerClient, CreateTwoNet)
     NetworkManagerClient(std::move(networks), stateMock);
 }
 
+TEST_F(TestClientServer, CreateServer)
+{
+    // right, what do we expect?
+    EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(frequencies));
+
+    NetworkManagerServer(std::move(ipMock1), stateMock);
+}
+
 }}} // namespace
+
+

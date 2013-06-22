@@ -275,8 +275,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestBufferSerialisation.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProviderSynchronous.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkManagerClient.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkManagerServer.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestClientServer.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 
   ${PROJECT_SOURCE_DIR}/test/Common/TestIReflected.cpp
