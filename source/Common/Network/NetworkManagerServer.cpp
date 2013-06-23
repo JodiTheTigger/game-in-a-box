@@ -38,10 +38,10 @@
 using namespace GameInABox::Common::Network;
 
 NetworkManagerServer::NetworkManagerServer(
-        MotleyUniquePointer<INetworkProvider> network,
+        INetworkProvider& network,
         IStateManager& stateManager)
     : INetworkManager()
-    , myNetwork(move(network))
+    , myNetwork(network)
     , myStateManager(stateManager)
     , myAddressToState()
     , myCompressor(stateManager.GetHuffmanFrequencies())
@@ -68,7 +68,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
     // connection.
     std::vector<NetworkPacket> responses{};
 
-    auto packets = myNetwork->Receive();
+    auto packets = myNetwork.Receive();
 
     // process all the packets.
 
@@ -165,7 +165,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
     if (!responses.empty())
     {
-        myNetwork->Send(responses);
+        myNetwork.Send(responses);
     }
 
     // Drop any disconnects, parse any deltas.
@@ -316,7 +316,7 @@ void NetworkManagerServer::PrivateSendState()
 
     if (!responses.empty())
     {
-        myNetwork->Send(responses);
+        myNetwork.Send(responses);
     }
 }
 
@@ -333,6 +333,6 @@ void NetworkManagerServer::Disconnect()
     }
 
     PrivateSendState();
-    myNetwork->Flush();
-    myNetwork->Disable();
+    myNetwork.Flush();
+    myNetwork.Disable();
 }

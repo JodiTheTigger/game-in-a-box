@@ -37,6 +37,7 @@
 #include "INetworkManager.hpp"
 #include "PacketFragmentManager.hpp"
 #include "NetworkKey.hpp"
+#include "Connection.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
@@ -46,7 +47,7 @@ class NetworkManagerClient : public INetworkManager
 {
 public:
     NetworkManagerClient(
-            std::vector<MotleyUniquePointer<INetworkProvider>> networks,
+            INetworkProvider& network,
             IStateManager& stateManager);
 
     void Connect(boost::asio::ip::udp::endpoint serverAddress);
@@ -78,6 +79,7 @@ private:
         return std::chrono::milliseconds{1000};
     }
 
+    // RAM: TODO: REMOVE.
     enum class State
     {
         Idle,
@@ -85,12 +87,10 @@ private:
         Connecting,
         Connected,
         FailedConnection,
-    };
+    };;
 
-    struct LiveConnection;
-
-    std::vector<LiveConnection> myNetworks;
-    LiveConnection* myConnectedNetwork;
+    INetworkProvider& myNetwork;
+    Connection myConnection;
     IStateManager& myStateManager;
 
     State myState;

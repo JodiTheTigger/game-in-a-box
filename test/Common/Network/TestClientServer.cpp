@@ -23,6 +23,7 @@
 #include <Common/Network/NetworkManagerClient.hpp>
 #include <Common/Network/NetworkManagerServer.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
+#include <Common/Network/NetworkProviderInMemory.hpp>
 #include <Common/MockIStateManager.hpp>
 #include <Common/MotleyUniquePointer.hpp>
 
@@ -46,9 +47,10 @@ class TestClientServer : public ::testing::Test
 {
 public:
     TestClientServer()
-        : ipMock1(make_unique_motley<INetworkProvider, MockINetworkProvider>())
-        , ipMock2(make_unique_motley<INetworkProvider, MockINetworkProvider>())
-        , stateMock()
+        : stateMock()
+        , frequencies()
+        , frequenciesUseful()
+        , theNetwork()
     {
         // all equally probable.
         frequencies.fill(1);
@@ -70,40 +72,30 @@ public:
         frequenciesUseful[0xFC] = 8;
     }
 
-    MotleyUniquePointer<INetworkProvider> ipMock1;
-    MotleyUniquePointer<INetworkProvider> ipMock2;
     MockIStateManager stateMock;
     std::array<uint64_t, 256> frequencies;
     std::array<uint64_t, 256> frequenciesUseful;
+
+    NetworkProviderInMemory theNetwork;
 };
 
-TEST_F(TestClientServer, CreateClientNoNet)
+
+// ///////////////////
+// Simple Tests
+// ///////////////////
+
+TEST_F(TestClientServer, CreateClient)
 {
     // right, what do we expect?
     EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
             .Times(AtLeast(1))
             .WillRepeatedly(Return(frequencies));
 
-    NetworkManagerClient toTest({}, stateMock);
+    NetworkManagerClient toTest(theNetwork, stateMock);
 
     EXPECT_FALSE(toTest.IsConnected());
     EXPECT_FALSE(toTest.HasFailed());
     EXPECT_EQ("", toTest.FailReason());
-}
-
-TEST_F(TestClientServer, CreateClientTwoNet)
-{
-    std::vector<MotleyUniquePointer<INetworkProvider>> networks;
-
-    networks.push_back(std::move(ipMock1));
-    networks.push_back(std::move(ipMock2));
-
-    // right, what do we expect?
-    EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequencies));
-
-    NetworkManagerClient(std::move(networks), stateMock);
 }
 
 TEST_F(TestClientServer, CreateServer)
@@ -113,8 +105,23 @@ TEST_F(TestClientServer, CreateServer)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(frequencies));
 
-    NetworkManagerServer(std::move(ipMock1), stateMock);
+    NetworkManagerServer(theNetwork, stateMock);
 }
+
+
+// ///////////////////
+// Perfect conection
+// ///////////////////
+TEST_F(TestClientServer, OneConnection)
+{
+    // A Tricky one, need a null deleter for the INetworkInterface
+    // RAM: NO:
+    // ooh, look, all three braces!
+    // RAM: going to all this trouble just to give a reference instead of ownership?
+    // maybe just have the classes take references instead? Make everyone's life easier?
+    //auto server = MotleyUniquePointer<INetworkProvider>(&theNetwork, [] (void*) {});
+}
+
 
 }}} // namespace
 

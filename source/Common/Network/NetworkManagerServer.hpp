@@ -47,7 +47,7 @@ class NetworkManagerServer : public INetworkManager
 {
 public:
     NetworkManagerServer(
-            MotleyUniquePointer<INetworkProvider> network,
+            INetworkProvider& network,
             IStateManager& stateManager);
 
     virtual ~NetworkManagerServer();
@@ -61,7 +61,7 @@ private:
         Sequence lastAcked;
     };
 
-    MotleyUniquePointer<INetworkProvider> myNetwork;
+    INetworkProvider& myNetwork;
     IStateManager& myStateManager;
 
     std::unordered_map<boost::asio::ip::udp::endpoint, State> myAddressToState;
