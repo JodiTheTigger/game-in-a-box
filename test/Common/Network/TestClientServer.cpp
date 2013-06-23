@@ -113,12 +113,18 @@ TEST_F(TestClientServer, CreateServer)
 // ///////////////////
 TEST_F(TestClientServer, OneConnection)
 {
-    // A Tricky one, need a null deleter for the INetworkInterface
-    // RAM: NO:
-    // ooh, look, all three braces!
-    // RAM: going to all this trouble just to give a reference instead of ownership?
-    // maybe just have the classes take references instead? Make everyone's life easier?
-    //auto server = MotleyUniquePointer<INetworkProvider>(&theNetwork, [] (void*) {});
+    // right, what do we expect?
+    EXPECT_CALL(stateMock, PrivateGetHuffmanFrequencies())
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(frequenciesUseful));
+
+    // Careful using the same state machine.
+    NetworkManagerServer server{theNetwork, stateMock};
+    NetworkManagerClient client{theNetwork, stateMock};
+
+    // RAM: TODO: Fix.
+    //auto addressClient = boost::asio::ip::udp::endpoint{"192.168.1.2", 13444};
+    //auto addressClient = boost::asio::ip::udp::endpoint{"192.168.1.3", 4444};
 }
 
 
