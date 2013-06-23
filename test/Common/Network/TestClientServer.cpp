@@ -25,7 +25,6 @@
 #include <Common/Network/MockINetworkProvider.hpp>
 #include <Common/Network/NetworkProviderInMemory.hpp>
 #include <Common/MockIStateManager.hpp>
-#include <Common/MotleyUniquePointer.hpp>
 
 // NOTE:
 // This only tests the class for valid state.

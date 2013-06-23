@@ -29,7 +29,6 @@
 #include <boost/asio/ip/udp.hpp>
 #endif
 
-#include "Common/MotleyUniquePointer.hpp"
 #include "Common/Sequence.hpp"
 #include "Common/Huffman.hpp"
 

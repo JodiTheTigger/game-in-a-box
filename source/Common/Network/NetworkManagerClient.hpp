@@ -32,8 +32,6 @@
 #include "Common/IStateManager.hpp"
 #include "Common/Huffman.hpp"
 #include "Common/WrappingCounter.hpp"
-#include "Common/MotleyUniquePointer.hpp"
-
 #include "INetworkManager.hpp"
 #include "PacketFragmentManager.hpp"
 #include "NetworkKey.hpp"
