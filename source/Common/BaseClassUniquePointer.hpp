@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef MOTLEYUNIQUEPOINTER_HPP
-#define MOTLEYUNIQUEPOINTER_HPP
+#ifndef BASSCLASSUNIQUEPOINTER_HPP
+#define BASSCLASSUNIQUEPOINTER_HPP
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
@@ -77,7 +77,7 @@ private:
 // Interface
 // /////////////////////
 template<typename BaseType>
-class MotleyUniquePointer final : protected std::unique_ptr<BaseType, BoundDeleter>
+class BaseClassUniquePointer final : protected std::unique_ptr<BaseType, BoundDeleter>
 {
 public:
     typedef std::unique_ptr<BaseType, BoundDeleter> Base;
@@ -88,24 +88,24 @@ public:
     using Base::get;
 
     template<typename ActualType>
-    MotleyUniquePointer(ActualType* derived)
+    BaseClassUniquePointer(ActualType* derived)
         : Base(derived, BoundDeleter(derived))
     {
     }
 
     template<class Other>
-    MotleyUniquePointer(MotleyUniquePointer<Other>&& other)
+    BaseClassUniquePointer(BaseClassUniquePointer<Other>&& other)
         : Base(std::move(other))
     {
     }
 };
 
 template<typename BaseType, typename DerivedType, typename... Args>
-MotleyUniquePointer<BaseType> make_unique_motley(Args&&... args)
+BaseClassUniquePointer<BaseType> make_baseclass_unique(Args&&... args)
 {
-    return MotleyUniquePointer<BaseType>(new DerivedType(std::forward<Args>(args)...));
+    return BaseClassUniquePointer<BaseType>(new DerivedType(std::forward<Args>(args)...));
 }
 
 }}
 
-#endif // MOTLEYUNIQUEPOINTER_HPP
+#endif // BASSCLASSUNIQUEPOINTER_HPP

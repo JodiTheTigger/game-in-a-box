@@ -167,7 +167,7 @@ source/Common/RollingStatistics.hpp
 source/Common/BitStreamReadOnly.hpp
 source/Common/IReflected.hpp
 source/Common/Sequence.hpp
-source/Common/MotleyUniquePointer.hpp
+source/Common/BaseClassUniquePointer.hpp
 )
 
 set(COMMON_SOURCE_NETWORK
