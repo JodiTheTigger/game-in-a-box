@@ -94,7 +94,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
         else
         {
             // If it's a delta packet, see if it's an existing connection.
-            // So we can update the sneders address.
+            // So we can update the senders address.
             // Going to this effort as QW,Q2,Q3 did.
             if (PacketDelta::IsPacket(packet.data))
             {
@@ -178,6 +178,8 @@ void NetworkManagerServer::PrivateProcessIncomming()
         {
             myAddressToState.erase(addressToState.first);
 
+            // RAM: TODO: On Client: Timeout I get a segfault here as the
+            // reference to connection points to a freed location. FIX!
             Logging::Log(
                 Logging::LogLevel::Notice,
                 addressToState.first.address().to_string().c_str(),
