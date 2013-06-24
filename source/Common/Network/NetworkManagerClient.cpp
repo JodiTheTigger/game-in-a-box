@@ -55,13 +55,11 @@ NetworkManagerClient::NetworkManagerClient(
     , myStateManager(stateManager)
     , myState(State::Idle)
     , myServerAddress()
-    , myStateHandle()
     , myFailReason()
     , myClientId(0)
     , myCompressor(stateManager.GetHuffmanFrequencies())
     , myLastSequenceProcessed(0)
     , myPacketSentCount(0)
-    , myLastPacketSent()
 {
 }
 
@@ -77,13 +75,11 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
 
     myState = State::Challenging;
     myServerAddress = serverAddress;
-    myStateHandle = {};
     myFailReason = "";
 
     myLastSequenceProcessed = Sequence(0);
 
     myPacketSentCount = 0;
-    myLastPacketSent = std::chrono::steady_clock::time_point::min();
 
     // Kick off an OOB send.
     PrivateSendState();
@@ -96,40 +92,41 @@ void NetworkManagerClient::Disconnect()
 
 void NetworkManagerClient::PrivateProcessIncomming()
 {
-    if (!myNetwork.IsDisabled())
+    // Don't test to see if the network is enabled.
+    // As that is a corner case and isn't workth the check.
+    auto packets = myNetwork.Receive();
+
+    for (auto& packet : packets)
     {
-        auto packets = myNetwork.Receive();
-
-        for (auto& packet : packets)
+        if (packet.address == myServerAddress)
         {
-            if (packet.address == myServerAddress)
-            {
-                if (myStateManager.CanReceive(myStateHandle, packet.data.size()))
-                {
-                    auto response = myConnection.Process(packet.data);
+            auto id = myConnection.IdClient();
 
-                    if (!response.empty())
+            if (myStateManager.CanReceive(id, packet.data.size()))
+            {
+                auto response = myConnection.Process(packet.data);
+
+                if (!response.empty())
+                {
+                    if (myStateManager.CanSend(id, response.size()))
                     {
-                        if (myStateManager.CanSend(myStateHandle, response.size()))
-                        {
-                            myNetwork.Send({{response, myServerAddress}});
-                        }
+                        myNetwork.Send({{response, myServerAddress}});
                     }
                 }
             }
         }
+    }
 
-        // Do some work :-)
-        if (myConnection.IsConnected())
+    // Do some work :-)
+    if (myConnection.IsConnected())
+    {
+        DeltaReceive();
+    }
+    else
+    {
+        if (myConnection.HasFailed())
         {
-            DeltaReceive();
-        }
-        else
-        {
-            if (myConnection.HasFailed())
-            {
-                Fail(myConnection.FailReason());
-            }
+            Fail(myConnection.FailReason());
         }
     }
 }
@@ -138,7 +135,7 @@ void NetworkManagerClient::PrivateSendState()
 {
     if (myConnection.IsConnected())
     {        
-        if ((myStateHandle) && (myStateManager.IsConnected(*myStateHandle)))
+        if ((myConnection.IdClient()) && (myStateManager.IsConnected(myConnection.IdClient().get())))
         {
             DeltaSend();
         }
@@ -155,7 +152,7 @@ void NetworkManagerClient::PrivateSendState()
 
             if (!response.empty())
             {
-                if (myStateManager.CanSend(myStateHandle, response.size()))
+                if (myStateManager.CanSend(myConnection.IdClient(), response.size()))
                 {
                     myNetwork.Send({{response, myServerAddress}});
                 }
@@ -173,7 +170,7 @@ void NetworkManagerClient::Fail(std::string failReason)
 
         if (!lastPacket.empty())
         {
-            if (myStateManager.CanSend(myStateHandle, lastPacket.size()))
+            if (myStateManager.CanSend(myConnection.IdClient(), lastPacket.size()))
             {
                 myNetwork.Send({{lastPacket, myServerAddress}});
             }
@@ -236,7 +233,7 @@ void NetworkManagerClient::DeltaReceive()
                     move(decompressed)};
 
            myLastSequenceProcessed = myStateManager.DeltaParse(
-                *myStateHandle,
+                myConnection.IdClient().get(),
                 deltaData);
         }
     }
@@ -248,8 +245,9 @@ void NetworkManagerClient::DeltaSend()
     // thus how well the packet compresses, therefore how big the packet should get.
     // A large packet delta should require more aggressive delta creation to get
     // smaller packet sizes.
+    auto id = myConnection.IdClient();
     auto deltaData = myStateManager.DeltaCreate(
-                *myStateHandle,                
+                *id,
                 myConnection.LastSequenceAck());
 
     if (deltaData.deltaPayload.size() <= MaxPacketSizeInBytes)
@@ -280,7 +278,7 @@ void NetworkManagerClient::DeltaSend()
             // client packets are not fragmented.
             if (!delta.data.empty())
             {
-                if (myStateManager.CanSend(myStateHandle, delta.data.size()))
+                if (myStateManager.CanSend(*id, delta.data.size()))
                 {                    
                     myNetwork.Send({{std::move(delta.data), myServerAddress}});
                 }

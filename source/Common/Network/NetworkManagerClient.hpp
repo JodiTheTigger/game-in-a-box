@@ -24,7 +24,6 @@
 #ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <array>
-#include <chrono>
 #include <utility>
 #include <boost/asio/ip/udp.hpp>
 #endif
@@ -93,7 +92,6 @@ private:
 
     State myState;
     boost::asio::ip::udp::endpoint myServerAddress;
-    boost::optional<ClientHandle> myStateHandle;
     std::string myFailReason;
     uint16_t myClientId;
 
@@ -102,7 +100,6 @@ private:
     Sequence myLastSequenceProcessed;
 
     uint8_t myPacketSentCount;
-    std::chrono::steady_clock::time_point myLastPacketSent;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
