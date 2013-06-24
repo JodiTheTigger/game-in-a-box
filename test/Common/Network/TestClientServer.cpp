@@ -120,6 +120,8 @@ TEST_F(TestClientServer, OneConnection)
 
     // Client
     // ======
+    // RAM: TODO: Fix duplicate code, use more mocking features to
+    // check return values, maybe get sequencing working properly.
     EXPECT_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
             .Times(AtLeast(1))
             .WillRepeatedly(Return(frequenciesUseful));
@@ -143,14 +145,14 @@ TEST_F(TestClientServer, OneConnection)
     EXPECT_CALL(stateMockClient, PrivateIsConnected( ::testing::_ ))
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
+/* RAM: Disable for new due to recursion bug in XorCode
+    EXPECT_CALL(stateMockClient, PrivateDeltaCreate( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(Delta(Sequence(0),Sequence(0), std::vector<uint8_t>())));
 
-    /* RAM: TODO
-    MOCK_CONST_METHOD2(PrivateDeltaCreate, Delta (
-                           ClientHandle,
-                           boost::optional<Sequence>));
-    MOCK_METHOD2(PrivateDeltaParse, Sequence (
-                    ClientHandle,
-                    const Delta&));*/
+    EXPECT_CALL(stateMockClient, PrivateDeltaParse( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(Sequence(0)));*/
 
     // Server
     // ======
@@ -178,6 +180,14 @@ TEST_F(TestClientServer, OneConnection)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
 
+    /* RAM: Disable for new due to recursion bug in XorCode
+    EXPECT_CALL(stateMockServer, PrivateDeltaCreate( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(Delta(Sequence(0),Sequence(0), std::vector<uint8_t>())));
+
+    EXPECT_CALL(stateMockServer, PrivateDeltaParse( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(Sequence(0)));*/
 
     // Careful using the same state machine.
     NetworkManagerServer server{theNetwork, stateMockServer};
