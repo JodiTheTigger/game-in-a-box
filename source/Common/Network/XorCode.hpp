@@ -44,7 +44,7 @@ template<class Uint8tIteratorWrite,
 void XorCode(
     Uint8tIteratorWrite writeBegin,
     Uint8tIteratorWrite writeEnd,
-    const Uint8tIteratorRead &xorBuffer)
+    const Uint8tIteratorRead& xorBuffer)
 {
     static_assert(Size != 0, "Buffer to xor Against is empty.");
 
@@ -58,9 +58,10 @@ void XorCode(
     }
 }
 
-template<class Uint8tIteratorWrite,
-         class Uint8tIteratorRead,
-         std::size_t Size>
+// Yea, make sure the signature doesn't match another template...
+template<std::size_t Size,
+         class Uint8tIteratorWrite,
+         class Uint8tIteratorRead>
 void XorCode(
     Uint8tIteratorWrite writeBegin,
     Uint8tIteratorWrite writeEnd,

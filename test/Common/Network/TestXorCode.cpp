@@ -92,6 +92,23 @@ TEST_F(TestXorCode, FullCodeDecodeArray)
     EXPECT_EQ(toTest, Bytes(8,11));
 }
 
+TEST_F(TestXorCode, FullCodeDecodeCArray)
+{
+    Bytes toTest(8,11);
+    uint8_t codes[4];
+    codes[0] = 42;
+    codes[1] = 42;
+    codes[2] = 42;
+    codes[3] = 42;
+
+    // Failed because the template code didn't work as
+    // a wrapper ended up calling itself instead of the
+    // implementation. Thus stack exhaustion.
+    XorCode(begin(toTest), end(toTest), codes);
+    XorCode(begin(toTest), end(toTest), codes);
+
+    EXPECT_EQ(toTest, Bytes(8,11));
+}
 
 TEST_F(TestXorCode, PartialCode)
 {
