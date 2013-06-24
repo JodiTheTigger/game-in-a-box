@@ -35,7 +35,11 @@ std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
 {
     if (myAddressToPackets.count(myCurrentSource) > 0)
     {
-        return std::move(myAddressToPackets.at(myCurrentSource));
+        std::vector<NetworkPacket> result;
+
+        swap(result, myAddressToPackets.at(myCurrentSource));
+
+        return result;
     }
 
     return {};
@@ -43,15 +47,16 @@ std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
 
 void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
 {
-    for (auto& packet : packets)
+    for (auto packet : packets)
     {
-        myAddressToPackets[packet.address].emplace_back(std::move(packet.data), myCurrentSource);
+        myAddressToPackets[packet.address].emplace_back(packet.data, myCurrentSource);
     }
 }
 
 void NetworkProviderInMemory::PrivateReset()
 {
     myNetworkIsDisabled = false;
+    myAddressToPackets = {};
 }
 
 void NetworkProviderInMemory::PrivateFlush()
