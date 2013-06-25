@@ -30,6 +30,10 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 
+/*
+
+// Left this comment block here incase I decide to check for iterator data types.
+
 // Only allow uint8_t iterators by checking that the iterator
 // type (T::value_type) is a uint8_t.
 template<class Uint8tIteratorWrite,
@@ -57,38 +61,54 @@ void XorCode(
         ++writeBegin;
     }
 }
+*/
 
-// Yea, make sure the signature doesn't match another template...
-template<std::size_t Size,
-         class Uint8tIteratorWrite,
-         class Uint8tIteratorRead>
+template<class Uint8tIteratorWrite,
+         class Uint8tIteratorRead,
+         std::size_t Size>
 void XorCode(
     Uint8tIteratorWrite writeBegin,
     Uint8tIteratorWrite writeEnd,
     const Uint8tIteratorRead (&xorBuffer)[Size])
 {
-    XorCode<Uint8tIteratorWrite, Uint8tIteratorRead, Size>(writeBegin, writeEnd, xorBuffer);
+    static_assert(Size != 0, "Buffer to xor Against is empty.");
+
+    std::size_t index(0);
+    while (writeBegin != writeEnd)
+    {
+        *writeBegin = *writeBegin ^ xorBuffer[index];
+        index = (index + 1) % Size;
+
+        ++writeBegin;
+    }
+
+    // I wanted to do the following, but it just calls this function again instead of the one
+    // above. As xorBuffer is a uint8_t[xx] as opposed to a &uint8_t.
+    //XorCode<Uint8tIteratorWrite, Uint8tIteratorRead, Size>(writeBegin, writeEnd, xorBuffer);
 }
 
 template<class Uint8tIteratorWrite,
-         std::size_t Size,
-         typename T>
+         typename T,
+         std::size_t Size>
 void XorCode(
     Uint8tIteratorWrite writeBegin,
     Uint8tIteratorWrite writeEnd,
-    const std::array<T, Size> xorBuffer)
+    const std::array<T, Size>& xorBuffer)
 {
-    XorCode<Uint8tIteratorWrite, std::array<T, Size>, Size>(writeBegin, writeEnd, xorBuffer);
+    static_assert(Size != 0, "Buffer to xor Against is empty.");
+
+    std::size_t index(0);
+    while (writeBegin != writeEnd)
+    {
+        *writeBegin = *writeBegin ^ xorBuffer[index];
+        index = (index + 1) % Size;
+
+        ++writeBegin;
+    }
 }
 
 template<class Uint8tIteratorWrite,
-         class Uint8tIteratorRead,
-         class = typename std::enable_if<
-             std::is_same<typename Uint8tIteratorWrite::value_type, std::uint8_t>::value>
-         ::type,
-         class = typename std::enable_if<
-             std::is_same<typename Uint8tIteratorRead::value_type, std::uint8_t>::value>
-         ::type>
+         class Uint8tIteratorRead>
 void XorCode(
         Uint8tIteratorWrite writeBegin,
         Uint8tIteratorWrite writeEnd,
