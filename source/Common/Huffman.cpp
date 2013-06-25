@@ -291,8 +291,9 @@ std::vector<uint8_t> Huffman::Decode(const std::vector<uint8_t>& data) const
 {
     vector<uint8_t> result{};
     BitStreamReadOnly inBuffer(data);
+    size_t lastPosition = 0;
    
-    while ((inBuffer.PositionReadBits() / 8) < data.size())
+    while (inBuffer.PositionReadBits() < (data.size() * 8))
     {
         ValueAndBits codeWord;
         uint16_t bits9;
@@ -347,6 +348,18 @@ std::vector<uint8_t> Huffman::Decode(const std::vector<uint8_t>& data) const
 				// Ugh.
 				throw std::logic_error("Second round codeWord.value is bigger than a uint8_t. No idea what happend, but it's wrong.");
 			}
+        }
+
+        // Need to test if we're at the end of the buffer due to
+        // a corrupt stream so we don't loop forever. Test this
+        // by making sure we're always moving forward across the buffer.
+        if (inBuffer.PositionReadBits() <= lastPosition)
+        {
+            break;
+        }
+        else
+        {
+            lastPosition = inBuffer.PositionReadBits();
         }
     }
     
