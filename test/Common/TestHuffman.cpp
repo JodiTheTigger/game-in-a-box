@@ -200,7 +200,7 @@ TEST_F(TestHuffman, TestBufferTwoBytes)
 
     auto array = std::vector<uint8_t>(2);
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 65536; ++i)
     {
         array[0] = static_cast<uint8_t>(i & 0xFF);
         array[1] = static_cast<uint8_t>(i >> 8);
@@ -208,7 +208,7 @@ TEST_F(TestHuffman, TestBufferTwoBytes)
         auto coded = toTest.Encode(array);
         auto decoded = toTest.Decode(coded);
 
-        EXPECT_EQ(decoded, array);
+        ASSERT_EQ(array, decoded);
     }
 }
 
