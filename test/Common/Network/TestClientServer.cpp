@@ -145,14 +145,14 @@ TEST_F(TestClientServer, OneConnection)
     EXPECT_CALL(stateMockClient, PrivateIsConnected( ::testing::_ ))
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
-/* RAM: Disable for new due to recursion bug in XorCode
+
     EXPECT_CALL(stateMockClient, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
             .WillRepeatedly(Return(Delta(Sequence(0),Sequence(0), std::vector<uint8_t>())));
 
     EXPECT_CALL(stateMockClient, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(Return(Sequence(0)));*/
+            .WillRepeatedly(Return(Sequence(0)));
 
     // Server
     // ======
@@ -180,14 +180,13 @@ TEST_F(TestClientServer, OneConnection)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
 
-    /* RAM: Disable for new due to recursion bug in XorCode
     EXPECT_CALL(stateMockServer, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
             .WillRepeatedly(Return(Delta(Sequence(0),Sequence(0), std::vector<uint8_t>())));
 
     EXPECT_CALL(stateMockServer, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(Return(Sequence(0)));*/
+            .WillRepeatedly(Return(Sequence(0)));
 
     // Careful using the same state machine.
     NetworkManagerServer server{theNetwork, stateMockServer};
