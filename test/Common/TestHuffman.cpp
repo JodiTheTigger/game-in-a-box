@@ -145,4 +145,72 @@ TEST_F(TestHuffman, TestBufferFull)
     }
 }
 
+TEST_F(TestHuffman, TestBufferInvalid)
+{
+    std::array<uint64_t, 256> frequenciesUseful;
+
+    // This buffer parsed forever, it shouldn't have, it should have stopped.
+    // It is invalid though.
+    auto badArray = std::vector<uint8_t>{3,65,236,60};
+
+    // all set or all zero more probable.
+    frequenciesUseful.fill(1);
+
+    // 8 bits
+    frequenciesUseful[0x00] = 10;
+    frequenciesUseful[0xFF] = 10;
+
+    // 7 bits
+    frequenciesUseful[0x7F] = 9;
+    frequenciesUseful[0xFE] = 9;
+
+    // 6 bits
+    frequenciesUseful[0x3F] = 8;
+    frequenciesUseful[0x7E] = 8;
+    frequenciesUseful[0xFC] = 8;
+
+    Huffman toTest(frequenciesUseful);
+
+    // Shouldn't loop forever.
+    toTest.Decode(badArray);
+}
+
+
+TEST_F(TestHuffman, TestBufferTwoBytes)
+{
+    std::array<uint64_t, 256> frequenciesUseful;
+
+    // all set or all zero more probable.
+    frequenciesUseful.fill(1);
+
+    // 8 bits
+    frequenciesUseful[0x00] = 10;
+    frequenciesUseful[0xFF] = 10;
+
+    // 7 bits
+    frequenciesUseful[0x7F] = 9;
+    frequenciesUseful[0xFE] = 9;
+
+    // 6 bits
+    frequenciesUseful[0x3F] = 8;
+    frequenciesUseful[0x7E] = 8;
+    frequenciesUseful[0xFC] = 8;
+
+    Huffman toTest(frequenciesUseful);
+
+    auto array = std::vector<uint8_t>(2);
+
+    for (int i = 0; i < 3; ++i)
+    {
+        array[0] = static_cast<uint8_t>(i & 0xFF);
+        array[1] = static_cast<uint8_t>(i >> 8);
+
+        auto coded = toTest.Encode(array);
+        auto decoded = toTest.Decode(coded);
+
+        EXPECT_EQ(decoded, array);
+    }
+}
+
+
 }} // namespace
