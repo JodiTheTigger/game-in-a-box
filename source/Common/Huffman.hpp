@@ -111,7 +111,7 @@ private:
                 // If the frequencies are the same, give precedence to
                 // leaf nodes as they represent more common values.
 				// I was only doing a single compare with the left node, 
-				// but that breaks stick weak ordering.
+                // but that breaks strict weak ordering.
                 return 
 					(
 						(dynamic_cast<const NodeLeaf*>(left) != nullptr) &&
