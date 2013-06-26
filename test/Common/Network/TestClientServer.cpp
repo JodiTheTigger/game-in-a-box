@@ -26,6 +26,9 @@
 #include <Common/Network/NetworkProviderInMemory.hpp>
 #include <Common/MockIStateManager.hpp>
 
+// RAM: DEBUG
+#include <iostream>
+
 // RAM: TODO: Test CanSend and CanReceive been false.
 // RAM: TODO: Test IStateManager: Not Connected.
 // RAM: TODO: Test IStateManager: return failed connection (with reason).
@@ -35,6 +38,7 @@ using namespace boost::asio::ip;
 using Bytes = std::vector<uint8_t>;
 
 using ::testing::Return;
+using ::testing::ReturnRef;
 using ::testing::AtLeast;
 using ::testing::StrictMock;
 
@@ -145,9 +149,11 @@ TEST_F(TestClientServer, OneConnection)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
 
+    // RAM: DOING IT WRONG! Use .Invoke to return a changing value!
+    Delta deltaClient;
     EXPECT_CALL(stateMockClient, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(Return(Delta(Sequence(0),Sequence(0), std::vector<uint8_t>())));
+            .WillRepeatedly(ReturnRef(deltaClient));
 
     EXPECT_CALL(stateMockClient, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
@@ -182,9 +188,10 @@ TEST_F(TestClientServer, OneConnection)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
 
+    Delta deltaServer;
     EXPECT_CALL(stateMockServer, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(Return(Delta(Sequence(0),Sequence(0), std::vector<uint8_t>())));
+            .WillRepeatedly(ReturnRef(deltaServer));
 
     EXPECT_CALL(stateMockServer, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
@@ -193,24 +200,26 @@ TEST_F(TestClientServer, OneConnection)
     EXPECT_CALL(stateMockServer, PrivateDisconnect(::testing::_))
             .Times(AtLeast(1));
 
-    // Careful using the same state machine.
+    // Careful using the same state manager.
     NetworkManagerServer server{theNetwork, stateMockServer};
     NetworkManagerClient client{theNetwork, stateMockClient};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
 
-    // Should be connected after 100 tries!
+    // Should be connected, and have sent deltas after 100 tries!
     theNetwork.RunAs(addressClient);
     client.Connect(addressServer);
     int count = 0;
     bool keepGoing = true;
     while (keepGoing)
     {
+        std::cout << "SERVER" << std::endl << "======" << std::endl;
         theNetwork.RunAs(addressServer);
         server.ProcessIncomming();
         server.SendState();
 
+        std::cout << "CLIENT" << std::endl << "======" << std::endl;
         theNetwork.RunAs(addressClient);
         client.ProcessIncomming();
         client.SendState();
@@ -221,7 +230,7 @@ TEST_F(TestClientServer, OneConnection)
         }
         else
         {
-            keepGoing = !(client.IsConnected() || client.HasFailed());
+            keepGoing = !client.HasFailed();
         }
     }
 
