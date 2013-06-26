@@ -53,9 +53,7 @@ NetworkManagerClient::NetworkManagerClient(
     , myNetwork(network)
     , myConnection(stateManager)
     , myStateManager(stateManager)
-    , myState(State::Idle)
     , myServerAddress()
-    , myFailReason()
     , myClientId(0)
     , myCompressor(stateManager.GetHuffmanFrequencies())
     , myLastSequenceProcessed(0)
@@ -65,6 +63,7 @@ NetworkManagerClient::NetworkManagerClient(
 
 NetworkManagerClient::~NetworkManagerClient()
 {
+    Fail("Client shutdown.");
 }
 
 void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
@@ -73,9 +72,7 @@ void NetworkManagerClient::Connect(boost::asio::ip::udp::endpoint serverAddress)
     myNetwork.Reset();
     myConnection.Start(Connection::Mode::Client);
 
-    myState = State::Challenging;
     myServerAddress = serverAddress;
-    myFailReason = "";
 
     myLastSequenceProcessed = Sequence(0);
 
@@ -163,9 +160,11 @@ void NetworkManagerClient::PrivateSendState()
 
 void NetworkManagerClient::Fail(std::string failReason)
 {
-    if (!myNetwork.IsDisabled())
+    // only send the packet if we're connected.
+    if (myConnection.IsConnected())
     {
         myConnection.Disconnect(failReason);
+
         auto lastPacket = myConnection.Process({});
 
         if (!lastPacket.empty())
@@ -179,9 +178,10 @@ void NetworkManagerClient::Fail(std::string failReason)
         myNetwork.Flush();
         myNetwork.Disable();
     }
-
-    myFailReason = failReason;
-    myState = State::FailedConnection;
+    else
+    {
+        myConnection.Disconnect(failReason);
+    }
 
     Logging::Log(
         Logging::LogLevel::Notice,
@@ -189,7 +189,7 @@ void NetworkManagerClient::Fail(std::string failReason)
         ": ",
         myServerAddress.port(),
         " failed due to: ",
-        failReason.c_str());
+        myConnection.FailReason().c_str());
 }
 
 void NetworkManagerClient::DeltaReceive()

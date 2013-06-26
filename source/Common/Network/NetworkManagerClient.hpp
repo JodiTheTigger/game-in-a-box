@@ -52,17 +52,17 @@ public:
 
     bool IsConnected() const
     {
-        return myState == State::Connected;
+        return myConnection.IsConnected();
     }
 
     bool HasFailed() const
     {
-        return myState == State::FailedConnection;
+        return myConnection.HasFailed();
     }
 
     std::string FailReason() const
     {
-        return myFailReason;
+        return myConnection.FailReason();
     }
 
     virtual ~NetworkManagerClient();
@@ -76,23 +76,11 @@ private:
         return std::chrono::milliseconds{1000};
     }
 
-    // RAM: TODO: REMOVE.
-    enum class State
-    {
-        Idle,
-        Challenging,
-        Connecting,
-        Connected,
-        FailedConnection,
-    };;
-
     INetworkProvider& myNetwork;
     Connection myConnection;
     IStateManager& myStateManager;
 
-    State myState;
     boost::asio::ip::udp::endpoint myServerAddress;
-    std::string myFailReason;
     uint16_t myClientId;
 
     Huffman myCompressor;
