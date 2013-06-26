@@ -60,18 +60,18 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
     
     while (trees.size() > 1)
     {
-        Node* childLeft = trees.top();
+        auto childLeft = trees.top();
         trees.pop();
  
-        Node* childRight = trees.top();
+        auto childRight = trees.top();
         trees.pop();
  
-        Node* parent = new NodeInternal(childLeft, childRight);
+        auto parent = new NodeInternal(childLeft, childRight);
         trees.push(parent);
     }
     
     // Generate the Encode Map
-    GenerateEncodeMap(trees.top(), ValueAndBits(0,0));
+    GenerateEncodeMap(trees.top(), {});
     GenerateCanonicalEncodeMap();
     GenerateDecodeMap();
 }
@@ -79,29 +79,22 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
 void Huffman::GenerateCanonicalEncodeMap()
 {
     map<uint8_t, map<uint8_t, uint8_t>> sorted;
-    uint16_t code;
-    
-    for (int i = 0; i < 256; ++i)
+    uint8_t maxBits = 0;
+
+    uint8_t i = 0;
+    do
     {
-        uint8_t asByte(static_cast<uint8_t>(i));
+        auto node = myEncodeMap[i];
+        sorted[node.bits][i] = i;
 
-        auto node = myEncodeMap[asByte];
-        sorted[node.bits][asByte] = asByte;
-
-        // RAM: DEBUG
-        std::cout << std::to_string(node.bits) << std::endl;
+        maxBits = std::max(node.bits, maxBits);
     }
-
-    // RAM: DEBUG Clear the map
-    myEncodeMap.fill({});
+    while (i++ != 255);
 
     // map is sorted, so the order it iterates is also ordered.
-    code = 0;
-    for (const auto& group : sorted)
+    uint16_t code = 0;
+    for (auto bits = 0; bits <= maxBits; ++bits)
     {
-        // First item is the key.
-        const auto& bits = group.first;
-
         // Ignore 0 bit items, as they are invalid.
         // They are there because not all 256 bytes
         // have a non-zero frequency.
@@ -110,17 +103,14 @@ void Huffman::GenerateCanonicalEncodeMap()
             continue;
         }
         
-        for (const auto& mapItem : group.second)
+        for (const auto& mapItem : sorted[bits])
         {
             myEncodeMap[mapItem.first].bits = bits;
             myEncodeMap[mapItem.first].value = code;
 
-            // RAM: DEBUG
-            std::cout << "Code: " << std::bitset<9>(code) << ": " << std::to_string(code) << " bits: " << std::to_string(bits) << " value: " << std::to_string(mapItem.first) << std::endl;
-            
             code++;
         }
-        
+
         code = (code << 1);
 
         // finally, the EOF marker (can be > 255, hence why not uint8_t).
@@ -142,11 +132,8 @@ void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits
     {
         if (internal != nullptr)
         {
-            ValueAndBits prefixLeft;
-            ValueAndBits prefixRight;
-            
-            prefixLeft = prefix;
-            prefixRight = prefix;
+            auto prefixLeft = prefix;
+            auto prefixRight = prefix;
             
             prefixLeft.bits++;
             prefixLeft.value <<= 1;
@@ -173,13 +160,11 @@ std::vector<uint16_t> Huffman::GetXBitBytesStartingWith(uint16_t startValue, uin
     
     if ((bitSize < totalBitSize) && (bitSize > 0))
     {
-        uint16_t count;
-        
-        count = 1 << (totalBitSize - bitSize);
+        auto count = 1 << (totalBitSize - bitSize);
                 
         startValue <<= (totalBitSize - bitSize);
         
-        for (uint16_t i = 0; i < count; i++)
+        for (auto i = 0; i < count; i++)
         {
             result.push_back(startValue | i);
         }
@@ -199,9 +184,10 @@ void Huffman::GenerateDecodeMap()
     
     // always have a index 0 map which is 9 bit.
     mapIndex = 0;
-    myDecodeMap.push_back(vector<ValueAndBits>());
+    myDecodeMap.push_back({});
     myDecodeMap[0].resize(512);
     
+    // 257 due to EOF marker.
     for (uint16_t result = 0; result < 257; result++)
     {
         vector<uint16_t> all9Bits;
@@ -239,14 +225,11 @@ void Huffman::GenerateDecodeMap()
         }   
         else
         {
-            uint16_t top9;
-            uint8_t  bottom7;
-            
             // shrink it down please.
             point.bits -= 9;
             
-            top9 = point.value >> point.bits;
-            bottom7 = point.value & ((1 << point.bits) - 1);
+            auto top9 = point.value >> point.bits;
+            auto bottom7 = point.value & ((1 << point.bits) - 1);
             thisIndex = indexLookup[top9];
             
             // map auto generates indicies that doesn't exist
@@ -256,15 +239,8 @@ void Huffman::GenerateDecodeMap()
                 
                 // All second maps are 128 bytes (7 bits) to make
                 // my life easier.
-                myDecodeMap.push_back(std::vector<ValueAndBits>());
-                myDecodeMap[mapIndex].resize(1 << 7);
-                
-                // RAM: debug - reset to zero?
-                for (int a = 0; a < 128; a++)
-                {
-                    myDecodeMap[mapIndex][a].value = 0;
-                    myDecodeMap[mapIndex][a].bits = 0;
-                }
+                myDecodeMap.push_back({});
+                myDecodeMap[mapIndex].resize(1 << 7);                
                 
                 thisIndex = mapIndex;
                 indexLookup[top9] = mapIndex;
@@ -307,12 +283,8 @@ std::vector<uint8_t> Huffman::Decode(const std::vector<uint8_t>& data) const
    
     while (inBuffer.PositionReadBits() < (data.size() * 8))
     {
-        ValueAndBits codeWord;
-        uint16_t bits9;
-        
-        bits9 = inBuffer.PullU16(9);
-        
-        codeWord = myDecodeMap[0][bits9];
+        auto bits9      = inBuffer.PullU16(9);
+        auto codeWord   = myDecodeMap[0][bits9];
         
         if (codeWord.bits == 0)
         {
@@ -326,22 +298,17 @@ std::vector<uint8_t> Huffman::Decode(const std::vector<uint8_t>& data) const
             inBuffer.Rewind(9 - codeWord.bits);
         }        
         else
-        {   
-            uint8_t bitsRead;
-            uint8_t index;
-            
+        {
             if (codeWord.value == Huffman::EofValue)
             {
                 // EOF marker!
                 break;
             }
             
-            index = static_cast<uint8_t>(codeWord.value - 256);
+            auto index = static_cast<uint8_t>(codeWord.value - 256);
             
             // The second decode map is 7 bits, so read that many.
-            bitsRead = 7;
-            
-            bits9 = inBuffer.PullU8(bitsRead);            
+            bits9 = inBuffer.PullU8(7);
             codeWord = myDecodeMap[index][bits9];
             
             if (codeWord.value == Huffman::EofValue)
