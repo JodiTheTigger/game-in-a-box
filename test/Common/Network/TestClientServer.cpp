@@ -108,7 +108,6 @@ TEST_F(TestClientServer, CreateServer)
     NetworkManagerServer(theNetwork, stateMockServer);
 }
 
-
 // ///////////////////
 // Perfect conection
 // ///////////////////
@@ -154,6 +153,9 @@ TEST_F(TestClientServer, OneConnection)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(Sequence(0)));
 
+    EXPECT_CALL(stateMockClient, PrivateDisconnect(::testing::_))
+            .Times(AtLeast(1));
+
     // Server
     // ======
     EXPECT_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
@@ -187,6 +189,9 @@ TEST_F(TestClientServer, OneConnection)
     EXPECT_CALL(stateMockServer, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
             .WillRepeatedly(Return(Sequence(0)));
+
+    EXPECT_CALL(stateMockServer, PrivateDisconnect(::testing::_))
+            .Times(AtLeast(1));
 
     // Careful using the same state machine.
     NetworkManagerServer server{theNetwork, stateMockServer};
