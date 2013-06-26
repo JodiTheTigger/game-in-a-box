@@ -30,6 +30,10 @@
 #include "BitStream.hpp"
 #include "Huffman.hpp"
 
+#include <iostream>
+#include <bitset>
+#include <string>
+
 using namespace std;
 using namespace GameInABox::Common;
 
@@ -76,19 +80,28 @@ void Huffman::GenerateCanonicalEncodeMap()
 {
     map<uint8_t, map<uint8_t, uint8_t>> sorted;
     uint16_t code;
-    size_t bits;
     
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < 256; ++i)
     {
-		uint8_t asByte(static_cast<uint8_t>(i));
+        uint8_t asByte(static_cast<uint8_t>(i));
 
         auto node = myEncodeMap[asByte];
         sorted[node.bits][asByte] = asByte;
+
+        // RAM: DEBUG
+        std::cout << std::to_string(node.bits) << std::endl;
     }
-    
+
+    // RAM: DEBUG Clear the map
+    myEncodeMap.fill({});
+
+    // map is sorted, so the order it iterates is also ordered.
     code = 0;
-    for (bits = 0; bits < sorted.size(); bits++)
-    {        
+    for (const auto& group : sorted)
+    {
+        // First item is the key.
+        const auto& bits = group.first;
+
         // Ignore 0 bit items, as they are invalid.
         // They are there because not all 256 bytes
         // have a non-zero frequency.
@@ -96,25 +109,24 @@ void Huffman::GenerateCanonicalEncodeMap()
         {
             continue;
         }
-
-		// wont be larger than 255 as we defined it to be from 0 to 255 
-		// a.
-		uint8_t bitCount(static_cast<uint8_t>(bits));
         
-        for (auto mapItem : sorted[bitCount])
+        for (const auto& mapItem : group.second)
         {
-            myEncodeMap[sorted[bitCount][mapItem.first]].bits = bitCount;
-            myEncodeMap[sorted[bitCount][mapItem.first]].value = code;
+            myEncodeMap[mapItem.first].bits = bits;
+            myEncodeMap[mapItem.first].value = code;
+
+            // RAM: DEBUG
+            std::cout << "Code: " << std::bitset<9>(code) << ": " << std::to_string(code) << " bits: " << std::to_string(bits) << " value: " << std::to_string(mapItem.first) << std::endl;
             
             code++;
         }
         
         code = (code << 1);
-    }    
-    
-    // finally, the EOF marker (can be > 255, hence why not uint8_t).
-    myEofMarker.value = code;
-    myEofMarker.bits = static_cast<uint8_t>(bits);
+
+        // finally, the EOF marker (can be > 255, hence why not uint8_t).
+        myEofMarker.value = code;
+        myEofMarker.bits = bits + 1;
+    }
 }
 
 void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits prefix)
