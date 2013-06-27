@@ -38,11 +38,24 @@ using namespace boost::asio::ip;
 using Bytes = std::vector<uint8_t>;
 
 using ::testing::Return;
-using ::testing::ReturnRef;
+using ::testing::Invoke;
 using ::testing::AtLeast;
 using ::testing::StrictMock;
 
 namespace GameInABox { namespace Common { namespace Network {
+
+Delta DeltaCreate(ClientHandle,
+                  boost::optional<Sequence> lastAcked)
+{
+    if (lastAcked)
+    {
+        return {Sequence(lastAcked->Value() + 1), Sequence(lastAcked->Value() + 1), {}};
+    }
+    else
+    {
+        return {Sequence{0},Sequence{0}, {}};
+    }
+}
 
 // Class definition!
 class TestClientServer : public ::testing::Test
@@ -149,11 +162,9 @@ TEST_F(TestClientServer, OneConnection)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
 
-    // RAM: DOING IT WRONG! Use .Invoke to return a changing value!
-    Delta deltaClient;
     EXPECT_CALL(stateMockClient, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(ReturnRef(deltaClient));
+            .WillRepeatedly(Invoke(DeltaCreate));
 
     EXPECT_CALL(stateMockClient, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
@@ -188,10 +199,9 @@ TEST_F(TestClientServer, OneConnection)
             .Times(AtLeast(1))
             .WillRepeatedly(Return(bool(true)));
 
-    Delta deltaServer;
     EXPECT_CALL(stateMockServer, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(ReturnRef(deltaServer));
+            .WillRepeatedly(Invoke(DeltaCreate));
 
     EXPECT_CALL(stateMockServer, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
