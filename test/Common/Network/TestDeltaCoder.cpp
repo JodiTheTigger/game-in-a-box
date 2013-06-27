@@ -163,7 +163,7 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
     // Oh wow, type punning. Great.
     // http://stackoverflow.com/questions/13982340/is-it-safe-to-reinterpret-cast-an-integer-to-float
     // I'll have to use the union hack. But first, there is
-    // point using a reinterpret cast if the sizes don't match.
+    // no point using a union cast if the sizes don't match.
     ASSERT_EQ(sizeof(float), sizeof(uint32_t));
     EXPECT_EQ(3.141f, temp.asFloat);
 }
