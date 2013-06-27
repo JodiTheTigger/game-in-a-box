@@ -401,7 +401,7 @@ std::vector<uint8_t> Huffman::Decode(const std::vector<uint8_t>& data) const
 			else
 			{
 				// Ugh.
-				throw std::logic_error("Second round codeWord.value is bigger than a uint8_t. No idea what happend, but it's wrong.");
+                throw std::logic_error("Second round codeWord. Value is bigger than a uint8_t. No idea what happend, but it's wrong.");
 			}
         }
 
