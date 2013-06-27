@@ -133,9 +133,16 @@ TEST_F(TestDeltaCoder, EncodeDecodePartialDiff)
 
 TEST_F(TestDeltaCoder, EncodeAgainstIdentity) 
 {
+    union FloatUInt32
+    {
+        float asFloat;
+        uint32_t asUint32;
+    };
+
     DeltaTester result;
-    uint32_t temp;
     BitStream data(32);
+    FloatUInt32 temp;
+
             
     DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
     
@@ -151,8 +158,14 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
         
     EXPECT_FALSE(data.Pull1Bit());
     EXPECT_FALSE(data.Pull1Bit());
-    temp = data.PullU32(32);
-    EXPECT_EQ(3.141f, *((float*) &(temp)));   
+    temp.asUint32 = data.PullU32(32);
+
+    // Oh wow, type punning. Great.
+    // http://stackoverflow.com/questions/13982340/is-it-safe-to-reinterpret-cast-an-integer-to-float
+    // I'll have to use the union hack. But first, there is
+    // point using a reinterpret cast if the sizes don't match.
+    ASSERT_EQ(sizeof(float), sizeof(uint32_t));
+    EXPECT_EQ(3.141f, temp.asFloat);
 }
 
 
