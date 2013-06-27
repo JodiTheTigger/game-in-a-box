@@ -32,6 +32,7 @@ namespace GameInABox { namespace Common {
 
 // forward references
 class BitStream;
+class Node;
 
 // Based off http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
 class Huffman
@@ -62,69 +63,7 @@ private:
         {                
         }
     };
-    
-    class Node
-    {
-    public:
-        const uint64_t myFrequency;
-        
-        // Node by itself is an EOF marker.
-        Node() : Node(1) {};
-        
-        virtual ~Node() {}
-    protected:
-        Node(uint64_t frequency) : myFrequency(frequency) {}
-    };
-    
-    class NodeInternal : public Node
-    {
-    public:
-        std::unique_ptr<Node> myLeft;
-        std::unique_ptr<Node> myRight;
-        
-        NodeInternal(Node* left, Node* right) 
-            : Node(left->myFrequency + right->myFrequency)
-            , myLeft(left)
-            , myRight(right)
-        {
-        }   
-    };
-    
-    class NodeLeaf : public Node
-    {
-    public:
-        const uint8_t myByte;
-        
-        NodeLeaf(uint64_t frequency, uint8_t byte) 
-            : Node(frequency)
-            , myByte(byte)
-        {
-        }
-    };    
-    
-    struct NodeCompare
-    {
-        bool operator()(const Node* left, const Node* right) const 
-        {
-            if (left->myFrequency == right->myFrequency)
-            {
-                // If the frequencies are the same, give precedence to
-                // leaf nodes as they represent more common values.
-				// I was only doing a single compare with the left node, 
-                // but that breaks strict weak ordering.
-                return 
-					(
-						(dynamic_cast<const NodeLeaf*>(left) != nullptr) &&
-						(dynamic_cast<const NodeLeaf*>(right) == nullptr)
-					);               
-            }
-            else
-            {
-                return (left->myFrequency > right->myFrequency);            
-            }   
-        }
-    };
-        
+
     std::array<ValueAndBits, 256> myEncodeMap;
     std::vector<std::vector<ValueAndBits>> myDecodeMap;
     ValueAndBits myEofMarker;    

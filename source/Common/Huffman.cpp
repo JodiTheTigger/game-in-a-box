@@ -29,6 +29,7 @@
 
 #include "BitStream.hpp"
 #include "Huffman.hpp"
+#include "MakeUnique.hpp"
 
 #include <iostream>
 #include <bitset>
@@ -37,12 +38,84 @@
 using namespace std;
 using namespace GameInABox::Common;
 
+namespace GameInABox { namespace Common {
+
+class Node
+{
+public:
+    enum class Mode
+    {
+        Eof,
+        Internal,
+        Leaf
+    };
+
+    const uint64_t frequency;
+    const uint8_t value;
+    const Mode mode;
+    const Node* left;
+    const Node* right;
+
+    Node(uint64_t frequencyToUse, uint8_t byte)
+          : Node(frequencyToUse, byte, Mode::Leaf, nullptr, nullptr)
+    {
+    }
+
+    Node()
+        : Node(1, 0, Mode::Eof, nullptr, nullptr)
+    {
+
+    }
+
+    Node(Node* left, Node* right)
+        : Node(left->frequency + right->frequency, 0, Mode::Internal, left, right)
+    {
+    }
+
+private:
+
+    Node(uint64_t frequency, uint8_t byte, Mode mode, Node* leftToUse, Node* rightToUse)
+        : frequency(frequency)
+        , value(byte)
+        , mode(mode)
+        , left(leftToUse)
+        , right(rightToUse)
+    {
+    }
+};
+
+struct NodeCompare
+{
+    bool operator()(const Node* left, const Node* right) const
+    {
+        if (left->frequency == right->frequency)
+        {
+            // If the frequencies are the same, give precedence to
+            // leaf nodes as they represent more common values.
+            // I was only doing a single compare with the left node,
+            // but that breaks strict weak ordering.
+            return
+                (
+                    (left->mode == Node::Mode::Leaf) &&
+                    (right->mode != Node::Mode::Leaf)
+                );
+        }
+        else
+        {
+            return (left->frequency > right->frequency);
+        }
+    }
+};
+
+}}// namespace
+
 Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
     : myEncodeMap()
     , myDecodeMap()
     , myEofMarker()
 {    
     priority_queue<Node*, std::vector<Node*>, NodeCompare> trees;
+    std::vector<unique_ptr<Node>> nodes;
  
     for (uint16_t i = 0; i < frequencies.size(); ++i)
     {
@@ -50,13 +123,15 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
         // 100% unbalanced and we end up having 32+ bits.
         if (frequencies[i] > 0)
         {
-            trees.push(new NodeLeaf(frequencies[i], (uint8_t) i));
+            nodes.emplace_back(make_unique<Node>(frequencies[i], (uint8_t) i));
+            trees.push(nodes.back().get());
         }
     }
     
     // EOF is special, as it isn't a value as such.
     // I don't want to make 257 sized arrays!
-    trees.push(new Node());
+    nodes.emplace_back(make_unique<Node>());
+    trees.push(nodes.back().get());
     
     while (trees.size() > 1)
     {
@@ -66,8 +141,8 @@ Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
         auto childRight = trees.top();
         trees.pop();
  
-        auto parent = new NodeInternal(childLeft, childRight);
-        trees.push(parent);
+        nodes.emplace_back(make_unique<Node>(childLeft, childRight));
+        trees.push(nodes.back().get());
     }
     
     // Generate the Encode Map
@@ -119,37 +194,38 @@ void Huffman::GenerateCanonicalEncodeMap()
     }
 }
 
-void Huffman::GenerateEncodeMap(const Huffman::Node* node, Huffman::ValueAndBits prefix)
+void Huffman::GenerateEncodeMap(const Node* node, Huffman::ValueAndBits prefix)
 {
-    const NodeLeaf* leaf            = dynamic_cast<const NodeLeaf*>(node);
-    const NodeInternal* internal    = dynamic_cast<const NodeInternal*>(node);
-    
-    if (leaf != nullptr)
+    switch (node->mode)
     {
-        myEncodeMap[leaf->myByte] = prefix;
-    }
-    else 
-    {
-        if (internal != nullptr)
+        case Node::Mode::Leaf:
+        {
+            myEncodeMap[node->value] = prefix;
+            break;
+        }
+
+        case Node::Mode::Internal:
         {
             auto prefixLeft = prefix;
             auto prefixRight = prefix;
-            
+
             prefixLeft.bits++;
             prefixLeft.value <<= 1;
             //prefixLeft.value |= 0;
-            GenerateEncodeMap(internal->myLeft.get(), prefixLeft);
-            
+            GenerateEncodeMap(node->left, prefixLeft);
+
             prefixRight.bits++;
             prefixRight.value <<= 1;
             prefixRight.value |= 1;
-            
-            GenerateEncodeMap(internal->myRight.get(), prefixRight);   
+
+            GenerateEncodeMap(node->right, prefixRight);
+            break;
         }
-        else
+
+        case Node::Mode::Eof:
         {
-            // EOF marker.
             myEofMarker = prefix;
+            break;
         }
     }
 }
