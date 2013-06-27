@@ -57,6 +57,13 @@ Delta DeltaCreate(ClientHandle,
     }
 }
 
+Sequence DeltaParse(
+        ClientHandle,
+        const Delta& payload)
+{
+    return payload.to;
+}
+
 // Class definition!
 class TestClientServer : public ::testing::Test
 {
@@ -168,7 +175,7 @@ TEST_F(TestClientServer, OneConnection)
 
     EXPECT_CALL(stateMockClient, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(Return(Sequence(0)));
+            .WillRepeatedly(Invoke(DeltaParse));
 
     EXPECT_CALL(stateMockClient, PrivateDisconnect(::testing::_))
             .Times(AtLeast(1));
@@ -205,7 +212,7 @@ TEST_F(TestClientServer, OneConnection)
 
     EXPECT_CALL(stateMockServer, PrivateDeltaParse( ::testing::_, ::testing::_))
             .Times(AtLeast(1))
-            .WillRepeatedly(Return(Sequence(0)));
+            .WillRepeatedly(Invoke(DeltaParse));
 
     EXPECT_CALL(stateMockServer, PrivateDisconnect(::testing::_))
             .Times(AtLeast(1));
