@@ -26,25 +26,35 @@
 #include <memory>
 #include <boost/asio.hpp>
 #include <unordered_map>
+#include <chrono>
 #endif
 
 #include "Hash.hpp"
 #include "INetworkProvider.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
-class NetworkPacket;
 
 class NetworkProviderInMemory final : public INetworkProvider
 {
 public:
-    NetworkProviderInMemory();
+    using TimeFunction = std::function<std::chrono::high_resolution_clock::time_point()>;
+
+    NetworkProviderInMemory() : NetworkProviderInMemory(std::chrono::high_resolution_clock::now) {}
+    NetworkProviderInMemory(TimeFunction timepiece);
 
     void RunAs(boost::asio::ip::udp::endpoint clientAddress) { myCurrentSource = clientAddress; }
 
 private:
-    std::unordered_map<boost::asio::ip::udp::endpoint, std::vector<NetworkPacket>> myAddressToPackets;
+    struct TimePacket
+    {
+        std::chrono::high_resolution_clock::time_point timeToRelease;
+        NetworkPacket data;
+    };
+
+    std::unordered_map<boost::asio::ip::udp::endpoint, std::vector<TimePacket>> myAddressToPackets;
     boost::asio::ip::udp::endpoint myCurrentSource;
     bool myNetworkIsDisabled;
+    TimeFunction myTimeNow;
 
     std::vector<NetworkPacket> PrivateReceive() override;
     void PrivateSend(std::vector<NetworkPacket> packets) override;

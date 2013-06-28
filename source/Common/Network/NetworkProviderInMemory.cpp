@@ -18,15 +18,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include "NetworkPacket.hpp"
+
 #include "NetworkProviderInMemory.hpp"
+
+using Clock = std::chrono::high_resolution_clock;
+using Oclock = Clock::time_point;
 
 namespace GameInABox { namespace Common { namespace Network {
 
-NetworkProviderInMemory::NetworkProviderInMemory()
+NetworkProviderInMemory::NetworkProviderInMemory(TimeFunction timepiece)
     : INetworkProvider()
     , myAddressToPackets()
     , myCurrentSource()
     , myNetworkIsDisabled(false)
+    , myTimeNow(timepiece)
 {
 
 }
@@ -36,8 +42,22 @@ std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
     if (myAddressToPackets.count(myCurrentSource) > 0)
     {
         std::vector<NetworkPacket> result;
+        std::vector<TimePacket> keep;
+        auto now = myTimeNow();
 
-        swap(result, myAddressToPackets.at(myCurrentSource));
+        for (auto& timePacket : myAddressToPackets.at(myCurrentSource))
+        {
+            if (timePacket.timeToRelease < now)
+            {
+                result.emplace_back(std::move(timePacket.data));
+            }
+            else
+            {
+                keep.emplace_back(std::move(timePacket));
+            }
+        }
+
+        swap(keep, myAddressToPackets.at(myCurrentSource));
 
         return result;
     }
@@ -47,9 +67,11 @@ std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
 
 void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
 {
+    // RAM: TODO: Add latency: but for now - no latency.
     for (auto packet : packets)
     {
-        myAddressToPackets[packet.address].emplace_back(packet.data, myCurrentSource);
+        auto timepacket = TimePacket{myTimeNow(), NetworkPacket{std::move(packet.data), myCurrentSource}};
+        myAddressToPackets[packet.address].emplace_back(std::move(timepacket));
     }
 }
 
