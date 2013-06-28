@@ -40,9 +40,18 @@ using namespace GameInABox::Common::Network;
 NetworkManagerServer::NetworkManagerServer(
         INetworkProvider& network,
         IStateManager& stateManager)
+    : NetworkManagerServer(network, stateManager, std::chrono::steady_clock::now)
+{
+}
+
+NetworkManagerServer::NetworkManagerServer(
+        INetworkProvider& network,
+        IStateManager& stateManager,
+        Connection::TimeFunction timepiece)
     : INetworkManager()
     , myNetwork(network)
     , myStateManager(stateManager)
+    , myTimepiece(timepiece)
     , myAddressToState()
     , myCompressor(stateManager.GetHuffmanFrequencies())
 {
@@ -143,7 +152,7 @@ void NetworkManagerServer::PrivateProcessIncomming()
             {                
                 if (myStateManager.CanReceive({}, packet.data.size()))
                 {
-                    myAddressToState.emplace(packet.address, State{Connection{myStateManager}, {}});
+                    myAddressToState.emplace(packet.address, State{Connection{myStateManager, myTimepiece}, {}});
 
                     auto &connection = myAddressToState.at(packet.address).connection;
 

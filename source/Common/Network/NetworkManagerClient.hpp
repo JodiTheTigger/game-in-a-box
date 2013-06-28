@@ -38,11 +38,15 @@
 
 namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
-class Connection;
 
 class NetworkManagerClient : public INetworkManager
 {
 public:
+    NetworkManagerClient(
+            INetworkProvider& network,
+            IStateManager& stateManager,
+            Connection::TimeFunction timepiece);
+
     NetworkManagerClient(
             INetworkProvider& network,
             IStateManager& stateManager);
