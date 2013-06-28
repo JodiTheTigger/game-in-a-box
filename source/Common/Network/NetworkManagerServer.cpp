@@ -179,58 +179,66 @@ void NetworkManagerServer::PrivateProcessIncomming()
 
     // Drop any disconnects, parse any deltas.
     // Disconnections are handled in privatesendstate by testing myStateManager.IsConnected().
-    for (auto& addressToState : myAddressToState)
+    // NOTE: Using while instead of range_for as calling erase inside the loop
+    // results in wacky stuff.
+    // http://stackoverflow.com/questions/15662412/how-to-remove-multiple-items-from-unordered-map-while-iterating-over-it
+    auto addressToState = begin(myAddressToState);
+    while (addressToState != end(myAddressToState))
     {
-        auto& connection = addressToState.second.connection;
+        auto& connection = addressToState->second.connection;
 
         if (connection.HasFailed())
         {
-            myAddressToState.erase(addressToState.first);
-
-            // RAM: TODO: On Client: Timeout I get a segfault here as the
-            // reference to connection points to a freed location. FIX!
             Logging::Log(
                 Logging::LogLevel::Notice,
-                addressToState.first.address().to_string().c_str(),
+                addressToState->first.address().to_string().c_str(),
                 ": ",
-                addressToState.first.port(),
+                addressToState->first.port(),
                 " failed due to: ",
-                connection.FailReason().c_str());
+                connection.FailReason().c_str());            
+
+            // post increment on purpose so that the old addressToState is removed, not the new one.
+            // Secondly, if I remove the current iterator, then weird things happen.
+            myAddressToState.erase(addressToState++);
         }
-
-        if (connection.IsConnected())
+        else
         {
-            // This is either empty, or the most recent packet.
-            auto delta = connection.GetDefragmentedPacket();
-
-            if (delta.IsValid())
+            if (connection.IsConnected())
             {
-                auto client = connection.IdClient();
+                // This is either empty, or the most recent packet.
+                auto delta = connection.GetDefragmentedPacket();
 
-                if (client)
+                if (delta.IsValid())
                 {
-                    // decrypt, decompress, parse.
-                    std::vector<uint8_t> payload(GetPayloadBuffer(delta));
+                    auto client = connection.IdClient();
 
-                    std::array<uint8_t, 4> code;
-                    auto ack = delta.GetSequenceAck();
-                    uint16_t rawAck = ack ? ack->Value() : 0;
-                    Push(begin(code), delta.GetSequence().Value());
-                    Push(begin(code) + 2, rawAck);
-                    XorCode(begin(code), end(code), connection.Key().data);
-                    XorCode(begin(payload), end(payload), code);
+                    if (client)
+                    {
+                        // decrypt, decompress, parse.
+                        std::vector<uint8_t> payload(GetPayloadBuffer(delta));
 
-                    auto decompressed = move(myCompressor.Decode(payload));
+                        std::array<uint8_t, 4> code;
+                        auto ack = delta.GetSequenceAck();
+                        uint16_t rawAck = ack ? ack->Value() : 0;
+                        Push(begin(code), delta.GetSequence().Value());
+                        Push(begin(code) + 2, rawAck);
+                        XorCode(begin(code), end(code), connection.Key().data);
+                        XorCode(begin(payload), end(payload), code);
 
-                    // Pass to gamestate (which will decompress the delta itself).
-                    auto deltaData = Delta{
-                            delta.GetSequenceBase(),
-                            delta.GetSequence(),
-                            move(decompressed)};
+                        auto decompressed = move(myCompressor.Decode(payload));
 
-                    addressToState.second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
+                        // Pass to gamestate (which will decompress the delta itself).
+                        auto deltaData = Delta{
+                                delta.GetSequenceBase(),
+                                delta.GetSequence(),
+                                move(decompressed)};
+
+                        addressToState->second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
+                    }
                 }
             }
+
+            ++addressToState;
         }
     }
 }
