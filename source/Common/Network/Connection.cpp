@@ -31,10 +31,6 @@
 #include "Packets.hpp"
 #include "Connection.hpp"
 
-// RAM: DEBUG
-#include <iostream>
-#include <string>
-
 using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;
 
@@ -139,27 +135,19 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
         case State::FailedConnection:
         case State::Disconnecting:
         {
-            std::cout << "S: Idle, Failed, Disconnected: Ignore" << std::endl;
-
             // Nothing, ignore everything
             break;
         }
 
         case State::ConnectedToServer:
         {
-            std::cout << "S: ConnectedToServer" << std::endl;
-
             auto fragment = PacketFragment{packet};
             auto delta = PacketDelta{};
 
             if (fragment.IsValid())
             {
-                std::cout << "S: ConnectedToServer: Fragment" << std::endl;
-
                 if (fragment.GetSequence() > myLastSequenceRecieved)
                 {
-                    std::cout << "S: ConnectedToServer: Fragment: In sequence " << std::endl;
-
                     myFragments.AddPacket(fragment);
 
                     // test to see if the fragment is finished.
@@ -183,21 +171,15 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
         case State::ConnectedToClient:
         {
-            std::cout << "S: ConnectedToClient" << std::endl;
-
             auto delta = PacketDelta{packet};
 
             if (IsValidDeltaTestDisconnectIfNot(delta))
             {
-                std::cout << "S: ConnectedToClient: validDelta" << std::endl;
-
                 auto connection = Network::IdConnection(delta);
 
                 // can't end here unless connection is valid.
                 if (connection = myIdConnection)
                 {
-                    std::cout << "S: ConnectedToClient: connectionIdMatches" << std::endl;
-
                     myLastDelta = delta;
                     myLastSequenceRecieved = delta.GetSequence();
                     myLastSequenceAck = delta.GetSequenceAck();
@@ -209,8 +191,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
         case State::Challenging:
         {
-            std::cout << "S: Challenging" << std::endl;
-
             if (!Disconnected(packet))
             {
                 if (Packet::GetCommand(packet) == Command::ChallengeResponse)
@@ -246,8 +226,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
         case State::Connecting:
         {
-            std::cout << "S: Connecting" << std::endl;
-
             if (!Disconnected(packet))
             {
                 if (Packet::GetCommand(packet) == Command::ConnectResponse)
@@ -281,8 +259,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
         // ///////////////////
         case State::Listening:
         {
-            std::cout << "S: Listening" << std::endl;
-
             auto command = Packet::GetCommand(packet);
 
             // Deal with floods by not sending the response.
@@ -292,8 +268,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                 {
                     case Command::Challenge:
                     {
-                        std::cout << "S: R: Challenge" << std::endl;
-
                         auto challenge = PacketChallenge{packet};
 
                         if (challenge.IsValid())
@@ -308,8 +282,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                     case Command::Info:
                     {
-                        std::cout << "S: R: Info" << std::endl;
-
                         auto info = PacketConnect{packet};
 
                         if (info.IsValid())
@@ -332,8 +304,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                     case Command::Connect:
                     {
-                        std::cout << "S: R: Connect" << std::endl;
-
                         auto connect = PacketConnect{packet};
 
                         if (connect.IsValid())
@@ -380,8 +350,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                     case Command::Unrecognised:
                     {
-                        std::cout << "S: R: Unrecognised" << std::endl;
-
                         // Don't bother if we're not connected-but-waiting-for-delta
                         if (myStateHandle)
                         {
@@ -389,14 +357,10 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                             if (delta.IsValid())
                             {
-                                std::cout << "S: R: Unrecognised -> Delta" << std::endl;
-
                                 auto idConnection = Network::IdConnection(delta);
 
                                 if (idConnection)
                                 {
-                                    std::cout << "S: R: Unrecognised -> Delta -> Id" << std::endl;
-
                                     myIdConnection = idConnection;
 
                                     Reset(State::ConnectedToClient);
@@ -436,16 +400,12 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
         case State::ConnectedToServer:
         case State::ConnectedToClient:
         {
-            std::cout << "G: Idle, Failed, CTServer, CTClient: Ignored" << std::endl;
-
             // Nothing, ignore everything
             break;
         }
 
         case State::Disconnecting:
         {
-            std::cout << "G: Disconnecting" << std::endl;
-
             result = std::move(PacketDisconnect(myKey, myFailReason).data);
             Fail(myFailReason);
             break;
@@ -457,8 +417,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
         case State::Challenging:
         case State::Connecting:
         {
-            std::cout << "G: Challenging, Connecting" << std::endl;
-
             if (myPacketCount > HandshakeRetries)
             {
                 if (myState == State::Challenging)
@@ -502,8 +460,6 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
         // ///////////////////
         case State::Listening:
         {
-            std::cout << "G: Listening" << std::endl;
-
             auto sinceLastPacket = myTimeNow() - myLastTimestamp;
 
             // int{HandshakeRetries} because for some reason te compiler needs
@@ -562,8 +518,6 @@ NetworkKey Connection::Key() const
 
 void Connection::Reset(State resetState)
 {
-    std::cout << "T: State -> " << std::to_string(static_cast<int>(resetState)) << std::endl;
-
     myState         = resetState;
     myPacketCount   = 0;
 
@@ -583,12 +537,8 @@ bool Connection::IsValidDeltaTestDisconnectIfNot(const PacketDelta& delta)
 {
     if (delta.IsValid())
     {
-        std::cout << "S: Valid Delta" << std::endl;
-
         if (delta.GetSequence() > myLastSequenceRecieved)
         {
-            std::cout << "S: Valid Delta in Sequence" << std::endl;
-
             return true;
         }
     }
