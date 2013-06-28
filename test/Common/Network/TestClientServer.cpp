@@ -19,15 +19,13 @@
 */
 
 #include <gmock/gmock.h>
+#include <chrono>
 
 #include <Common/Network/NetworkManagerClient.hpp>
 #include <Common/Network/NetworkManagerServer.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
 #include <Common/Network/NetworkProviderInMemory.hpp>
 #include <Common/MockIStateManager.hpp>
-
-// RAM: DEBUG
-#include <iostream>
 
 // RAM: TODO: Test CanSend and CanReceive been false.
 // RAM: TODO: Test IStateManager: Not Connected.
@@ -41,6 +39,9 @@ using ::testing::Return;
 using ::testing::Invoke;
 using ::testing::AtLeast;
 using ::testing::StrictMock;
+
+using Clock = std::chrono::steady_clock;
+using Oclock = Clock::time_point;
 
 namespace GameInABox { namespace Common { namespace Network {
 
@@ -95,6 +96,12 @@ public:
         frequenciesUseful[0xFC] = 8;
     }
 
+    // Helpers
+    void SetupDefaultMock(StrictMock<MockIStateManager>& mock);
+
+    // RAM: TODO: Don't really care about the state handler.
+    // Change to NiceMock, and setup ON_CALL macros
+    // instead.
     StrictMock<MockIStateManager> stateMockServer;
     StrictMock<MockIStateManager> stateMockClient;
     std::array<uint64_t, 256> frequencies;
@@ -103,11 +110,52 @@ public:
     NetworkProviderInMemory theNetwork;
 };
 
+// ///////////////////
+// Helpers
+// ///////////////////
+void TestClientServer::SetupDefaultMock(StrictMock<MockIStateManager>& mock)
+{
+    // right, what do we expect?
+    // Huffman frequencies, CanSend, CanReceive and Deltas.
+    EXPECT_CALL(mock, PrivateGetHuffmanFrequencies())
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(frequenciesUseful));
+
+    EXPECT_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(boost::optional<ClientHandle>(42)));
+
+    EXPECT_CALL(mock, PrivateStateInfo( ::testing::_ ))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(std::vector<uint8_t>()));
+
+    EXPECT_CALL(mock, PrivateCanReceive( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(true)));
+
+    EXPECT_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(true)));
+
+    EXPECT_CALL(mock, PrivateIsConnected( ::testing::_ ))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(true)));
+
+    EXPECT_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Invoke(DeltaCreate));
+
+    EXPECT_CALL(mock, PrivateDeltaParse( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Invoke(DeltaParse));
+
+    EXPECT_CALL(mock, PrivateDisconnect(::testing::_))
+            .Times(AtLeast(1));
+}
 
 // ///////////////////
 // Simple Tests
 // ///////////////////
-
 TEST_F(TestClientServer, CreateClient)
 {
     // right, what do we expect?
@@ -137,106 +185,27 @@ TEST_F(TestClientServer, CreateServer)
 // ///////////////////
 TEST_F(TestClientServer, OneConnection)
 {
-    // right, what do we expect?
-    // Huffman frequencies, CanSend, CanReceive and Deltas
-    // for both client and server.
+    for (auto mock : {&stateMockClient, &stateMockServer})
+    {
+        SetupDefaultMock(*mock);
+    }
 
-    // Client
-    // ======
-    // RAM: TODO: Fix duplicate code, use more mocking features to
-    // check return values, maybe get sequencing working properly.
-    EXPECT_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequenciesUseful));
-
-    EXPECT_CALL(stateMockClient, PrivateConnect( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(boost::optional<ClientHandle>(42)));
-
-    EXPECT_CALL(stateMockClient, PrivateStateInfo( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(std::vector<uint8_t>()));
-
-    EXPECT_CALL(stateMockClient, PrivateCanReceive( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
-
-    EXPECT_CALL(stateMockClient, PrivateCanSend( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
-
-    EXPECT_CALL(stateMockClient, PrivateIsConnected( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
-
-    EXPECT_CALL(stateMockClient, PrivateDeltaCreate( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(DeltaCreate));
-
-    EXPECT_CALL(stateMockClient, PrivateDeltaParse( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(DeltaParse));
-
-    EXPECT_CALL(stateMockClient, PrivateDisconnect(::testing::_))
-            .Times(AtLeast(1));
-
-    // Server
-    // ======
-    EXPECT_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequenciesUseful));
-
-    EXPECT_CALL(stateMockServer, PrivateConnect( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(boost::optional<ClientHandle>(88)));
-
-    EXPECT_CALL(stateMockServer, PrivateStateInfo( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(std::vector<uint8_t>()));
-
-    EXPECT_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
-
-    EXPECT_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
-
-    EXPECT_CALL(stateMockServer, PrivateIsConnected( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
-
-    EXPECT_CALL(stateMockServer, PrivateDeltaCreate( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(DeltaCreate));
-
-    EXPECT_CALL(stateMockServer, PrivateDeltaParse( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(DeltaParse));
-
-    EXPECT_CALL(stateMockServer, PrivateDisconnect(::testing::_))
-            .Times(AtLeast(1));
-
-    // Careful using the same state manager.
     NetworkManagerServer server{theNetwork, stateMockServer};
     NetworkManagerClient client{theNetwork, stateMockClient};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
 
-    // Should be connected, and have sent deltas after 100 tries!
     theNetwork.RunAs(addressClient);
     client.Connect(addressServer);
     int count = 0;
     bool keepGoing = true;
     while (keepGoing)
     {
-        std::cout << "SERVER" << std::endl << "======" << std::endl;
         theNetwork.RunAs(addressServer);
         server.ProcessIncomming();
         server.SendState();
 
-        std::cout << "CLIENT" << std::endl << "======" << std::endl;
         theNetwork.RunAs(addressClient);
         client.ProcessIncomming();
         client.SendState();
@@ -251,8 +220,97 @@ TEST_F(TestClientServer, OneConnection)
         }
     }
 
+    // Should be connected, and have sent deltas after 100 tries!
     EXPECT_TRUE(client.IsConnected());
     EXPECT_FALSE(client.HasFailed());
+}
+
+// ///////////////////
+// Simulated Time
+// ///////////////////
+TEST_F(TestClientServer, ClientTimeout)
+{
+    Oclock testTime{Clock::now()};
+
+    // Client
+    EXPECT_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(frequenciesUseful));
+
+    EXPECT_CALL(stateMockClient, PrivateCanReceive( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(true)));
+
+    EXPECT_CALL(stateMockClient, PrivateCanSend( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(true)));
+
+    EXPECT_CALL(stateMockClient, PrivateStateInfo( ::testing::_ ))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(std::vector<uint8_t>()));
+
+    // Server
+    EXPECT_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(frequenciesUseful));
+
+    EXPECT_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(true)));
+
+    EXPECT_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(true)));
+
+    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> Oclock { return testTime; }};
+    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> Oclock { return testTime; }};
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+
+    theNetwork.RunAs(addressClient);
+    client.Connect(addressServer);
+    int count = 0;
+    bool keepGoing = true;
+    while (keepGoing)
+    {
+        // simulate 80+80 = 160ms latency.
+        testTime += std::chrono::milliseconds(80);
+
+        theNetwork.RunAs(addressServer);
+
+        // simulate timeout on the client by dropping
+        // packets sent to the server.
+        // At this point the server has got the connection
+        // request but will not get anything more.
+        if (count > 0)
+        {
+            theNetwork.Receive();
+        }
+
+        server.ProcessIncomming();
+        server.SendState();
+
+        testTime += std::chrono::milliseconds(80);
+
+        theNetwork.RunAs(addressClient);
+        client.ProcessIncomming();
+        client.SendState();
+
+        if (++count > 100)
+        {
+            keepGoing = false;
+        }
+        else
+        {
+            keepGoing = !client.HasFailed();
+        }
+    }
+
+    // Should be connected, and have sent deltas after 100 tries!
+    EXPECT_FALSE(client.IsConnected());
+    EXPECT_TRUE(client.HasFailed());
+    EXPECT_NE("", client.FailReason());
 }
 
 
