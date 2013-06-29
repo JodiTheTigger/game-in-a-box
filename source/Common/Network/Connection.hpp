@@ -44,8 +44,9 @@ enum class State;
 // Also decodes incomming DeltaPackets (but does not fragment outgoing ones).
 class Connection
 {
-public:
-    using TimeFunction = std::function<std::chrono::steady_clock::time_point()>;
+public:    
+    using Clock = std::chrono::steady_clock;
+    using TimeFunction = std::function<Clock::time_point()>;
 
     enum class Mode
     {
@@ -54,7 +55,7 @@ public:
     };
 
     explicit Connection(IStateManager& stateManager)
-        : Connection(stateManager, std::chrono::steady_clock::now) {}
+        : Connection(stateManager, Clock::now) {}
 
     Connection(
             IStateManager& stateManager,
@@ -101,7 +102,7 @@ private:
     std::string                             myFailReason;
     NetworkKey                              myKey;
     int                                     myPacketCount;
-    std::chrono::steady_clock::time_point   myLastTimestamp;
+    Clock::time_point                       myLastTimestamp;
     boost::optional<Sequence>               myLastSequenceAck;
     boost::optional<ClientHandle>           myStateHandle;
     boost::optional<uint16_t>               myIdConnection;

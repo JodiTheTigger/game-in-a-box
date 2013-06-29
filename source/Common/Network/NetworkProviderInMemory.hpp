@@ -37,9 +37,10 @@ namespace GameInABox { namespace Common { namespace Network {
 class NetworkProviderInMemory final : public INetworkProvider
 {
 public:
-    using TimeFunction = std::function<std::chrono::high_resolution_clock::time_point()>;
+    using Clock = std::chrono::steady_clock;
+    using TimeFunction = std::function<Clock::time_point()>;
 
-    NetworkProviderInMemory() : NetworkProviderInMemory(std::chrono::high_resolution_clock::now) {}
+    NetworkProviderInMemory() : NetworkProviderInMemory(Clock::now) {}
     NetworkProviderInMemory(TimeFunction timepiece);
 
     void RunAs(boost::asio::ip::udp::endpoint clientAddress) { myCurrentSource = clientAddress; }
@@ -47,7 +48,7 @@ public:
 private:
     struct TimePacket
     {
-        std::chrono::high_resolution_clock::time_point timeToRelease;
+        Clock::time_point timeToRelease;
         NetworkPacket data;
     };
 
@@ -56,6 +57,7 @@ private:
     bool myNetworkIsDisabled;
     TimeFunction myTimeNow;
 
+    // INetworkProvider Methods.
     std::vector<NetworkPacket> PrivateReceive() override;
     void PrivateSend(std::vector<NetworkPacket> packets) override;
     void PrivateReset() override;
