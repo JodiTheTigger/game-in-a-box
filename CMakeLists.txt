@@ -57,6 +57,7 @@ project(game-in-a-box C CXX)
 check_cxx_compiler_flag("-std=c++11" HAS_CPP11)
 check_cxx_compiler_flag("-std=c++0x" HAS_CPP0X)
 check_cxx_compiler_flag("-std=c++11 -stdlib=libc++" HAS_CPP11_AND_LIB)
+check_cxx_compiler_flag("-fno-rtti" CAN_DISABLE_RTTI)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Wall HAS_WALL)
 check_cxx_compiler_flag(-W4 HAS_W4)
@@ -88,6 +89,10 @@ if (MSVC11)
 endif()
 
 # apply compiler options
+if (CAN_DISABLE_RTTI)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+endif()
+
 if (HAS_CPP11_AND_LIB)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
 elseif (HAS_CPP11)
@@ -275,6 +280,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestBufferSerialisation.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProviderSynchronous.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProviderInMemory.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestClientServer.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 
