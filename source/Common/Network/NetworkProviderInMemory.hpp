@@ -39,9 +39,23 @@ class NetworkProviderInMemory final : public INetworkProvider
 public:
     using Clock = std::chrono::steady_clock;
     using TimeFunction = std::function<Clock::time_point()>;
+    using MillisecondStorageType = unsigned;
+    using Milliseconds = std::chrono::duration<MillisecondStorageType,std::milli>;
 
-    NetworkProviderInMemory() : NetworkProviderInMemory(Clock::now) {}
-    NetworkProviderInMemory(TimeFunction timepiece);
+    // if previous packetloss then packetlosschance = packetLossChancePerPacket0to1;
+    NetworkProviderInMemory(
+            Milliseconds latencyMin,
+            Milliseconds latencyAverage,
+            Milliseconds latencyStandardDeviation,
+            float packetLossChancePerPacket0to1,
+            float packetLossChanceBurst0to1,
+            TimeFunction timepiece);
+
+    NetworkProviderInMemory()
+        : NetworkProviderInMemory(Clock::now) {}
+
+    NetworkProviderInMemory(TimeFunction timepiece)
+        : NetworkProviderInMemory(Milliseconds{0},Milliseconds{0},Milliseconds{0},0,0,timepiece) {}
 
     void RunAs(boost::asio::ip::udp::endpoint clientAddress) { myCurrentSource = clientAddress; }
 
@@ -56,6 +70,14 @@ private:
     boost::asio::ip::udp::endpoint myCurrentSource;
     bool myNetworkIsDisabled;
     TimeFunction myTimeNow;
+
+    // Randoms
+    std::default_random_engine myRandomEngine;
+    std::uniform_real_distribution<float> myRandomUniform;
+    std::normal_distribution<float> myLatency;
+    Milliseconds myLatencyMinimum;
+    float myPacketLossChancePerPacket0to1;
+    float myPacketLossChanceBurst0to1;
 
     // INetworkProvider Methods.
     std::vector<NetworkPacket> PrivateReceive() override;

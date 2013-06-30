@@ -27,12 +27,25 @@ using Oclock = Clock::time_point;
 
 namespace GameInABox { namespace Common { namespace Network {
 
-NetworkProviderInMemory::NetworkProviderInMemory(TimeFunction timepiece)
+
+NetworkProviderInMemory::NetworkProviderInMemory(
+        Milliseconds latencyMin,
+        Milliseconds latencyAverage,
+        Milliseconds latencyStandardDeviation,
+        float packetLossChancePerPacket0to1,
+        float packetLossChanceBurst0to1,
+        TimeFunction timepiece)
     : INetworkProvider()
     , myAddressToPackets()
     , myCurrentSource()
     , myNetworkIsDisabled(false)
     , myTimeNow(timepiece)
+    , myRandomEngine()
+    , myRandomUniform(0, 1)
+    , myLatency(latencyAverage.count(), latencyStandardDeviation.count())
+    , myLatencyMinimum(latencyMin)
+    , myPacketLossChancePerPacket0to1(packetLossChancePerPacket0to1)
+    , myPacketLossChanceBurst0to1(packetLossChanceBurst0to1)
 {
 
 }
@@ -67,7 +80,22 @@ std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
 
 void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
 {
-    // RAM: TODO: Add latency: but for now - no latency.
+    Clock::time_point timeToRelease{};
+
+    if (myLatencyMinimum.count() > 0)
+    {
+        auto lag = std::max(
+                    Milliseconds{static_cast<MillisecondStorageType>(myLatency(myRandomEngine))},
+                    myLatencyMinimum);
+
+        timeToRelease = myTimeNow() + lag;
+    }
+    else
+    {
+        timeToRelease = myTimeNow();
+    }
+
+    // RAM: TODO: Add packet loss and out of order.
     for (auto packet : packets)
     {
         auto timepacket = TimePacket{myTimeNow(), NetworkPacket{std::move(packet.data), myCurrentSource}};
