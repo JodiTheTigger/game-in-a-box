@@ -22,7 +22,18 @@ compiler:
   - gcc
 
 install:
- - sudo apt-get update >/dev/null
+# Need gcc 4.8.1, have to jump a few hoops to do that.
+ - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+ - sudo update-alternatives --remove-all gcc 
+ - sudo update-alternatives --remove-all g++
+ - sudo apt-get install gcc-4.8.1
+ - sudo apt-get install g++-4.8.1
+ - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8.1 20
+ - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8.1 20
+ - sudo update-alternatives --config gcc
+ - sudo update-alternatives --config g+
+ - sudo apt-get update && upgrade >/dev/null
+# libraries needed for everything else.
  - sudo apt-get -q install cmake valgrind libboost-dev libboost-system-dev libboost-thread-dev
 
 script:
