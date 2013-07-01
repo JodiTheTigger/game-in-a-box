@@ -28,17 +28,22 @@ install:
 # Clang dependencies
  - if [ $CXX = "clang++" ]; then
    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+   sudo apt-get update -qq;
    sudo apt-get install -qq libstdc++-4.8-dev; 
    fi;
    
 # - if [ $CXX = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
 
 # GCC dependencies
-# I'm building with GCC 4.8.1 getting that on travis ci is a bit of work.
+# I'm building with GCC 4.8 getting that on travis ci is a bit of work.
  - if [ $CXX = "g++" ]; then
    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
    sudo apt-get update -qq;
    sudo apt-get install -qq gcc-4.8 g++-4.8;
+   sudo rm /usr/bin/g++
+   sudo rm /usr/bin/gcc
+   sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
+   sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc
    fi;
 
 # RAM: TODO: Needed?
