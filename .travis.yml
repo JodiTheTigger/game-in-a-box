@@ -23,7 +23,7 @@ compiler:
 
 install:
  - sudo apt-get update >/dev/null
- - sudo apt-get -q install cmake valgrind libboost-dev
+ - sudo apt-get -q install cmake valgrind libboost-dev libboost-system-dev libboost-thread-dev
 
 script:
   - cmake -b./build/ .
