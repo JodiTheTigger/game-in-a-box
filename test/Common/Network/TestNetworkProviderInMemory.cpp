@@ -84,5 +84,101 @@ TEST_F(TestNetworkProviderInMemory, PacketLoss50Percent)
     EXPECT_NE(result.size(), 0);
 }
 
+TEST_F(TestNetworkProviderInMemory, LatencyInOrder)
+{
+    NetworkProviderInMemory::OClock testTime{NetworkProviderInMemory::Clock::now()};
+    std::vector<std::vector<uint8_t>> payloads = {{1,2,3,4}, {4,4}, {3,5,6,7}, {8,8,8,8,8,8,8,8}};
+
+    NetworkProviderInMemory buffer(
+        NetworkProviderInMemory::Milliseconds{100},
+        NetworkProviderInMemory::Milliseconds{150},
+        NetworkProviderInMemory::Milliseconds{50},
+        0,
+        0,
+        0,
+        [&testTime] () -> NetworkProviderInMemory::OClock { return testTime; });
+
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+    auto packets = std::vector<NetworkPacket>{};
+    for (auto payload : payloads)
+    {
+        packets.emplace_back(payload, addressClient);
+    }
+
+    buffer.RunAs(addressServer);
+    for (int i = 0; i < 8; i++)
+    {
+        buffer.Send(packets);
+        testTime += std::chrono::milliseconds(10);
+    }
+
+    testTime -= std::chrono::milliseconds(8 * 10);
+
+    buffer.RunAs(addressClient);
+    auto result = buffer.Receive();
+    EXPECT_EQ(result.size(), 0);
+
+    // Minimum latency is 100 ms.
+    testTime -= std::chrono::milliseconds(99);
+    result = buffer.Receive();
+    EXPECT_EQ(result.size(), 0);
+
+    // Should get all packets after 1 second.
+    testTime += std::chrono::milliseconds(1001);
+    result = buffer.Receive();
+    EXPECT_EQ(result.size(), 8 * payloads.size());
+
+    int i = 0;
+    for (auto& packet : result)
+    {
+        EXPECT_EQ(payloads[i], packet.data);
+        i = (i + 1) % payloads.size();
+    }
+}
+
+TEST_F(TestNetworkProviderInMemory, LatencyOutOfOrder)
+{
+    NetworkProviderInMemory::OClock testTime{NetworkProviderInMemory::Clock::now()};
+    std::vector<std::vector<uint8_t>> payloads = {{1,2,3,4}, {4,4}, {3,5,6,7}, {8,8,8,8,8,8,8,8}};
+
+    NetworkProviderInMemory buffer(
+        NetworkProviderInMemory::Milliseconds{100},
+        NetworkProviderInMemory::Milliseconds{150},
+        NetworkProviderInMemory::Milliseconds{50},
+        0,
+        0,
+        1.0,
+        [&testTime] () -> NetworkProviderInMemory::OClock { return testTime; });
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+    auto packets = std::vector<NetworkPacket>{};
+    for (auto payload : payloads)
+    {
+        packets.emplace_back(payload, addressClient);
+    }
+
+    buffer.RunAs(addressServer);
+    buffer.Send(packets);
+
+    testTime += std::chrono::milliseconds(1000);
+
+    buffer.RunAs(addressClient);
+    auto result = buffer.Receive();
+    EXPECT_EQ(result.size(), payloads.size());
+
+    bool inOrder = true;
+    for (std::size_t i = 0; i < result.size(); ++i)
+    {
+        if (result[i].data != payloads[i])
+        {
+            inOrder = false;
+        }
+    }
+
+    EXPECT_FALSE(inOrder);
+}
 
 }}} // namespace
