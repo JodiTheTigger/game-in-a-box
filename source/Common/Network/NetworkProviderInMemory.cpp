@@ -63,7 +63,7 @@ std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
 
         for (auto& timePacket : myAddressToPackets.at(myCurrentSource))
         {
-            if (timePacket.timeToRelease < now)
+            if (timePacket.timeToRelease <= now)
             {
                 result.emplace_back(std::move(timePacket.data));
             }

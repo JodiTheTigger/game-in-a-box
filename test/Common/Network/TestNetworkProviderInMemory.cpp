@@ -43,7 +43,6 @@ TEST_F(TestNetworkProviderInMemory, NoLatency)
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
-    auto packetToServer = NetworkPacket{payloads[0], addressServer};
     auto packetToClient = NetworkPacket{payloads[1], addressClient};
 
     buffer.RunAs(addressServer);
@@ -55,5 +54,35 @@ TEST_F(TestNetworkProviderInMemory, NoLatency)
     ASSERT_EQ(1, result.size());
     EXPECT_EQ(payloads[1], result[0].data);
 }
+
+TEST_F(TestNetworkProviderInMemory, PacketLoss50Percent)
+{
+    NetworkProviderInMemory::OClock testTime{NetworkProviderInMemory::Clock::now()};
+    std::vector<uint8_t> payload = {1,2,3,4};
+
+    NetworkProviderInMemory buffer(
+        NetworkProviderInMemory::Milliseconds{0},
+        NetworkProviderInMemory::Milliseconds{0},
+        NetworkProviderInMemory::Milliseconds{0},
+        0.5f,
+        0.75f,
+        0,
+        [&testTime] () -> NetworkProviderInMemory::OClock { return testTime; });
+
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+    auto packetToClient = NetworkPacket{payload, addressClient};
+
+    buffer.RunAs(addressServer);
+    buffer.Send({packetToClient, packetToClient, packetToClient, packetToClient, packetToClient, packetToClient, packetToClient, packetToClient});
+
+    buffer.RunAs(addressClient);
+    auto result = buffer.Receive();
+
+    EXPECT_NE(result.size(), 8);
+    EXPECT_NE(result.size(), 0);
+}
+
 
 }}} // namespace

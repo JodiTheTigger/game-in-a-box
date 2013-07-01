@@ -38,6 +38,7 @@ class NetworkProviderInMemory final : public INetworkProvider
 {
 public:
     using Clock = std::chrono::steady_clock;
+    using OClock = Clock::time_point;
     using TimeFunction = std::function<Clock::time_point()>;
     using MillisecondStorageType = unsigned;
     using Milliseconds = std::chrono::duration<MillisecondStorageType,std::milli>;
