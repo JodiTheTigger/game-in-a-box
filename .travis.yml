@@ -26,8 +26,9 @@ install:
  - sudo apt-get -q install cmake valgrind libboost-dev libboost-system-dev libboost-thread-dev
 
 script:
-  - cmake -b./build/ .
+  - mkdir build
   - cd build
+  - cmake ../
   - make
 
 # RAM: TODO: Make a supression file for all the gmock warnings.
