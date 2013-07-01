@@ -26,10 +26,10 @@ install:
 
 
 # Clang dependencies
-- if [ $CXX = "clang++" ]; then
+ - if [ $CXX = "clang++" ]; then
    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
    sudo apt-get install -qq libstdc++-4.8-dev; 
-   fi
+   fi;
    
 # - if [ $CXX = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
 
