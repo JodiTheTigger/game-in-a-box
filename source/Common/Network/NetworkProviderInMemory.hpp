@@ -49,13 +49,14 @@ public:
             Milliseconds latencyStandardDeviation,
             float packetLossChancePerPacket0to1,
             float packetLossChanceBurst0to1,
+            float packetOutOfOrderChance0to1,
             TimeFunction timepiece);
 
     NetworkProviderInMemory()
         : NetworkProviderInMemory(Clock::now) {}
 
     NetworkProviderInMemory(TimeFunction timepiece)
-        : NetworkProviderInMemory(Milliseconds{0},Milliseconds{0},Milliseconds{0},0,0,timepiece) {}
+        : NetworkProviderInMemory(Milliseconds{0},Milliseconds{0},Milliseconds{0},0,0,0,timepiece) {}
 
     void RunAs(boost::asio::ip::udp::endpoint clientAddress) { myCurrentSource = clientAddress; }
 
@@ -73,11 +74,13 @@ private:
 
     // Randoms
     std::default_random_engine myRandomEngine;
-    std::uniform_real_distribution<float> myRandomUniform;
+    std::uniform_real_distribution<float> myRandom0To1;
     std::normal_distribution<float> myLatency;
     Milliseconds myLatencyMinimum;
     float myPacketLossChancePerPacket0to1;
     float myPacketLossChanceBurst0to1;
+    float myPacketOutOfOrderChance0to1;
+    bool losingPackets;
 
     // INetworkProvider Methods.
     std::vector<NetworkPacket> PrivateReceive() override;

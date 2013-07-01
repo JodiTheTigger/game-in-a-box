@@ -36,9 +36,24 @@ public:
     TestNetworkProviderInMemory() {}
 };
 
-TEST_F(TestNetworkProviderInMemory, TODO)
+TEST_F(TestNetworkProviderInMemory, NoLatency)
 {
-    // RAM: TODO!
+    NetworkProviderInMemory buffer{};
+    std::vector<uint8_t> payloads[2] = {{1,2,3,4}, {6,7,8,9,10}};
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+    auto packetToServer = NetworkPacket{payloads[0], addressServer};
+    auto packetToClient = NetworkPacket{payloads[1], addressClient};
+
+    buffer.RunAs(addressServer);
+    buffer.Send({packetToClient});
+
+    buffer.RunAs(addressClient);
+    auto result = buffer.Receive();
+
+    ASSERT_EQ(1, result.size());
+    EXPECT_EQ(payloads[1], result[0].data);
 }
 
 }}} // namespace

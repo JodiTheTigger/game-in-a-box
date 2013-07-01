@@ -34,6 +34,7 @@ NetworkProviderInMemory::NetworkProviderInMemory(
         Milliseconds latencyStandardDeviation,
         float packetLossChancePerPacket0to1,
         float packetLossChanceBurst0to1,
+        float packetOutOfOrderChance0to1,
         TimeFunction timepiece)
     : INetworkProvider()
     , myAddressToPackets()
@@ -41,11 +42,13 @@ NetworkProviderInMemory::NetworkProviderInMemory(
     , myNetworkIsDisabled(false)
     , myTimeNow(timepiece)
     , myRandomEngine()
-    , myRandomUniform(0, 1)
+    , myRandom0To1(0, 1)
     , myLatency(latencyAverage.count(), latencyStandardDeviation.count())
     , myLatencyMinimum(latencyMin)
     , myPacketLossChancePerPacket0to1(packetLossChancePerPacket0to1)
     , myPacketLossChanceBurst0to1(packetLossChanceBurst0to1)
+    , myPacketOutOfOrderChance0to1(packetOutOfOrderChance0to1)
+    , losingPackets(false)
 {
 
 }
@@ -82,6 +85,7 @@ void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
 {
     Clock::time_point timeToRelease{};
 
+    // latency
     if (myLatencyMinimum.count() > 0)
     {
         auto lag = std::max(
@@ -95,17 +99,60 @@ void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
         timeToRelease = myTimeNow();
     }
 
-    // RAM: TODO: Add packet loss and out of order.
     for (auto packet : packets)
     {
-        auto timepacket = TimePacket{myTimeNow(), NetworkPacket{std::move(packet.data), myCurrentSource}};
-        myAddressToPackets[packet.address].emplace_back(std::move(timepacket));
+        auto timepacket = TimePacket{timeToRelease, NetworkPacket{std::move(packet.data), myCurrentSource}};
+        auto& vector = myAddressToPackets[packet.address];
+        vector.emplace_back(std::move(timepacket));
+
+        // packet drop
+        if (myPacketLossChancePerPacket0to1 > 0)
+        {
+            bool lostIt = false;
+
+            if (losingPackets)
+            {
+                lostIt = (myRandom0To1(myRandomEngine) <= myPacketLossChanceBurst0to1);
+            }
+            else
+            {
+                lostIt = (myRandom0To1(myRandomEngine) <= myPacketLossChancePerPacket0to1);
+            }
+
+            if (lostIt)
+            {
+                vector.erase(end(vector) - 1);
+                losingPackets = true;
+            }
+            else
+            {
+                losingPackets = false;
+            }
+        }
+    }
+
+    // packet swap.
+    if (myRandom0To1(myRandomEngine) <= myPacketOutOfOrderChance0to1)
+    {
+        for (auto& addressPackets : myAddressToPackets)
+        {
+            auto& packets = addressPackets.second;
+
+            if (packets.size() > 1)
+            {
+                using namespace std;
+
+                // just swap the first and last packets.
+                swap(packets.back(), packets.front());
+            }
+        }
     }
 }
 
 void NetworkProviderInMemory::PrivateReset()
 {
     myNetworkIsDisabled = false;
+    losingPackets = false;
     myAddressToPackets = {};
 }
 
