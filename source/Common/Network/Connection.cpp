@@ -178,7 +178,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
                 auto connection = Network::IdConnection(delta);
 
                 // can't end here unless connection is valid.
-                if (connection = myIdConnection)
+                if (connection == myIdConnection)
                 {
                     myLastDelta = delta;
                     myLastSequenceRecieved = delta.GetSequence();
