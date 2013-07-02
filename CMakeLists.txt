@@ -100,7 +100,7 @@ endif()
 
 # apply compiler options
 if (CAN_DISABLE_RTTI)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -DBOOST_NO_RTTI")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -DBOOST_NO_RTTI -DBOOST_NO_TYPEID")
 endif()
 
 if (HAS_CPP11_AND_LIB)
