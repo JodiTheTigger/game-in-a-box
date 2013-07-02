@@ -224,8 +224,11 @@ source/Common/Logging/Logging.cpp
 ###############
 # Server 
 ###############    
-# RAM: Debug, get clang to find the bits/c++config.h file!
-#include_directories(/usr/include/i386-linux-gnu/c++/4.7/)
+# Stupid clang, hard code search paths for ubuntu 12.04 for travis-ci
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    include_directories(/usr/include/x86_64-linux-gnu/c++/4.8/)
+    include_directories(/usr/include/i386-linux-gnu/c++/4.8/)
+endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
