@@ -45,8 +45,9 @@ using Oclock = Clock::time_point;
 
 namespace GameInABox { namespace Common { namespace Network {
 
-Delta DeltaCreate(ClientHandle,
-                  boost::optional<Sequence> lastAcked)
+Delta DeltaCreate(
+        ClientHandle,
+        boost::optional<Sequence> lastAcked)
 {
     if (lastAcked)
     {
