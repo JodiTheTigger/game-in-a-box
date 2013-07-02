@@ -100,7 +100,7 @@ endif()
 
 # apply compiler options
 if (CAN_DISABLE_RTTI)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -DBOOST_NO_RTTI -DBOOST_NO_TYPEID")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -DBOOST_NO_RTTI -DBOOST_NO_TYPEID -DGTEST_HAS_RTTI=0")
 endif()
 
 if (HAS_CPP11_AND_LIB)
@@ -147,7 +147,8 @@ endif()
 ###############
 
 # TODO! Move to 1.53.0 for c++11 support.
-FIND_PACKAGE( Boost 1.46.1 COMPONENTS system thread REQUIRED )
+# Clang needs 1.48 otherwise it doesn't build due to calling a deleted constructor.
+FIND_PACKAGE( Boost 1.48 COMPONENTS system thread REQUIRED )
 INCLUDE_DIRECTORIES( SYSTEM ${Boost_INCLUDE_DIR} )
 # Uses threads in Linuxland
 FIND_PACKAGE ( Threads )
