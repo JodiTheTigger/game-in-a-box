@@ -64,6 +64,7 @@ check_cxx_compiler_flag(-Wextra HAS_WEXTRA)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Werror HAS_WERROR)
 check_cxx_compiler_flag(-Wno-non-virtual-dtor HAS_IGNORE_NONVIRTUAL_DTOR)
+check_cxx_compiler_flag(-Wno-unused-local-typedefs HAS_IGNORE_UNUSED_LOCAL_TYPEDEFS)
 
 # Only platforms with clangs libc++ will build with clang with these build flags.
 # Currently, that's only OSX.
@@ -140,6 +141,11 @@ endif()
 
 if (HAS_WERROR)
     set(PARANOID_FLAGS "${PARANOID_FLAGS} -Werror")
+endif()
+
+# Silence gtest and gmock please
+if (HAS_IGNORE_UNUSED_LOCAL_TYPEDEFS)
+    set(GMOCK_FLAGS "${GMOCK_FLAGS} -Wno-unused-local-typedefs")
 endif()
 
 ###############
@@ -305,7 +311,8 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/TestBitStream.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestAutoComplete.cpp)
 
-set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
+# Ignore google test and goole mock warnings
+set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS}")
 
 target_link_libraries(
   game-in-a-box-common-tests
