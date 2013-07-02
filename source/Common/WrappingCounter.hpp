@@ -32,10 +32,10 @@ template<typename T, int BITS = 0>
 class WrappingCounter
 {
 public:
-    static constexpr int bits()
+    static constexpr unsigned bits()
     {
         return BITS == 0 ?
-            std::numeric_limits<T>::max() :
+            std::numeric_limits<T>::digits :
             BITS > std::numeric_limits<T>::digits ?
                 std::numeric_limits<T>::digits :
                 BITS;
