@@ -20,22 +20,24 @@ language: cpp
 compiler:
   - clang
   - gcc
+  
+matrix:
+  allow_failures:
+      - compiler: clang    
 
 install:
-# Need gcc 4.8.1, have to jump a few hoops to do that.
-
-
 # Clang dependencies
  - if [ $CXX = "clang++" ]; then
    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
    sudo apt-get update -qq;
    sudo apt-get install -qq libstdc++-4.8-dev; 
+   EXTRA_SYSTEM_INCLUDES=/usr/include/x86_64-linux-gnu/c++/4.8/
    fi;
    
 # - if [ $CXX = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
 
 # GCC dependencies
-# I'm building with GCC 4.8 getting that on travis ci is a bit of work.
+# I'm building with GCC 4.8. Getting that on travis ci is a bit of work.
  - if [ $CXX = "g++" ]; then
    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
    sudo apt-get update -qq;
@@ -46,22 +48,13 @@ install:
    sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc;
    fi;
 
-# RAM: TODO: Needed?
-
-#   sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8.1 20;
-#   sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8.1 20;
-#   sudo update-alternatives --auto gcc;
-#   sudo update-alternatives --auto g++;
-# - sudo update-alternatives --config --skip-auto
-# - sudo update-alternatives --config --skip-auto
-
 # libraries needed for everything else.
  - sudo apt-get -q install cmake valgrind libboost-dev libboost-system-dev libboost-thread-dev
 
 script:
   - mkdir build
   - cd build
-  - cmake ../
+  - cmake ../ -D$EXTRA_SYSTEM_INCLUDES
   - make
 
 # RAM: TODO: Make a supression file for all the gmock warnings.
