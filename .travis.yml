@@ -31,7 +31,7 @@ install:
    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
    sudo apt-get update -qq;
    sudo apt-get install -qq libstdc++-4.8-dev; 
-   EXTRA_SYSTEM_INCLUDES=/usr/include/x86_64-linux-gnu/c++/4.8/
+   EXTRA_SYSTEM_INCLUDES=/usr/include/x86_64-linux-gnu/c++/4.8/;
    fi;
    
 # - if [ $CXX = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.2; fi
