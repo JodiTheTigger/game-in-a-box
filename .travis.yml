@@ -54,7 +54,7 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake ../ -D$EXTRA_SYSTEM_INCLUDES
+  - cmake ../ -DINCLUDE_DIRECTORIES=$EXTRA_SYSTEM_INCLUDES
   - make
 
 # RAM: TODO: Make a supression file for all the gmock warnings.
