@@ -29,28 +29,43 @@ namespace GameInABox { namespace Common { namespace Network {
 
 
 NetworkProviderInMemory::NetworkProviderInMemory(
-        Milliseconds latencyMin,
-        Milliseconds latencyAverage,
-        Milliseconds latencyStandardDeviation,
-        float packetLossChancePerPacket0to1,
-        float packetLossChanceBurst0to1,
-        float packetOutOfOrderChance0to1,
+        RandomSettings defaultSettings,
         TimeFunction timepiece)
     : INetworkProvider()
     , myAddressToPackets()
     , myCurrentSource()
     , myNetworkIsDisabled(false)
     , myTimeNow(timepiece)
-    , myRandomEngine()
-    , myRandom0To1(0, 1)
-    , myLatency(latencyAverage.count(), latencyStandardDeviation.count())
-    , myLatencyMinimum(latencyMin)
-    , myPacketLossChancePerPacket0to1(packetLossChancePerPacket0to1)
-    , myPacketLossChanceBurst0to1(packetLossChanceBurst0to1)
-    , myPacketOutOfOrderChance0to1(packetOutOfOrderChance0to1)
+    , myDefaultSettings(defaultSettings)
+    , mySettings({{}, {}, Milliseconds{0},0,0,0})
     , losingPackets(false)
 {
 
+}
+
+void NetworkProviderInMemory::RunAs(boost::asio::ip::udp::endpoint clientAddress)
+{
+    RunAs(clientAddress, myDefaultSettings);
+}
+
+void NetworkProviderInMemory::RunAs(boost::asio::ip::udp::endpoint clientAddress, RandomSettings settings)
+{
+    myCurrentSource = clientAddress;
+
+    // validate.
+    if (!settings.latency)
+    {
+        settings.latencyMinimum = Milliseconds{0};
+    }
+
+    if (!settings.random0To1)
+    {
+        settings.packetLossChanceBurst0to1 = 0;
+        settings.packetLossChancePerPacket0to1 = 0;
+        settings.packetOutOfOrderChance0to1 = 0;
+    }
+
+    mySettings =  settings;
 }
 
 std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
@@ -86,11 +101,11 @@ void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
     Clock::time_point timeToRelease{};
 
     // latency
-    if (myLatencyMinimum.count() > 0)
+    if (mySettings.latencyMinimum.count() > 0)
     {
         auto lag = std::max(
-                    Milliseconds{static_cast<MillisecondStorageType>(myLatency(myRandomEngine))},
-                    myLatencyMinimum);
+                    Milliseconds{static_cast<MillisecondStorageType>(mySettings.latency())},
+                    mySettings.latencyMinimum);
 
         timeToRelease = myTimeNow() + lag;
     }
@@ -106,17 +121,17 @@ void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
         vector.emplace_back(std::move(timepacket));
 
         // packet drop
-        if (myPacketLossChancePerPacket0to1 > 0)
+        if (mySettings.packetLossChancePerPacket0to1 > 0)
         {
             bool lostIt = false;
 
             if (losingPackets)
             {
-                lostIt = (myRandom0To1(myRandomEngine) <= myPacketLossChanceBurst0to1);
+                lostIt = (mySettings.random0To1() <= mySettings.packetLossChanceBurst0to1);
             }
             else
             {
-                lostIt = (myRandom0To1(myRandomEngine) <= myPacketLossChancePerPacket0to1);
+                lostIt = (mySettings.random0To1() <= mySettings.packetLossChancePerPacket0to1);
             }
 
             if (lostIt)
@@ -132,18 +147,21 @@ void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
     }
 
     // packet swap.
-    if (myRandom0To1(myRandomEngine) <= myPacketOutOfOrderChance0to1)
+    if (mySettings.packetOutOfOrderChance0to1 > 0)
     {
-        for (auto& addressPackets : myAddressToPackets)
+        if (mySettings.random0To1() <= mySettings.packetOutOfOrderChance0to1)
         {
-            auto& packets = addressPackets.second;
-
-            if (packets.size() > 1)
+            for (auto& addressPackets : myAddressToPackets)
             {
-                using namespace std;
+                auto& packets = addressPackets.second;
 
-                // just swap the first and last packets.
-                swap(packets.back(), packets.front());
+                if (packets.size() > 1)
+                {
+                    using namespace std;
+
+                    // just swap the first and last packets.
+                    swap(packets.back(), packets.front());
+                }
             }
         }
     }
