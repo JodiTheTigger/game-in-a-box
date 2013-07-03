@@ -120,19 +120,27 @@ void Pull(Iterator buffer, uint8_t& result, std::input_iterator_tag, BigEndian)
 template <typename Iterator>
 void Pull(Iterator buffer, uint16_t& result, std::input_iterator_tag, BigEndian)
 {
-    result = static_cast<uint16_t>(
-            (*buffer++ << 8) |
-            *buffer);
+    result |= static_cast<uint16_t>(*buffer << 8);
+    ++buffer;
+
+    result |= static_cast<uint16_t>(*buffer);
 }
 
 template <typename Iterator>
 void Pull(Iterator buffer, uint32_t& result, std::input_iterator_tag, BigEndian)
 {
-    result = static_cast<uint32_t>(
-            (*buffer++ << 24) |
-            (*buffer++ << 16) |
-            (*buffer++ << 8) |
-            *buffer);
+    // Ugh, Sequence points.
+    // http://stackoverflow.com/questions/4176328/undefined-behavior-and-sequence-points/4183735#4183735
+    result = static_cast<uint32_t>(*buffer << 24);
+    ++buffer;
+
+    result |= static_cast<uint32_t>(*buffer << 16);
+    ++buffer;
+
+    result |= static_cast<uint32_t>(*buffer << 8);
+    ++buffer;
+
+    result |= static_cast<uint32_t>(*buffer);
 }
 
 } // namespace
