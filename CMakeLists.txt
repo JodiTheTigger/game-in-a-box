@@ -65,6 +65,7 @@ check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Werror HAS_WERROR)
 check_cxx_compiler_flag(-Wno-non-virtual-dtor HAS_IGNORE_NONVIRTUAL_DTOR)
 check_cxx_compiler_flag(-Wno-unused-local-typedefs HAS_IGNORE_UNUSED_LOCAL_TYPEDEFS)
+check_cxx_compiler_flag(-Wno-mismatched-tags HAS_IGNORE_MISMATCHED_TAGS)
 
 # Only platforms with clangs libc++ will build with clang with these build flags.
 # Currently, that's only OSX.
@@ -147,6 +148,13 @@ endif()
 if (HAS_IGNORE_UNUSED_LOCAL_TYPEDEFS)
     set(GMOCK_FLAGS "${GMOCK_FLAGS} -Wno-unused-local-typedefs")
 endif()
+
+if (HAS_IGNORE_MISMATCHED_TAGS)
+    # Ignore due to implmenting std::hash templates the standard uses
+    # both struct hash and class hash. Not much I can do there.
+    set(IGNOREWARNINGS_FLAGS "${IGNOREWARNINGS_FLAGS} -Wno-mismatched-tags")
+endif()
+
 
 ###############
 # Third Party Libraries
@@ -243,10 +251,11 @@ source/Common/Logging/Logging.cpp
 # Server 
 ###############    
 # Stupid clang, hard code search paths for ubuntu 12.04 for travis-ci
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    include_directories(/usr/include/x86_64-linux-gnu/c++/4.8/)
-    include_directories(/usr/include/i386-linux-gnu/c++/4.8/)
-endif()
+# RAM: Needed?
+#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+#    include_directories(/usr/include/x86_64-linux-gnu/c++/4.8/)
+#    include_directories(/usr/include/i386-linux-gnu/c++/4.8/)
+#endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
@@ -263,8 +272,8 @@ game-in-a-box-server
 source/Server/GameInABoxServer.cpp 
 source/Server/main.cpp)
 
-set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
-set_target_properties(game-in-a-box-common PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS}")
+set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+set_target_properties(game-in-a-box-common PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 target_link_libraries(game-in-a-box-server game-in-a-box-common ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
     
@@ -313,7 +322,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/TestAutoComplete.cpp)
 
 # Ignore google test and goole mock warnings
-set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS}")
+set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
 target_link_libraries(
   game-in-a-box-common-tests
