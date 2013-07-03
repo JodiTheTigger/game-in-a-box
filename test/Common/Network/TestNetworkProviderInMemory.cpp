@@ -71,7 +71,7 @@ TEST_F(TestNetworkProviderInMemory, PacketLoss50Percent)
 
 
     NetworkProviderInMemory::RandomSettings settings{
-                {},
+                std::bind(myRandom0To1, myRandomEngine),
                 {},
                 NetworkProviderInMemory::Milliseconds{0},
                 0.5f,
