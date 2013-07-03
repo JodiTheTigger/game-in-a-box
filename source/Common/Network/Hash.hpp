@@ -27,6 +27,8 @@
 #endif
 
 // Hash functions for boost::asio addresses.
+// NOTE: Will produce mismatched-tags warnings because the standard uses
+// both struct hash and class hash. Ugh.
 
 // You are explicitly allowed to extend the std:: namespace
 // for hash functions for custom types.
