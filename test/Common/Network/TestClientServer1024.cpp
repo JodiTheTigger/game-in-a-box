@@ -67,19 +67,42 @@ Sequence DeltaParse1024(
 // that all clients reference, and they just take a random slice of that data for their packet.
 // also don't forget to use a seed for the random number generator.
 
+struct ClientState
+{
+    unsigned number;
+    NiceMock<MockIStateManager> state;
+    udp::endpoint address;
+    NetworkProviderInMemory::RandomSettings random;
+
+    std::normal_distribution<float> latency;
+};
+
 // Class definition!
 class TestClientServer1024 : public ::testing::Test
 {
 public:
     TestClientServer1024()
-        : stateMockServer()
-        , stateMockClients()
-        , frequencies()
+        : randomEngine(4)
+        , random0To1(0,1)
+        , stateMock()
         , frequenciesUseful()
         , theNetwork()
     {
-        // all equally probable.
-        frequencies.fill(1);
+    }
+
+    virtual void SetUpOverride()
+    {
+        // Setup all random settings
+        for (auto& state : stateMock)
+        {
+            state.latency = std::normal_distribution<float>(random0To1(randomEngine) * 2000.0f, random0To1(randomEngine) * 400.0f);
+            state.random.latency = std::bind(state.latency, randomEngine);
+            state.random.random0To1 = std::bind(random0To1, randomEngine);
+            state.random.latencyMinimum = NetworkProviderInMemory::Milliseconds(static_cast<NetworkProviderInMemory::MillisecondStorageType>(1 + random0To1(randomEngine) * 500));
+            state.random.packetLossChancePerPacket0to1 = random0To1(randomEngine);
+            state.random.packetLossChanceBurst0to1 = random0To1(randomEngine);
+            state.random.packetOutOfOrderChance0to1 = random0To1(randomEngine);
+        }
 
         // all set or all zero more probable.
         frequenciesUseful.fill(1);
@@ -100,11 +123,9 @@ public:
 
     // Helpers
     //void SetupDefaultMock(StrictMock<MockIStateManager>& mock);
-
-    NiceMock<MockIStateManager> stateMockServer;
-    std::array<NiceMock<MockIStateManager>, 1024> stateMockClients;
-
-    std::array<uint64_t, 256> frequencies;
+    std::default_random_engine randomEngine;
+    std::uniform_real_distribution<float> random0To1;
+    std::array<ClientState, 1024> stateMock;
     std::array<uint64_t, 256> frequenciesUseful;
 
     NetworkProviderInMemory theNetwork;
