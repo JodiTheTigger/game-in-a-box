@@ -62,6 +62,11 @@ Sequence DeltaParse1024(
     return payload.to;
 }
 
+// RAM: Each client needs a state mock, a random setting, and access to a data buffer to
+// get its fake delta data from. I would make a fake array filled with RLE friendly random data
+// that all clients reference, and they just take a random slice of that data for their packet.
+// also don't forget to use a seed for the random number generator.
+
 // Class definition!
 class TestClientServer1024 : public ::testing::Test
 {
