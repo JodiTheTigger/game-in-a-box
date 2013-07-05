@@ -311,7 +311,7 @@ ADD_EXECUTABLE(
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProviderSynchronous.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProviderInMemory.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/Network/TestClientServer.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestClientServer1024.cpp
+  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestClientServerN.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
   ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 
   ${PROJECT_SOURCE_DIR}/test/Common/TestIReflected.cpp

@@ -29,6 +29,7 @@
 #include <Common/MockIStateManager.hpp>
 
 using namespace std;
+using namespace std::chrono;
 using namespace boost::asio::ip;
 using Bytes = std::vector<uint8_t>;
 
@@ -40,6 +41,19 @@ using ::testing::NiceMock;
 using Clock = std::chrono::steady_clock;
 using Oclock = Clock::time_point;
 
+// see how far we got.
+testing::AssertionResult GotToEnd(int n, int total)
+{
+    if (n < total)
+    {
+        return testing::AssertionFailure() << "got to " << n << " of " << total;
+    }
+    else
+    {
+        return testing::AssertionSuccess() << "got to " << n << " of " << total;
+    }
+}
+
 namespace GameInABox { namespace Common { namespace Network {
 
 // RAM: Each client needs a state mock, a random setting, and access to a data buffer to
@@ -47,7 +61,7 @@ namespace GameInABox { namespace Common { namespace Network {
 // that all clients reference, and they just take a random slice of that data for their packet.
 // also don't forget to use a seed for the random number generator.
 
-struct ClientState
+struct NodeState
 {
     unsigned number;
     NiceMock<MockIStateManager> state;
@@ -58,13 +72,16 @@ struct ClientState
 };
 
 // Class definition!
-class TestClientServer1024 : public ::testing::Test
+class TestClientServerN : public ::testing::Test
 {
 public:
-    TestClientServer1024()
+    static const int TotalClients = 2;
+
+    TestClientServerN()
         : randomEngine(4)
         , random0To1(0,1)
-        , stateMock()
+        , stateClients()
+        , stateServer()
         , frequenciesUseful()
         , theNetwork()
         , deltaData()
@@ -103,24 +120,17 @@ public:
         }
 
         // Setup all states
-        unsigned id = 0;
-        for (auto& state : stateMock)
+        int id = 0;
+        SetupNodeState(stateServer, id++);
+        for (auto& state : stateClients)
         {
-            state.number = id++;
-            state.latency = std::normal_distribution<float>(random0To1(randomEngine) * 2000.0f, random0To1(randomEngine) * 400.0f);
-            state.random.latency = std::bind(state.latency, randomEngine);
-            state.random.random0To1 = std::bind(random0To1, randomEngine);
-            state.random.latencyMinimum = NetworkProviderInMemory::Milliseconds(static_cast<NetworkProviderInMemory::MillisecondStorageType>(1 + random0To1(randomEngine) * 500));
-            state.random.packetLossChancePerPacket0to1 = random0To1(randomEngine);
-            state.random.packetLossChanceBurst0to1 = random0To1(randomEngine);
-            state.random.packetOutOfOrderChance0to1 = random0To1(randomEngine);
-
-            SetupDefaultMock(state.state);
+            SetupNodeState(state, id++);
         }
     }
 
     // Helpers
     void SetupDefaultMock(NiceMock<MockIStateManager>& mock);
+    void SetupNodeState(NodeState& state, int idNumber);
     Delta DeltaCreate(
             ClientHandle,
             boost::optional<Sequence> lastAcked);
@@ -131,58 +141,65 @@ public:
 
     std::default_random_engine randomEngine;
     std::uniform_real_distribution<float> random0To1;
-    std::array<ClientState, 1024> stateMock;
+
+    std::array<NodeState, TotalClients> stateClients;
+    NodeState stateServer;
+
     std::array<uint64_t, 256> frequenciesUseful;
 
     NetworkProviderInMemory theNetwork;
 
-    std::array<uint8_t, 1024 * 16 * 8 * 32> deltaData;
+    std::array<uint8_t, TotalClients * 16 * 8 * 32> deltaData;
 };
 
 // ///////////////////
 // Helpers
 // ///////////////////
-void TestClientServer1024::SetupDefaultMock(NiceMock<MockIStateManager>& mock)
+void TestClientServerN::SetupDefaultMock(NiceMock<MockIStateManager>& mock)
 {
     // right, what do we expect?
     // Huffman frequencies, CanSend, CanReceive and Deltas.
-    EXPECT_CALL(mock, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequenciesUseful));
+    ON_CALL(mock, PrivateGetHuffmanFrequencies())
+            .WillByDefault(Return(frequenciesUseful));
 
-    EXPECT_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(boost::optional<ClientHandle>(42)));
+    ON_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
+            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
 
-    EXPECT_CALL(mock, PrivateStateInfo( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(std::vector<uint8_t>()));
+    ON_CALL(mock, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
 
-    EXPECT_CALL(mock, PrivateCanReceive( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(mock, PrivateCanReceive( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(mock, PrivateIsConnected( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(mock, PrivateIsConnected( ::testing::_ ))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(std::bind(&TestClientServer1024::DeltaCreate, this, std::placeholders::_1, std::placeholders::_2)));
+    ON_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
+            .WillByDefault(Invoke(std::bind(&TestClientServerN::DeltaCreate, this, std::placeholders::_1, std::placeholders::_2)));
 
-    EXPECT_CALL(mock, PrivateDeltaParse( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(std::bind(&TestClientServer1024::DeltaParse, this, std::placeholders::_1, std::placeholders::_2)));
-
-    EXPECT_CALL(mock, PrivateDisconnect(::testing::_))
-            .Times(AtLeast(1));
+    ON_CALL(mock, PrivateDeltaParse( ::testing::_, ::testing::_))
+            .WillByDefault(Invoke(std::bind(&TestClientServerN::DeltaParse, this, std::placeholders::_1, std::placeholders::_2)));
 }
 
-Delta TestClientServer1024::DeltaCreate(
+
+void TestClientServerN::SetupNodeState(NodeState& state, int idNumber)
+{
+    state.number = idNumber;
+    state.latency = std::normal_distribution<float>(random0To1(randomEngine) * 2000.0f, random0To1(randomEngine) * 400.0f);
+    state.random.latency = std::bind(state.latency, randomEngine);
+    state.random.random0To1 = std::bind(random0To1, randomEngine);
+    state.random.latencyMinimum = NetworkProviderInMemory::Milliseconds(static_cast<NetworkProviderInMemory::MillisecondStorageType>(1 + random0To1(randomEngine) * 500));
+    state.random.packetLossChancePerPacket0to1 = random0To1(randomEngine);
+    state.random.packetLossChanceBurst0to1 = random0To1(randomEngine);
+    state.random.packetOutOfOrderChance0to1 = random0To1(randomEngine);
+
+    SetupDefaultMock(state.state);
+}
+
+Delta TestClientServerN::DeltaCreate(
         ClientHandle,
         boost::optional<Sequence> lastAcked)
 {
@@ -196,7 +213,7 @@ Delta TestClientServer1024::DeltaCreate(
     }
 }
 
-Sequence TestClientServer1024::DeltaParse(
+Sequence TestClientServerN::DeltaParse(
         ClientHandle,
         const Delta& payload)
 {
@@ -206,71 +223,86 @@ Sequence TestClientServer1024::DeltaParse(
 // ///////////////////
 // Tests
 // ///////////////////
-TEST_F(TestClientServer1024, CreateClient)
+TEST_F(TestClientServerN, CreateClient)
 {
-    Oclock testTime{Clock::now()};
+    // Right, run the server for "30 seconds" which is 30*1000ms = 30,000ms.
+    const int maxTicks = 30 * 1000;
 
-    NetworkManagerServer theServer(theNetwork, stateMock[0].state, [&testTime] () -> Oclock { return testTime; });
+    Oclock testTime{Clock::now()};
+    Oclock testStart{Clock::now()};
+
+    NetworkManagerServer theServer(theNetwork, stateServer.state, [&testTime] () -> Oclock { return testTime; });
     std::vector<std::unique_ptr<NetworkManagerClient>> theClients{};
 
     // setup
-    bool first = true;
-    for (auto& state: stateMock)
+    for (auto& state: stateClients)
     {
-        if (first)
-        {
-            first = false;
-            continue;
-        }
-
         theClients.emplace_back(new NetworkManagerClient(theNetwork, state.state, [&testTime] () -> Oclock { return testTime; }));
     }
-
-    // simulate gameloop time, client send/receive at 100fps (10ms tick)
-    // server send/receieve at 20fps (50ms tick).
 
     // connect all the clients to the server at once, that'll be fun.
     for (auto& client: theClients)
     {
-        client->Connect(stateMock[0].address);
+        client->Connect(stateServer.address);
     }
 
-    // Right, run the server for "2 minutes" which is 2*60*1000ms = 180,000ms,
+    // Simulate gameloop time, client send/receive at 100fps (10ms tick)
+    // server send/receieve at 20fps (50ms tick).
     // split up into 10ms increments.
-
-    // RAM: TODO: Think of the game loops - you have ti wrong somehow...
     int five = 0;
-    for (auto i = 0; i < 18000; ++i)
+    int i;
+    for (i = 0; i < maxTicks; ++i)
     {
         if (five == 5)
         {
             five = 0;
 
-            theNetwork.RunAs(stateMock[0].address, stateMock[0].random);
+            // Server
+            theNetwork.RunAs(stateServer.address, stateServer.random);
             theServer.ProcessIncomming();
             theServer.SendState();
+
+            // Clients
+            int clientCount = 0;
+            for (auto& client: theClients)
+            {
+                theNetwork.RunAs(stateClients[clientCount].address, stateClients[clientCount].random);
+                client->ProcessIncomming();
+                client->SendState();
+            }
         }
         else
-        {
+        {            
+            theServer.ProcessIncomming();
+
+            // Clients
+            int clientCount = 0;
+            for (auto& client: theClients)
+            {
+                theNetwork.RunAs(stateClients[clientCount].address, stateClients[clientCount].random);
+                client->SendState();
+            }
+
             ++five;
         }
 
-        // do all the clients.
-        int clientCount = 1;
-        for (auto& client: theClients)
-        {
-            theNetwork.RunAs(stateMock[clientCount].address, stateMock[clientCount].random);
-            client->ProcessIncomming();
-            client->SendState();
-        }
-
         testTime += std::chrono::milliseconds(10);
+
+        // quit after 1 second.
+        auto duration = (Clock::now() - testStart);
+        if (duration_cast<milliseconds>(duration).count() > 1000)
+        {
+            break;
+        }
     }
 
+    // All clients should either be connected, or failed, not still trying to connect!
+    for (auto& client: theClients)
+    {
+        EXPECT_TRUE(client->IsConnected() | client->HasFailed());
+    }
 
-    // start all the state.
-    theNetwork.RunAs(stateMock[0].address, stateMock[0].random);
-
+    EXPECT_TRUE(GotToEnd(i, maxTicks));
 }
 
 
