@@ -33,8 +33,7 @@ using Bytes = std::vector<uint8_t>;
 
 using ::testing::Return;
 using ::testing::Invoke;
-using ::testing::AtLeast;
-using ::testing::StrictMock;
+using ::testing::NiceMock;
 
 using Clock = std::chrono::steady_clock;
 using Oclock = Clock::time_point;
@@ -94,13 +93,10 @@ public:
     }
 
     // Helpers
-    void SetupDefaultMock(StrictMock<MockIStateManager>& mock);
+    void SetupDefaultMock(NiceMock<MockIStateManager>& mock);
 
-    // RAM: TODO: Don't really care about the state handler.
-    // Change to NiceMock, and setup ON_CALL macros
-    // instead.
-    StrictMock<MockIStateManager> stateMockServer;
-    StrictMock<MockIStateManager> stateMockClient;
+    NiceMock<MockIStateManager> stateMockServer;
+    NiceMock<MockIStateManager> stateMockClient;
     std::array<uint64_t, 256> frequencies;
     std::array<uint64_t, 256> frequenciesUseful;
 
@@ -110,44 +106,33 @@ public:
 // ///////////////////
 // Helpers
 // ///////////////////
-void TestClientServer::SetupDefaultMock(StrictMock<MockIStateManager>& mock)
+void TestClientServer::SetupDefaultMock(NiceMock<MockIStateManager> &mock)
 {
     // right, what do we expect?
     // Huffman frequencies, CanSend, CanReceive and Deltas.
-    EXPECT_CALL(mock, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequenciesUseful));
+    ON_CALL(mock, PrivateGetHuffmanFrequencies())
+            .WillByDefault(Return(frequenciesUseful));
 
-    EXPECT_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(boost::optional<ClientHandle>(42)));
+    ON_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
+            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
 
-    EXPECT_CALL(mock, PrivateStateInfo( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(std::vector<uint8_t>()));
+    ON_CALL(mock, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
 
-    EXPECT_CALL(mock, PrivateCanReceive( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(mock, PrivateCanReceive( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(mock, PrivateIsConnected( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(mock, PrivateIsConnected( ::testing::_ ))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(DeltaCreate));
+    ON_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
+            .WillByDefault(Invoke(DeltaCreate));
 
-    EXPECT_CALL(mock, PrivateDeltaParse( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Invoke(DeltaParse));
-
-    EXPECT_CALL(mock, PrivateDisconnect(::testing::_))
-            .Times(AtLeast(1));
+    ON_CALL(mock, PrivateDeltaParse( ::testing::_, ::testing::_))
+            .WillByDefault(Invoke(DeltaParse));
 }
 
 // ///////////////////
@@ -155,10 +140,8 @@ void TestClientServer::SetupDefaultMock(StrictMock<MockIStateManager>& mock)
 // ///////////////////
 TEST_F(TestClientServer, CreateClient)
 {
-    // right, what do we expect?
-    EXPECT_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequencies));
+    ON_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
+            .WillByDefault(Return(frequencies));
 
     NetworkManagerClient toTest(theNetwork, stateMockClient);
 
@@ -169,11 +152,10 @@ TEST_F(TestClientServer, CreateClient)
 
 TEST_F(TestClientServer, CreateServer)
 {
-    // right, what do we expect?
-    EXPECT_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequencies));
+    ON_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
+            .WillByDefault(Return(frequencies));
 
+    // Don't crash.
     NetworkManagerServer(theNetwork, stateMockServer);
 }
 
@@ -262,9 +244,8 @@ TEST_F(TestClientServer, StateDisconnect)
         // don't like the client sending after 50 ticks.
         if (count == 50)
         {
-            EXPECT_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
-                    .Times(AtLeast(1))
-                    .WillRepeatedly(Return(bool(false)));
+            ON_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
+                    .WillByDefault(Return(bool(false)));
         }
     }
 
@@ -295,9 +276,8 @@ TEST_F(TestClientServer, NoReceive)
     bool keepGoing = true;
 
     // Server isn't listening
-    EXPECT_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(false)));
+    ON_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(false)));
 
     while (keepGoing)
     {
@@ -368,9 +348,8 @@ TEST_F(TestClientServer, NoSend)
         // Once connected it never times out.
         if (count == 1)
         {
-            EXPECT_CALL(stateMockClient, PrivateIsConnected( ::testing::_ ))
-                    .Times(AtLeast(1))
-                    .WillRepeatedly(Return(bool(false)));
+            ON_CALL(stateMockClient, PrivateIsConnected( ::testing::_ ))
+                    .WillByDefault(Return(bool(false)));
         }
     }
 
@@ -391,34 +370,27 @@ TEST_F(TestClientServer, ClientTimeout)
     Oclock testTime{Clock::now()};
 
     // Client
-    EXPECT_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequenciesUseful));
+    ON_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
+            .WillByDefault(Return(frequenciesUseful));
 
-    EXPECT_CALL(stateMockClient, PrivateCanReceive( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(stateMockClient, PrivateCanReceive( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(stateMockClient, PrivateCanSend( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(stateMockClient, PrivateCanSend( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(stateMockClient, PrivateStateInfo( ::testing::_ ))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(std::vector<uint8_t>()));
+    ON_CALL(stateMockClient, PrivateStateInfo( ::testing::_ ))
+            .WillByDefault(Return(std::vector<uint8_t>()));
 
     // Server
-    EXPECT_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(frequenciesUseful));
+    ON_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
+            .WillByDefault(Return(frequenciesUseful));
 
-    EXPECT_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
-    EXPECT_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
-            .Times(AtLeast(1))
-            .WillRepeatedly(Return(bool(true)));
+    ON_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
+            .WillByDefault(Return(bool(true)));
 
     NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> Oclock { return testTime; }};
     NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> Oclock { return testTime; }};
