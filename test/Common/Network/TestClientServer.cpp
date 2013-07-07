@@ -27,10 +27,6 @@
 #include <Common/Network/NetworkProviderInMemory.hpp>
 #include <Common/MockIStateManager.hpp>
 
-// RAM: TODO: Test CanSend and CanReceive been false.
-// RAM: TODO: Test IStateManager: Not Connected.
-// RAM: TODO: Test IStateManager: return failed connection (with reason).
-
 using namespace std;
 using namespace boost::asio::ip;
 using Bytes = std::vector<uint8_t>;
@@ -225,6 +221,167 @@ TEST_F(TestClientServer, OneConnection)
     EXPECT_TRUE(client.IsConnected());
     EXPECT_FALSE(client.HasFailed());
 }
+
+TEST_F(TestClientServer, StateDisconnect)
+{
+    for (auto mock : {&stateMockClient, &stateMockServer})
+    {
+        SetupDefaultMock(*mock);
+    }
+
+    NetworkManagerServer server{theNetwork, stateMockServer};
+    NetworkManagerClient client{theNetwork, stateMockClient};
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+
+    theNetwork.RunAs(addressClient);
+    client.Connect(addressServer);
+    int count = 0;
+    bool keepGoing = true;
+
+    while (keepGoing)
+    {
+        theNetwork.RunAs(addressServer);
+        server.ProcessIncomming();
+        server.SendState();
+
+        theNetwork.RunAs(addressClient);
+        client.ProcessIncomming();
+        client.SendState();
+
+        if (++count > 100)
+        {
+            keepGoing = false;
+        }
+        else
+        {
+            keepGoing = !client.HasFailed();
+        }
+
+        // don't like the client sending after 50 ticks.
+        if (count == 50)
+        {
+            EXPECT_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
+                    .Times(AtLeast(1))
+                    .WillRepeatedly(Return(bool(false)));
+        }
+    }
+
+    // Should be disconnected.
+    EXPECT_FALSE(client.IsConnected());
+    EXPECT_TRUE(client.HasFailed());
+
+    // RAM: TODO: Make sure the reason is not a timeout!
+    EXPECT_NE("", client.FailReason());
+}
+
+TEST_F(TestClientServer, NoReceive)
+{
+    for (auto mock : {&stateMockClient, &stateMockServer})
+    {
+        SetupDefaultMock(*mock);
+    }
+
+    NetworkManagerServer server{theNetwork, stateMockServer};
+    NetworkManagerClient client{theNetwork, stateMockClient};
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+
+    theNetwork.RunAs(addressClient);
+    client.Connect(addressServer);
+    int count = 0;
+    bool keepGoing = true;
+
+    // Server isn't listening
+    EXPECT_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
+            .Times(AtLeast(1))
+            .WillRepeatedly(Return(bool(false)));
+
+    while (keepGoing)
+    {
+        theNetwork.RunAs(addressServer);
+        server.ProcessIncomming();
+        server.SendState();
+
+        theNetwork.RunAs(addressClient);
+        client.ProcessIncomming();
+        client.SendState();
+
+        if (++count > 100)
+        {
+            keepGoing = false;
+        }
+        else
+        {
+            keepGoing = !client.HasFailed();
+        }
+    }
+
+    // Should never have connected
+    EXPECT_FALSE(client.IsConnected());
+    EXPECT_TRUE(client.HasFailed());
+
+    // RAM: TODO: Make sure the reason is a timeout!
+    EXPECT_NE("", client.FailReason());
+}
+
+TEST_F(TestClientServer, NoSend)
+{
+    for (auto mock : {&stateMockClient, &stateMockServer})
+    {
+        SetupDefaultMock(*mock);
+    }
+
+    NetworkManagerServer server{theNetwork, stateMockServer};
+    NetworkManagerClient client{theNetwork, stateMockClient};
+
+    auto addressServer = udp::endpoint{address_v4(1l), 13444};
+    auto addressClient = udp::endpoint{address_v4(2l), 4444};
+
+    theNetwork.RunAs(addressClient);
+    client.Connect(addressServer);
+    int count = 0;
+    bool keepGoing = true;
+
+    while (keepGoing)
+    {
+        theNetwork.RunAs(addressServer);
+        server.ProcessIncomming();
+        server.SendState();
+
+        theNetwork.RunAs(addressClient);
+        client.ProcessIncomming();
+        client.SendState();
+
+        if (++count > 100)
+        {
+            keepGoing = false;
+        }
+        else
+        {
+            keepGoing = !client.HasFailed();
+        }
+
+        // Timeouts on this layer only work with the handshake part.
+        // Once connected it never times out.
+        if (count == 1)
+        {
+            EXPECT_CALL(stateMockClient, PrivateIsConnected( ::testing::_ ))
+                    .Times(AtLeast(1))
+                    .WillRepeatedly(Return(bool(false)));
+        }
+    }
+
+    // Should be disconnected.
+    EXPECT_FALSE(client.IsConnected());
+    EXPECT_TRUE(client.HasFailed());
+
+    // RAM: TODO: Make sure the reason is a timeout!
+    EXPECT_NE("", client.FailReason());
+}
+
 
 // ///////////////////
 // Simulated Time
