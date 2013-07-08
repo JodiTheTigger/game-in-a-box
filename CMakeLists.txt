@@ -175,6 +175,7 @@ set(COMMON_SOURCE
 source/Common/No.hpp
 source/Common/PrecompiledHeaders.cpp
 source/Common/PrecompiledHeaders.hpp
+source/Common/Delta.hpp
 source/Common/AutoComplete.hpp
 source/Common/Huffman.hpp
 source/Common/MakeUnique.hpp

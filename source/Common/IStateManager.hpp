@@ -32,29 +32,9 @@
 #include "No.hpp"
 #include "Sequence.hpp"
 #include "ClientHandle.hpp"
+#include "Delta.hpp"
 
 namespace GameInABox { namespace Common {
-
-// Forward declarations
-class BitStream;
-class BitStreamReadOnly;
-
-struct Delta
-{
-    Sequence base{};
-    Sequence to{};
-    std::vector<uint8_t> deltaPayload{};
-
-    Delta(Sequence newBase, Sequence newTo, std::vector<uint8_t> newPayload)
-        : base(newBase)
-        , to(newTo)
-        , deltaPayload(newPayload)
-    {
-    }
-
-    Delta() = default;
-    Delta(const Delta&) = default;
-};
 
 // All methods are assumed to be multithreading and reentrance UNSAFE, unless told otherwise.
 class IStateManager : NoCopyMoveNorAssign
