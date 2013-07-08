@@ -231,12 +231,16 @@ source/Common/Network/Packet.hpp
 source/Common/Network/PacketChallengeResponse.hpp
 source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/NetworkManagerServer.hpp
+source/Common/Network/NetworkManagerServerGuts.cpp
+source/Common/Network/NetworkManagerServerGuts.hpp
 source/Common/Network/INetworkManager.hpp
 source/Common/Network/INetworkProvider.hpp
 source/Common/Network/NetworkManagerClient.hpp
+source/Common/Network/NetworkManagerClient.cpp
+source/Common/Network/NetworkManagerClientGuts.hpp
+source/Common/Network/NetworkManagerClientGuts.cpp
 source/Common/Network/DeltaCoder.hpp
 source/Common/Network/DeltaCoder-Implementation.hpp
-source/Common/Network/NetworkManagerClient.cpp
 source/Common/Network/NetworkPacket.hpp
 source/Common/Network/NetworkProviderSynchronous.cpp
 source/Common/Network/NetworkProviderSynchronous.hpp
