@@ -202,6 +202,7 @@ source/Common/BaseClassUniquePointer.hpp
 )
 
 set(COMMON_SOURCE_NETWORK
+source/Common/Network/Units.hpp
 source/Common/Network/Hash.hpp
 source/Common/Network/NetworkKey.hpp
 source/Common/Network/NetworkKey.cpp

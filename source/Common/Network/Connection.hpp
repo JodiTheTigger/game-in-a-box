@@ -29,6 +29,7 @@
 #include <boost/optional.hpp>
 #endif
 
+#include "Units.hpp"
 #include "Common/ClientHandle.hpp"
 #include "NetworkKey.hpp"
 #include "PacketFragmentManager.hpp"
@@ -44,10 +45,7 @@ enum class State;
 // Also decodes incomming DeltaPackets (but does not fragment outgoing ones).
 class Connection
 {
-public:    
-    using Clock = std::chrono::steady_clock;
-    using TimeFunction = std::function<Clock::time_point()>;
-
+public:
     enum class Mode
     {
         Client,
@@ -102,7 +100,7 @@ private:
     std::string                             myFailReason;
     NetworkKey                              myKey;
     int                                     myPacketCount;
-    Clock::time_point                       myLastTimestamp;
+    OClock                                  myLastTimestamp;
     boost::optional<Sequence>               myLastSequenceAck;
     boost::optional<ClientHandle>           myStateHandle;
     boost::optional<uint16_t>               myIdConnection;

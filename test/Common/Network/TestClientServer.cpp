@@ -36,9 +36,6 @@ using ::testing::Return;
 using ::testing::Invoke;
 using ::testing::NiceMock;
 
-using Clock = std::chrono::steady_clock;
-using Oclock = Clock::time_point;
-
 namespace GameInABox { namespace Common { namespace Network {
 
 Delta DeltaCreate(
@@ -210,7 +207,7 @@ TEST_F(TestClientServer, OneConnection)
 // ///////////////////
 TEST_F(TestClientServer, ClientTimeout)
 {
-    Oclock testTime{Clock::now()};
+    OClock testTime{Clock::now()};
 
     // Client
     ON_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
@@ -235,8 +232,8 @@ TEST_F(TestClientServer, ClientTimeout)
     ON_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> Oclock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> Oclock { return testTime; }};
+    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -288,15 +285,15 @@ TEST_F(TestClientServer, ClientTimeout)
 
 TEST_F(TestClientServer, StateDisconnect)
 {
-    Oclock testTime{Clock::now()};
+    OClock testTime{Clock::now()};
 
     for (auto mock : {&stateMockClient, &stateMockServer})
     {
         SetupDefaultMock(*mock);
     }
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> Oclock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> Oclock { return testTime; }};
+    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -348,15 +345,15 @@ TEST_F(TestClientServer, StateDisconnect)
 
 TEST_F(TestClientServer, NoReceive)
 {
-    Oclock testTime{Clock::now()};
+    OClock testTime{Clock::now()};
 
     for (auto mock : {&stateMockClient, &stateMockServer})
     {
         SetupDefaultMock(*mock);
     }
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> Oclock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> Oclock { return testTime; }};
+    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -405,15 +402,15 @@ TEST_F(TestClientServer, NoReceive)
 
 TEST_F(TestClientServer, NoSend)
 {
-    Oclock testTime{Clock::now()};
+    OClock testTime{Clock::now()};
 
     for (auto mock : {&stateMockClient, &stateMockServer})
     {
         SetupDefaultMock(*mock);
     }
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> Oclock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> Oclock { return testTime; }};
+    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};

@@ -48,7 +48,7 @@ public:
     NetworkManagerServer(
             INetworkProvider& network,
             IStateManager& stateManager,
-            Connection::TimeFunction timepiece);
+            TimeFunction timepiece);
 
     NetworkManagerServer(
             INetworkProvider& network,
@@ -67,7 +67,7 @@ private:
 
     INetworkProvider& myNetwork;
     IStateManager& myStateManager;
-    Connection::TimeFunction myTimepiece;
+    TimeFunction myTimepiece;
 
     std::unordered_map<boost::asio::ip::udp::endpoint, State> myAddressToState;
 

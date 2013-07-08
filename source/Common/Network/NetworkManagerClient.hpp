@@ -45,7 +45,7 @@ public:
     NetworkManagerClient(
             INetworkProvider& network,
             IStateManager& stateManager,
-            Connection::TimeFunction timepiece);
+            TimeFunction timepiece);
 
     NetworkManagerClient(
             INetworkProvider& network,

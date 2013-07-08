@@ -49,14 +49,14 @@ using namespace GameInABox::Common::Logging;
 NetworkManagerClient::NetworkManagerClient(
         INetworkProvider &network,
         IStateManager& stateManager)
-    : NetworkManagerClient(network, stateManager, std::chrono::steady_clock::now)
+    : NetworkManagerClient(network, stateManager, Clock::now)
 {
 }
 
 NetworkManagerClient::NetworkManagerClient(
         INetworkProvider& network,
         IStateManager& stateManager,
-        Connection::TimeFunction timepiece)
+        TimeFunction timepiece)
     : INetworkManager()
     , myNetwork(network)
     , myConnection(stateManager, timepiece)

@@ -40,14 +40,14 @@ using namespace GameInABox::Common::Network;
 NetworkManagerServer::NetworkManagerServer(
         INetworkProvider& network,
         IStateManager& stateManager)
-    : NetworkManagerServer(network, stateManager, std::chrono::steady_clock::now)
+    : NetworkManagerServer(network, stateManager, Clock::now)
 {
 }
 
 NetworkManagerServer::NetworkManagerServer(
         INetworkProvider& network,
         IStateManager& stateManager,
-        Connection::TimeFunction timepiece)
+        TimeFunction timepiece)
     : INetworkManager()
     , myNetwork(network)
     , myStateManager(stateManager)

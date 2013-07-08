@@ -66,19 +66,18 @@ TEST_F(TestNetworkProviderInMemory, NoLatency)
 
 TEST_F(TestNetworkProviderInMemory, PacketLoss50Percent)
 {
-    NetworkProviderInMemory::OClock testTime{NetworkProviderInMemory::Clock::now()};
+    OClock testTime{Clock::now()};
     std::vector<uint8_t> payload = {1,2,3,4};
-
 
     NetworkProviderInMemory::RandomSettings settings{
                 std::bind(myRandom0To1, myRandomEngine),
                 {},
-                NetworkProviderInMemory::Milliseconds{0},
+                Milliseconds{0},
                 0.5f,
                 0.75f,
                 0};
 
-    NetworkProviderInMemory buffer(settings, [&testTime] () -> NetworkProviderInMemory::OClock { return testTime; });
+    NetworkProviderInMemory buffer(settings, [&testTime] () -> OClock { return testTime; });
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -96,18 +95,18 @@ TEST_F(TestNetworkProviderInMemory, PacketLoss50Percent)
 
 TEST_F(TestNetworkProviderInMemory, LatencyInOrder)
 {
-    NetworkProviderInMemory::OClock testTime{NetworkProviderInMemory::Clock::now()};
+    OClock testTime{Clock::now()};
     std::vector<std::vector<uint8_t>> payloads = {{1,2,3,4}, {4,4}, {3,5,6,7}, {8,8,8,8,8,8,8,8}};
 
     NetworkProviderInMemory::RandomSettings settings{
                 std::bind(myRandom0To1, myRandomEngine),
                 std::bind(myLatency, myRandomEngine),
-                NetworkProviderInMemory::Milliseconds{100},
+                Milliseconds{100},
                 0,
                 0,
                 0};
 
-    NetworkProviderInMemory buffer(settings, [&testTime] () -> NetworkProviderInMemory::OClock { return testTime; });
+    NetworkProviderInMemory buffer(settings, [&testTime] () -> OClock { return testTime; });
 
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
@@ -151,19 +150,19 @@ TEST_F(TestNetworkProviderInMemory, LatencyInOrder)
 
 TEST_F(TestNetworkProviderInMemory, LatencyOutOfOrder)
 {
-    NetworkProviderInMemory::OClock testTime{NetworkProviderInMemory::Clock::now()};
+    OClock testTime{Clock::now()};
     std::vector<std::vector<uint8_t>> payloads = {{1,2,3,4}, {4,4}, {3,5,6,7}, {8,8,8,8,8,8,8,8}};
 
 
     NetworkProviderInMemory::RandomSettings settings{
                 std::bind(myRandom0To1, myRandomEngine),
                 std::bind(myLatency, myRandomEngine),
-                NetworkProviderInMemory::Milliseconds{100},
+                Milliseconds{100},
                 0,
                 0,
                 1.0};
 
-    NetworkProviderInMemory buffer(settings, [&testTime] () -> NetworkProviderInMemory::OClock { return testTime; });
+    NetworkProviderInMemory buffer(settings, [&testTime] () -> OClock { return testTime; });
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};

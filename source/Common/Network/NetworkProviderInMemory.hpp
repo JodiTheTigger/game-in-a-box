@@ -29,6 +29,7 @@
 #include <functional>
 #endif
 
+#include "Units.hpp"
 #include "Hash.hpp"
 #include "INetworkProvider.hpp"
 
@@ -37,14 +38,6 @@ namespace GameInABox { namespace Common { namespace Network {
 class NetworkProviderInMemory final : public INetworkProvider
 {
 public:
-    using Clock = std::chrono::steady_clock;
-    using OClock = Clock::time_point;
-    using TimeFunction = std::function<Clock::time_point()>;
-
-    // RAM: TODO: Make this a global type please.
-    using MillisecondStorageType = unsigned;
-    using Milliseconds = std::chrono::duration<MillisecondStorageType,std::milli>;
-
     struct RandomSettings
     {
         using Random0to1    = std::function<float()>;

@@ -38,9 +38,6 @@ using Bytes = std::vector<uint8_t>;
 
 namespace GameInABox { namespace Common { namespace Network {
 
-using Clock = std::chrono::steady_clock;
-using Oclock = Clock::time_point;
-
 // NOTE: Don't test what you don't know from the public interface.
 class TestConnection : public ::testing::Test
 {
@@ -49,13 +46,13 @@ public:
     StrictMock<MockIStateManager>   stateMockStrict;
 };
 
-int Cycle(Connection& client, Connection& server, Oclock &testTime, int countMax);
+int Cycle(Connection& client, Connection& server, OClock &testTime, int countMax);
 
 TEST_F(TestConnection, CreateCustomTime)
 {
     // woo, my first lambda with capture.
-    Oclock testTime;
-    Connection toTest(stateMockStrict, [&testTime] () -> Oclock { return testTime; });
+    OClock testTime;
+    Connection toTest(stateMockStrict, [&testTime] () -> OClock { return testTime; });
 
     testTime = Clock::now();
     EXPECT_FALSE(toTest.HasFailed());
@@ -110,8 +107,8 @@ TEST_F(TestConnection, TimeoutClient)
 {
     // Give up after "1000 seconds", even though not technically a failure
     // as we don't know how many retires are allowed.
-    Oclock testTime{Clock::now()};
-    Connection toTest{stateMockStrict, [&testTime] () -> Oclock { return testTime; }};
+    OClock testTime{Clock::now()};
+    Connection toTest{stateMockStrict, [&testTime] () -> OClock { return testTime; }};
 
     toTest.Start(Connection::Mode::Client);
 
@@ -163,9 +160,9 @@ TEST_F(TestConnection, EmptyDisconnectWithString)
 
 TEST_F(TestConnection, ClientServerConnect)
 {
-    Oclock testTime{Clock::now()};
-    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
-    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    OClock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> OClock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> OClock { return testTime; }};
 
     toTestClient.Start(Connection::Mode::Client);
     toTestServer.Start(Connection::Mode::Server);
@@ -195,9 +192,9 @@ TEST_F(TestConnection, ClientServerConnect)
 
 TEST_F(TestConnection, ClientServerConnectWithDelta)
 {
-    Oclock testTime{Clock::now()};
-    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
-    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    OClock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> OClock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> OClock { return testTime; }};
 
     toTestClient.Start(Connection::Mode::Client);
     toTestServer.Start(Connection::Mode::Server);
@@ -248,9 +245,9 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
 {
-    Oclock testTime{Clock::now()};
-    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
-    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    OClock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> OClock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> OClock { return testTime; }};
 
     toTestClient.Start(Connection::Mode::Client);
     toTestServer.Start(Connection::Mode::Server);
@@ -291,9 +288,9 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromServer)
 {
-    Oclock testTime{Clock::now()};
-    Connection toTestClient{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
-    Connection toTestServer{stateMockNice, [&testTime] () -> Oclock { return testTime; }};
+    OClock testTime{Clock::now()};
+    Connection toTestClient{stateMockNice, [&testTime] () -> OClock { return testTime; }};
+    Connection toTestServer{stateMockNice, [&testTime] () -> OClock { return testTime; }};
 
     toTestClient.Start(Connection::Mode::Client);
     toTestServer.Start(Connection::Mode::Server);
@@ -332,7 +329,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromServer)
     EXPECT_EQ(reason, toTestServer.FailReason());
 }
 
-int Cycle(Connection& client, Connection& server, Oclock &testTime, int countMax)
+int Cycle(Connection& client, Connection& server, OClock &testTime, int countMax)
 {
     int count{0};
     Bytes fromServer{};

@@ -38,9 +38,6 @@ using ::testing::Invoke;
 using ::testing::AtLeast;
 using ::testing::NiceMock;
 
-using Clock = std::chrono::steady_clock;
-using Oclock = Clock::time_point;
-
 // see how far we got.
 testing::AssertionResult GotToEnd(int n, int total)
 {
@@ -191,7 +188,7 @@ void TestClientServerN::SetupNodeState(NodeState& state, int idNumber)
     state.latency = std::normal_distribution<float>(random0To1(randomEngine) * 2000.0f, random0To1(randomEngine) * 400.0f);
     state.random.latency = std::bind(state.latency, randomEngine);
     state.random.random0To1 = std::bind(random0To1, randomEngine);
-    state.random.latencyMinimum = NetworkProviderInMemory::Milliseconds(static_cast<NetworkProviderInMemory::MillisecondStorageType>(1 + random0To1(randomEngine) * 500));
+    state.random.latencyMinimum = Milliseconds(static_cast<MillisecondStorageType>(1 + random0To1(randomEngine) * 500));
     state.random.packetLossChancePerPacket0to1 = random0To1(randomEngine);
     state.random.packetLossChanceBurst0to1 = random0To1(randomEngine);
     state.random.packetOutOfOrderChance0to1 = random0To1(randomEngine);
@@ -228,16 +225,16 @@ TEST_F(TestClientServerN, CreateClient)
     // Right, run the server for "30 seconds" which is 30*1000ms = 30,000ms.
     const int maxTicks = 30 * 1000;
 
-    Oclock testTime{Clock::now()};
-    Oclock testStart{Clock::now()};
+    OClock testTime{Clock::now()};
+    OClock testStart{Clock::now()};
 
-    NetworkManagerServer theServer(theNetwork, stateServer.state, [&testTime] () -> Oclock { return testTime; });
+    NetworkManagerServer theServer(theNetwork, stateServer.state, [&testTime] () -> OClock { return testTime; });
     std::vector<std::unique_ptr<NetworkManagerClient>> theClients{};
 
     // setup
     for (auto& state: stateClients)
     {
-        theClients.emplace_back(new NetworkManagerClient(theNetwork, state.state, [&testTime] () -> Oclock { return testTime; }));
+        theClients.emplace_back(new NetworkManagerClient(theNetwork, state.state, [&testTime] () -> OClock { return testTime; }));
     }
 
     // connect all the clients to the server at once, that'll be fun.
