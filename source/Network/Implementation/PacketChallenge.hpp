@@ -18,30 +18,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETQUERIESKEY_H
-#define PACKETQUERIESKEY_H
+#ifndef PACKETCHALLENGE_H
+#define PACKETCHALLENGE_H
 
-#ifndef USING_PRECOMPILED_HEADERS
-#include <boost/optional.hpp>
-#endif
-
-#include "Packet.hpp"
 #include "PacketCommand.hpp"
-#include "PacketCommandWithKey.hpp"
-#include "PacketFragment.hpp"
-#include "PacketDelta.hpp"
-#include "PacketChallenge.hpp"
-#include "PacketChallengeResponse.hpp"
-#include "BufferSerialisation.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
-using PacketInfo            = PacketCommandWithKey<Command::Info>;
-using PacketInfoResponse    = PacketCommand<Command::InfoResponse>;
-using PacketConnect         = PacketCommandWithKey<Command::Connect>;
-using PacketConnectResponse = PacketCommand<Command::ConnectResponse>;
-using PacketDisconnect      = PacketCommandWithKey<Command::Disconnect>;
+class PacketChallenge : public Packet
+{
+public:
+    // ////////////////////////
+    // Constructors
+    // ////////////////////////
+    explicit PacketChallenge(std::vector<uint8_t> fromBuffer);
+    PacketChallenge();
+
+    PacketChallenge(const PacketChallenge&) = default;
+    PacketChallenge(PacketChallenge&&) = default;
+    PacketChallenge& operator=(const PacketChallenge&) = default;
+    PacketChallenge& operator=(PacketChallenge&&) = default;
+    virtual ~PacketChallenge();
+
+    // ////////////////////////
+    // Overridden Methods
+    // ////////////////////////
+    virtual bool IsValid() const override;
+
+private:
+    static const std::string ChallengeMessage;
+};
 
 }}} // namespace
 
-#endif // PACKETQUERIESKEY_H
+#endif // PACKETCHALLENGE_H

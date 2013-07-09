@@ -23,7 +23,7 @@
 
 #include "Packet.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 template<Command TheCommand>
 class PacketCommand : public Packet
@@ -36,7 +36,7 @@ public:
     PacketCommand() : Packet(TheCommand) {}
 
     explicit PacketCommand(std::vector<uint8_t> fromBuffer) : Packet(fromBuffer) {}
-    explicit PacketCommand(Common::Sequence sequence) : Packet(sequence, TheCommand) {}
+    explicit PacketCommand(Sequence sequence) : Packet(sequence, TheCommand) {}
 
     PacketCommand(const PacketCommand&) = default;
     PacketCommand(PacketCommand&&) = default;

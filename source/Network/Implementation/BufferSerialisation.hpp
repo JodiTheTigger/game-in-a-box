@@ -27,7 +27,7 @@
 #include <iterator>
 #endif
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // =======================
 // Interface at the bottom

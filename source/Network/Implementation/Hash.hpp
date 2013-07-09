@@ -21,7 +21,6 @@
 #ifndef HASH_HPP
 #define HASH_HPP
 
-
 #ifndef USING_PRECOMPILED_HEADERS
 #include <boost/asio/ip/udp.hpp>
 #endif

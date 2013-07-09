@@ -26,7 +26,7 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "Common/IStateManager.hpp"
+#include "IStateManager.hpp"
 #include "NetworkPacket.hpp"
 #include "Packets.hpp"
 #include "Connection.hpp"
@@ -34,7 +34,7 @@
 using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 enum class State
 {
@@ -175,7 +175,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
             if (IsValidDeltaTestDisconnectIfNot(delta))
             {
-                auto connection = Network::IdConnection(delta);
+                auto connection = Implementation::IdConnection(delta);
 
                 // can't end here unless connection is valid.
                 if (connection == myIdConnection)
@@ -357,7 +357,7 @@ std::vector<uint8_t> Connection::Process(std::vector<uint8_t> packet)
 
                             if (delta.IsValid())
                             {
-                                auto idConnection = Network::IdConnection(delta);
+                                auto idConnection = Implementation::IdConnection(delta);
 
                                 if (idConnection)
                                 {

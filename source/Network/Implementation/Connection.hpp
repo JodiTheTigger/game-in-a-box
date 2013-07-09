@@ -30,15 +30,15 @@
 #endif
 
 #include "Units.hpp"
-#include "Common/ClientHandle.hpp"
+#include "ClientHandle.hpp"
 #include "NetworkKey.hpp"
 #include "PacketFragmentManager.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 class IStateManager;
-
-namespace Network {
 class NetworkPacket;
+
+namespace Implementation {
 enum class State;
 
 // Handles the connection handshake and failures between a client and a server.

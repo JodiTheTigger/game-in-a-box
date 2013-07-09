@@ -25,7 +25,7 @@
 
 #include "PacketFragmentManager.hpp"
 
-using namespace GameInABox::Common::Network;
+using namespace GameInABox::Network::Implementation;
 
 PacketFragmentManager::PacketFragmentManager()
     : myFragments()

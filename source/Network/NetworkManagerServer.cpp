@@ -23,11 +23,12 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "Common/MakeUnique.hpp"
-#include "NetworkManagerServerGuts.hpp"
+#include "Implementation/MakeUnique.hpp"
+#include "Implementation/NetworkManagerServerGuts.hpp"
 #include "NetworkManagerServer.hpp"
 
-using namespace GameInABox::Common::Network;
+using namespace GameInABox::Network;
+using namespace GameInABox::Network::Implementation;
 
 NetworkManagerServer::NetworkManagerServer(
         INetworkProvider& network,

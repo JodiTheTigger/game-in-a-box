@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETPacketFragmentManager_H
-#define PACKETPacketFragmentManager_H
+#ifndef PACKETFRAGMENTMANAGER_H
+#define PACKETFRAGMENTMANAGER_H
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
@@ -28,7 +28,7 @@
 #include "PacketDelta.hpp"
 #include "PacketFragment.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // Fragments and defragments packets of a fixed size
 // of PacketFragmentManager::SizeMaxPacketSize.
@@ -67,4 +67,4 @@ private:
 
 }}} // namespace
 
-#endif // PACKETPacketFragmentManager_H
+#endif // PACKETFRAGMENTMANAGER_H

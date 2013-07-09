@@ -27,7 +27,7 @@
 
 #include "INetworkManager.hpp"
 
-namespace GameInABox { namespace Network
+namespace GameInABox { namespace Network {
 class INetworkProvider;
 
 namespace Implementation {

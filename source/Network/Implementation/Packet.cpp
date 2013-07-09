@@ -26,7 +26,7 @@
 #include "Packet.hpp"
 #include "BufferSerialisation.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation
 
 Packet::Packet(std::vector<uint8_t> fromBuffer)
     : data(fromBuffer)

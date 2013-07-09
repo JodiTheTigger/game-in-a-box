@@ -27,9 +27,9 @@
 #include <string>
 #endif
 
-#include "Common/Sequence.hpp"
+#include "Sequence.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 enum class Command : uint8_t
 {
@@ -57,7 +57,7 @@ public:
     // Static
     // ////////////////////////
     static Command GetCommand(const std::vector<uint8_t>& bufferToCheck);
-    static Common::Sequence GetSequence(const std::vector<uint8_t>& bufferToCheck);
+    static Sequence GetSequence(const std::vector<uint8_t>& bufferToCheck);
     static bool IsPacket(const std::vector<uint8_t>& buffer);
 
     // ////////////////////////
@@ -67,7 +67,7 @@ public:
     explicit Packet(Command command) : Packet({}, command) {}
 
     Packet() : Packet(std::vector<uint8_t>()) {}
-    Packet(Common::Sequence sequence, Command command);
+    Packet(Sequence sequence, Command command);
 
     Packet(const Packet&) = default;
     Packet(Packet&&) = default;
@@ -79,7 +79,7 @@ public:
     // Methods
     // ////////////////////////
     // The result is undefined if !IsValid().
-    Common::Sequence GetSequence() const { return GetSequence(data); }
+    Sequence GetSequence() const { return GetSequence(data); }
     Command GetCommand() const { return GetCommand(data); }
 
     // ////////////////////////
@@ -110,8 +110,8 @@ protected:
     // ////////////////////////
     // Constructors
     // ////////////////////////
-    Packet(Common::Sequence sequence, Command command, std::vector<uint8_t> payload);
-    Packet(Common::Sequence sequence, Command command, std::string payload);
+    Packet(Sequence sequence, Command command, std::vector<uint8_t> payload);
+    Packet(Sequence sequence, Command command, std::string payload);
 };
 
 // http://stackoverflow.com/questions/4421706/operator-overloading/4421719#4421719

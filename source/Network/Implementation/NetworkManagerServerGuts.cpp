@@ -24,7 +24,7 @@
 #endif
 
 #include "Common/Logging/Logging.hpp"
-#include "Common/IStateManager.hpp"
+#include "IStateManager.hpp"
 
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
@@ -35,7 +35,7 @@
 
 #include "NetworkManagerServerGuts.hpp"
 
-using namespace GameInABox::Common::Network;
+using namespace GameInABox::Network::Implementation;
 
 NetworkManagerServerGuts::NetworkManagerServerGuts(
         INetworkProvider& network,

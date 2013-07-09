@@ -30,7 +30,7 @@
 #include "Packet.hpp"
 #include "NetworkKey.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 template<Command TheCommand>
 class PacketCommandWithKey : public Packet

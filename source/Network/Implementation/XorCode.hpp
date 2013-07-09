@@ -28,7 +28,7 @@
 #include <array>
 #endif
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 /*
 

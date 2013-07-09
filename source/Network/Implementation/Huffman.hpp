@@ -28,7 +28,7 @@
 #include <memory>
 #endif
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // forward references
 class BitStream;
@@ -75,6 +75,6 @@ private:
     std::vector<uint16_t> GetXBitBytesStartingWith(uint16_t startValue, uint8_t bitSize, uint8_t totalBitSize);
 };
 
-}} // namespace
+}}} // namespace
 
 #endif // HUFFMAN_H

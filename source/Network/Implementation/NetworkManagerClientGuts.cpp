@@ -42,7 +42,7 @@
 
 using std::string;
 using namespace std::chrono;
-using namespace GameInABox::Common::Network;
+using namespace GameInABox::Network::Implementation;
 using namespace GameInABox::Common::Logging;
 
 

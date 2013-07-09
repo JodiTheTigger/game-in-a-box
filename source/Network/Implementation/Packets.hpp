@@ -18,35 +18,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PACKETCHALLENGERESPONSE_H
-#define PACKETCHALLENGERESPONSE_H
+#ifndef PACKETQUERIESKEY_H
+#define PACKETQUERIESKEY_H
 
 #ifndef USING_PRECOMPILED_HEADERS
-#include <cstdint>
+#include <boost/optional.hpp>
 #endif
 
+#include "Packet.hpp"
+#include "PacketCommand.hpp"
 #include "PacketCommandWithKey.hpp"
+#include "PacketFragment.hpp"
+#include "PacketDelta.hpp"
+#include "PacketChallenge.hpp"
+#include "PacketChallengeResponse.hpp"
+#include "BufferSerialisation.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
-class PacketChallengeResponse : public PacketCommandWithKey<Command::ChallengeResponse>
-{
-public:
-    PacketChallengeResponse(uint8_t version, NetworkKey key);
-    PacketChallengeResponse(uint8_t version, NetworkKey key, std::vector<uint8_t> payload);
-    explicit PacketChallengeResponse(std::vector<uint8_t> buffer) : PacketCommandWithKey(buffer) {}
-    virtual ~PacketChallengeResponse();
-
-    virtual bool IsValid() const override;    
-    virtual std::size_t OffsetPayload() const override { return PacketSize; }
-
-    uint8_t Version() const;
-
-private:
-    static const std::size_t OffsetVersion = PacketCommandWithKey::OffsetKey + PacketCommandWithKey::PayloadSize;
-    static const std::size_t PacketSize = OffsetVersion + sizeof(uint8_t);
-};
+using PacketInfo            = PacketCommandWithKey<Command::Info>;
+using PacketInfoResponse    = PacketCommand<Command::InfoResponse>;
+using PacketConnect         = PacketCommandWithKey<Command::Connect>;
+using PacketConnectResponse = PacketCommand<Command::ConnectResponse>;
+using PacketDisconnect      = PacketCommandWithKey<Command::Disconnect>;
 
 }}} // namespace
 
-#endif // PACKETCHALLENGERESPONSE_H
+#endif // PACKETQUERIESKEY_H

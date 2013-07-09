@@ -36,9 +36,9 @@
 #include <string>
 
 using namespace std;
-using namespace GameInABox::Common;
+using namespace GameInABox::Network::Implementation;
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 class Node
 {
@@ -107,7 +107,7 @@ struct NodeCompare
     }
 };
 
-}}// namespace
+}}} // namespace
 
 Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
     : myEncodeMap()

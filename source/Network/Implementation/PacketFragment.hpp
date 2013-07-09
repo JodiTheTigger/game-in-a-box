@@ -24,10 +24,10 @@
 #ifndef USING_PRECOMPILED_HEADERS
 #endif
 
-#include "Common/Sequence.hpp"
+#include "Sequence.hpp"
 #include "Packet.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 class PacketFragment : public Packet
 {

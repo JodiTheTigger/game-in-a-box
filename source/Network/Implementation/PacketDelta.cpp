@@ -21,8 +21,7 @@
 #include "PacketDelta.hpp"
 #include "BufferSerialisation.hpp"
 
-using namespace GameInABox::Common;
-using namespace GameInABox::Common::Network;
+using namespace GameInABox::Network::Implementation;
 
 bool PacketDelta::IsPacket(const std::vector<uint8_t>& buffer)
 {

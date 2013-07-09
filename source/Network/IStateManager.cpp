@@ -24,10 +24,8 @@
 #endif
 
 #include "IStateManager.hpp"
-#include "BitStream.hpp"
-#include "BitStreamReadOnly.hpp"
 
-using namespace GameInABox::Common;
+using namespace GameInABox::Network;
 
 std::array<uint64_t, 256> IStateManager::GetHuffmanFrequencies() const
 {

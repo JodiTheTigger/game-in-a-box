@@ -25,7 +25,7 @@
 #include <boost/uuid/uuid.hpp>
 #endif
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // for now just use boost's uuid for my key
 typedef boost::uuids::uuid NetworkKey;

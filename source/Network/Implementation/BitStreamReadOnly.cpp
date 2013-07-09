@@ -25,7 +25,7 @@
 
 #include "BitStreamReadOnly.hpp"
 
-using namespace GameInABox::Common;
+using namespace GameInABox::Network::Implementation;
 
 BitStreamReadOnly::BitStreamReadOnly(const std::vector< uint8_t >& sourceBuffer)
     : mySourceBuffer(&sourceBuffer)

@@ -18,89 +18,66 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef NETWORKMANAGERCLIENTGUTS_H
-#define NETWORKMANAGERCLIENTGUTS_H
+#ifndef NETWORKMANAGERSERVERGUTS_H
+#define NETWORKMANAGERSERVERGUTS_H
 
 #ifndef USING_PRECOMPILED_HEADERS
+#include <cstdint>
 #include <vector>
-#include <array>
-#include <utility>
+#include <unordered_map>
+#include <boost/optional.hpp>
 #include <boost/asio/ip/udp.hpp>
 #endif
 
-#include "Common/IStateManager.hpp"
-#include "Common/Huffman.hpp"
-#include "Common/WrappingCounter.hpp"
+#include "Sequence.hpp"
+#include "Huffman.hpp"
+#include "Hash.hpp"
 #include "INetworkManager.hpp"
-#include "PacketFragmentManager.hpp"
-#include "NetworkKey.hpp"
 #include "Connection.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network {
+class IStateManager;
 class INetworkProvider;
 
-class NetworkManagerClientGuts : public INetworkManager
+namespace Implementation {
+
+class NetworkManagerServerGuts : public INetworkManager
 {
 public:
-    NetworkManagerClientGuts(
+    NetworkManagerServerGuts(
             INetworkProvider& network,
             IStateManager& stateManager,
             TimeFunction timepiece);
 
-    NetworkManagerClientGuts(
+    NetworkManagerServerGuts(
             INetworkProvider& network,
             IStateManager& stateManager);
 
-    void Connect(boost::asio::ip::udp::endpoint serverAddress);
-    void Disconnect();
-
-    bool IsConnected() const
-    {
-        return myConnection.IsConnected();
-    }
-
-    bool HasFailed() const
-    {
-        return myConnection.HasFailed();
-    }
-
-    std::string FailReason() const
-    {
-        return myConnection.FailReason();
-    }
-
-    virtual ~NetworkManagerClientGuts();
+    virtual ~NetworkManagerServerGuts();
 
 private:
     static const uint64_t MaxPacketSizeInBytes{65535};
-    static constexpr uint8_t HandshakeRetries{5};
 
-    static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
+    struct State
     {
-        return std::chrono::milliseconds{1000};
-    }
+        Connection connection;
+        Sequence lastAcked;
+    };
 
     INetworkProvider& myNetwork;
-    Connection myConnection;
     IStateManager& myStateManager;
+    TimeFunction myTimepiece;
 
-    boost::asio::ip::udp::endpoint myServerAddress;
-    uint16_t myClientId;
+    std::unordered_map<boost::asio::ip::udp::endpoint, State> myAddressToState;
 
     Huffman myCompressor;
-
-    Sequence myLastSequenceProcessed;
-
-    uint8_t myPacketSentCount;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
 
-    void Fail(std::string failReason);
-    void DeltaReceive();
-    void DeltaSend();
+    void Disconnect();
 };
 
 }}} // namespace
 
-#endif // NETWORKMANAGERCLIENTGUTS_H
+#endif // NETWORKMANAGERSERVERGUTS_H
