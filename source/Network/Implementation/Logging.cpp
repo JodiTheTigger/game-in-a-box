@@ -25,7 +25,7 @@
 
 #include "Logging.hpp"
 
-namespace GameInABox { namespace Common { namespace Logging {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 void Log(LogLevel, ...)
 {

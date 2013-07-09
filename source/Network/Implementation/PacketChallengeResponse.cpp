@@ -25,7 +25,7 @@
 
 #include "PacketChallengeResponse.hpp"
 
-using namespace GameInABox::Common::Network;
+using namespace GameInABox::Network::Implementation;
 
 PacketChallengeResponse::PacketChallengeResponse(uint8_t version, NetworkKey key, std::vector<uint8_t> payload)
     : PacketCommandWithKey(key)

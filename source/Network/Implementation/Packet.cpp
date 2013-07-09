@@ -26,27 +26,27 @@
 #include "Packet.hpp"
 #include "BufferSerialisation.hpp"
 
-namespace GameInABox { namespace Network { namespace Implementation
+namespace GameInABox { namespace Network { namespace Implementation {
 
 Packet::Packet(std::vector<uint8_t> fromBuffer)
     : data(fromBuffer)
 {
 }
 
-Packet::Packet(Common::Sequence sequence, Command command)
+Packet::Packet(Sequence sequence, Command command)
     : Packet()
 {
     Push(back_inserter(data), sequence.Value());
     data.push_back(static_cast<uint8_t>(static_cast<uint8_t>(command) | MaskTopByteIsCommand));
 }
 
-Packet::Packet(Common::Sequence sequence, Command command, std::vector<uint8_t> payload)
+Packet::Packet(Sequence sequence, Command command, std::vector<uint8_t> payload)
     : Packet(sequence, command)
 {
     data.insert(end(data), begin(payload), end(payload));
 }
 
-Packet::Packet(Common::Sequence sequence, Command command, std::string payload)
+Packet::Packet(Sequence sequence, Command command, std::string payload)
     : Packet(sequence, command)
 {
     data.insert(end(data), begin(payload), end(payload));

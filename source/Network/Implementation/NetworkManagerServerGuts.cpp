@@ -23,7 +23,7 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "Common/Logging/Logging.hpp"
+#include "Logging.hpp"
 #include "IStateManager.hpp"
 
 #include "INetworkProvider.hpp"
@@ -189,8 +189,8 @@ void NetworkManagerServerGuts::PrivateProcessIncomming()
 
         if (connection.HasFailed())
         {
-            Logging::Log(
-                Logging::LogLevel::Notice,
+            Log(
+                LogLevel::Notice,
                 addressToState->first.address().to_string().c_str(),
                 ": ",
                 addressToState->first.port(),
@@ -297,13 +297,13 @@ void NetworkManagerServerGuts::PrivateSendState()
                         }
                         else
                         {
-                            Logging::Log(Logging::LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
+                            Log(LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
                         }
                     }
                     else
                     {
                         // Delta distance to too far. fail.
-                        Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
+                        Log(LogLevel::Informational, "Delta distance > 255.");
                     }
                 }
                 else
@@ -316,7 +316,7 @@ void NetworkManagerServerGuts::PrivateSendState()
                 // WTF?
                 // Ah well, clean up anyway.
                 connection.Disconnect("Connection with no ClientId, wtf?");
-                Logging::Log(Logging::LogLevel::Warning, "Connection with no ClientId, wtf?");
+                Log(LogLevel::Warning, "Connection with no ClientId, wtf?");
             }
         }
         else

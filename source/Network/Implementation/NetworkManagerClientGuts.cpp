@@ -28,8 +28,8 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "Common/Logging/Logging.hpp"
-#include "Common/IStateManager.hpp"
+#include "Logging.hpp"
+#include "IStateManager.hpp"
 
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
@@ -43,8 +43,6 @@
 using std::string;
 using namespace std::chrono;
 using namespace GameInABox::Network::Implementation;
-using namespace GameInABox::Common::Logging;
-
 
 NetworkManagerClientGuts::NetworkManagerClientGuts(
         INetworkProvider &network,
@@ -191,8 +189,8 @@ void NetworkManagerClientGuts::Fail(std::string failReason)
         myConnection.Disconnect(failReason);
     }
 
-    Logging::Log(
-        Logging::LogLevel::Notice,
+    Log(
+        LogLevel::Notice,
         myServerAddress.address().to_string().c_str(),
         ": ",
         myServerAddress.port(),
@@ -296,11 +294,11 @@ void NetworkManagerClientGuts::DeltaSend()
         }
         else
         {
-            Logging::Log(Logging::LogLevel::Informational, "Delta distance > 255.");
+            Log(LogLevel::Informational, "Delta distance > 255.");
         }
     }
     else
     {
-        Logging::Log(Logging::LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
+        Log(LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
     }
 }

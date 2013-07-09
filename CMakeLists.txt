@@ -202,6 +202,8 @@ source/Network/Implementation/Connection.hpp
 source/Network/Implementation/Hash.hpp
 source/Network/Implementation/Huffman.hpp
 source/Network/Implementation/Huffman.cpp
+source/Network/Implementation/Logging.hpp
+source/Network/Implementation/Logging.cpp
 source/Network/Implementation/MakeUnique.hpp
 source/Network/Implementation/NetworkManagerServerGuts.cpp
 source/Network/Implementation/NetworkManagerServerGuts.hpp
@@ -253,11 +255,6 @@ source/Common/Network/NetworkProviderSynchronous.cpp
 source/Common/Network/NetworkProviderSynchronous.hpp
 source/Common/Network/NetworkProviderInMemory.cpp
 source/Common/Network/NetworkProviderInMemory.hpp
-)
-
-set(COMMON_SOURCE_LOGGING
-source/Common/Logging/Logging.hpp
-source/Common/Logging/Logging.cpp
 )
 
 ###############

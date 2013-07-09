@@ -17,10 +17,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-
-#include "PacketDelta.hpp"
 #include "BufferSerialisation.hpp"
+#include "PacketDelta.hpp"
 
+using namespace GameInABox::Network;
 using namespace GameInABox::Network::Implementation;
 
 bool PacketDelta::IsPacket(const std::vector<uint8_t>& buffer)
@@ -130,7 +130,7 @@ boost::optional<Sequence> PacketDelta::GetSequenceAck() const
     return {};
 }
 
-boost::optional<uint16_t> Network::IdConnection(const PacketDelta& delta)
+boost::optional<uint16_t> Implementation::IdConnection(const PacketDelta& delta)
 {
     if (delta.data.size() >= (delta.OffsetPayload() + 2))
     {
@@ -147,7 +147,7 @@ boost::optional<uint16_t> Network::IdConnection(const PacketDelta& delta)
     return {};
 }
 
-std::vector<uint8_t> Network::ClientPayload(const PacketDelta& delta)
+std::vector<uint8_t> Implementation::ClientPayload(const PacketDelta& delta)
 {
     if (delta.data.size() > (delta.OffsetPayload() + 2))
     {

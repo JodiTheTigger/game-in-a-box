@@ -28,7 +28,7 @@
 #include "PacketChallenge.hpp"
 
 using namespace std;
-using namespace GameInABox::Common::Network;
+using namespace GameInABox::Network::Implementation;
 
 const std::string PacketChallenge::ChallengeMessage = "Why, Hello there.";
 

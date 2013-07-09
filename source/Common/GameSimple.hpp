@@ -29,7 +29,7 @@
 
 namespace GameInABox { namespace Common {
 
-class GameSimple : public IStateManager
+class GameSimple : public GameInABox::Network::IStateManager
 {
 public:
     GameSimple() {};
@@ -39,25 +39,25 @@ private:
     std::array<uint64_t, 256> myFrequencies;
 
     std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const override;    
-    std::vector<uint8_t> PrivateStateInfo(const boost::optional<ClientHandle>& client) const override;
+    std::vector<uint8_t> PrivateStateInfo(const boost::optional<GameInABox::Network::ClientHandle>& client) const override;
 
-    boost::optional<ClientHandle> PrivateConnect(
+    boost::optional<GameInABox::Network::ClientHandle> PrivateConnect(
             std::vector<uint8_t> connectData,
             std::string& failReason) override;
 
-    bool PrivateCanSend(boost::optional<ClientHandle> client, std::size_t bytes) override;
-    bool PrivateCanReceive(boost::optional<ClientHandle> client, std::size_t bytes) override;
+    bool PrivateCanSend(boost::optional<GameInABox::Network::ClientHandle> client, std::size_t bytes) override;
+    bool PrivateCanReceive(boost::optional<GameInABox::Network::ClientHandle> client, std::size_t bytes) override;
 
-    void PrivateDisconnect(ClientHandle playerToDisconnect) override;
-    bool PrivateIsConnected(ClientHandle client) const override;
+    void PrivateDisconnect(GameInABox::Network::ClientHandle playerToDisconnect) override;
+    bool PrivateIsConnected(GameInABox::Network::ClientHandle client) const override;
 
-    virtual Delta PrivateDeltaCreate(
-            ClientHandle client,
-            boost::optional<Sequence> lastAcked) const override;
+    virtual GameInABox::Network::Delta PrivateDeltaCreate(
+            GameInABox::Network::ClientHandle client,
+            boost::optional<GameInABox::Network::Sequence> lastAcked) const override;
 
-    virtual Sequence PrivateDeltaParse(
-            ClientHandle client,
-            const Delta& payload) override;
+    virtual GameInABox::Network::Sequence PrivateDeltaParse(
+            GameInABox::Network::ClientHandle client,
+            const GameInABox::Network::Delta& payload) override;
 };
 
 }} // namespace

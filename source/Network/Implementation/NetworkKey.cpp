@@ -28,7 +28,7 @@
 
 #include "NetworkKey.hpp"
 
-namespace GameInABox { namespace Network { namespace Implementation
+namespace GameInABox { namespace Network { namespace Implementation {
 
 NetworkKey GetNetworkKeyNil()
 {
