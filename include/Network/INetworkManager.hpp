@@ -21,12 +21,10 @@
 #ifndef INETWORKMANAGER_H
 #define INETWORKMANAGER_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
 #include <vector>
-#endif
 
-#include "Common/No.hpp"
+#include "No.hpp"
 
 namespace GameInABox { namespace Network {
 

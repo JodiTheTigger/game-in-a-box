@@ -21,10 +21,8 @@
 #ifndef WRAPPINGCOUNTER_H
 #define WRAPPINGCOUNTER_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <limits>
-#endif
 
 namespace GameInABox { namespace Network {
 

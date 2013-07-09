@@ -1,7 +1,7 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
-
+    
     This file is part of Game-in-a-box
 
     Game-in-a-box is free software: you can redistribute it and/or modify
@@ -23,21 +23,37 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "INetworkManager.hpp"
+#include "INetworkProvider.hpp"
 
-using namespace GameInABox::Common::Network;
+using namespace std;
+using namespace GameInABox::Network;
 
-INetworkManager::~INetworkManager()
+std::vector<NetworkPacket> INetworkProvider::Receive()
 {
-    // Nothing.
+    return PrivateReceive();
 }
 
-void INetworkManager::ProcessIncomming()
+void INetworkProvider::Send(std::vector<NetworkPacket> packets)
 {
-    PrivateProcessIncomming();
+    PrivateSend(packets);
 }
 
-void INetworkManager::SendState()
+void INetworkProvider::Reset()
 {
-    PrivateSendState();
+    PrivateReset();
+}
+
+void INetworkProvider::Flush()
+{
+    PrivateFlush();
+}
+
+void INetworkProvider::Disable()
+{
+    PrivateDisable();
+}
+
+bool INetworkProvider::IsDisabled() const
+{
+    return PrivateIsDisabled();
 }

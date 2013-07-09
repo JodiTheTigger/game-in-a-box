@@ -21,9 +21,7 @@
 #ifndef NETWORKMANAGERSERVER_H
 #define NETWORKMANAGERSERVER_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
-#endif
 
 #include "INetworkManager.hpp"
 

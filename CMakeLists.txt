@@ -180,9 +180,18 @@ include/Network/INetworkProvider.hpp
 include/Network/IStateManager.hpp
 include/Network/NetworkManagerClient.hpp
 include/Network/NetworkManagerServer.hpp
+include/Network/NetworkPacket.hpp
 include/Network/No.hpp
 include/Network/Sequence.hpp
 include/Network/WrappingCounter.hpp
+)
+
+set(NETWORK
+source/Network/INetworkManager.cpp
+source/Network/INetworkProvider.cpp
+source/Network/IStateManager.cpp
+source/Network/NetworkManagerClient.cpp
+source/Network/NetworkManagerServer.cpp
 )
 
 set(COMMON_SOURCE
@@ -194,7 +203,6 @@ source/Common/MakeUnique.hpp
 source/Common/ReflectionKey.hpp
 source/Common/BitStreamReadOnly.cpp
 source/Common/IReflected.cpp
-source/Common/IStateManager.cpp
 source/Common/Huffman.cpp
 source/Common/RollingStatistics.cpp
 source/Common/BitStream.cpp
@@ -235,17 +243,12 @@ source/Common/Network/PacketDelta.hpp
 source/Common/Network/PacketChallenge.hpp
 source/Common/Network/Packet.hpp
 source/Common/Network/PacketChallengeResponse.hpp
-source/Common/Network/NetworkManagerServer.cpp
 source/Common/Network/NetworkManagerServerGuts.cpp
 source/Common/Network/NetworkManagerServerGuts.hpp
-source/Common/Network/INetworkManager.cpp
-source/Common/Network/INetworkProvider.cpp
-source/Common/Network/NetworkManagerClient.cpp
 source/Common/Network/NetworkManagerClientGuts.hpp
 source/Common/Network/NetworkManagerClientGuts.cpp
 source/Common/Network/DeltaCoder.hpp
 source/Common/Network/DeltaCoder-Implementation.hpp
-source/Common/Network/NetworkPacket.hpp
 source/Common/Network/NetworkProviderSynchronous.cpp
 source/Common/Network/NetworkProviderSynchronous.hpp
 source/Common/Network/NetworkProviderInMemory.cpp
@@ -266,12 +269,15 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     include_directories(/usr/include/i386-linux-gnu/c++/4.8/)
 endif()
 
+# RAM: TODO: Fix this mess and add a Network library project!
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/Network)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
 add_library(
 game-in-a-box-common
 ${NETWORK_HEADERS}
+${NETWORK}
 ${COMMON_SOURCE}
 ${COMMON_SOURCE_NETWORK}
 ${COMMON_SOURCE_LOGGING}

@@ -21,11 +21,9 @@
 #ifndef NETWORKPROVIDER_H
 #define NETWORKPROVIDER_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
-#endif
 
-#include "Common/No.hpp"
+#include "No.hpp"
 #include "NetworkPacket.hpp"
 
 namespace GameInABox { namespace Network {

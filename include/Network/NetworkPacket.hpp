@@ -18,42 +18,40 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef USING_PRECOMPILED_HEADERS
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
+#ifndef NETWORKPACKET_H
+#define NETWORKPACKET_H
 
-#include "INetworkProvider.hpp"
+#include <cstdint>
+#include <vector>
+#include <memory>
+#include <boost/asio/ip/udp.hpp>
 
-using namespace std;
-using namespace GameInABox::Common::Network;
+namespace GameInABox { namespace Network {
 
-std::vector<NetworkPacket> INetworkProvider::Receive()
+class NetworkPacket
 {
-    return PrivateReceive();
-}
+public:
+    std::vector<uint8_t>                data;
+    boost::asio::ip::udp::endpoint      address;
 
-void INetworkProvider::Send(std::vector<NetworkPacket> packets)
-{
-    PrivateSend(packets);
-}
+    NetworkPacket()
+        : data()
+        , address()
+    {
+    }
 
-void INetworkProvider::Reset()
-{
-    PrivateReset();
-}
+    NetworkPacket(
+            std::vector<uint8_t> dataToUse,
+            boost::asio::ip::udp::endpoint addressToUse)
+        : data(dataToUse)
+        , address(addressToUse)
+    {
+    }
 
-void INetworkProvider::Flush()
-{
-    PrivateFlush();
-}
+    NetworkPacket(const NetworkPacket&) = default;
+    NetworkPacket& operator= ( NetworkPacket const &) = default;
+};
 
-void INetworkProvider::Disable()
-{
-    PrivateDisable();
-}
+}} // namespace
 
-bool INetworkProvider::IsDisabled() const
-{
-    return PrivateIsDisabled();
-}
+#endif // NETWORKPACKET_H
