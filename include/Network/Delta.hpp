@@ -23,7 +23,7 @@
 
 #include "Sequence.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 struct Delta
 {

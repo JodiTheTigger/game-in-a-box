@@ -25,7 +25,7 @@
 #include <cstdint>
 #endif
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 struct ClientHandle
 {

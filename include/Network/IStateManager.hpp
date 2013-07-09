@@ -34,7 +34,7 @@
 #include "ClientHandle.hpp"
 #include "Delta.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 // All methods are assumed to be multithreading and reentrance UNSAFE, unless told otherwise.
 class IStateManager : NoCopyMoveNorAssign

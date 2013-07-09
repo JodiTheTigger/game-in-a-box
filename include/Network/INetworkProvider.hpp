@@ -28,7 +28,7 @@
 #include "Common/No.hpp"
 #include "NetworkPacket.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network {
 
 class INetworkProvider : NoCopyMoveNorAssign
 {
@@ -67,6 +67,6 @@ private:
     virtual bool PrivateIsDisabled() const= 0;
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // NETWORKPROVIDER_H

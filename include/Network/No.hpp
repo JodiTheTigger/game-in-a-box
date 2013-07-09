@@ -21,7 +21,7 @@
 #ifndef NO_H
 #define NO_H
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 class NoCopyMoveNorAssign
 {

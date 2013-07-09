@@ -26,7 +26,7 @@
 #include <limits>
 #endif
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 template<typename T, int BITS = 0>
 class WrappingCounter

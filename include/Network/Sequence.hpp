@@ -23,7 +23,7 @@
 
 #include "WrappingCounter.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 using Sequence = WrappingCounter<uint16_t, 15>;
 

@@ -27,12 +27,13 @@
 
 #include "INetworkManager.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 class IStateManager;
-
-namespace Network {
 class INetworkProvider;
+
+namespace Implementation {
 class NetworkManagerServerGuts;
+}
 
 class NetworkManagerServer : public INetworkManager
 {
@@ -44,12 +45,12 @@ public:
     virtual ~NetworkManagerServer();
 
 private:
-    std::unique_ptr<NetworkManagerServerGuts> myGuts;
+    std::unique_ptr<Implementation::NetworkManagerServerGuts> myGuts;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // NETWORKMANAGERSERVER_H
