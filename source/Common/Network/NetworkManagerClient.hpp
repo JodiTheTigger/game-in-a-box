@@ -23,11 +23,11 @@
 
 #ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
+#include <string>
+#include <boost/asio/ip/udp.hpp>
 #endif
 
-#include "Common/IStateManager.hpp"
 #include "INetworkManager.hpp"
-#include "INetworkProvider.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
