@@ -170,21 +170,31 @@ FIND_PACKAGE ( Threads )
 ###############
 # Common Library
 ###############
+# RAM: TODO: Clear up this mess. Library-fy network please.
+
+set(NETWORK_HEADERS
+include/Network/ClientHandle.hpp
+include/Network/Delta.hpp
+include/Network/INetworkManager.hpp
+include/Network/INetworkProvider.hpp
+include/Network/IStateManager.hpp
+include/Network/NetworkManagerClient.hpp
+include/Network/NetworkManagerServer.hpp
+include/Network/No.hpp
+include/Network/Sequence.hpp
+include/Network/WrappingCounter.hpp
+)
 
 set(COMMON_SOURCE
-source/Common/No.hpp
 source/Common/PrecompiledHeaders.cpp
 source/Common/PrecompiledHeaders.hpp
-source/Common/Delta.hpp
 source/Common/AutoComplete.hpp
 source/Common/Huffman.hpp
 source/Common/MakeUnique.hpp
 source/Common/ReflectionKey.hpp
-source/Common/WrappingCounter.hpp
 source/Common/BitStreamReadOnly.cpp
 source/Common/IReflected.cpp
 source/Common/IStateManager.cpp
-source/Common/ClientHandle.hpp
 source/Common/Huffman.cpp
 source/Common/RollingStatistics.cpp
 source/Common/BitStream.cpp
@@ -193,12 +203,10 @@ source/Common/GameSimple.cpp
 source/Common/ReflectionManager.cpp
 source/Common/BitStream.hpp
 source/Common/GameSimple.hpp
-source/Common/IStateManager.hpp
 source/Common/ReflectionManager.hpp
 source/Common/RollingStatistics.hpp
 source/Common/BitStreamReadOnly.hpp
 source/Common/IReflected.hpp
-source/Common/Sequence.hpp
 source/Common/BaseClassUniquePointer.hpp
 )
 
@@ -212,10 +220,8 @@ source/Common/Network/Connection.hpp
 source/Common/Network/BufferSerialisation.hpp
 source/Common/Network/DeltaMapItem.hpp
 source/Common/Network/XorCode.hpp
-source/Common/Network/INetworkManager.cpp
 source/Common/Network/PacketFragmentManager.hpp
 source/Common/Network/PacketFragmentManager.cpp
-source/Common/Network/INetworkProvider.cpp
 source/Common/Network/Packet.cpp
 source/Common/Network/Packets.hpp
 source/Common/Network/PacketCommand.hpp
@@ -230,12 +236,10 @@ source/Common/Network/PacketChallenge.hpp
 source/Common/Network/Packet.hpp
 source/Common/Network/PacketChallengeResponse.hpp
 source/Common/Network/NetworkManagerServer.cpp
-source/Common/Network/NetworkManagerServer.hpp
 source/Common/Network/NetworkManagerServerGuts.cpp
 source/Common/Network/NetworkManagerServerGuts.hpp
-source/Common/Network/INetworkManager.hpp
-source/Common/Network/INetworkProvider.hpp
-source/Common/Network/NetworkManagerClient.hpp
+source/Common/Network/INetworkManager.cpp
+source/Common/Network/INetworkProvider.cpp
 source/Common/Network/NetworkManagerClient.cpp
 source/Common/Network/NetworkManagerClientGuts.hpp
 source/Common/Network/NetworkManagerClientGuts.cpp
@@ -267,6 +271,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
 add_library(
 game-in-a-box-common
+${NETWORK_HEADERS}
 ${COMMON_SOURCE}
 ${COMMON_SOURCE_NETWORK}
 ${COMMON_SOURCE_LOGGING}
@@ -280,6 +285,8 @@ source/Server/main.cpp)
 set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 set_target_properties(game-in-a-box-common PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 target_link_libraries(game-in-a-box-server game-in-a-box-common ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+
+# RAM: TODO: Don't do this for cross compilation builds.
 add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
     
 ###############
