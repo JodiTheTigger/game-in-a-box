@@ -22,7 +22,7 @@
 #include <chrono>
 #include <string>
 
-#include <Common/Network/NetworkManagerClient.hpp>
+#include <Common/Network/NetworkManagerClientGuts.hpp>
 #include <Common/Network/NetworkManagerServer.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
 #include <Common/Network/NetworkProviderInMemory.hpp>
@@ -141,7 +141,7 @@ TEST_F(TestClientServer, CreateClient)
     ON_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
             .WillByDefault(Return(frequencies));
 
-    NetworkManagerClient toTest(theNetwork, stateMockClient);
+    NetworkManagerClientGuts toTest(theNetwork, stateMockClient);
 
     EXPECT_FALSE(toTest.IsConnected());
     EXPECT_FALSE(toTest.HasFailed());
@@ -168,7 +168,7 @@ TEST_F(TestClientServer, OneConnection)
     }
 
     NetworkManagerServer server{theNetwork, stateMockServer};
-    NetworkManagerClient client{theNetwork, stateMockClient};
+    NetworkManagerClientGuts client{theNetwork, stateMockClient};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -233,7 +233,7 @@ TEST_F(TestClientServer, ClientTimeout)
             .WillByDefault(Return(bool(true)));
 
     NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -293,7 +293,7 @@ TEST_F(TestClientServer, StateDisconnect)
     }
 
     NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -353,7 +353,7 @@ TEST_F(TestClientServer, NoReceive)
     }
 
     NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};
@@ -410,7 +410,7 @@ TEST_F(TestClientServer, NoSend)
     }
 
     NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
-    NetworkManagerClient client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
     auto addressClient = udp::endpoint{address_v4(2l), 4444};

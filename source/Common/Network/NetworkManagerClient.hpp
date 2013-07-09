@@ -22,31 +22,20 @@
 #define NETWORKMANAGERCLIENT_H
 
 #ifndef USING_PRECOMPILED_HEADERS
-#include <vector>
-#include <array>
-#include <utility>
-#include <boost/asio/ip/udp.hpp>
+#include <memory>
 #endif
 
 #include "Common/IStateManager.hpp"
-#include "Common/Huffman.hpp"
-#include "Common/WrappingCounter.hpp"
 #include "INetworkManager.hpp"
-#include "PacketFragmentManager.hpp"
-#include "NetworkKey.hpp"
-#include "Connection.hpp"
+#include "INetworkProvider.hpp"
 
 namespace GameInABox { namespace Common { namespace Network {
 class INetworkProvider;
+class NetworkManagerClientGuts;
 
 class NetworkManagerClient : public INetworkManager
 {
 public:
-    NetworkManagerClient(
-            INetworkProvider& network,
-            IStateManager& stateManager,
-            TimeFunction timepiece);
-
     NetworkManagerClient(
             INetworkProvider& network,
             IStateManager& stateManager);
@@ -54,51 +43,16 @@ public:
     void Connect(boost::asio::ip::udp::endpoint serverAddress);
     void Disconnect();
 
-    bool IsConnected() const
-    {
-        return myConnection.IsConnected();
-    }
-
-    bool HasFailed() const
-    {
-        return myConnection.HasFailed();
-    }
-
-    std::string FailReason() const
-    {
-        return myConnection.FailReason();
-    }
-
+    bool IsConnected() const;
+    bool HasFailed() const;
+    std::string FailReason() const;
     virtual ~NetworkManagerClient();
 
 private:
-    static const uint64_t MaxPacketSizeInBytes{65535};
-    static constexpr uint8_t HandshakeRetries{5};
-
-    static constexpr std::chrono::milliseconds HandshakeRetryPeriod()
-    {
-        return std::chrono::milliseconds{1000};
-    }
-
-    INetworkProvider& myNetwork;
-    Connection myConnection;
-    IStateManager& myStateManager;
-
-    boost::asio::ip::udp::endpoint myServerAddress;
-    uint16_t myClientId;
-
-    Huffman myCompressor;
-
-    Sequence myLastSequenceProcessed;
-
-    uint8_t myPacketSentCount;
+    std::unique_ptr<NetworkManagerClientGuts> myGuts;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
-
-    void Fail(std::string failReason);
-    void DeltaReceive();
-    void DeltaSend();
 };
 
 }}} // namespace

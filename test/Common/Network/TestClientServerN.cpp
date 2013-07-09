@@ -22,7 +22,7 @@
 #include <chrono>
 #include <memory>
 
-#include <Common/Network/NetworkManagerClient.hpp>
+#include <Common/Network/NetworkManagerClientGuts.hpp>
 #include <Common/Network/NetworkManagerServer.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
 #include <Common/Network/NetworkProviderInMemory.hpp>
@@ -229,12 +229,12 @@ TEST_F(TestClientServerN, CreateClient)
     OClock testStart{Clock::now()};
 
     NetworkManagerServer theServer(theNetwork, stateServer.state, [&testTime] () -> OClock { return testTime; });
-    std::vector<std::unique_ptr<NetworkManagerClient>> theClients{};
+    std::vector<std::unique_ptr<NetworkManagerClientGuts>> theClients{};
 
     // setup
     for (auto& state: stateClients)
     {
-        theClients.emplace_back(new NetworkManagerClient(theNetwork, state.state, [&testTime] () -> OClock { return testTime; }));
+        theClients.emplace_back(new NetworkManagerClientGuts(theNetwork, state.state, [&testTime] () -> OClock { return testTime; }));
     }
 
     // connect all the clients to the server at once, that'll be fun.
