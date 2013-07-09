@@ -23,7 +23,7 @@
 #include <string>
 
 #include <Common/Network/NetworkManagerClientGuts.hpp>
-#include <Common/Network/NetworkManagerServer.hpp>
+#include <Common/Network/NetworkManagerServerGuts.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
 #include <Common/Network/NetworkProviderInMemory.hpp>
 #include <Common/MockIStateManager.hpp>
@@ -154,7 +154,7 @@ TEST_F(TestClientServer, CreateServer)
             .WillByDefault(Return(frequencies));
 
     // Don't crash.
-    NetworkManagerServer(theNetwork, stateMockServer);
+    NetworkManagerServerGuts(theNetwork, stateMockServer);
 }
 
 // ///////////////////
@@ -167,7 +167,7 @@ TEST_F(TestClientServer, OneConnection)
         SetupDefaultMock(*mock);
     }
 
-    NetworkManagerServer server{theNetwork, stateMockServer};
+    NetworkManagerServerGuts server{theNetwork, stateMockServer};
     NetworkManagerClientGuts client{theNetwork, stateMockClient};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
@@ -232,7 +232,7 @@ TEST_F(TestClientServer, ClientTimeout)
     ON_CALL(stateMockServer, PrivateCanSend( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerServerGuts server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
     NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
@@ -292,7 +292,7 @@ TEST_F(TestClientServer, StateDisconnect)
         SetupDefaultMock(*mock);
     }
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerServerGuts server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
     NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
@@ -352,7 +352,7 @@ TEST_F(TestClientServer, NoReceive)
         SetupDefaultMock(*mock);
     }
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerServerGuts server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
     NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};
@@ -409,7 +409,7 @@ TEST_F(TestClientServer, NoSend)
         SetupDefaultMock(*mock);
     }
 
-    NetworkManagerServer server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
+    NetworkManagerServerGuts server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
     NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
 
     auto addressServer = udp::endpoint{address_v4(1l), 13444};

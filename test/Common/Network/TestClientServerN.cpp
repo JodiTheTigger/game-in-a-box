@@ -23,7 +23,7 @@
 #include <memory>
 
 #include <Common/Network/NetworkManagerClientGuts.hpp>
-#include <Common/Network/NetworkManagerServer.hpp>
+#include <Common/Network/NetworkManagerServerGuts.hpp>
 #include <Common/Network/MockINetworkProvider.hpp>
 #include <Common/Network/NetworkProviderInMemory.hpp>
 #include <Common/MockIStateManager.hpp>
@@ -228,7 +228,7 @@ TEST_F(TestClientServerN, CreateClient)
     OClock testTime{Clock::now()};
     OClock testStart{Clock::now()};
 
-    NetworkManagerServer theServer(theNetwork, stateServer.state, [&testTime] () -> OClock { return testTime; });
+    NetworkManagerServerGuts theServer(theNetwork, stateServer.state, [&testTime] () -> OClock { return testTime; });
     std::vector<std::unique_ptr<NetworkManagerClientGuts>> theClients{};
 
     // setup

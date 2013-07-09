@@ -22,34 +22,21 @@
 #define NETWORKMANAGERSERVER_H
 
 #ifndef USING_PRECOMPILED_HEADERS
-#include <cstdint>
-#include <vector>
-#include <unordered_map>
-#include <boost/optional.hpp>
-#include <boost/asio/ip/udp.hpp>
+#include <memory>
 #endif
 
-#include "Common/Sequence.hpp"
-#include "Common/Huffman.hpp"
-
-#include "Hash.hpp"
 #include "INetworkManager.hpp"
-#include "Connection.hpp"
 
 namespace GameInABox { namespace Common {
 class IStateManager;
 
 namespace Network {
 class INetworkProvider;
+class NetworkManagerServerGuts;
 
 class NetworkManagerServer : public INetworkManager
 {
 public:
-    NetworkManagerServer(
-            INetworkProvider& network,
-            IStateManager& stateManager,
-            TimeFunction timepiece);
-
     NetworkManagerServer(
             INetworkProvider& network,
             IStateManager& stateManager);
@@ -57,26 +44,10 @@ public:
     virtual ~NetworkManagerServer();
 
 private:
-    static const uint64_t MaxPacketSizeInBytes{65535};
-
-    struct State
-    {
-        Connection connection;
-        Sequence lastAcked;
-    };
-
-    INetworkProvider& myNetwork;
-    IStateManager& myStateManager;
-    TimeFunction myTimepiece;
-
-    std::unordered_map<boost::asio::ip::udp::endpoint, State> myAddressToState;
-
-    Huffman myCompressor;
+    std::unique_ptr<NetworkManagerServerGuts> myGuts;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;
-
-    void Disconnect();
 };
 
 }}} // namespace
