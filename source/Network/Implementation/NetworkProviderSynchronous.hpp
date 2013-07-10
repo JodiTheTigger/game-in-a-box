@@ -28,8 +28,7 @@
 
 #include "INetworkProvider.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
-class NetworkPacket;
+namespace GameInABox { namespace Network { namespace Implementation {
 
 class NetworkProviderSynchronous final: public INetworkProvider
 {

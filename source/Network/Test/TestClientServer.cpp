@@ -22,11 +22,11 @@
 #include <chrono>
 #include <string>
 
-#include <Common/Network/NetworkManagerClientGuts.hpp>
-#include <Common/Network/NetworkManagerServerGuts.hpp>
-#include <Common/Network/MockINetworkProvider.hpp>
-#include <Common/Network/NetworkProviderInMemory.hpp>
-#include <Common/MockIStateManager.hpp>
+#include <Implementation/NetworkManagerClientGuts.hpp>
+#include <Implementation/NetworkManagerServerGuts.hpp>
+#include <Implementation/NetworkProviderInMemory.hpp>
+#include "MockINetworkProvider.hpp"
+#include "MockIStateManager.hpp"
 
 using namespace std;
 using namespace boost::asio::ip;
@@ -36,7 +36,7 @@ using ::testing::Return;
 using ::testing::Invoke;
 using ::testing::NiceMock;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 Delta DeltaCreate(
         ClientHandle,

@@ -22,11 +22,11 @@
 #define MOCKISTATEMANAGER_HPP
 
 #include "gmock/gmock.h"
-#include <Common/IStateManager.hpp>
-#include <Common/BitStream.hpp>
-#include <Common/BitStreamReadOnly.hpp>
+#include <IStateManager.hpp>
+#include <Implementation/BitStream.hpp>
+#include <Implementation/BitStreamReadOnly.hpp>
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 class MockIStateManager : public IStateManager
 {

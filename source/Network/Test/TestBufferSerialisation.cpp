@@ -19,7 +19,7 @@
 */
 
 
-#include <Common/Network/BufferSerialisation.hpp>
+#include <Implementation/BufferSerialisation.hpp>
 #include <gmock/gmock.h>
 
 #include <limits>
@@ -29,7 +29,7 @@
 
 using namespace std;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 template <typename T>
 class TestBufferSerialisation : public ::testing::Test

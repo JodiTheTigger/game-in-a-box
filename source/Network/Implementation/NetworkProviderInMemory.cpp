@@ -19,14 +19,9 @@
 */
 
 #include "NetworkPacket.hpp"
-
 #include "NetworkProviderInMemory.hpp"
 
-using Clock = std::chrono::high_resolution_clock;
-using Oclock = Clock::time_point;
-
-namespace GameInABox { namespace Common { namespace Network {
-
+namespace GameInABox { namespace Network { namespace Implementation {
 
 NetworkProviderInMemory::NetworkProviderInMemory(
         RandomSettings defaultSettings,
@@ -98,7 +93,7 @@ std::vector<NetworkPacket> NetworkProviderInMemory::PrivateReceive()
 
 void NetworkProviderInMemory::PrivateSend(std::vector<NetworkPacket> packets)
 {
-    Clock::time_point timeToRelease{};
+    OClock timeToRelease{};
 
     // latency
     if (mySettings.latencyMinimum.count() > 0)

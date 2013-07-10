@@ -23,15 +23,14 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "Common/MakeUnique.hpp"
-#include "Common/Logging/Logging.hpp"
-
-#include "NetworkProviderSynchronous.hpp"
+#include "MakeUnique.hpp"
+#include "Logging.hpp"
 #include "NetworkPacket.hpp"
+#include "NetworkProviderSynchronous.hpp"
 
 using boost::asio::ip::udp;
-using namespace GameInABox::Common::Network;
-using namespace GameInABox::Common::Logging;
+using namespace GameInABox::Network;
+using namespace GameInABox::Network::Implementation;
 
 NetworkProviderSynchronous::NetworkProviderSynchronous(boost::asio::ip::udp::endpoint bindAddress)
     : INetworkProvider()
@@ -83,8 +82,8 @@ std::vector<NetworkPacket> NetworkProviderSynchronous::PrivateReceive()
         if (error)
         {
             // report and give up.
-            Logging::Log(
-                Logging::LogLevel::Informational,
+            Log(
+                LogLevel::Informational,
                 "Received Failed: (",
                 error.value(),
                 ") ",
@@ -129,8 +128,8 @@ void NetworkProviderSynchronous::PrivateSend(std::vector<NetworkPacket> packets)
                     if (error)
                     {
                         // report and quit.
-                        Logging::Log(
-                            Logging::LogLevel::Informational,
+                        Log(
+                            LogLevel::Informational,
                             "Send Failed: (",
                             error.value(),
                             ") ",
@@ -158,8 +157,8 @@ void NetworkProviderSynchronous::PrivateReset()
     catch (boost::system::system_error& socketError)
     {
         // is_open() will return false if this didn't work, so just report why to debug.
-        Logging::Log(
-            Logging::LogLevel::Warning,
+        Log(
+            LogLevel::Warning,
             "Reset Failed: (",
             socketError.code().value(),
             ") ",

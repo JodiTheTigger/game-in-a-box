@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Common/WrappingCounter.hpp>
+#include <WrappingCounter.hpp>
 #include <gtest/gtest.h>
 
 #include <limits>
 
 using namespace std;
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Network {
 
 template <typename T>
 class TestWrappingCounter : public ::testing::Test

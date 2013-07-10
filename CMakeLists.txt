@@ -168,9 +168,11 @@ INCLUDE_DIRECTORIES( SYSTEM ${Boost_INCLUDE_DIR} )
 FIND_PACKAGE ( Threads )
 
 ###############
-# Common Library
+# Source Code
 ###############
 # RAM: TODO: Clear up this mess. Library-fy network please.
+# Move No.hpp and Units.hpp into a common header directory maybe?
+# Maybe BaseClassUniquePointer.hpp too if it's ever used?
 
 set(NETWORK_HEADERS
 include/Network/ClientHandle.hpp
@@ -205,12 +207,16 @@ source/Network/Implementation/Huffman.cpp
 source/Network/Implementation/Logging.hpp
 source/Network/Implementation/Logging.cpp
 source/Network/Implementation/MakeUnique.hpp
+source/Network/Implementation/NetworkKey.hpp
+source/Network/Implementation/NetworkKey.cpp
 source/Network/Implementation/NetworkManagerServerGuts.cpp
 source/Network/Implementation/NetworkManagerServerGuts.hpp
 source/Network/Implementation/NetworkManagerClientGuts.hpp
 source/Network/Implementation/NetworkManagerClientGuts.cpp
-source/Network/Implementation/NetworkKey.hpp
-source/Network/Implementation/NetworkKey.cpp
+source/Network/Implementation/NetworkProviderSynchronous.cpp
+source/Network/Implementation/NetworkProviderSynchronous.hpp
+source/Network/Implementation/NetworkProviderInMemory.cpp
+source/Network/Implementation/NetworkProviderInMemory.hpp
 source/Network/Implementation/PacketFragmentManager.hpp
 source/Network/Implementation/PacketFragmentManager.cpp
 source/Network/Implementation/Packet.cpp
@@ -230,6 +236,28 @@ source/Network/Implementation/Units.hpp
 source/Network/Implementation/XorCode.hpp
 )
 
+set(NETWORK_TEST
+source/Network/Test/TestConnection.cpp
+source/Network/Test/TestPackets.cpp
+source/Network/Test/TestPacketDelta.cpp
+source/Network/Test/TestPacketFragment.cpp
+source/Network/Test/TestPacketFragmentManager.cpp
+source/Network/Test/TestXorCode.cpp
+source/Network/Test/TestBufferSerialisation.cpp
+source/Network/Test/TestNetworkProviderSynchronous.cpp
+source/Network/Test/TestNetworkProviderInMemory.cpp
+source/Network/Test/TestClientServer.cpp
+source/Network/Test/TestClientServerN.cpp
+source/Network/Test/TestWrappingCounter.cpp
+source/Network/Test/TestHuffman.cpp
+source/Network/Test/TestBitStreamReadOnly.cpp
+source/Network/Test/TestBitStream.cpp
+source/Network/Test/MockINetworkProvider.hpp
+source/Network/Test/MockIStateManager.hpp
+)
+
+# Move source and source network into an "unused" project.
+# Change namespace to be the same.
 set(COMMON_SOURCE
 source/Common/PrecompiledHeaders.cpp
 source/Common/PrecompiledHeaders.hpp
@@ -251,53 +279,22 @@ set(COMMON_SOURCE_NETWORK
 source/Common/Network/DeltaMapItem.hpp
 source/Common/Network/DeltaCoder.hpp
 source/Common/Network/DeltaCoder-Implementation.hpp
-source/Common/Network/NetworkProviderSynchronous.cpp
-source/Common/Network/NetworkProviderSynchronous.hpp
-source/Common/Network/NetworkProviderInMemory.cpp
-source/Common/Network/NetworkProviderInMemory.hpp
 )
 
 ###############
-# Server 
-###############    
+# General
+###############
+
 # Stupid clang, hard code search paths for ubuntu 12.04 for travis-ci
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     include_directories(/usr/include/x86_64-linux-gnu/c++/4.8/)
     include_directories(/usr/include/i386-linux-gnu/c++/4.8/)
 endif()
 
-# RAM: TODO: Fix this mess and add a Network library project!
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/Network)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
-
-add_library(
-game-in-a-box-common
-${NETWORK_HEADERS}
-${NETWORK}
-${COMMON_SOURCE}
-${COMMON_SOURCE_NETWORK}
-${COMMON_SOURCE_LOGGING}
-)
-
-add_executable(
-game-in-a-box-server
-source/Server/GameInABoxServer.cpp 
-source/Server/main.cpp)
-
-set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
-set_target_properties(game-in-a-box-common PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
-target_link_libraries(game-in-a-box-server game-in-a-box-common ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
-
-# RAM: TODO: Don't do this for cross compilation builds.
-add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
-    
-###############
-# Client 
-###############
+enable_testing()
 
 ###############
-# Testing 
+# Testing
 ###############
 # yikes! enable google test. Since this doesn't have a module, do it manually.
 # http://stackoverflow.com/questions/9689183/cmake-googletest/9695234#9695234
@@ -305,49 +302,62 @@ add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-
 # Maybe it only works in windows? Either way, include gmock with the source.
 
 add_subdirectory(third-party/gmock-1.6.0)
-enable_testing()
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mock/)
+
+###############
+# Network
+###############
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/Network/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Network/)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Network/Implementation)
+
+add_library(
+game-in-a-box-network
+${NETWORK_HEADERS}
+${NETWORK}
+)
+
+set_target_properties(game-in-a-box-network PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+
+# Testing
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Network/Test)
 
 ADD_EXECUTABLE(
-  game-in-a-box-common-tests
-  ${PROJECT_SOURCE_DIR}/mock/Common/Network/MockINetworkProvider.hpp
-  ${PROJECT_SOURCE_DIR}/mock/Common/MockIStateManager.hpp
-  ${PROJECT_SOURCE_DIR}/test/Common/TestWrappingCounter.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestConnection.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPackets.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketDelta.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragment.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestPacketFragmentManager.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestDeltaCoder.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestXorCode.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestBufferSerialisation.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProviderSynchronous.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestNetworkProviderInMemory.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestClientServer.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/Network/TestClientServerN.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/TestHuffman.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/TestReflectionManager.cpp 
-  ${PROJECT_SOURCE_DIR}/test/Common/TestIReflected.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/TestRollingStatistics.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/TestBitStreamReadOnly.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/TestBitStream.cpp
-  ${PROJECT_SOURCE_DIR}/test/Common/TestAutoComplete.cpp)
+game-in-a-box-network-tests
+${NETWORK_TEST}
+)
 
 # Ignore google test and goole mock warnings
-set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+set_target_properties(game-in-a-box-network-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
 target_link_libraries(
-  game-in-a-box-common-tests
-  game-in-a-box-common
+  game-in-a-box-network-tests
+  game-in-a-box-network
   ${CMAKE_THREAD_LIBS_INIT}
   gmock
   gmock_main
   ${Boost_LIBRARIES})
-  
+
 add_test(
-  NAME game-in-a-box-common-tests
-  COMMAND game-in-a-box-common-tests
+  NAME game-in-a-box-network-tests
+  COMMAND game-in-a-box-network-tests
 )
+
+###############
+# Server 
+###############    
+#add_executable(
+#game-in-a-box-server
+#source/Server/GameInABoxServer.cpp
+#source/Server/main.cpp)
+
+#set_target_properties(game-in-a-box-server PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+#target_link_libraries(game-in-a-box-server game-in-a-box-common ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+
+# RAM: TODO: Don't do this for cross compilation builds.
+#add_custom_command(TARGET game-in-a-box-server POST_BUILD COMMAND game-in-a-box-common-tests)
+    
+###############
+# Client 
+###############
+#source/Network/Test/TestDeltaCoder.cpp

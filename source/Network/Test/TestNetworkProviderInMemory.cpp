@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Common/Network/NetworkProviderInMemory.hpp>
+#include <Implementation/NetworkProviderInMemory.hpp>
 #include <gmock/gmock.h>
 #include <random>
 
@@ -26,7 +26,7 @@ using namespace std;
 using namespace boost::asio::ip;
 using Bytes = std::vector<uint8_t>;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 using Packets = std::vector<NetworkPacket>;
 

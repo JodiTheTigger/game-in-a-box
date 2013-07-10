@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Common/Network/PacketFragment.hpp>
-#include <Common/Network/PacketDelta.hpp>
+#include <Implementation/PacketFragment.hpp>
+#include <Implementation/PacketDelta.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
-using GameInABox::Common::WrappingCounter;
+using GameInABox::Network::WrappingCounter;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // Class definition!
 class TestPacketFragment : public ::testing::Test

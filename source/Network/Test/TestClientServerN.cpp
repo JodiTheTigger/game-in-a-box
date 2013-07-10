@@ -22,11 +22,11 @@
 #include <chrono>
 #include <memory>
 
-#include <Common/Network/NetworkManagerClientGuts.hpp>
-#include <Common/Network/NetworkManagerServerGuts.hpp>
-#include <Common/Network/MockINetworkProvider.hpp>
-#include <Common/Network/NetworkProviderInMemory.hpp>
-#include <Common/MockIStateManager.hpp>
+#include <Implementation/NetworkManagerClientGuts.hpp>
+#include <Implementation/NetworkManagerServerGuts.hpp>
+#include <Implementation/NetworkProviderInMemory.hpp>
+#include "MockINetworkProvider.hpp"
+#include "MockIStateManager.hpp"
 
 using namespace std;
 using namespace std::chrono;
@@ -51,7 +51,7 @@ testing::AssertionResult GotToEnd(int n, int total)
     }
 }
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // RAM: Each client needs a state mock, a random setting, and access to a data buffer to
 // get its fake delta data from. I would make a fake array filled with RLE friendly random data

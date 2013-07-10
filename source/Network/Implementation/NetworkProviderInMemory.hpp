@@ -33,7 +33,7 @@
 #include "Hash.hpp"
 #include "INetworkProvider.hpp"
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 class NetworkProviderInMemory final : public INetworkProvider
 {

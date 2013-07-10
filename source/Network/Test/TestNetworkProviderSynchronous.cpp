@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Common/Network/NetworkProviderSynchronous.hpp>
+#include <Implementation/NetworkProviderSynchronous.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
@@ -28,7 +28,7 @@ using Bytes = std::vector<uint8_t>;
 // NOTE: Don't run this test with Administrator / root priviliages
 // as it assumes it doesn't have permission to bind to ports < 1024.
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 using Packets = std::vector<NetworkPacket>;
 

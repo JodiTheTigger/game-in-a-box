@@ -24,9 +24,9 @@
 #include <array>
 #include <gmock/gmock.h>
 
-#include <Common/Network/Connection.hpp>
-#include <Common/Network/PacketDelta.hpp>
-#include <Common/MockIStateManager.hpp>
+#include <Implementation/Connection.hpp>
+#include <Implementation/PacketDelta.hpp>
+#include <MockIStateManager.hpp>
 
 using ::testing::Return;
 using ::testing::AtLeast;
@@ -36,7 +36,7 @@ using ::testing::StrictMock;
 using namespace std;
 using Bytes = std::vector<uint8_t>;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // NOTE: Don't test what you don't know from the public interface.
 class TestConnection : public ::testing::Test
@@ -218,8 +218,8 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     toTestServer.Process(delta.data);
 
     auto deltaResult = toTestServer.GetDefragmentedPacket();
-    auto id = Network::IdConnection(deltaResult);
-    auto payload = Network::ClientPayload(deltaResult);
+    auto id = Implementation::IdConnection(deltaResult);
+    auto payload = Implementation::ClientPayload(deltaResult);
 
     // client and server should be connected.
     EXPECT_TRUE(toTestServer.IsConnected());

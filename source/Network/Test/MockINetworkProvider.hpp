@@ -22,10 +22,10 @@
 #define MOCKINETWORKPROVIDER_HPP
 
 #include "gmock/gmock.h"
-#include <Common/Network/INetworkProvider.hpp>
-#include <Common/Network/NetworkPacket.hpp>
+#include <INetworkProvider.hpp>
+#include <NetworkPacket.hpp>
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network {
 
 class MockINetworkProvider final : public INetworkProvider
 {
@@ -38,6 +38,6 @@ public:
     MOCK_CONST_METHOD0(PrivateIsDisabled, bool ());
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // MOCKINETWORKPROVIDER_HPP

@@ -18,13 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/Packets.hpp>
+#include <Implementation/Packets.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
 using Bytes = std::vector<uint8_t>;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // Class definition!
 class TestPackets : public ::testing::Test

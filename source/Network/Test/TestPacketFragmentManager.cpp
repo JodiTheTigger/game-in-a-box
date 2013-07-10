@@ -18,13 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/PacketFragmentManager.hpp>
+#include <Implementation/PacketFragmentManager.hpp>
 #include <gmock/gmock.h>
 
 using namespace std;
-using GameInABox::Common::WrappingCounter;
+using GameInABox::Network::WrappingCounter;
 
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Network { namespace Implementation {
 
 // Class definition!
 class TestPacketFragmentManager : public ::testing::Test
