@@ -256,29 +256,34 @@ source/Network/Test/MockINetworkProvider.hpp
 source/Network/Test/MockIStateManager.hpp
 )
 
-# Move source and source network into an "unused" project.
+# RAM: TODO: Move source and source network into an "unused" project.
 # Change namespace to be the same.
-set(COMMON_SOURCE
-source/Common/PrecompiledHeaders.cpp
-source/Common/PrecompiledHeaders.hpp
-source/Common/AutoComplete.hpp
-source/Common/ReflectionKey.hpp
-source/Common/IReflected.cpp
-source/Common/RollingStatistics.cpp
-source/Common/AutoComplete.cpp
-source/Common/GameSimple.cpp
-source/Common/ReflectionManager.cpp
-source/Common/GameSimple.hpp
-source/Common/ReflectionManager.hpp
-source/Common/RollingStatistics.hpp
-source/Common/IReflected.hpp
-source/Common/BaseClassUniquePointer.hpp
+set(UNUSED
+source/Unused/PrecompiledHeaders.cpp
+source/Unused/PrecompiledHeaders.hpp
+source/Unused/AutoComplete.cpp
+source/Unused/AutoComplete.hpp
+source/Unused/IReflected.cpp
+source/Unused/IReflected.hpp
+source/Unused/GameSimple.cpp
+source/Unused/GameSimple.hpp
+source/Unused/ReflectionManager.cpp
+source/Unused/ReflectionManager.hpp
+source/Unused/RollingStatistics.hpp
+source/Unused/RollingStatistics.cpp
+source/Unused/ReflectionKey.hpp
+source/Unused/BaseClassUniquePointer.hpp
+source/Unused/DeltaMapItem.hpp
+source/Unused/DeltaCoder.hpp
+source/Unused/DeltaCoder-Implementation.hpp
 )
 
-set(COMMON_SOURCE_NETWORK
-source/Common/Network/DeltaMapItem.hpp
-source/Common/Network/DeltaCoder.hpp
-source/Common/Network/DeltaCoder-Implementation.hpp
+set(UNUSED_TEST
+source/Unused/Test/TestDeltaCoder.cpp
+source/Unused/Test/TestAutoComplete.cpp
+source/Unused/Test/TestIReflected.cpp
+source/Unused/Test/TestReflectionManager.cpp
+source/Unused/Test/TestRollingStatistics.cpp
 )
 
 ###############
@@ -341,6 +346,42 @@ target_link_libraries(
 add_test(
   NAME game-in-a-box-network-tests
   COMMAND game-in-a-box-network-tests
+)
+
+###############
+# Unused
+###############
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Unused/)
+
+add_library(
+game-in-a-box-unused
+${UNUSED}
+)
+
+set_target_properties(game-in-a-box-unused PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+
+# Testing
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Unused/Test)
+
+ADD_EXECUTABLE(
+game-in-a-box-unused-tests
+${UNUSED_TEST}
+)
+
+# Ignore google test and goole mock warnings
+set_target_properties(game-in-a-box-unused-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+
+target_link_libraries(
+  game-in-a-box-unused-tests
+  game-in-a-box-unused
+  ${CMAKE_THREAD_LIBS_INIT}
+  gmock
+  gmock_main
+  ${Boost_LIBRARIES})
+
+add_test(
+  NAME game-in-a-box-unused-tests
+  COMMAND game-in-a-box-unused-tests
 )
 
 ###############
