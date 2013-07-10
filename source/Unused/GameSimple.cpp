@@ -25,7 +25,7 @@
 
 #include "GameSimple.hpp"
 
-using namespace GameInABox::Common;
+using namespace GameInABox::Unused;
 using namespace GameInABox::Network;
 
 std::array<uint64_t, 256> GameSimple::PrivateGetHuffmanFrequencies() const

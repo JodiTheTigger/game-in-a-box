@@ -41,7 +41,7 @@
 //   if we actually have it, as opposed to fixing it now and making ownership complicated.
 
 using namespace std;
-using namespace GameInABox::Common;
+using namespace GameInABox::Unused;
 
 ReflectionManager::ReflectionManager()
     : myStringToClassAndKey()

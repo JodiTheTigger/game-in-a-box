@@ -27,7 +27,7 @@
 #include "AutoComplete.hpp"
 
 using namespace std;
-using namespace GameInABox::Common;
+using namespace GameInABox::Unused;
 
 // AutoComplete Notes:
 // ===================

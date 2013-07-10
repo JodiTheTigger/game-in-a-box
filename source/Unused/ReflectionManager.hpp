@@ -29,7 +29,7 @@
 #include <tuple>
 #endif
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 
 // forward declarations
 class IReflected;

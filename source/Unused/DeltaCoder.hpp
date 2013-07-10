@@ -40,10 +40,9 @@
 // Argh Includes
 #include "DeltaMapItem.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 class BitStreamReadOnly;
 class BitStream;
-namespace Network {
 
 template<class OBJECT>
 class DeltaCoder
@@ -75,7 +74,7 @@ private:
     const bool myResearchEncodeXorDeltas;
 };
 
-}}} // namespace
+}} // namespace
 
 // The only downside of templates
 #include "DeltaCoder-Implementation.hpp"

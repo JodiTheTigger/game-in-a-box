@@ -25,7 +25,7 @@
 
 using namespace std;
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 
 // Class definition!
 class TestAutoComplete : public ::testing::Test 

@@ -27,7 +27,7 @@
 #include <deque>
 #endif
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 
 // TODO: Make this a templated class, and make a std::array
 class RollingStatistics

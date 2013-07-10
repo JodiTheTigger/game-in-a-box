@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Common/Network/DeltaCoder.hpp>
-#include <Common/Network/DeltaMapItem.hpp>
+#include <DeltaCoder.hpp>
+#include <DeltaMapItem.hpp>
 #include <gtest/gtest.h>
 
 #include <string>
@@ -30,8 +30,7 @@
 using namespace std;
 using namespace GameInABox::Common;
 
-namespace GameInABox { namespace Common { namespace Network {
-
+namespace GameInABox { namespace Unused {
 // Class definition!
 class TestDeltaCoder : public ::testing::Test 
 {
@@ -216,4 +215,4 @@ TEST_F(TestDeltaCoder, RandomStates)
     }
 }
 
-}}} // namespace
+}} // namespace

@@ -27,7 +27,7 @@
 
 #include "IStateManager.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 
 class GameSimple : public GameInABox::Network::IStateManager
 {

@@ -29,7 +29,7 @@
 #include <deque>
 #endif
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 
 class AutoComplete
 {

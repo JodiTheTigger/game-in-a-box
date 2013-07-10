@@ -25,7 +25,7 @@
 #include <memory>
 #endif
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 
 // /////////////////////
 // Unique pointer that properly deletes a derived class

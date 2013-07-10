@@ -35,7 +35,7 @@
 #endif
 
 using namespace std;
-using namespace GameInABox::Common;
+using namespace GameInABox::Unused;
 
 RollingStatistics::RollingStatistics(uint32_t rollingBufferSizeInSamples)
     : mySamples()

@@ -32,7 +32,7 @@
 // therefore I cannot use a forward reference.
 #include "ReflectionKey.hpp"
 
-namespace GameInABox { namespace Common {
+namespace GameInABox { namespace Unused {
 
 // Reflection notes:
 // =================

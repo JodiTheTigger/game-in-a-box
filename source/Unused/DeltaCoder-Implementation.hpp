@@ -25,7 +25,7 @@
 #include "Common/BitStream.hpp"
 
 // NOTE! This is not a normal cpp file. don't use using!
-namespace GameInABox { namespace Common { namespace Network {
+namespace GameInABox { namespace Unused {
 
 template<class OBJECT>
 DeltaCoder<OBJECT>::DeltaCoder(
@@ -208,4 +208,4 @@ bool DeltaCoder<OBJECT>::DeltaEncode(
     return noChange;
 }
 
-}}} // namespace
+}} // namespace
