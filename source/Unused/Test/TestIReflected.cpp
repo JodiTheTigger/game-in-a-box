@@ -18,9 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <gtest/gtest.h>
-#include <Common/IReflected.hpp>
 #include <algorithm>
+#include <gtest/gtest.h>
+
+#include <IReflected.hpp>
 
 using namespace std;
 

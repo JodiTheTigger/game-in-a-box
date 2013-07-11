@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <gtest/gtest.h>
-#include <Common/AutoComplete.hpp>
-
 #include <algorithm>
+#include <gtest/gtest.h>
+
+#include <AutoComplete.hpp>
 
 using namespace std;
 

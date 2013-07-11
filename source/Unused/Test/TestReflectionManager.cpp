@@ -22,8 +22,8 @@
 
 #include <algorithm>
 
-#include <Common/IReflected.hpp>
-#include <Common/ReflectionManager.hpp>
+#include <IReflected.hpp>
+#include <ReflectionManager.hpp>
 
 using namespace std;
 

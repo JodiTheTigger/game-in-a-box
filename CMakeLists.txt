@@ -160,18 +160,17 @@ endif()
 # Third Party Libraries
 ###############
 
-# TODO! Move to 1.53.0 for c++11 support.
 # Clang needs 1.48 otherwise it doesn't build due to calling a deleted constructor.
 FIND_PACKAGE( Boost 1.48 COMPONENTS system thread REQUIRED )
 INCLUDE_DIRECTORIES( SYSTEM ${Boost_INCLUDE_DIR} )
+
 # Uses threads in Linuxland
 FIND_PACKAGE ( Threads )
 
 ###############
 # Source Code
 ###############
-# RAM: TODO: Clear up this mess. Library-fy network please.
-# Move No.hpp and Units.hpp into a common header directory maybe?
+# RAM: TODO: Move No.hpp and Units.hpp into a common header directory maybe?
 # Maybe BaseClassUniquePointer.hpp too if it's ever used?
 
 set(NETWORK_HEADERS
@@ -256,8 +255,6 @@ source/Network/Test/MockINetworkProvider.hpp
 source/Network/Test/MockIStateManager.hpp
 )
 
-# RAM: TODO: Move source and source network into an "unused" project.
-# Change namespace to be the same.
 set(UNUSED
 source/Unused/PrecompiledHeaders.cpp
 source/Unused/PrecompiledHeaders.hpp
@@ -314,7 +311,6 @@ include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmo
 ###############
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/Network/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Network/)
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Network/Implementation)
 
 add_library(
 game-in-a-box-network
@@ -371,9 +367,11 @@ ${UNUSED_TEST}
 # Ignore google test and goole mock warnings
 set_target_properties(game-in-a-box-unused-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
+# Somce test use bitstream, which makes them dependendent on Network
 target_link_libraries(
   game-in-a-box-unused-tests
   game-in-a-box-unused
+  game-in-a-box-network
   ${CMAKE_THREAD_LIBS_INIT}
   gmock
   gmock_main
@@ -386,7 +384,9 @@ add_test(
 
 ###############
 # Server 
-###############    
+###############
+# Commented out until I need it, will reuse when I'm in the state to
+# Do a full void main() executable for a client, server, and listen server client exe.
 #add_executable(
 #game-in-a-box-server
 #source/Server/GameInABoxServer.cpp
@@ -401,4 +401,4 @@ add_test(
 ###############
 # Client 
 ###############
-#source/Network/Test/TestDeltaCoder.cpp
+# ???

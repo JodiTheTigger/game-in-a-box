@@ -28,10 +28,10 @@
 #include <random>
 
 using namespace std;
-using namespace GameInABox::Common;
+using namespace GameInABox::Network::Implementation;
 
 namespace GameInABox { namespace Unused {
-// Class definition!
+
 class TestDeltaCoder : public ::testing::Test 
 {
 public:

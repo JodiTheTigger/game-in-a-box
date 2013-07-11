@@ -19,7 +19,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <Common/RollingStatistics.hpp>
+#include <RollingStatistics.hpp>
 #include <cmath>
 
 using namespace std;

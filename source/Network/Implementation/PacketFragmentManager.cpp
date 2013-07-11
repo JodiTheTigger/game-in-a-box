@@ -109,8 +109,16 @@ PacketDelta PacketFragmentManager::GetDefragmentedPacket()
         // deduplicate
         for (auto& fragment : myFragments)
         {
+            auto id = fragment.FragmentId();
+
+            // buffer size, and fragment count aren't 1 to 1.
+            if (id >= sorted.size())
+            {
+                sorted.resize(id + 1);
+            }
+
             // take the last duplicate.
-            sorted[fragment.FragmentId()] = &fragment;
+            sorted[id] = &fragment;
         }
 
         // have we got all the packets?

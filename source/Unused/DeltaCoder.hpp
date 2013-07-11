@@ -40,9 +40,14 @@
 // Argh Includes
 #include "DeltaMapItem.hpp"
 
-namespace GameInABox { namespace Unused {
+namespace GameInABox { namespace Network { namespace Implementation {
 class BitStreamReadOnly;
 class BitStream;
+
+}}} // namespace
+
+
+namespace GameInABox { namespace Unused {
 
 template<class OBJECT>
 class DeltaCoder
@@ -58,14 +63,14 @@ public:
     void DeltaDecode(
         const OBJECT* base,
         OBJECT& result, 
-        BitStreamReadOnly& dataIn) const;
+        GameInABox::Network::Implementation::BitStreamReadOnly& dataIn) const;
 
     // if base == nullptr use the identity
     // Returns true if base == toDelta, otherwise false.
     bool DeltaEncode(
         const OBJECT* base, 
         const OBJECT& toDelta,
-        BitStream& dataOut) const;
+        GameInABox::Network::Implementation::BitStream& dataOut) const;
         
 private:
     const std::vector<DeltaMapItem> myDeltaMap;    
