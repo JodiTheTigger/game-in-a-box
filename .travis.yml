@@ -51,7 +51,7 @@ script:
   - make
   - ctest --output-on-failure
 
-# RAM: TODO: Make a supression file for all the gmock warnings.
-#after_success:
-# - valgrind --leak-check=full --show-reachable=yes ./game-in-a-box-common-tests
+after_success:
+ - valgrind -v --leak-check=full --show-reachable=yes --suppressions=../source/Network/Test/Network.supp --track-origins=yes  ./game-in-a-box-network-tests
+# - valgrind -v --leak-check=full --show-reachable=yes --suppressions=../source/Network/Test/Network.supp --track-origins=yes  ./game-in-a-box-unused-tests
 
