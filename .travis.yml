@@ -49,6 +49,7 @@ script:
   - cd build
   - cmake ../
   - make
+  - ctest --output-on-failure
 
 # RAM: TODO: Make a supression file for all the gmock warnings.
 #after_success:
