@@ -49,9 +49,8 @@ script:
   - cd build
   - cmake ../
   - make
-  - ctest --output-on-failure
 
 after_success:
  - valgrind -v --leak-check=full --show-reachable=yes --suppressions=../source/Network/Test/Network.supp --track-origins=yes  ./game-in-a-box-network-tests
-# - valgrind -v --leak-check=full --show-reachable=yes --suppressions=../source/Network/Test/Network.supp --track-origins=yes  ./game-in-a-box-unused-tests
+ - valgrind -v --leak-check=full --show-reachable=yes                                                    --track-origins=yes  ./game-in-a-box-unused-tests
 
