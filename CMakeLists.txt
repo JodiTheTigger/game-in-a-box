@@ -236,23 +236,23 @@ source/Network/Implementation/XorCode.hpp
 )
 
 set(NETWORK_TEST
-source/Network/Test/TestConnection.cpp
-source/Network/Test/TestPackets.cpp
-source/Network/Test/TestPacketDelta.cpp
-source/Network/Test/TestPacketFragment.cpp
-source/Network/Test/TestPacketFragmentManager.cpp
-source/Network/Test/TestXorCode.cpp
-source/Network/Test/TestBufferSerialisation.cpp
-source/Network/Test/TestNetworkProviderSynchronous.cpp
-source/Network/Test/TestNetworkProviderInMemory.cpp
-source/Network/Test/TestClientServer.cpp
-source/Network/Test/TestClientServerN.cpp
-source/Network/Test/TestWrappingCounter.cpp
-source/Network/Test/TestHuffman.cpp
-source/Network/Test/TestBitStreamReadOnly.cpp
-source/Network/Test/TestBitStream.cpp
-source/Network/Test/MockINetworkProvider.hpp
-source/Network/Test/MockIStateManager.hpp
+test/Network/TestConnection.cpp
+test/Network/TestPackets.cpp
+test/Network/TestPacketDelta.cpp
+test/Network/TestPacketFragment.cpp
+test/Network/TestPacketFragmentManager.cpp
+test/Network/TestXorCode.cpp
+test/Network/TestBufferSerialisation.cpp
+test/Network/TestNetworkProviderSynchronous.cpp
+test/Network/TestNetworkProviderInMemory.cpp
+test/Network/TestClientServer.cpp
+test/Network/TestClientServerN.cpp
+test/Network/TestWrappingCounter.cpp
+test/Network/TestHuffman.cpp
+test/Network/TestBitStreamReadOnly.cpp
+test/Network/TestBitStream.cpp
+test/Network/MockINetworkProvider.hpp
+test/Network/MockIStateManager.hpp
 )
 
 set(UNUSED
@@ -276,11 +276,11 @@ source/Unused/DeltaCoder-Implementation.hpp
 )
 
 set(UNUSED_TEST
-source/Unused/Test/TestDeltaCoder.cpp
-source/Unused/Test/TestAutoComplete.cpp
-source/Unused/Test/TestIReflected.cpp
-source/Unused/Test/TestReflectionManager.cpp
-source/Unused/Test/TestRollingStatistics.cpp
+test/Unused/TestDeltaCoder.cpp
+test/Unused/TestAutoComplete.cpp
+test/Unused/TestIReflected.cpp
+test/Unused/TestReflectionManager.cpp
+test/Unused/TestRollingStatistics.cpp
 )
 
 ###############
@@ -311,6 +311,7 @@ include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmo
 ###############
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/Network/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Network/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/Network/)
 
 add_library(
 game-in-a-box-network
@@ -351,6 +352,7 @@ add_custom_command(TARGET game-in-a-box-network-tests POST_BUILD COMMAND game-in
 # Unused
 ###############
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Unused/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/Unused/)
 
 add_library(
 game-in-a-box-unused
