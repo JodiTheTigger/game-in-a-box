@@ -344,6 +344,9 @@ add_test(
   COMMAND game-in-a-box-network-tests
 )
 
+# run tests after every build please.
+add_custom_command(TARGET game-in-a-box-network-tests POST_BUILD COMMAND game-in-a-box-network-tests)
+
 ###############
 # Unused
 ###############
@@ -381,6 +384,9 @@ add_test(
   NAME game-in-a-box-unused-tests
   COMMAND game-in-a-box-unused-tests
 )
+
+# run tests after every build please.
+add_custom_command(TARGET game-in-a-box-unused-tests POST_BUILD COMMAND game-in-a-box-unused-tests)
 
 ###############
 # Server 
