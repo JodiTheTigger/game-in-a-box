@@ -1,5 +1,5 @@
 {
-   boost-random-uuid
+   random-uuid-boost
    Memcheck:Cond
    fun:_ZN5boost6random23mersenne_twister_engineIjLm32ELm624ELm397ELm31ELj2567483615ELm11ELj4294967295ELm7ELj2636928640ELm15ELj4022730752ELm18ELj1812433253EE4seedINS_5uuids6detail18generator_iteratorINS5_8seed_rngEEEEEvRT_S9_
    fun:_ZN5boost5uuids6detail4seedINS_6random23mersenne_twister_engineIjLm32ELm624ELm397ELm31ELj2567483615ELm11ELj4294967295ELm7ELj2636928640ELm15ELj4022730752ELm18ELj1812433253EEEEEvRT_
@@ -9,7 +9,7 @@
 }
 
 {
-   boost-random-uuid-compare
+   random-uuid-boost-compare
    Memcheck:Cond
    fun:bcmp
    fun:_ZNSt7__equalILb1EE5equalIhEEbPKT_S4_S4_
@@ -20,28 +20,28 @@
 }
 
 {
-   boost-random-uuid-compare2
+   random-uuid-boost-compare2
    Memcheck:Value8
    fun:_ZNK10GameInABox7Network14Implementation7Huffman6DecodeERKSt6vectorIhSaIhEE
    ...
 }
 
 {
-   boost-random-uuid-compare3
+   random-uuid-boost-compare3
    Memcheck:Cond
    fun:_ZN10GameInABox7Network14Implementation10Connection12DisconnectedERKSt6vectorIhSaIhEE
    ...
 }
 
 {
-   boost-random-uuid-is_nill
+   random-uuid-boost-is_nill
    Memcheck:Cond
    fun:_ZNK5boost5uuids4uuid6is_nilEv
    ...
 }
 
 {
-   gameinabox-network-testing-uuid
+   random-uuid-gameinabox-network-testing
    Memcheck:Cond
    fun:_ZN10GameInABox7Network14Implementation10Connection7ProcessESt6vectorIhSaIhEE
    ...
@@ -50,14 +50,14 @@
 
 
 {
-   gtest-boost-random-uuid-compare1
+   random-uuid-gtest-boost-compare
    Memcheck:Cond
    fun:_ZN7testing8internal11CmpHelperNEIN5boost5uuids4uuidES4_EENS_15AssertionResultEPKcS7_RKT_RKT0_
    ...
 }
 
 {
-   gtest-boost-random-uuid-compare2
+    random-uuid-gtest-boost-compare
    Memcheck:Cond
    fun:_ZN7testing8internal11CmpHelperEQIN5boost5uuids4uuidES4_EENS_15AssertionResultEPKcS7_RKT_RKT0_
    ...
