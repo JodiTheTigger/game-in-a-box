@@ -57,6 +57,7 @@ project(game-in-a-box C CXX)
 check_cxx_compiler_flag("-std=c++11" HAS_CPP11)
 check_cxx_compiler_flag("-std=c++0x" HAS_CPP0X)
 check_cxx_compiler_flag("-fno-rtti" CAN_DISABLE_RTTI)
+check_cxx_compiler_flag("-fstrict-aliasing" CAN_DISABLE_ALIASING)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
 check_cxx_compiler_flag(-Wall HAS_WALL)
 check_cxx_compiler_flag(-W4 HAS_W4)
@@ -153,6 +154,14 @@ if (HAS_IGNORE_MISMATCHED_TAGS)
     # Ignore due to implmenting std::hash templates the standard uses
     # both struct hash and class hash. Not much I can do there.
     set(IGNOREWARNINGS_FLAGS "${IGNOREWARNINGS_FLAGS} -Wno-mismatched-tags")
+endif()
+
+if (CAN_DISABLE_ALIASING)
+    # Tell the compiler I'm not doing anything fancy like aliasing my pointers.
+    # But watch out, this can cause all sorts of weird, unwarnable bugs if you're
+    # Not careful.
+    # http://dbp-consulting.com/tutorials/StrictAliasing.html
+    set(PARANOID_FLAGS "${PARANOID_FLAGS} -fstrict-aliasing")
 endif()
 
 
