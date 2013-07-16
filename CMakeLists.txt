@@ -264,6 +264,10 @@ test/Network/MockINetworkProvider.hpp
 test/Network/MockIStateManager.hpp
 )
 
+set(STATE
+source/State/Implementation/Types.hpp
+)
+
 set(UNUSED
 source/Unused/PrecompiledHeaders.cpp
 source/Unused/PrecompiledHeaders.hpp
@@ -330,9 +334,6 @@ ${NETWORK}
 
 set_target_properties(game-in-a-box-network PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
-# Testing
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Network/Test)
-
 ADD_EXECUTABLE(
 game-in-a-box-network-tests
 ${NETWORK_TEST}
@@ -356,6 +357,45 @@ add_test(
 
 # run tests after every build please.
 add_custom_command(TARGET game-in-a-box-network-tests POST_BUILD COMMAND game-in-a-box-network-tests)
+
+###############
+# State
+###############
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/State/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/State/)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/State/)
+
+#add_library(
+#game-in-a-box-state
+#${STATE_HEADERS}
+#${STATE}
+#)
+
+#set_target_properties(game-in-a-box-state PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+
+#ADD_EXECUTABLE(
+#game-in-a-box-state-tests
+#${STATE_TEST}
+#)
+
+# Ignore google test and goole mock warnings
+#set_target_properties(game-in-a-box-state-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+
+#target_link_libraries(
+#  game-in-a-box-state-tests
+#  game-in-a-box-state
+#  ${CMAKE_THREAD_LIBS_INIT}
+#  gmock
+#  gmock_main
+#  ${Boost_LIBRARIES})
+
+#add_test(
+#  NAME game-in-a-box-state-tests
+#  COMMAND game-in-a-box-state-tests
+#)
+
+# run tests after every build please.
+#add_custom_command(TARGET game-in-a-box-state-tests POST_BUILD COMMAND game-in-a-box-state-tests)
 
 ###############
 # Unused
