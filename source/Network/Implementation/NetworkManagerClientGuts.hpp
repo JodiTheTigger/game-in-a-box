@@ -21,12 +21,10 @@
 #ifndef NETWORKMANAGERCLIENTGUTS_H
 #define NETWORKMANAGERCLIENTGUTS_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <array>
 #include <utility>
 #include <boost/asio/ip/udp.hpp>
-#endif
 
 #include "IStateManager.hpp"
 #include "Huffman.hpp"

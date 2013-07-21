@@ -18,13 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/nil_generator.hpp>
 #include <boost/uuid/random_generator.hpp>
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
 
 #include "NetworkKey.hpp"
 

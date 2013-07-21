@@ -21,13 +21,11 @@
 #ifndef NETWORKPROVIDERINMEMORY_HPP
 #define NETWORKPROVIDERINMEMORY_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
 #include <boost/asio.hpp>
 #include <unordered_map>
 #include <chrono>
 #include <functional>
-#endif
 
 #include "Units.hpp"
 #include "Hash.hpp"

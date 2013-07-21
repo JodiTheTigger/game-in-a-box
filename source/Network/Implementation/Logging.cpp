@@ -18,11 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef USING_PRECOMPILED_HEADERS
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
-
 #include "Logging.hpp"
 
 namespace GameInABox { namespace Network { namespace Implementation {

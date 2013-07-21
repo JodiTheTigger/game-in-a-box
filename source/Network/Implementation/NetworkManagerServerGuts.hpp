@@ -21,13 +21,11 @@
 #ifndef NETWORKMANAGERSERVERGUTS_H
 #define NETWORKMANAGERSERVERGUTS_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
 #include <boost/optional.hpp>
 #include <boost/asio/ip/udp.hpp>
-#endif
 
 #include "Sequence.hpp"
 #include "Huffman.hpp"

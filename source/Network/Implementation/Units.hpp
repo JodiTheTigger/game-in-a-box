@@ -21,9 +21,7 @@
 #ifndef UNITS_HPP
 #define UNITS_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <chrono>
-#endif
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

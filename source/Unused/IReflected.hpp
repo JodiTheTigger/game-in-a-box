@@ -21,12 +21,10 @@
 #ifndef IREFLECTED_H
 #define IREFLECTED_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <string>
 #include <map>
 #include <vector>
 #include <memory>
-#endif
 
 // I want ReflectionKey values for my interface,
 // therefore I cannot use a forward reference.

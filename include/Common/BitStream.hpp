@@ -21,11 +21,9 @@
 #ifndef BITSTREAM_H
 #define BITSTREAM_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <memory>
-#endif
 
 #include "BitStreamReadOnly.hpp"
 

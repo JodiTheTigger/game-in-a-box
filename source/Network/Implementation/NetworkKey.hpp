@@ -21,9 +21,7 @@
 #ifndef NETWORKKEY_HPP
 #define NETWORKKEY_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <boost/uuid/uuid.hpp>
-#endif
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

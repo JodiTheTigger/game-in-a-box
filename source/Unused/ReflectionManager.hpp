@@ -21,13 +21,11 @@
 #ifndef REFLECTIONMANAGER_H
 #define REFLECTIONMANAGER_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <map>
 #include <string>
 #include <memory>
 #include <vector>
 #include <tuple>
-#endif
 
 namespace GameInABox { namespace Unused {
 

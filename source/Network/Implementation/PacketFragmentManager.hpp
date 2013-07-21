@@ -21,9 +21,7 @@
 #ifndef PACKETFRAGMENTMANAGER_H
 #define PACKETFRAGMENTMANAGER_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
-#endif
 
 #include "PacketDelta.hpp"
 #include "PacketFragment.hpp"

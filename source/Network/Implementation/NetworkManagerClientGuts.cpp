@@ -31,16 +31,11 @@
 
 #include <Common/BufferSerialisation.hpp>
 
-// RAM: TODO: Remove precompiled header stuff.
-#ifndef USING_PRECOMPILED_HEADERS
 #include <string>
 #include <chrono>
 #include <vector>
 #include <memory>
 #include <array>
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
 
 using std::string;
 using namespace std::chrono;

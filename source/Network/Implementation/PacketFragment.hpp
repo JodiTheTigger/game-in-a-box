@@ -21,9 +21,6 @@
 #ifndef PACKETFRAGMENT_HPP
 #define PACKETFRAGMENT_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
-#endif
-
 #include "Sequence.hpp"
 #include "Packet.hpp"
 

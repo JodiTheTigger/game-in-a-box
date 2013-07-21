@@ -21,13 +21,12 @@
 #ifndef HANDSHAKE_HPP
 #define HANDSHAKE_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <string>
 #include <chrono>
 #include <functional>
+
 #include <boost/optional.hpp>
-#endif
 
 #include "Units.hpp"
 #include "ClientHandle.hpp"

@@ -18,13 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
 
 #include "RollingStatistics.hpp"
 

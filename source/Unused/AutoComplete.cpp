@@ -18,11 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <algorithm>
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
 
 #include "AutoComplete.hpp"
 

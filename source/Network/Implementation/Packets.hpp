@@ -21,9 +21,7 @@
 #ifndef PACKETQUERIESKEY_H
 #define PACKETQUERIESKEY_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <boost/optional.hpp>
-#endif
 
 #include "Packet.hpp"
 #include "PacketCommand.hpp"

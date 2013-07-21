@@ -18,13 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef NetworkProviderSynchronous_H
-#define NetworkProviderSynchronous_H
+#ifndef NETWORKPROVIDERSYNCHRONOUS_H
+#define NETWORKPROVIDERSYNCHRONOUS_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
 #include <boost/asio.hpp>
-#endif
 
 #include "INetworkProvider.hpp"
 
@@ -58,4 +56,4 @@ private:
 
 }}} // namespace
 
-#endif // NetworkProviderSynchronous_H
+#endif // NETWORKPROVIDERSYNCHRONOUS_H

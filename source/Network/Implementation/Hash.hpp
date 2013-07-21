@@ -21,9 +21,7 @@
 #ifndef HASH_HPP
 #define HASH_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <boost/asio/ip/udp.hpp>
-#endif
 
 // Hash functions for boost::asio addresses.
 // NOTE: Will produce mismatched-tags warnings because the standard uses

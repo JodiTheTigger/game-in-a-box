@@ -21,12 +21,10 @@
 #ifndef XORCODE_H
 #define XORCODE_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <type_traits>
 #include <array>
-#endif
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

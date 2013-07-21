@@ -21,9 +21,7 @@
 #ifndef BASSCLASSUNIQUEPOINTER_HPP
 #define BASSCLASSUNIQUEPOINTER_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
-#endif
 
 namespace GameInABox { namespace Unused {
 

@@ -281,8 +281,6 @@ source/State/Implementation/BitWriter.hpp
 )
 
 set(UNUSED
-source/Unused/PrecompiledHeaders.cpp
-source/Unused/PrecompiledHeaders.hpp
 source/Unused/AutoComplete.cpp
 source/Unused/AutoComplete.hpp
 source/Unused/IReflected.cpp

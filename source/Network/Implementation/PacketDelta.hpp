@@ -21,9 +21,7 @@
 #ifndef PACKETDELTA_HPP
 #define PACKETDELTA_HPP
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <boost/optional.hpp>
-#endif
 
 #include "Sequence.hpp"
 #include "Packet.hpp"

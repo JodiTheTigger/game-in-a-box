@@ -23,7 +23,6 @@
 
 #include <Common/BitStream.hpp>
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <queue>
 #include <stdexcept>
 #include <map>
@@ -31,9 +30,6 @@
 #include <iostream>
 #include <bitset>
 #include <string>
-#else
-#include "Common/PrecompiledHeaders.hpp"
-#endif
 
 using namespace std;
 using namespace GameInABox::Network::Implementation;

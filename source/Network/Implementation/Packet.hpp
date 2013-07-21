@@ -21,11 +21,9 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
 #include <string>
-#endif
 
 #include "Sequence.hpp"
 

@@ -30,12 +30,10 @@
 #ifndef IDELTACODER_H
 #define IDELTACODER_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <memory>
-#endif
 
 // Argh Includes
 #include "DeltaMapItem.hpp"

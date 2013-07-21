@@ -21,9 +21,7 @@
 #ifndef GAMEINABOX_H
 #define GAMEINABOX_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
-#endif
 
 #include "IStateManager.hpp"
 

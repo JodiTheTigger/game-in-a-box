@@ -21,11 +21,9 @@
 #ifndef BUFFERSERIALISATION_H
 #define BUFFERSERIALISATION_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <type_traits>
 #include <iterator>
-#endif
 
 namespace GameInABox { namespace Common {
 

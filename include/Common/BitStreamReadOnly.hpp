@@ -21,10 +21,8 @@
 #ifndef BITSTREAMREADONLY_H
 #define BITSTREAMREADONLY_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <vector>
-#endif
 
 #include "No.hpp"
 

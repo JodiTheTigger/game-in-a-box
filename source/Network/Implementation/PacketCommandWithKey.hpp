@@ -21,11 +21,9 @@
 #ifndef PACKETCOMMANDWITHKEY_H
 #define PACKETCOMMANDWITHKEY_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <cstdint>
 #include <string>
 #include <vector>
-#endif
 
 #include "Packet.hpp"
 #include "NetworkKey.hpp"

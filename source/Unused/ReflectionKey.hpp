@@ -21,9 +21,7 @@
 #ifndef IREFLECTIONKEY_H
 #define IREFLECTIONKEY_H
 
-#ifndef USING_PRECOMPILED_HEADERS
 #include <memory>
-#endif
 
 namespace GameInABox { namespace Unused {
 
