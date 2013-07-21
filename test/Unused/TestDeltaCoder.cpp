@@ -20,6 +20,7 @@
 
 #include <DeltaCoder.hpp>
 #include <DeltaMapItem.hpp>
+
 #include <gtest/gtest.h>
 
 #include <string>
@@ -28,7 +29,7 @@
 #include <random>
 
 using namespace std;
-using namespace GameInABox::Network::Implementation;
+using namespace GameInABox::Common;
 
 namespace GameInABox { namespace Unused {
 

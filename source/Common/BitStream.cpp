@@ -26,7 +26,7 @@
 #include "BitStream.hpp"
 
 using namespace std;
-using namespace GameInABox::Network::Implementation;
+using namespace GameInABox::Common;
 
 BitStream::BitStream(uint32_t initialCapacityInBytes)
     : BitStreamReadOnly({})

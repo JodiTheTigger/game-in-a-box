@@ -18,14 +18,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+// RAM: TODO: REMOVE
 #ifndef USING_PRECOMPILED_HEADERS
 #else
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
 #include "PacketFragment.hpp"
-#include "BufferSerialisation.hpp"
 
+#include <Common/BufferSerialisation.hpp>
+
+using namespace GameInABox::Common;
 using namespace GameInABox::Network::Implementation;
 
 bool PacketFragment::IsPacket(const std::vector<uint8_t>& buffer)

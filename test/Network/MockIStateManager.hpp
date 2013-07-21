@@ -22,9 +22,8 @@
 #define MOCKISTATEMANAGER_HPP
 
 #include "gmock/gmock.h"
-#include <IStateManager.hpp>
-#include <Implementation/BitStream.hpp>
-#include <Implementation/BitStreamReadOnly.hpp>
+
+#include <Network/IStateManager.hpp>
 
 namespace GameInABox { namespace Network {
 

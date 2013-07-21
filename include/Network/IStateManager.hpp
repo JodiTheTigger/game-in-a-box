@@ -21,21 +21,22 @@
 #ifndef ISTATEMANAGER_H
 #define ISTATEMANAGER_H
 
-#include <cstdint>
-#include <vector>
-#include <string>
-#include <array>
-#include <boost/optional.hpp>
-
-#include "No.hpp"
 #include "Sequence.hpp"
 #include "ClientHandle.hpp"
 #include "Delta.hpp"
 
+#include <Common/No.hpp>
+
+#include <boost/optional.hpp>
+#include <cstdint>
+#include <vector>
+#include <string>
+#include <array>
+
 namespace GameInABox { namespace Network {
 
 // All methods are assumed to be multithreading and reentrance UNSAFE, unless told otherwise.
-class IStateManager : NoCopyMoveNorAssign
+class IStateManager : GameInABox::Common::NoCopyMoveNorAssign
 {
 public:
     std::array<uint64_t, 256> GetHuffmanFrequencies() const;

@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include <Common/BufferSerialisation.hpp>
 
-#include <Implementation/BufferSerialisation.hpp>
 #include <gmock/gmock.h>
 
 #include <limits>
@@ -29,7 +29,7 @@
 
 using namespace std;
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 template <typename T>
 class TestBufferSerialisation : public ::testing::Test
@@ -83,4 +83,4 @@ TYPED_TEST(TestBufferSerialisation, PushPullRandomVector)
     EXPECT_EQ(result, TestFixture::maxValue - 24);
 }
 
-}}} // namespace
+}} // namespace

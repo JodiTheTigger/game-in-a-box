@@ -18,6 +18,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include "NetworkManagerClientGuts.hpp"
+
+#include "Logging.hpp"
+#include "IStateManager.hpp"
+
+#include "INetworkProvider.hpp"
+#include "NetworkPacket.hpp"
+#include "PacketDelta.hpp"
+#include "XorCode.hpp"
+#include "Connection.hpp"
+
+#include <Common/BufferSerialisation.hpp>
+
+// RAM: TODO: Remove precompiled header stuff.
 #ifndef USING_PRECOMPILED_HEADERS
 #include <string>
 #include <chrono>
@@ -28,21 +42,10 @@
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "Logging.hpp"
-#include "IStateManager.hpp"
-
-#include "INetworkProvider.hpp"
-#include "NetworkPacket.hpp"
-#include "PacketDelta.hpp"
-#include "XorCode.hpp"
-#include "BufferSerialisation.hpp"
-#include "Connection.hpp"
-
-#include "NetworkManagerClientGuts.hpp"
-
 using std::string;
 using namespace std::chrono;
 using namespace GameInABox::Network::Implementation;
+using namespace GameInABox::Common;
 
 NetworkManagerClientGuts::NetworkManagerClientGuts(
         INetworkProvider &network,

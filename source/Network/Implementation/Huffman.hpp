@@ -29,9 +29,6 @@
 #endif
 
 namespace GameInABox { namespace Network { namespace Implementation {
-
-// forward references
-class BitStream;
 class Node;
 
 // Based off http://rosettacode.org/wiki/Huffman_coding#C.2B.2B

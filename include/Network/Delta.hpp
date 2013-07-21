@@ -23,6 +23,8 @@
 
 #include "Sequence.hpp"
 
+#include <vector>
+
 namespace GameInABox { namespace Network {
 
 struct Delta

@@ -21,14 +21,15 @@
 #ifndef NETWORKPROVIDER_H
 #define NETWORKPROVIDER_H
 
-#include <vector>
-
-#include "No.hpp"
 #include "NetworkPacket.hpp"
+
+#include <Common/No.hpp>
+
+#include <vector>
 
 namespace GameInABox { namespace Network {
 
-class INetworkProvider : NoCopyMoveNorAssign
+class INetworkProvider : GameInABox::Common::NoCopyMoveNorAssign
 {
 public:
     // Can return empty array.

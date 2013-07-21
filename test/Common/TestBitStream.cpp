@@ -19,11 +19,11 @@
 */
 
 #include <gtest/gtest.h>
-#include <Implementation/BitStream.hpp>
+#include <BitStream.hpp>
 
 using namespace std;
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 // Class definition!
 class TestBitStream : public ::testing::Test 
@@ -256,4 +256,4 @@ TEST_F(TestBitStream, Huffman12BitsBug)
 
 }
 
-}}} // namespace
+}} // namespace

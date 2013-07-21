@@ -21,14 +21,14 @@
 #ifndef INETWORKMANAGER_H
 #define INETWORKMANAGER_H
 
+#include "Common/No.hpp"
+
 #include <memory>
 #include <vector>
 
-#include "No.hpp"
-
 namespace GameInABox { namespace Network {
 
-class INetworkManager : NoCopyMoveNorAssign
+class INetworkManager : GameInABox::Common::NoCopyMoveNorAssign
 {
 public:
     // Processes all waiting packets.

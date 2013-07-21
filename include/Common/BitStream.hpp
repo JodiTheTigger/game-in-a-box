@@ -29,7 +29,7 @@
 
 #include "BitStreamReadOnly.hpp"
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 class BitStream : public BitStreamReadOnly
 {
@@ -55,6 +55,6 @@ private:
     uint64_t myCurrentBitCount;
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // BITSTREAM_H

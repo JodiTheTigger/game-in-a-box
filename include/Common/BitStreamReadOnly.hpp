@@ -28,7 +28,7 @@
 
 #include "No.hpp"
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 class BitStreamReadOnly : NoCopyMoveNorAssign
 {
@@ -55,6 +55,6 @@ private:
     uint64_t myBitIndex;
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // BITSTREAMREADONLY_H

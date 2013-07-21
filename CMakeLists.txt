@@ -182,6 +182,13 @@ FIND_PACKAGE ( Threads )
 # RAM: TODO: Move No.hpp and Units.hpp into a common header directory maybe?
 # Maybe BaseClassUniquePointer.hpp too if it's ever used?
 
+set(COMMON_HEADERS
+include/Common/No.hpp
+include/Common/BitStream.hpp
+include/Common/BitStreamReadOnly.hpp
+include/Common/BufferSerialisation.hpp
+)
+
 set(NETWORK_HEADERS
 include/Network/ClientHandle.hpp
 include/Network/Delta.hpp
@@ -191,9 +198,13 @@ include/Network/IStateManager.hpp
 include/Network/NetworkManagerClient.hpp
 include/Network/NetworkManagerServer.hpp
 include/Network/NetworkPacket.hpp
-include/Network/No.hpp
 include/Network/Sequence.hpp
 include/Network/WrappingCounter.hpp
+)
+
+set(COMMON
+source/Common/BitStream.cpp
+source/Common/BitStreamReadOnly.cpp
 )
 
 set(NETWORK
@@ -202,11 +213,6 @@ source/Network/INetworkProvider.cpp
 source/Network/IStateManager.cpp
 source/Network/NetworkManagerClient.cpp
 source/Network/NetworkManagerServer.cpp
-source/Network/Implementation/BitStream.cpp
-source/Network/Implementation/BitStream.hpp
-source/Network/Implementation/BitStreamReadOnly.hpp
-source/Network/Implementation/BitStreamReadOnly.cpp
-source/Network/Implementation/BufferSerialisation.hpp
 source/Network/Implementation/Connection.cpp
 source/Network/Implementation/Connection.hpp
 source/Network/Implementation/Hash.hpp
@@ -244,6 +250,12 @@ source/Network/Implementation/Units.hpp
 source/Network/Implementation/XorCode.hpp
 )
 
+set(COMMON_TEST
+test/Common/TestBitStreamReadOnly.cpp
+test/Common/TestBitStream.cpp
+test/Common/TestBufferSerialisation.cpp
+)
+
 set(NETWORK_TEST
 test/Network/TestConnection.cpp
 test/Network/TestPackets.cpp
@@ -251,21 +263,21 @@ test/Network/TestPacketDelta.cpp
 test/Network/TestPacketFragment.cpp
 test/Network/TestPacketFragmentManager.cpp
 test/Network/TestXorCode.cpp
-test/Network/TestBufferSerialisation.cpp
 test/Network/TestNetworkProviderSynchronous.cpp
 test/Network/TestNetworkProviderInMemory.cpp
 test/Network/TestClientServer.cpp
 test/Network/TestClientServerN.cpp
 test/Network/TestWrappingCounter.cpp
 test/Network/TestHuffman.cpp
-test/Network/TestBitStreamReadOnly.cpp
-test/Network/TestBitStream.cpp
 test/Network/MockINetworkProvider.hpp
 test/Network/MockIStateManager.hpp
 )
 
 set(STATE
+source/State/Implementation/Delta.hpp
+source/State/Implementation/Delta.cpp
 source/State/Implementation/Types.hpp
+source/State/Implementation/BitWriter.hpp
 )
 
 set(UNUSED
@@ -320,6 +332,49 @@ add_subdirectory(third-party/gmock-1.6.0)
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
 ###############
+# Common
+###############
+
+# Everyone has access to include.
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/Common/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/Common/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/Common/)
+
+add_library(
+game-in-a-box-common
+${COMMON_HEADERS}
+${COMMON}
+)
+
+set_target_properties(game-in-a-box-common PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+
+ADD_EXECUTABLE(
+game-in-a-box-common-tests
+${COMMON_TEST}
+)
+
+# Ignore google test and goole mock warnings
+set_target_properties(game-in-a-box-common-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+
+target_link_libraries(
+  game-in-a-box-common-tests
+  game-in-a-box-common
+  ${CMAKE_THREAD_LIBS_INIT}
+  gmock
+  gmock_main
+  ${Boost_LIBRARIES})
+
+add_test(
+  NAME game-in-a-box-common-tests
+  COMMAND game-in-a-box-common-tests
+)
+
+# run tests after every build please.
+add_custom_command(TARGET game-in-a-box-common-tests POST_BUILD COMMAND game-in-a-box-common-tests)
+
+###############
 # Network
 ###############
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/Network/)
@@ -345,6 +400,7 @@ set_target_properties(game-in-a-box-network-tests PROPERTIES COMPILE_FLAGS "${PA
 target_link_libraries(
   game-in-a-box-network-tests
   game-in-a-box-network
+  game-in-a-box-common
   ${CMAKE_THREAD_LIBS_INIT}
   gmock
   gmock_main
@@ -362,16 +418,16 @@ add_custom_command(TARGET game-in-a-box-network-tests POST_BUILD COMMAND game-in
 # State
 ###############
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/State/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/State/)
+##include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/State/)
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/State/)
 
-#add_library(
-#game-in-a-box-state
+##add_library(
+##game-in-a-box-state
 #${STATE_HEADERS}
-#${STATE}
-#)
+##${STATE}
+##)
 
-#set_target_properties(game-in-a-box-state PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+##set_target_properties(game-in-a-box-state PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
 #ADD_EXECUTABLE(
 #game-in-a-box-state-tests
@@ -426,6 +482,7 @@ target_link_libraries(
   game-in-a-box-unused-tests
   game-in-a-box-unused
   game-in-a-box-network
+  game-in-a-box-common
   ${CMAKE_THREAD_LIBS_INIT}
   gmock
   gmock_main

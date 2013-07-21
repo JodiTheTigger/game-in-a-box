@@ -19,11 +19,11 @@
 */
 
 #include <gtest/gtest.h>
-#include <Implementation/BitStreamReadOnly.hpp>
+#include <BitStreamReadOnly.hpp>
 
 using namespace std;
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 // Class definition!
 class TestBitStreamReadOnly : public ::testing::Test 
@@ -223,4 +223,4 @@ TEST_F(TestBitStreamReadOnly, TestReadLessThanAllBits)
     EXPECT_EQ(0x04, result.PullU32(8));    
 }
 
-}}} // namespace
+}} // namespace

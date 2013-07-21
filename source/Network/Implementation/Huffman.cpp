@@ -18,25 +18,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include "Huffman.hpp"
+#include "MakeUnique.hpp"
+
+#include <Common/BitStream.hpp>
+
 #ifndef USING_PRECOMPILED_HEADERS
 #include <queue>
 #include <stdexcept>
 #include <map>
 #include <string>
+#include <iostream>
+#include <bitset>
+#include <string>
 #else
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
-#include "BitStream.hpp"
-#include "Huffman.hpp"
-#include "MakeUnique.hpp"
-
-#include <iostream>
-#include <bitset>
-#include <string>
-
 using namespace std;
 using namespace GameInABox::Network::Implementation;
+using GameInABox::Common::BitStream;
+using GameInABox::Common::BitStreamReadOnly;
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

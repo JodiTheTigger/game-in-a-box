@@ -18,10 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+// RAM: TODO: REMOVE
 #ifndef USING_PRECOMPILED_HEADERS
 #else
 #include "Common/PrecompiledHeaders.hpp"
 #endif
+
+#include "NetworkManagerServerGuts.hpp"
 
 #include "Logging.hpp"
 #include "IStateManager.hpp"
@@ -31,11 +34,11 @@
 #include "PacketDelta.hpp"
 #include "PacketFragmentManager.hpp"
 #include "XorCode.hpp"
-#include "BufferSerialisation.hpp"
 
-#include "NetworkManagerServerGuts.hpp"
+#include <Common/BufferSerialisation.hpp>
 
 using namespace GameInABox::Network::Implementation;
+using namespace GameInABox::Common;
 
 NetworkManagerServerGuts::NetworkManagerServerGuts(
         INetworkProvider& network,

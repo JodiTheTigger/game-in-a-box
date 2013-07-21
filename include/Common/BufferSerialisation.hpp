@@ -27,7 +27,7 @@
 #include <iterator>
 #endif
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 // =======================
 // Interface at the bottom
@@ -162,6 +162,6 @@ void Pull(Iterator start, Datum& value)
     Pull(start, value, category(), BigEndian());
 }
 
-}}} // namespace
+}} // namespace
 
 #endif // BUFFERSERIALISATION_H

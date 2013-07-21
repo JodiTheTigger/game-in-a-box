@@ -17,9 +17,12 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#include "BufferSerialisation.hpp"
+
 #include "PacketDelta.hpp"
 
+#include <Common/BufferSerialisation.hpp>
+
+using namespace GameInABox::Common;
 using namespace GameInABox::Network;
 using namespace GameInABox::Network::Implementation;
 

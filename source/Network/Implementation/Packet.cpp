@@ -18,13 +18,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+// RAM: TODO: REMOVE
 #ifndef USING_PRECOMPILED_HEADERS
 #else
 #include "Common/PrecompiledHeaders.hpp"
 #endif
 
 #include "Packet.hpp"
-#include "BufferSerialisation.hpp"
+
+#include <Common/BufferSerialisation.hpp>
+
+using namespace GameInABox::Common;
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

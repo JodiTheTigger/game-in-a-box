@@ -52,12 +52,12 @@ enum class FlagsPlayer : uint32_t
 struct StatePlayer
 {
     ServerId        id;
-    Vec3            position;
-    Vec3            orientation;
     std::uint32_t   health;
     std::uint32_t   energy;
     FlagsPlayer     flags;
     ServerTick      lastShot;
+    Vec3            position;
+    Vec3            orientation;
 };
 
 struct StatePlayerNetwork

@@ -22,7 +22,7 @@
 #include <stdexcept>
 #endif
 
-#include "Implementation/BitStream.hpp"
+#include <Common/BitStream.hpp>
 
 // NOTE! This is not a normal cpp file. don't use using!
 namespace GameInABox { namespace Unused {
@@ -53,7 +53,7 @@ template<class OBJECT>
 void DeltaCoder<OBJECT>::DeltaDecode(
     const OBJECT* base,
     OBJECT& result, 
-    GameInABox::Network::Implementation::BitStreamReadOnly& dataIn) const
+    GameInABox::Common::BitStreamReadOnly& dataIn) const
 {    
     const OBJECT* basePointer;
     
@@ -128,7 +128,7 @@ template<class OBJECT>
 bool DeltaCoder<OBJECT>::DeltaEncode(
     const OBJECT* base, 
     const OBJECT& toDelta, 
-    GameInABox::Network::Implementation::BitStream& dataOut) const
+    GameInABox::Common::BitStream& dataOut) const
 {
     bool noChange;
     const OBJECT* basePointer;
