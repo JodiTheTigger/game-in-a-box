@@ -21,10 +21,10 @@
 #ifndef PACKETFRAGMENTMANAGER_H
 #define PACKETFRAGMENTMANAGER_H
 
-#include <vector>
-
 #include "PacketDelta.hpp"
 #include "PacketFragment.hpp"
+
+#include <vector>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

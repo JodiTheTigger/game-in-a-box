@@ -21,17 +21,18 @@
 #ifndef NETWORKMANAGERSERVERGUTS_H
 #define NETWORKMANAGERSERVERGUTS_H
 
-#include <cstdint>
-#include <vector>
-#include <unordered_map>
-#include <boost/optional.hpp>
-#include <boost/asio/ip/udp.hpp>
-
 #include "Sequence.hpp"
 #include "Huffman.hpp"
 #include "Hash.hpp"
 #include "INetworkManager.hpp"
 #include "Connection.hpp"
+
+#include <boost/optional.hpp>
+#include <boost/asio/ip/udp.hpp>
+
+#include <cstdint>
+#include <vector>
+#include <unordered_map>
 
 namespace GameInABox { namespace Network {
 class IStateManager;

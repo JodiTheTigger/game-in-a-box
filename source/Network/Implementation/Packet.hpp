@@ -21,11 +21,11 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#include "Sequence.hpp"
+
 #include <cstdint>
 #include <vector>
 #include <string>
-
-#include "Sequence.hpp"
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <stdexcept>
-
 #include <Common/BitStream.hpp>
+
+#include <stdexcept>
 
 // NOTE! This is not a normal cpp file. don't use using!
 namespace GameInABox { namespace Unused {

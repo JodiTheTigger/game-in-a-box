@@ -21,9 +21,9 @@
 #ifndef MOCKISTATEMANAGER_HPP
 #define MOCKISTATEMANAGER_HPP
 
-#include "gmock/gmock.h"
-
 #include <Network/IStateManager.hpp>
+
+#include <gmock/gmock.h>
 
 namespace GameInABox { namespace Network {
 

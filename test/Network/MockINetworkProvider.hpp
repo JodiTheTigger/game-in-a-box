@@ -21,9 +21,10 @@
 #ifndef MOCKINETWORKPROVIDER_HPP
 #define MOCKINETWORKPROVIDER_HPP
 
-#include "gmock/gmock.h"
 #include <INetworkProvider.hpp>
 #include <NetworkPacket.hpp>
+
+#include <gmock/gmock.h>
 
 namespace GameInABox { namespace Network {
 

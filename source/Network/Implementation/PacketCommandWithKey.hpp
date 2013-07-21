@@ -21,12 +21,12 @@
 #ifndef PACKETCOMMANDWITHKEY_H
 #define PACKETCOMMANDWITHKEY_H
 
+#include "Packet.hpp"
+#include "NetworkKey.hpp"
+
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include "Packet.hpp"
-#include "NetworkKey.hpp"
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

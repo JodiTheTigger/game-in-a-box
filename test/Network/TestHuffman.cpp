@@ -19,6 +19,7 @@
 */
 
 #include <Implementation/Huffman.hpp>
+
 #include <gtest/gtest.h>
 
 #include <string>

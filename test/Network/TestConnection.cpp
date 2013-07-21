@@ -18,15 +18,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include <Implementation/Connection.hpp>
+#include <Implementation/PacketDelta.hpp>
+
+#include "MockIStateManager.hpp"
+
+#include <gmock/gmock.h>
+
 #include <cstdint>
 #include <chrono>
 #include <vector>
 #include <array>
-#include <gmock/gmock.h>
-
-#include <Implementation/Connection.hpp>
-#include <Implementation/PacketDelta.hpp>
-#include <MockIStateManager.hpp>
 
 using ::testing::Return;
 using ::testing::AtLeast;

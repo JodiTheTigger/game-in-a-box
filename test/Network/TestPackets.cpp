@@ -19,6 +19,7 @@
 */
 
 #include <Implementation/Packets.hpp>
+
 #include <gmock/gmock.h>
 
 using namespace std;

@@ -21,9 +21,9 @@
 #ifndef PACKETCHALLENGERESPONSE_H
 #define PACKETCHALLENGERESPONSE_H
 
-#include <cstdint>
-
 #include "PacketCommandWithKey.hpp"
+
+#include <cstdint>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

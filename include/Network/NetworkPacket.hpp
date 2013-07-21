@@ -21,10 +21,11 @@
 #ifndef NETWORKPACKET_H
 #define NETWORKPACKET_H
 
+#include <boost/asio/ip/udp.hpp>
+
 #include <cstdint>
 #include <vector>
 #include <memory>
-#include <boost/asio/ip/udp.hpp>
 
 namespace GameInABox { namespace Network {
 

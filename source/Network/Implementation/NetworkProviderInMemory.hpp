@@ -21,15 +21,16 @@
 #ifndef NETWORKPROVIDERINMEMORY_HPP
 #define NETWORKPROVIDERINMEMORY_HPP
 
-#include <memory>
-#include <boost/asio.hpp>
-#include <unordered_map>
-#include <chrono>
-#include <functional>
-
 #include "Units.hpp"
 #include "Hash.hpp"
 #include "INetworkProvider.hpp"
+
+#include <boost/asio.hpp>
+
+#include <memory>
+#include <unordered_map>
+#include <chrono>
+#include <functional>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

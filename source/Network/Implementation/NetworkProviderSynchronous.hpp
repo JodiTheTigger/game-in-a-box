@@ -21,10 +21,11 @@
 #ifndef NETWORKPROVIDERSYNCHRONOUS_H
 #define NETWORKPROVIDERSYNCHRONOUS_H
 
-#include <memory>
+#include "INetworkProvider.hpp"
+
 #include <boost/asio.hpp>
 
-#include "INetworkProvider.hpp"
+#include <memory>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

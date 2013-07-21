@@ -21,10 +21,10 @@
 #ifndef BITSTREAMREADONLY_H
 #define BITSTREAMREADONLY_H
 
+#include "No.hpp"
+
 #include <cstdint>
 #include <vector>
-
-#include "No.hpp"
 
 namespace GameInABox { namespace Common {
 

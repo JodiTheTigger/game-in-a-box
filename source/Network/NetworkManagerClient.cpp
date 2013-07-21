@@ -19,6 +19,7 @@
 */
 
 #include "NetworkManagerClient.hpp"
+
 #include "Implementation/NetworkManagerClientGuts.hpp"
 
 #include <Common/MakeUnique.hpp>

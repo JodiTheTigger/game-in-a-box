@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <chrono>
-#include <tuple>
-#include <sstream>
-
 #include "IStateManager.hpp"
 #include "NetworkPacket.hpp"
 #include "Packets.hpp"
 #include "Connection.hpp"
+
+#include <chrono>
+#include <tuple>
+#include <sstream>
 
 using namespace std::chrono;
 using Timepoint = std::chrono::steady_clock::time_point;

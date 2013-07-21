@@ -30,13 +30,13 @@
 #ifndef IDELTACODER_H
 #define IDELTACODER_H
 
+// Argh Includes
+#include "DeltaMapItem.hpp"
+
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <memory>
-
-// Argh Includes
-#include "DeltaMapItem.hpp"
 
 namespace GameInABox { namespace Common {
 class BitStreamReadOnly;

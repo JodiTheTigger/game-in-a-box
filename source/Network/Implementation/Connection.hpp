@@ -21,17 +21,17 @@
 #ifndef HANDSHAKE_HPP
 #define HANDSHAKE_HPP
 
-#include <vector>
-#include <string>
-#include <chrono>
-#include <functional>
-
-#include <boost/optional.hpp>
-
 #include "Units.hpp"
 #include "ClientHandle.hpp"
 #include "NetworkKey.hpp"
 #include "PacketFragmentManager.hpp"
+
+#include <boost/optional.hpp>
+
+#include <vector>
+#include <string>
+#include <chrono>
+#include <functional>
 
 namespace GameInABox { namespace Network {
 class IStateManager;

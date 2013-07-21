@@ -18,15 +18,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <gmock/gmock.h>
-#include <chrono>
-#include <string>
-
 #include <Implementation/NetworkManagerClientGuts.hpp>
 #include <Implementation/NetworkManagerServerGuts.hpp>
 #include <Implementation/NetworkProviderInMemory.hpp>
+
 #include "MockINetworkProvider.hpp"
 #include "MockIStateManager.hpp"
+
+#include <chrono>
+#include <string>
+
+#include <gmock/gmock.h>
 
 using namespace std;
 using namespace boost::asio::ip;

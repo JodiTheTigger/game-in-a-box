@@ -19,8 +19,8 @@
 */
 
 #include "Huffman.hpp"
-#include "MakeUnique.hpp"
 
+#include <Common/MakeUnique.hpp>
 #include <Common/BitStream.hpp>
 
 #include <queue>

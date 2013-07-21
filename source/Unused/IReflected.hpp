@@ -21,14 +21,14 @@
 #ifndef IREFLECTED_H
 #define IREFLECTED_H
 
+// I want ReflectionKey values for my interface,
+// therefore I cannot use a forward reference.
+#include "ReflectionKey.hpp"
+
 #include <string>
 #include <map>
 #include <vector>
 #include <memory>
-
-// I want ReflectionKey values for my interface,
-// therefore I cannot use a forward reference.
-#include "ReflectionKey.hpp"
 
 namespace GameInABox { namespace Unused {
 

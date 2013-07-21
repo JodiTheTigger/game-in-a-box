@@ -18,10 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "MakeUnique.hpp"
 #include "Logging.hpp"
 #include "NetworkPacket.hpp"
 #include "NetworkProviderSynchronous.hpp"
+
+#include <Common/MakeUnique.hpp>
 
 using boost::asio::ip::udp;
 using namespace GameInABox::Network;

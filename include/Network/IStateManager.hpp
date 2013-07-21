@@ -28,6 +28,7 @@
 #include <Common/No.hpp>
 
 #include <boost/optional.hpp>
+
 #include <cstdint>
 #include <vector>
 #include <string>

@@ -21,9 +21,9 @@
 #ifndef GAMEINABOX_H
 #define GAMEINABOX_H
 
-#include <cstdint>
-
 #include "IStateManager.hpp"
+
+#include <cstdint>
 
 namespace GameInABox { namespace Unused {
 

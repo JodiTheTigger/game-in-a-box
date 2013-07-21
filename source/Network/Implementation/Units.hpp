@@ -22,6 +22,7 @@
 #define UNITS_HPP
 
 #include <chrono>
+#include <functional>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

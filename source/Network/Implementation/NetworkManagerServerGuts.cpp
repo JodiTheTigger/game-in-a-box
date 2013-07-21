@@ -22,7 +22,6 @@
 
 #include "Logging.hpp"
 #include "IStateManager.hpp"
-
 #include "INetworkProvider.hpp"
 #include "NetworkPacket.hpp"
 #include "PacketDelta.hpp"

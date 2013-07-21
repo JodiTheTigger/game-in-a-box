@@ -19,7 +19,9 @@
 */
 
 #include <Implementation/NetworkProviderInMemory.hpp>
+
 #include <gmock/gmock.h>
+
 #include <random>
 
 using namespace std;

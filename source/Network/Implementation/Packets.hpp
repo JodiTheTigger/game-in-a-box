@@ -21,8 +21,6 @@
 #ifndef PACKETQUERIESKEY_H
 #define PACKETQUERIESKEY_H
 
-#include <boost/optional.hpp>
-
 #include "Packet.hpp"
 #include "PacketCommand.hpp"
 #include "PacketCommandWithKey.hpp"
@@ -30,7 +28,10 @@
 #include "PacketDelta.hpp"
 #include "PacketChallenge.hpp"
 #include "PacketChallengeResponse.hpp"
-#include "BufferSerialisation.hpp"
+
+#include <Common/BufferSerialisation.hpp>
+
+#include <boost/optional.hpp>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

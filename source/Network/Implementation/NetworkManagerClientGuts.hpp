@@ -21,11 +21,6 @@
 #ifndef NETWORKMANAGERCLIENTGUTS_H
 #define NETWORKMANAGERCLIENTGUTS_H
 
-#include <vector>
-#include <array>
-#include <utility>
-#include <boost/asio/ip/udp.hpp>
-
 #include "IStateManager.hpp"
 #include "Huffman.hpp"
 #include "WrappingCounter.hpp"
@@ -33,6 +28,12 @@
 #include "PacketFragmentManager.hpp"
 #include "NetworkKey.hpp"
 #include "Connection.hpp"
+
+#include <boost/asio/ip/udp.hpp>
+
+#include <vector>
+#include <array>
+#include <utility>
 
 namespace GameInABox { namespace Network {
 class INetworkProvider;

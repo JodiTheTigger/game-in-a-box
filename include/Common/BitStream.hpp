@@ -21,11 +21,11 @@
 #ifndef BITSTREAM_H
 #define BITSTREAM_H
 
+#include "BitStreamReadOnly.hpp"
+
 #include <cstdint>
 #include <vector>
 #include <memory>
-
-#include "BitStreamReadOnly.hpp"
 
 namespace GameInABox { namespace Common {
 

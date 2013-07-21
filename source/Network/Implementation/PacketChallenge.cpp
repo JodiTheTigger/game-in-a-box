@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include "PacketChallenge.hpp"
+
 #include <string>
 #include <iterator>
-
-#include "PacketChallenge.hpp"
 
 using namespace std;
 using namespace GameInABox::Network::Implementation;

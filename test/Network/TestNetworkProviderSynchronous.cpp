@@ -19,6 +19,7 @@
 */
 
 #include <Implementation/NetworkProviderSynchronous.hpp>
+
 #include <gmock/gmock.h>
 
 using namespace std;

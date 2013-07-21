@@ -21,10 +21,10 @@
 #ifndef PACKETDELTA_HPP
 #define PACKETDELTA_HPP
 
-#include <boost/optional.hpp>
-
 #include "Sequence.hpp"
 #include "Packet.hpp"
+
+#include <boost/optional.hpp>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 

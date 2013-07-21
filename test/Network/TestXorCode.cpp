@@ -19,6 +19,7 @@
 */
 
 #include <Implementation/XorCode.hpp>
+
 #include <gmock/gmock.h>
 
 #include <vector>

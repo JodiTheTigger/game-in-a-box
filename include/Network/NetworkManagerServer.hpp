@@ -21,9 +21,9 @@
 #ifndef NETWORKMANAGERSERVER_H
 #define NETWORKMANAGERSERVER_H
 
-#include <memory>
-
 #include "INetworkManager.hpp"
+
+#include <memory>
 
 namespace GameInABox { namespace Network {
 class IStateManager;

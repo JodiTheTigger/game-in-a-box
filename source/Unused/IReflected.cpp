@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <utility>
-
 #include "IReflected.hpp"
+
+#include <utility>
 
 namespace GameInABox { namespace Unused {
 // NOTES:
