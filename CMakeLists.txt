@@ -187,6 +187,7 @@ include/Common/No.hpp
 include/Common/BitStream.hpp
 include/Common/BitStreamReadOnly.hpp
 include/Common/BufferSerialisation.hpp
+include/Common/MakeUnique.hpp
 )
 
 set(NETWORK_HEADERS
@@ -220,7 +221,6 @@ source/Network/Implementation/Huffman.hpp
 source/Network/Implementation/Huffman.cpp
 source/Network/Implementation/Logging.hpp
 source/Network/Implementation/Logging.cpp
-source/Network/Implementation/MakeUnique.hpp
 source/Network/Implementation/NetworkKey.hpp
 source/Network/Implementation/NetworkKey.cpp
 source/Network/Implementation/NetworkManagerServerGuts.cpp

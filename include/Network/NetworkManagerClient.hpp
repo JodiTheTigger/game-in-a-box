@@ -21,14 +21,16 @@
 #ifndef NETWORKMANAGERCLIENT_H
 #define NETWORKMANAGERCLIENT_H
 
-#include <memory>
-#include <string>
+#include "INetworkManager.hpp"
+
 #include <boost/asio/ip/udp.hpp>
 
-#include "INetworkManager.hpp"
+#include <memory>
+#include <string>
 
 namespace GameInABox { namespace Network {
 class INetworkProvider;
+class IStateManager;
 
 namespace Implementation {
 class NetworkManagerClientGuts;

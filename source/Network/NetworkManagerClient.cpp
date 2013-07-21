@@ -22,10 +22,10 @@
 #else
 #include "Common/PrecompiledHeaders.hpp"
 #endif
-
-#include "Implementation/MakeUnique.hpp"
-#include "Implementation/NetworkManagerClientGuts.hpp"
 #include "NetworkManagerClient.hpp"
+#include "Implementation/NetworkManagerClientGuts.hpp"
+
+#include <Common/MakeUnique.hpp>
 
 using namespace GameInABox::Network;
 using namespace GameInABox::Network::Implementation;
