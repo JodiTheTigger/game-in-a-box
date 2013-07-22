@@ -416,16 +416,16 @@ add_custom_command(TARGET game-in-a-box-network-tests POST_BUILD COMMAND game-in
 # State
 ###############
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/State/)
-##include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/State/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/State/)
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/State/)
 
-##add_library(
-##game-in-a-box-state
+add_library(
+game-in-a-box-state
 #${STATE_HEADERS}
-##${STATE}
-##)
+${STATE}
+)
 
-##set_target_properties(game-in-a-box-state PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+set_target_properties(game-in-a-box-state PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
 #ADD_EXECUTABLE(
 #game-in-a-box-state-tests
