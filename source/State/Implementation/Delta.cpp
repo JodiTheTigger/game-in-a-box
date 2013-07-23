@@ -38,6 +38,7 @@
 // Only downside is that it puts your trust into the compiler not to do something stupid.
 // Which is pretty well placed since gcc and clang do do the right thing ... due to the aliasing rule!
 
+#include "TypesDelta.hpp"
 
 #include <Common/BitStream.hpp>
 
@@ -46,63 +47,7 @@
 
 #include <cstring>
 
-using namespace GameInABox::Common;
-
-// our helper macro
-#define DELTAINFO(CLASS_TYPE, CLASS_MEMBER, DATATYPE) #CLASS_MEMBER, offsetof(CLASS_TYPE, CLASS_MEMBER), DATATYPE
-
-// Data types
-struct Bits
-{
-    unsigned value;
-};
-
-struct MapFloatFull
-{
-};
-
-struct Map32bitsSigned
-{
-    Bits resolution;
-};
-
-struct Map32bitsUnsigned
-{
-    Bits resolution;
-};
-
-// use this if the value is normally
-// between the range of +/- max
-// It will be encoded to less bits if
-// the value is a whole number and falls
-// within the specified range, otherwise
-// it's treated as a full float.
-struct MapFloatRanged
-{
-    unsigned maxValue;
-};
-
-// Float is always in the range provided
-// encoding becomes undefined if it is not.
-// use the bits to determine what resolution you
-// store the range in.
-struct MapFloatRangeStrict
-{
-    float maxValue;
-    float minValue;
-    Bits resolution;
-};
-
-struct ByteOffset
-{
-    std::size_t value;
-};
-
-
-Bits constexpr operator"" _bits(unsigned long long value)
-{
-    return {static_cast<unsigned>(value)};
-}
+namespace GameInABox { namespace State { namespace Implementation {
 
 constexpr unsigned BitsNeededForValue(unsigned value, unsigned bits)
 {
@@ -114,64 +59,22 @@ constexpr unsigned BitsNeededForValue(unsigned value)
     return BitsNeededForValue(value, 1);
 }
 
-enum class MapType
-{
-    FloatFull,
-    FloatRanged,
-    FloatRangedStrict,
-    Unsigned,
-    Signed,
+/*
+DeltaMap myMap[] = {
+    {OFFSET_INFO(StatePlayer, position.x), MapFloatRangeStrict{500.0f, -500.0f, 17}},
+    {OFFSET_INFO(StatePlayer, position.y), MapFloatRangeStrict{500.0f, -500.0f, 17}},
+    {OFFSET_INFO(StatePlayer, position.z}, MapFloatRangeStrict{500.0f, -500.0f, 17}},
+
+    {OFFSET_INFO(StatePlayer, orientation.x}, MapFloatRangeStrict{1.0f, -1.0f, 12}},
+    {OFFSET_INFO(StatePlayer, orientation.y}, MapFloatRangeStrict{1.0f, -1.0f, 12}},
+    {OFFSET_INFO(StatePlayer, orientation.z}, MapFloatRangeStrict{1.0f, -1.0f, 12}},
+
+    {OFFSET_INFO(StatePlayer, health), Map32bitsUnsigned{10}},
+    {OFFSET_INFO(StatePlayer, energy), Map32bitsUnsigned{10}},
+
+    {OFFSET_INFO(StatePlayer, flags), Map32bitsUnsigned{32}},
 };
-
-struct DeltaMap
-{
-    std::string name{""};
-    ByteOffset offset{0};
-    MapType type{MapType::Unsigned};
-
-    signed bits{0};
-
-    unsigned maxRange{0};
-    unsigned maxRangeHalf{0};
-    unsigned maxRangeBits{0};
-
-    float m{1.0f};
-    float c{0.0f};
-
-    DeltaMap() = default;
-
-    DeltaMap(std::string nameToUse, ByteOffset offsetToUse, MapFloatFull)
-        : name(nameToUse)
-        , offset(offsetToUse)
-    {
-    }
-
-    // RAM: TODO: If bits needed >=22, then store as raw float.
-    // 22 = 23 bits of mantessa - 1 bit to signify it's in range.
-    DeltaMap(std::string nameToUse, ByteOffset offsetToUse, MapFloatRanged range)
-        : name(nameToUse)
-        , offset(offsetToUse)
-        , maxRange(1 << BitsNeededForValue(range.maxValue*2))
-        , maxRangeHalf(maxRange >> 1)
-        , maxRangeBits(BitsNeededForValue(range.maxValue*2))
-    {
-    }
-
-    DeltaMap(std::string nameToUse, ByteOffset offsetToUse, Map32bitsSigned bitsToUse)
-        : name(nameToUse)
-        , offset(offsetToUse)
-        , bits(-bitsToUse.resolution.value)
-    {
-    }
-
-    DeltaMap(std::string nameToUse, ByteOffset offsetToUse, Map32bitsUnsigned bitsToUse)
-        : name(nameToUse)
-        , offset(offsetToUse)
-        , bits(bitsToUse.resolution.value)
-    {
-    }
-};
-
+*/
 /*
 struct StatePlayer
 {
@@ -205,8 +108,7 @@ DeltaMap myMap2[] = {
 };
 */
 
-
-
+// RAM: TODO: Marge this and TypesDelta into it's own Delta class please.
 void Code(uint32_t base, uint32_t target, const DeltaMap& map, BitStream& out, bool doZeros, bool doXor)
 {
     if (base == target)
@@ -309,6 +211,8 @@ void Code(uint32_t base, uint32_t target, const DeltaMap& map, BitStream& out, b
         }
     }
 }
+
+}}} // namespace
 
 // /////////////////////
 // Second Attempt

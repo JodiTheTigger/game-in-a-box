@@ -277,7 +277,8 @@ set(STATE
 source/State/Implementation/Delta.hpp
 source/State/Implementation/Delta.cpp
 source/State/Implementation/Types.hpp
-source/State/Implementation/BitWriter.hpp
+source/State/Implementation/TypesDelta.hpp
+source/State/Implementation/TypesDelta.cpp
 )
 
 set(UNUSED
