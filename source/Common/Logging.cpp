@@ -20,7 +20,7 @@
 
 #include "Logging.hpp"
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 void Log(LogLevel, ...)
 {
@@ -28,4 +28,4 @@ void Log(LogLevel, ...)
 }
 
 
-}}} // namespace
+}} // namespace

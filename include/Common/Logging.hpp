@@ -21,7 +21,7 @@
 #ifndef ARGH_LOGGING_HPP
 #define ARGH_LOGGING_HPP
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Common {
 
 enum class LogLevel
 {
@@ -57,6 +57,6 @@ enum class LogLevel
 // defintion warnings.
 void Log(LogLevel, ...);
 
-}}};
+}}; // namespace
 
 #endif // ARGH_LOGGING_HPP

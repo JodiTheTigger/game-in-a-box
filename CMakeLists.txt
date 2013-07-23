@@ -188,6 +188,7 @@ include/Common/BitStream.hpp
 include/Common/BitStreamReadOnly.hpp
 include/Common/BufferSerialisation.hpp
 include/Common/MakeUnique.hpp
+include/Common/Logging.hpp
 )
 
 set(NETWORK_HEADERS
@@ -206,6 +207,7 @@ include/Network/WrappingCounter.hpp
 set(COMMON
 source/Common/BitStream.cpp
 source/Common/BitStreamReadOnly.cpp
+source/Common/Logging.cpp
 )
 
 set(NETWORK
@@ -219,8 +221,6 @@ source/Network/Implementation/Connection.hpp
 source/Network/Implementation/Hash.hpp
 source/Network/Implementation/Huffman.hpp
 source/Network/Implementation/Huffman.cpp
-source/Network/Implementation/Logging.hpp
-source/Network/Implementation/Logging.cpp
 source/Network/Implementation/NetworkKey.hpp
 source/Network/Implementation/NetworkKey.cpp
 source/Network/Implementation/NetworkManagerServerGuts.cpp

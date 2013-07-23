@@ -25,6 +25,7 @@
 #include <Common/MakeUnique.hpp>
 
 using boost::asio::ip::udp;
+using namespace GameInABox::Common;
 using namespace GameInABox::Network;
 using namespace GameInABox::Network::Implementation;
 
