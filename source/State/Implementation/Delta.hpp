@@ -22,4 +22,47 @@
 #define DELTA_HPP
 
 
+/*
+void Code(
+     uint32_t base,
+     uint32_t target,
+     const DeltaMapItem& map,
+     GameInABox::Common::BitStream& out,
+     bool doZeros,
+     bool doXor);*/
+
+// /////////////////////
+// Delta Coder Interface
+// /////////////////////
+/*template<class OBJECT>
+class DeltaCoder
+{
+public:
+    DeltaCoder(
+        std::vector<DeltaMapItem> deltaMap,
+        OBJECT identity,
+        bool researchEncodeZeros,
+        bool researchEncodeXorDeltas);
+
+ // if base == nullptr use the identity
+     void DeltaDecode(
+         const OBJECT* base,
+         OBJECT& result,
+         GameInABox::Common::BitStreamReadOnly& dataIn) const;
+
+     // if base == nullptr use the identity
+     // Returns true if base == toDelta, otherwise false.
+     bool DeltaEncode(
+         const OBJECT* base,
+         const OBJECT& toDelta,
+         GameInABox::Common::BitStream& dataOut) const;
+
+private:
+    const std::vector<DeltaMapItem> myDeltaMap;
+    const OBJECT myIdentityObject;
+    const bool myResearchEncodeZeros;
+    const bool myResearchEncodeXorDeltas;
+};*/
+
+
 #endif // DELTA_HPP

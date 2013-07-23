@@ -21,32 +21,11 @@
 #ifndef TYPESDELTA_HPP
 #define TYPESDELTA_HPP
 
-#include <cstdint>
-#include <memory>
+#include <string>
 
+#include "Units.hpp"
 
-namespace GameInABox {
-// RAM: TODO: Clean this up
-namespace Common {
-class BitStream;
-class BitStreamReadOnly;
-}
-namespace State { namespace Implementation {
-
-// RAM: TODO! Move this into its own common types header.
-struct Bits
-{
-    unsigned value;
-};
-
-// RAM: TODO! Move this into its own common types header.
-Bits constexpr operator"" _bits(unsigned long long value)
-{
-    return {static_cast<unsigned>(value)};
-}
-
-// RAM: TODO! Move this into its own common types header.
-using ByteOffset = std::size_t;
+namespace GameInABox { namespace State { namespace Implementation {
 
 // /////////////////////
 // Delta Map Data Types
@@ -111,72 +90,8 @@ struct MapFloatRangeStrict
 struct Offset
 {
     std::string name;
-    ByteOffset  offset;
+    Bytes       offset;
 };
-
-// Internal Store.
-struct DeltaMapInternal;
-
-class DeltaMapItem
-{
-public:
-    // Can't have a destructor in the header file if using
-    // unique_ptr + pimpl idiom.
-    ~DeltaMapItem();
-
-    DeltaMapItem(Offset offsetToUse, MapFloatFull specs);
-    DeltaMapItem(Offset offsetToUse, MapSigned specs);
-    DeltaMapItem(Offset offsetToUse, MapUnsigned specs);
-    DeltaMapItem(Offset offsetToUse, MapFloatRanged specs);
-    DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs);
-
-private:
-    DeltaMapItem(Offset offsetToUse);
-
-    std::unique_ptr<DeltaMapInternal> myPimpl;
-};
-/*
-void Code(
-     uint32_t base,
-     uint32_t target,
-     const DeltaMapItem& map,
-     GameInABox::Common::BitStream& out,
-     bool doZeros,
-     bool doXor);*/
-
-// /////////////////////
-// Delta Coder Interface
-// /////////////////////
-/*template<class OBJECT>
-class DeltaCoder
-{
-public:
-    DeltaCoder(
-        std::vector<DeltaMapItem> deltaMap,
-        OBJECT identity,
-        bool researchEncodeZeros,
-        bool researchEncodeXorDeltas);
-
- // if base == nullptr use the identity
-     void DeltaDecode(
-         const OBJECT* base,
-         OBJECT& result,
-         GameInABox::Common::BitStreamReadOnly& dataIn) const;
-
-     // if base == nullptr use the identity
-     // Returns true if base == toDelta, otherwise false.
-     bool DeltaEncode(
-         const OBJECT* base,
-         const OBJECT& toDelta,
-         GameInABox::Common::BitStream& dataOut) const;
-
-private:
-    const std::vector<DeltaMapItem> myDeltaMap;
-    const OBJECT myIdentityObject;
-    const bool myResearchEncodeZeros;
-    const bool myResearchEncodeXorDeltas;
-};*/
-
 
 }}} // namespace
 

@@ -20,6 +20,8 @@
 
 #include "TypesDelta.hpp"
 
+#include "DeltaMapItemInternal.hpp"
+
 #include <Common/MakeUnique.hpp>
 #include <Common/BitStream.hpp>
 
@@ -32,138 +34,9 @@ using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class MapType
-{
-    Ignore,
-    FloatFull,
-    FloatRanged,
-    FloatRangedStrict,
-    Unsigned,
-    Signed,
-};
-
-struct DeltaMapInternal
-{
-    std::string name{""};
-    ByteOffset offset{0};
-    MapType type{MapType::Unsigned};
-
-    signed bits{0};
-
-    unsigned maxRange{0};
-
-    float m{1.0f};
-    float c{0.0f};
-};
-
-DeltaMapItem::~DeltaMapItem()
-{
-    // Empty.
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse)
-    : myPimpl(make_unique<DeltaMapInternal>())
-{
-    myPimpl->name = offsetToUse.name;
-    myPimpl->offset = offsetToUse.offset;
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatFull)
-    : DeltaMapItem(offsetToUse)
-{
-    myPimpl->type = MapType::FloatFull;
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapSigned specs)
-    : DeltaMapItem(offsetToUse, MapUnsigned{specs.resolution})
-{
-    myPimpl->type = MapType::Signed;
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapUnsigned specs)
-    : DeltaMapItem(offsetToUse)
-{
-    if (specs.resolution.value < 1)
-    {
-        myPimpl->type = MapType::Ignore;
-    }
-    else
-    {
-        myPimpl->bits = specs.resolution.value;
-        if (myPimpl->bits > 32)
-        {
-            myPimpl->bits = 32;
-        }
-    }
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRanged specs)
-    : DeltaMapItem(offsetToUse)
-{
-    if (specs.maxValue > 0)
-    {
-        // figure out the range in bits.
-        Bits resolution;
-
-        while ((1U << resolution.value) < (2U*specs.maxValue))
-        {
-            ++(resolution.value);
-        }
-
-        // float has 23 bits of mantessa, no point doing this is we require a larger dynamic range.
-        if (resolution.value > 22)
-        {
-            myPimpl->type = MapType::FloatFull;
-        }
-        else
-        {
-            myPimpl->type = MapType::FloatRanged;
-            myPimpl->bits = resolution.value;
-            myPimpl->maxRange = 1 << resolution.value;
-        }
-    }
-    else
-    {
-        myPimpl->type = MapType::Ignore;
-
-        // RAM: TODO: LOG!
-    }
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
-    : DeltaMapItem(offsetToUse)
-{
-    if (specs.resolution.value >= 1)
-    {
-        auto range = specs.maxValue - specs.minValue;
-
-        if (range > 0)
-        {
-            myPimpl->type = MapType::FloatRangedStrict;
-
-            myPimpl->c = - specs.minValue;
-            myPimpl->m = ((1 << specs.resolution.value) - 1) / range;
-            myPimpl->bits = specs.resolution.value;
-        }
-        else
-        {
-            myPimpl->type = MapType::Ignore;
-
-            // RAM: TODO: LOG!
-        }
-    }
-    else
-    {
-        myPimpl->type = MapType::Ignore;
-
-        // RAM: TODO: LOG!
-    }
-}
-
 // RAM: TODO: Marge this and TypesDelta into it's own Delta class please.
 // RAM: TODO: Clean Name.
-// RAM: TODO: Move DeltaMap data types to their own header.
-void Code(uint32_t base, uint32_t target, const DeltaMapInternal& map, BitStream& out, bool doZeros, bool doXor)
+void Code(uint32_t base, uint32_t target, const DeltaMapItemInternal& map, BitStream& out, bool doZeros, bool doXor)
 {
     if (base == target)
     {
