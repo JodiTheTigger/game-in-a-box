@@ -47,6 +47,12 @@ private:
     std::unique_ptr<DeltaMapItemInternal> myPimpl;
 };
 
+struct DeltaMapGroup
+{
+    unsigned count;
+    DeltaMapItem map;
+};
+
 }}} // namespace
 
 #endif // DELTAMAPITEM_HPP

@@ -41,7 +41,8 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse)
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatFull)
     : DeltaMapItem(offsetToUse)
 {
-    myPimpl->type = MapType::FloatFull;
+    myPimpl->type = MapType::Unsigned;
+    myPimpl->bits = 32;
 }
 
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapSigned specs)
@@ -83,7 +84,9 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRanged specs)
         // float has 23 bits of mantessa, no point doing this is we require a larger dynamic range.
         if (resolution.value > 22)
         {
-            myPimpl->type = MapType::FloatFull;
+            // full float.
+            myPimpl->type = MapType::Unsigned;
+            myPimpl->bits = 32;
         }
         else
         {
@@ -113,6 +116,7 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
 
             myPimpl->c = - specs.minValue;
             myPimpl->m = ((1 << specs.resolution.value) - 1) / range;
+            myPimpl->inversem = static_cast<float>(1.0 / myPimpl->m);
             myPimpl->bits = specs.resolution.value;
         }
         else

@@ -32,7 +32,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 enum class MapType
 {
     Ignore,
-    FloatFull,
     FloatRanged,
     FloatRangedStrict,
     Unsigned,
@@ -50,6 +49,7 @@ struct DeltaMapItemInternal
     unsigned maxRange{0};
 
     float m{1.0f};
+    float inversem{1.0f};
     float c{0.0f};
 };
 

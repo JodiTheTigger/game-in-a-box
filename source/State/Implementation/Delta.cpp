@@ -81,7 +81,6 @@ DeltaMap myMap2[] = {
 
 
 // RAM: TODO: Marge this and TypesDelta into it's own Delta class please.
-// RAM: TODO: Clean Name.
 // RAM: TODO: Research Xoring or not.
 void DeltaCreate(
         std::uint32_t base,
@@ -145,12 +144,14 @@ void DeltaCreate(
                     else
                     {
                         uint32_t uintTarget;
-                        out.Push(false);
 
-                        memcpy(&uintTarget, &intTarget, sizeof(uint32_t));
+                        out.Push(false);
 
                         // C++ standard states that aliasing is allowed between
                         // signed and unsigned values of the same width data type.
+                        // but reinterpret_cast only works on pointers. Meh, just memcpy.
+                        memcpy(&uintTarget, &intTarget, sizeof(uint32_t));
+
                         out.Push(uintTarget, map.bits);
                     }
 
@@ -179,7 +180,6 @@ void DeltaCreate(
                 }
 
                 default:
-                case MapType::FloatFull:
                 case MapType::Unsigned:
                 case MapType::Signed:
                 {
@@ -230,25 +230,88 @@ std::uint32_t DeltaParse(
             {
                 case MapType::FloatRanged:
                 {
-                    // RAM: TODO
-                    return 0;
+                    if (in.Pull1Bit())
+                    {
+                        auto delta = in.PullU32(32);
+
+                        // full float.
+                        if (settings.doXor)
+                        {
+                            return base ^ delta;
+                        }
+                        else
+                        {
+                            return delta;
+                        }
+                    }
+                    else
+                    {
+                        float asFloat;
+                        uint32_t result;
+
+                        asFloat = in.PullU32(map.bits);
+                        memcpy(&result, &asFloat, sizeof(float));
+
+                        return result;
+                    }
                 }
 
-                // Assume the scaled range is from 0 to (2^bits - 1) inclusive.
                 case MapType::FloatRangedStrict:
                 {
-                    // RAM: TODO
-                    return 0;
+                    uint32_t delta = in.PullU32(map.bits);
+
+                    if (settings.doXor)
+                    {
+                        float floatBase;
+
+                        memcpy(&floatBase, &base, sizeof(float));
+                        floatBase = floatBase * map.m + map.c;
+                        auto baseConverted = static_cast<uint32_t>(floatBase);
+
+                        delta ^= baseConverted;
+                    }
+
+                    float asFloat = (delta - map.c) * map.inversem;
+                    uint32_t result;
+
+                    memcpy(&result, &asFloat, sizeof(float));
+
+                    return result;
+                }
+
+                case MapType::Signed:
+                {
+                    uint32_t result = in.PullU32(map.bits);
+
+                    // extend the sign bit all along to make a valid -ve number.
+                    if ((result & (1 << (map.bits - 1))) > 0)
+                    {
+                        result |= (0xFFFFFFFF << map.bits);
+                    }
+
+                    // full float.
+                    if (settings.doXor)
+                    {
+                        return base ^ result;
+                    }
+                    else
+                    {
+                        return result;
+                    }
                 }
 
                 default:
-                case MapType::FloatFull:
                 case MapType::Unsigned:
-                case MapType::Signed:
                 {
-
-                    // RAM: TODO
-                    return 0;
+                    // full float.
+                    if (settings.doXor)
+                    {
+                        return base ^ in.PullU32(map.bits);
+                    }
+                    else
+                    {
+                        return in.PullU32(map.bits);
+                    }
                 }
             }
         }
