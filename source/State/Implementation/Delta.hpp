@@ -21,15 +21,31 @@
 #ifndef DELTA_HPP
 #define DELTA_HPP
 
+#include <Common/BitStream.hpp>
+#include <Common/BitStreamReadOnly.hpp>
 
-/*
-void Code(
-     uint32_t base,
-     uint32_t target,
-     const DeltaMapItem& map,
-     GameInABox::Common::BitStream& out,
-     bool doZeros,
-     bool doXor);*/
+namespace GameInABox { namespace State { namespace Implementation {
+
+struct DeltaMapItemInternal;
+
+struct Research
+{
+    bool doZeros;
+    bool doXor;
+};
+
+void DeltaCreate(
+        std::uint32_t base,
+        std::uint32_t target,
+        const DeltaMapItemInternal& map,
+        GameInABox::Common::BitStream& out,
+        Research settings);
+
+std::uint32_t DeltaParse(
+        std::uint32_t base,
+        const DeltaMapItemInternal& map,
+        GameInABox::Common::BitStreamReadOnly& in,
+        Research settings);
 
 // /////////////////////
 // Delta Coder Interface
@@ -64,5 +80,6 @@ private:
     const bool myResearchEncodeXorDeltas;
 };*/
 
+}}} // namespace
 
 #endif // DELTA_HPP

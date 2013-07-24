@@ -277,7 +277,6 @@ set(STATE
 source/State/Implementation/Delta.hpp
 source/State/Implementation/Delta.cpp
 source/State/Implementation/Types.hpp
-source/State/Implementation/TypesDelta.cpp
 source/State/Implementation/TypesDelta.hpp
 source/State/Implementation/Units.hpp
 source/State/Implementation/DeltaMapItem.hpp

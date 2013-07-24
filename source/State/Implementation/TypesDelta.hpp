@@ -64,6 +64,7 @@ struct MapUnsigned
 // floats only have 23 bits of mantessa, so if
 // the range (2*maxValue) > 2^23-1 then a full float
 // is used instead.
+// A maxValue of 0 is ignored for delta coding.
 struct MapFloatRanged
 {
     unsigned maxValue;
