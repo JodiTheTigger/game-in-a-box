@@ -27,6 +27,9 @@
 
 #include <vector>
 
+// offsetof()
+#include <cstddef>
+
 
 namespace GameInABox { namespace State { namespace Implementation {
 
