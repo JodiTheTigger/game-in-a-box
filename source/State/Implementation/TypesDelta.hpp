@@ -94,6 +94,11 @@ struct Offset
     Bytes       offset;
 };
 
+// ///////////////////
+// Delta Map interface Macros
+// ///////////////////
+#define MAKE_OFFSET(CLASS_TYPE, CLASS_MEMBER) Offset{{#CLASS_MEMBER}, {offsetof(CLASS_TYPE, CLASS_MEMBER)}}
+
 }}} // namespace
 
 #endif // TYPESDELTA_HPP

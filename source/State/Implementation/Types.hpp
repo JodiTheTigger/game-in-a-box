@@ -25,7 +25,7 @@
 #include <array>
 #include <vector>
 
-namespace GameInABox { namespace State { namespace Implementation
+namespace GameInABox { namespace State { namespace Implementation {
 
 // //////////////
 // Data Types
@@ -108,7 +108,7 @@ struct StateMissle
     Vec3 source;
 
     // Initial velocity, up to game how to predict the path.
-    Vec3 velocity;
+    Vec3 orientation;
 
     // Time it was fired/exploded
     ServerTick lastAction;
@@ -132,9 +132,9 @@ enum class StateMode : std::uint32_t
 template<unsigned MaxPlayersPerTeam>
 struct StateGame
 {
-    const unsigned maxPlayersPerTeam = MaxPlayersPerTeam;
-    const unsigned maxPlayersPerGame = MaxPlayersPerTeam * 3;
-    const unsigned maxMisslesPerGame = maxPlayersPerGame * 4;
+    static const unsigned maxPlayersPerTeam = MaxPlayersPerTeam;
+    static const unsigned maxPlayersPerGame = MaxPlayersPerTeam * 3;
+    static const unsigned maxMisslesPerGame = maxPlayersPerGame * 4;
 
     std::array<StatePlayerNetwork, maxPlayersPerGame>   playersNetwork;
     std::array<StatePlayer, maxPlayersPerGame>          players;
@@ -146,7 +146,6 @@ struct StateGame
     // padded with spaces.
     std::array<std::array<uint8_t, 16>, maxPlayersPerGame> playerNames;
 };
-
 
 }}} // namespace
 

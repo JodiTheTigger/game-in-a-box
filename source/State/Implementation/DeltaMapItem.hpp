@@ -31,6 +31,12 @@ struct DeltaMapItemInternal;
 class DeltaMapItem
 {
 public:
+    // pimpl means I have to roll my own copy/assign constructors.
+    DeltaMapItem(const DeltaMapItem& other);
+    DeltaMapItem(DeltaMapItem&& other);
+    DeltaMapItem& operator=(const DeltaMapItem& other);
+    DeltaMapItem& operator=(DeltaMapItem&& other);
+
     // Can't have a destructor in the header file if using
     // unique_ptr + pimpl idiom.
     ~DeltaMapItem();
@@ -45,12 +51,6 @@ private:
     DeltaMapItem(Offset offsetToUse);
 
     std::unique_ptr<DeltaMapItemInternal> myPimpl;
-};
-
-struct DeltaMapGroup
-{
-    unsigned count;
-    DeltaMapItem map;
 };
 
 }}} // namespace

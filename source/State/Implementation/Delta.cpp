@@ -179,7 +179,6 @@ void DeltaCreate(
                     // drop through to MapType::Unsigned on purpose.
                 }
 
-                default:
                 case MapType::Unsigned:
                 case MapType::Signed:
                 {
@@ -194,6 +193,13 @@ void DeltaCreate(
                         out.Push(target, map.bits);
                     }
 
+                    break;
+                }
+
+                default:
+                case MapType::Ignore:
+                {
+                    // ignore.
                     break;
                 }
             }
@@ -300,7 +306,6 @@ std::uint32_t DeltaParse(
                     }
                 }
 
-                default:
                 case MapType::Unsigned:
                 {
                     // full float.
@@ -312,6 +317,13 @@ std::uint32_t DeltaParse(
                     {
                         return in.PullU32(map.bits);
                     }
+                }
+
+                default:
+                case MapType::Ignore:
+                {
+                    // RAM: TODO: LOG: Shouldn't happen.
+                    return 0xFFFFFFFF;
                 }
             }
         }

@@ -31,6 +31,27 @@ DeltaMapItem::~DeltaMapItem()
     // Empty.
 }
 
+DeltaMapItem::DeltaMapItem(const DeltaMapItem& other) : myPimpl({other.myPimpl.get()})
+{
+}
+
+DeltaMapItem::DeltaMapItem(DeltaMapItem&& other) : myPimpl(std::move(other.myPimpl))
+{
+
+}
+
+DeltaMapItem& DeltaMapItem::operator=(const DeltaMapItem& other)
+{
+    *myPimpl = *(other.myPimpl);
+    return *this;
+}
+
+DeltaMapItem& DeltaMapItem::operator=(DeltaMapItem&& other)
+{
+    myPimpl = std::move(other.myPimpl);
+    return *this;
+}
+
 DeltaMapItem::DeltaMapItem(Offset offsetToUse)
     : myPimpl(make_unique<DeltaMapItemInternal>())
 {
