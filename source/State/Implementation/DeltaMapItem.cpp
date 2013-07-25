@@ -20,77 +20,73 @@
 
 #include "DeltaMapItem.hpp"
 
-#include "DeltaMapItemInternal.hpp"
-
-#include <Common/MakeUnique.hpp>
+#include <Common/Logging.hpp>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-DeltaMapItem::~DeltaMapItem()
-{
-    // Empty.
-}
-
-DeltaMapItem::DeltaMapItem(const DeltaMapItem& other) : myPimpl({other.myPimpl.get()})
-{
-}
-
-DeltaMapItem::DeltaMapItem(DeltaMapItem&& other) : myPimpl(std::move(other.myPimpl))
-{
-
-}
-
-DeltaMapItem& DeltaMapItem::operator=(const DeltaMapItem& other)
-{
-    *myPimpl = *(other.myPimpl);
-    return *this;
-}
-
-DeltaMapItem& DeltaMapItem::operator=(DeltaMapItem&& other)
-{
-    myPimpl = std::move(other.myPimpl);
-    return *this;
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse)
-    : myPimpl(make_unique<DeltaMapItemInternal>())
-{
-    myPimpl->name = offsetToUse.name;
-    myPimpl->offset = offsetToUse.offset;
-}
+// RAM: TODO: Clean up the constuctors please.
 
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatFull)
-    : DeltaMapItem(offsetToUse)
+    : offsetInfo(offsetToUse)
+    , type(MapType::Unsigned)
+    , bits(32)
 {
-    myPimpl->type = MapType::Unsigned;
-    myPimpl->bits = 32;
 }
 
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapSigned specs)
-    : DeltaMapItem(offsetToUse, MapUnsigned{specs.resolution})
-{
-    myPimpl->type = MapType::Signed;
-}
-
-DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapUnsigned specs)
-    : DeltaMapItem(offsetToUse)
+    : offsetInfo(offsetToUse)
+    , type(MapType::Signed)
+    , bits(specs.resolution.value)
 {
     if (specs.resolution.value < 1)
     {
-        myPimpl->type = MapType::Ignore;
+        type = MapType::Ignore;
+
+        Common::Log(
+            Common::LogLevel::Debug,
+            "DeltaMapItem ignored: ",
+            offsetInfo.name.c_str(),
+            ": resolution < 1 bit.");
     }
     else
     {
-        myPimpl->bits = specs.resolution.value;
-        if (myPimpl->bits > 32)
+        bits = specs.resolution.value;
+
+        if (bits > 32)
         {
-            myPimpl->bits = 32;
+            bits = 32;
+        }
+    }
+}
+
+DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapUnsigned specs)
+    : offsetInfo(offsetToUse)
+    , type(MapType::Unsigned)
+    , bits(specs.resolution.value)
+{
+    if (specs.resolution.value < 1)
+    {
+        type = MapType::Ignore;
+
+        Common::Log(
+            Common::LogLevel::Debug,
+            "DeltaMapItem ignored: ",
+            offsetInfo.name.c_str(),
+            ": resolution < 1 bit.");
+    }
+    else
+    {
+        bits = specs.resolution.value;
+
+        if (bits > 32)
+        {
+            bits = 32;
         }
     }
 }
 
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRanged specs)
-    : DeltaMapItem(offsetToUse)
+    : offsetInfo(offsetToUse)
 {
     if (specs.maxValue > 0)
     {
@@ -106,26 +102,36 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRanged specs)
         if (resolution.value > 22)
         {
             // full float.
-            myPimpl->type = MapType::Unsigned;
-            myPimpl->bits = 32;
+            type = MapType::Unsigned;
+            bits = 32;
+
+            Common::Log(
+                Common::LogLevel::Debug,
+                "DeltaMapItem: ",
+                offsetInfo.name.c_str(),
+                ": Float (range) resolution > 22 bits, using full float instead.");
         }
         else
         {
-            myPimpl->type = MapType::FloatRanged;
-            myPimpl->bits = resolution.value;
-            myPimpl->maxRange = 1 << resolution.value;
+            type = MapType::FloatRanged;
+            bits = resolution.value;
+            maxRange = 1 << resolution.value;
         }
     }
     else
     {
-        myPimpl->type = MapType::Ignore;
+        type = MapType::Ignore;
 
-        // RAM: TODO: LOG!
+        Common::Log(
+            Common::LogLevel::Debug,
+            "DeltaMapItem: ",
+            offsetInfo.name.c_str(),
+            ": Ignored: maxValue < 0.");
     }
 }
 
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
-    : DeltaMapItem(offsetToUse)
+    : offsetInfo(offsetToUse)
 {
     if (specs.resolution.value >= 1)
     {
@@ -133,25 +139,33 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
 
         if (range > 0)
         {
-            myPimpl->type = MapType::FloatRangedStrict;
+            type = MapType::FloatRangedStrict;
 
-            myPimpl->c = - specs.minValue;
-            myPimpl->m = ((1 << specs.resolution.value) - 1) / range;
-            myPimpl->inversem = static_cast<float>(1.0 / myPimpl->m);
-            myPimpl->bits = specs.resolution.value;
+            c = - specs.minValue;
+            m = ((1 << specs.resolution.value) - 1) / range;
+            inversem = static_cast<float>(1.0 / m);
+            bits = specs.resolution.value;
         }
         else
         {
-            myPimpl->type = MapType::Ignore;
+            type = MapType::Ignore;
 
-            // RAM: TODO: LOG!
+            Common::Log(
+                Common::LogLevel::Debug,
+                "DeltaMapItem: ",
+                offsetInfo.name.c_str(),
+                ": Ignored: Float (range strict) range < 0.");
         }
     }
     else
     {
-        myPimpl->type = MapType::Ignore;
+        type = MapType::Ignore;
 
-        // RAM: TODO: LOG!
+        Common::Log(
+            Common::LogLevel::Debug,
+            "DeltaMapItem: ",
+            offsetInfo.name.c_str(),
+            ": Ignored: resolution < 1 bit.");
     }
 }
 

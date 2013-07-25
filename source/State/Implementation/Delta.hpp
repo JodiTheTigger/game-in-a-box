@@ -21,8 +21,12 @@
 #ifndef DELTA_HPP
 #define DELTA_HPP
 
+#include <DeltaMapItem.hpp>
+
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
+
+#include <vector>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -33,6 +37,41 @@ struct Research
     bool doZeros;
     bool doXor;
 };
+
+// /////////////////////
+// Delta Coder Interface
+// /////////////////////
+/*
+template<class OBJECT>
+class DeltaCoder
+{
+public:
+    DeltaCoder(
+        std::vector<DeltaMapItem> deltaMap,
+        Research settings);
+
+     void DeltaDecode(
+         const OBJECT& base,
+         OBJECT& result,
+         GameInABox::Common::BitStreamReadOnly& dataIn) const;
+
+     void DeltaEncode(
+         const OBJECT& base,
+         const OBJECT& toDelta,
+         GameInABox::Common::BitStream& dataOut) const;
+
+private:
+    const std::vector<DeltaMapItemInternal> myDeltaMap;
+    const Research myResearch;
+};
+
+// /////////////////////
+// Delta Coder Implementation
+// /////////////////////
+
+#include <DeltaMapItemInternal.hpp>
+
+#include <Common/Logging.hpp>
 
 void DeltaCreate(
         std::uint32_t base,
@@ -47,38 +86,15 @@ std::uint32_t DeltaParse(
         GameInABox::Common::BitStreamReadOnly& in,
         Research settings);
 
-// /////////////////////
-// Delta Coder Interface
-// /////////////////////
-/*template<class OBJECT>
-class DeltaCoder
-{
-public:
-    DeltaCoder(
+DeltaCoder::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        OBJECT identity,
-        bool researchEncodeZeros,
-        bool researchEncodeXorDeltas);
+        Research settings)
+    : myDeltaMap()
+    , myResearch(Research)
+{
 
- // if base == nullptr use the identity
-     void DeltaDecode(
-         const OBJECT* base,
-         OBJECT& result,
-         GameInABox::Common::BitStreamReadOnly& dataIn) const;
-
-     // if base == nullptr use the identity
-     // Returns true if base == toDelta, otherwise false.
-     bool DeltaEncode(
-         const OBJECT* base,
-         const OBJECT& toDelta,
-         GameInABox::Common::BitStream& dataOut) const;
-
-private:
-    const std::vector<DeltaMapItem> myDeltaMap;
-    const OBJECT myIdentityObject;
-    const bool myResearchEncodeZeros;
-    const bool myResearchEncodeXorDeltas;
-};*/
+}
+*/
 
 }}} // namespace
 

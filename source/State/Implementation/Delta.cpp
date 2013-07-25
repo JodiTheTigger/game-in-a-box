@@ -30,56 +30,6 @@ using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-/*
-DeltaMap myMap[] = {
-    {OFFSET_INFO(StatePlayer, position.x), MapFloatRangeStrict{500.0f, -500.0f, 17}},
-    {OFFSET_INFO(StatePlayer, position.y), MapFloatRangeStrict{500.0f, -500.0f, 17}},
-    {OFFSET_INFO(StatePlayer, position.z}, MapFloatRangeStrict{500.0f, -500.0f, 17}},
-
-    {OFFSET_INFO(StatePlayer, orientation.x}, MapFloatRangeStrict{1.0f, -1.0f, 12}},
-    {OFFSET_INFO(StatePlayer, orientation.y}, MapFloatRangeStrict{1.0f, -1.0f, 12}},
-    {OFFSET_INFO(StatePlayer, orientation.z}, MapFloatRangeStrict{1.0f, -1.0f, 12}},
-
-    {OFFSET_INFO(StatePlayer, health), Map32bitsUnsigned{10}},
-    {OFFSET_INFO(StatePlayer, energy), Map32bitsUnsigned{10}},
-
-    {OFFSET_INFO(StatePlayer, flags), Map32bitsUnsigned{32}},
-};
-*/
-/*
-struct StatePlayer
-{
-    ServerId        id;             // ignore
-    Vec3            position;       // assume range is +/- 500m, so ranged, 17 bits.
-    Vec3            orientation;    // assume range is +/- 1.0,  12 bits should be fine for angles (360/4096).
-    std::uint32_t   health;         // 0 - 1000, 10 bits is fine
-    std::uint32_t   energy;         // 0 - 1000, 10 bits is fine again
-    FlagsPlayer     flags;          // full uint until I know how many flags there are. 32 bits.
-    ServerTick      lastShot;       // Ignore
-};
-*/
-
-/*
-DeltaMap myMap2[] = {
-    MapIgnored{},
-    MapUnsigned{7, 3, Priority::Normal},
-    MapIgnored{},
-    MapLossless{},
-    MapIgnored{},
-
-    // Position
-    MapFloatCastToUnsigned{16, 11, Priority::Highest},
-    MapFloatCastToUnsigned{16, 11, Priority::Highest},
-    MapFloatCastToUnsigned{16, 11, Priority::Highest},
-
-    // Orientation
-    MapFloat1to1{16, 11, Priority::Normal},
-    MapFloat1to1{16, 11, Priority::Normal},
-    MapFloat1to1{16, 11, Priority::Normal},
-};
-*/
-
-
 // RAM: TODO: Marge this and TypesDelta into it's own Delta class please.
 // RAM: TODO: Research Xoring or not.
 void DeltaCreate(

@@ -30,16 +30,31 @@ struct DeltaMapItemInternal;
 
 class DeltaMapItem
 {
-public:
-    // pimpl means I have to roll my own copy/assign constructors.
-    DeltaMapItem(const DeltaMapItem& other);
-    DeltaMapItem(DeltaMapItem&& other);
-    DeltaMapItem& operator=(const DeltaMapItem& other);
-    DeltaMapItem& operator=(DeltaMapItem&& other);
+public:    
 
-    // Can't have a destructor in the header file if using
-    // unique_ptr + pimpl idiom.
-    ~DeltaMapItem();
+    // I tried hiding the internals, but it made using the class too hard.
+    // If the user wants to bork it all up by being stupid, let them.
+    // TODO: Hide the internals and keep it easy to use.
+    enum class MapType
+    {
+        Ignore,
+        FloatRanged,
+        FloatRangedStrict,
+        Unsigned,
+        Signed,
+    };
+
+    Offset          offsetInfo{"", 0_bytes};
+    Bytes           offset{0};
+    MapType         type{MapType::Ignore};
+
+    signed          bits{0};
+
+    unsigned        maxRange{0};
+
+    float           m{1.0f};
+    float           inversem{1.0f};
+    float           c{0.0f};
 
     DeltaMapItem(Offset offsetToUse, MapFloatFull specs);
     DeltaMapItem(Offset offsetToUse, MapSigned specs);
@@ -47,10 +62,12 @@ public:
     DeltaMapItem(Offset offsetToUse, MapFloatRanged specs);
     DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs);
 
-private:
-    DeltaMapItem(Offset offsetToUse);
-
-    std::unique_ptr<DeltaMapItemInternal> myPimpl;
+    DeltaMapItem() = default;
+    DeltaMapItem(const DeltaMapItem&) = default;
+    DeltaMapItem(DeltaMapItem&&) = default;
+    DeltaMapItem& operator=(const DeltaMapItem&) = default;
+    DeltaMapItem& operator=(DeltaMapItem&&) = default;
+    ~DeltaMapItem() = default;
 };
 
 }}} // namespace

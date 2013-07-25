@@ -87,7 +87,8 @@ Game::Game()
         {MAKE_OFFSET(StatePlayer, health), MapUnsigned{10_bits}},
         {MAKE_OFFSET(StatePlayer, energy), MapUnsigned{10_bits}},
 
-        {MAKE_OFFSET(StatePlayer, flags), MapUnsigned{32_bits}},
+        // RAM: TODO: Automate this using enum::maxvalue and constexpr calculating max bits.
+        {MAKE_OFFSET(StatePlayer, flags), MapUnsigned{3_bits}},
     };
 
     /*
