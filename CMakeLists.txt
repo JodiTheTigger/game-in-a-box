@@ -281,7 +281,6 @@ source/State/Implementation/TypesDelta.hpp
 source/State/Implementation/Units.hpp
 source/State/Implementation/DeltaMapItem.hpp
 source/State/Implementation/DeltaMapItem.cpp
-source/State/Implementation/DeltaMapItemInternal.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 )

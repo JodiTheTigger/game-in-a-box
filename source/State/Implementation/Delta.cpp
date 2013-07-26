@@ -19,7 +19,7 @@
 */
 
 #include "Delta.hpp"
-#include "DeltaMapItemInternal.hpp"
+#include "DeltaMapItem.hpp"
 
 #include <cstdint>
 #include <cstring>
@@ -35,7 +35,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 void DeltaCreate(
         std::uint32_t base,
         std::uint32_t target,
-        const DeltaMapItemInternal& map,
+        const DeltaMapItem& map,
         BitStream& out,
         Research settings)
 {
@@ -64,7 +64,7 @@ void DeltaCreate(
             {
                 // If the number is an uint, send as one, otherwise
                 // send as a full float. Not as good as FloatRangedStrict.
-                case MapType::FloatRanged:
+                case DeltaMapItem::MapType::FloatRanged:
                 {
                     float floatTarget;
 
@@ -109,7 +109,7 @@ void DeltaCreate(
                 }
 
                 // Assume the scaled range is from 0 to (2^bits - 1) inclusive.
-                case MapType::FloatRangedStrict:
+                case DeltaMapItem::MapType::FloatRangedStrict:
                 {
                     float floatTarget;
                     float floatBase;
@@ -126,11 +126,11 @@ void DeltaCreate(
                     target = static_cast<uint32_t>(floatTarget);
                     base = static_cast<uint32_t>(floatBase);
 
-                    // drop through to MapType::Unsigned on purpose.
+                    // drop through to DeltaMapItem::MapType::Unsigned on purpose.
                 }
 
-                case MapType::Unsigned:
-                case MapType::Signed:
+                case DeltaMapItem::MapType::Unsigned:
+                case DeltaMapItem::MapType::Signed:
                 {
                     // NOTE: For signed the top bit is always set if -ve
                     // due to 2s complement, so no special treatment here.
@@ -147,7 +147,7 @@ void DeltaCreate(
                 }
 
                 default:
-                case MapType::Ignore:
+                case DeltaMapItem::MapType::Ignore:
                 {
                     // ignore.
                     break;
@@ -159,7 +159,7 @@ void DeltaCreate(
 
 std::uint32_t DeltaParse(
         std::uint32_t base,
-        const DeltaMapItemInternal& map,
+        const DeltaMapItem& map,
         GameInABox::Common::BitStreamReadOnly& in,
         Research settings)
 {
@@ -184,7 +184,7 @@ std::uint32_t DeltaParse(
         {
             switch (map.type)
             {
-                case MapType::FloatRanged:
+                case DeltaMapItem::MapType::FloatRanged:
                 {
                     if (in.Pull1Bit())
                     {
@@ -212,7 +212,7 @@ std::uint32_t DeltaParse(
                     }
                 }
 
-                case MapType::FloatRangedStrict:
+                case DeltaMapItem::MapType::FloatRangedStrict:
                 {
                     uint32_t delta = in.PullU32(map.bits);
 
@@ -235,7 +235,7 @@ std::uint32_t DeltaParse(
                     return result;
                 }
 
-                case MapType::Signed:
+                case DeltaMapItem::MapType::Signed:
                 {
                     uint32_t result = in.PullU32(map.bits);
 
@@ -256,7 +256,7 @@ std::uint32_t DeltaParse(
                     }
                 }
 
-                case MapType::Unsigned:
+                case DeltaMapItem::MapType::Unsigned:
                 {
                     // full float.
                     if (settings.doXor)
@@ -270,7 +270,7 @@ std::uint32_t DeltaParse(
                 }
 
                 default:
-                case MapType::Ignore:
+                case DeltaMapItem::MapType::Ignore:
                 {
                     // RAM: TODO: LOG: Shouldn't happen.
                     return 0xFFFFFFFF;

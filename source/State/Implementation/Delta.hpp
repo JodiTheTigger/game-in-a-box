@@ -30,8 +30,6 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct DeltaMapItemInternal;
-
 struct Research
 {
     bool doZeros;

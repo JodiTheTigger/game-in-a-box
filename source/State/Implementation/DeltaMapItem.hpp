@@ -26,7 +26,6 @@
 #include <memory>
 
 namespace GameInABox { namespace State { namespace Implementation {
-struct DeltaMapItemInternal;
 
 class DeltaMapItem
 {
