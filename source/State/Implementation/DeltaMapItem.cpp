@@ -24,8 +24,6 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// RAM: TODO: Clean up the constuctors please.
-
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatFull)
     : offsetInfo(offsetToUse)
     , type(MapType::Unsigned)
@@ -50,8 +48,6 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapSigned specs)
     }
     else
     {
-        bits = specs.resolution.value;
-
         if (bits > 32)
         {
             bits = 32;
@@ -76,8 +72,6 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapUnsigned specs)
     }
     else
     {
-        bits = specs.resolution.value;
-
         if (bits > 32)
         {
             bits = 32;
