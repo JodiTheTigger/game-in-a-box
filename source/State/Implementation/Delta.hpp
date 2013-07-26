@@ -25,6 +25,7 @@
 
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
+#include <Common/Logging.hpp>
 
 #include <vector>
 
@@ -39,7 +40,6 @@ struct Research
 // /////////////////////
 // Delta Coder Interface
 // /////////////////////
-/*
 template<class OBJECT>
 class DeltaCoder
 {
@@ -59,7 +59,7 @@ public:
          GameInABox::Common::BitStream& dataOut) const;
 
 private:
-    const std::vector<DeltaMapItemInternal> myDeltaMap;
+    const std::vector<DeltaMapItem> myDeltaMap;
     const Research myResearch;
 };
 
@@ -67,33 +67,70 @@ private:
 // Delta Coder Implementation
 // /////////////////////
 
-#include <DeltaMapItemInternal.hpp>
-
+/*
 #include <Common/Logging.hpp>
 
 void DeltaCreate(
         std::uint32_t base,
         std::uint32_t target,
-        const DeltaMapItemInternal& map,
+        const DeltaMapItem& map,
         GameInABox::Common::BitStream& out,
         Research settings);
 
 std::uint32_t DeltaParse(
         std::uint32_t base,
-        const DeltaMapItemInternal& map,
+        const DeltaMapItem& map,
         GameInABox::Common::BitStreamReadOnly& in,
         Research settings);
 
-DeltaCoder::DeltaCoder(
+// RAM: TODO: Make sure the class is a pod (ofsetoff-able) class.
+DeltaCoder<class OBJECT>::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
         Research settings)
     : myDeltaMap()
     , myResearch(Research)
 {
+    // Ignore ignored deltaMapItems and ones that buffer overrun.
+    for (auto map : myDeltaMap)
+    {
+        if (map.type == DeltaMapItem::MapType::Ignore)
+        {
+            continue;
+        }
 
+        if ((map.offsetInfo.offset + 4) > sizeof(OBJECT))
+        {
+            Common::Log(
+                Common::LogLevel::Warning,
+                "DeltaCoder: Map item '",
+                map.name.c_str(),
+                "' accesses memory out of bounds. Ignored.");
+
+            continue;
+        }
+
+        myDeltaMap.push_back(map);
+    }
+}
+
+void DeltaCoder<class OBJECT>::DeltaDecode(
+    const OBJECT& base,
+    OBJECT& result,
+    GameInABox::Common::BitStreamReadOnly& dataIn) const
+{
+    for (const auto& map : myDeltaMap)
+    {
+        uint32_t base;
+
+        // RAM: TODO: Make sure uint32_t == float == 4.
+        memcpy(&base, reinterpret_cast<const char *>(&base) + map.offsetInfo.offset, sizeof(uint32_t));
+
+        auto result = DeltaParse(base, map, dataIn, myResearch);
+
+        memcpy(reinterpret_cast<char *>(&result) + map.offsetInfo.offset, &result, sizeof(uint32_t));
+    }
 }
 */
-
 }}} // namespace
 
 #endif // DELTA_HPP
