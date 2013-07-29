@@ -49,6 +49,8 @@ Bytes constexpr operator"" _bytes(unsigned long long value)
     return {static_cast<unsigned>(value)};
 }
 
+// RAM: TODO: add, subtract, etc with the units.
+
 }}} // namespace
 
 #endif // UNITS_HPP

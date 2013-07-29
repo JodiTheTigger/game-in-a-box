@@ -22,6 +22,7 @@
 #define DELTAMAPITEM_HPP
 
 #include "TypesDelta.hpp"
+#include "Units.hpp"
 
 #include <memory>
 

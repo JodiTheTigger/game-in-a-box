@@ -21,13 +21,15 @@
 #ifndef DELTA_HPP
 #define DELTA_HPP
 
-#include <DeltaMapItem.hpp>
+#include "DeltaMapItem.hpp"
 
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
 #include <Common/Logging.hpp>
 
 #include <vector>
+#include <cstring> // memcpy
+#include <type_traits>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -43,6 +45,16 @@ struct Research
 template<class OBJECT>
 class DeltaCoder
 {
+    // type checking
+    static_assert(std::is_standard_layout<OBJECT>::value,
+                  "DeltaCoder requires a standard layout object (pod struct, class or union).");
+
+    static_assert(sizeof(float) == sizeof(uint32_t),
+                  "DeltaCoder will have undefined behaviour unless sizeof(float) == sizeof(uint32_t).");
+
+    static_assert(sizeof(float) == 4,
+                  "DeltaCoder will have undefined behaviour unless sizeof(float) == 4.");
+
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
@@ -59,7 +71,7 @@ public:
          GameInABox::Common::BitStream& dataOut) const;
 
 private:
-    const std::vector<DeltaMapItem> myDeltaMap;
+    std::vector<DeltaMapItem> myDeltaMap;
     const Research myResearch;
 };
 
@@ -67,7 +79,6 @@ private:
 // Delta Coder Implementation
 // /////////////////////
 
-/*
 #include <Common/Logging.hpp>
 
 void DeltaCreate(
@@ -83,27 +94,28 @@ std::uint32_t DeltaParse(
         GameInABox::Common::BitStreamReadOnly& in,
         Research settings);
 
-// RAM: TODO: Make sure the class is a pod (ofsetoff-able) class.
-DeltaCoder<class OBJECT>::DeltaCoder(
+
+template<class OBJECT>
+DeltaCoder<OBJECT>::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
         Research settings)
     : myDeltaMap()
-    , myResearch(Research)
+    , myResearch(settings)
 {
     // Ignore ignored deltaMapItems and ones that buffer overrun.
-    for (auto map : myDeltaMap)
+    for (DeltaMapItem map : deltaMap)
     {
         if (map.type == DeltaMapItem::MapType::Ignore)
         {
             continue;
         }
 
-        if ((map.offsetInfo.offset + 4) > sizeof(OBJECT))
+        if ((map.offsetInfo.offset.value + 4) > sizeof(OBJECT))
         {
             Common::Log(
                 Common::LogLevel::Warning,
                 "DeltaCoder: Map item '",
-                map.name.c_str(),
+                map.offsetInfo.name.c_str(),
                 "' accesses memory out of bounds. Ignored.");
 
             continue;
@@ -113,7 +125,8 @@ DeltaCoder<class OBJECT>::DeltaCoder(
     }
 }
 
-void DeltaCoder<class OBJECT>::DeltaDecode(
+template<class OBJECT>
+void DeltaCoder<OBJECT>::DeltaDecode(
     const OBJECT& base,
     OBJECT& result,
     GameInABox::Common::BitStreamReadOnly& dataIn) const
@@ -122,15 +135,46 @@ void DeltaCoder<class OBJECT>::DeltaDecode(
     {
         uint32_t base;
 
-        // RAM: TODO: Make sure uint32_t == float == 4.
-        memcpy(&base, reinterpret_cast<const char *>(&base) + map.offsetInfo.offset, sizeof(uint32_t));
+        memcpy(
+            &base,
+            reinterpret_cast<const char *>(&base) + map.offsetInfo.offset.value,
+            sizeof(uint32_t));
 
         auto result = DeltaParse(base, map, dataIn, myResearch);
 
-        memcpy(reinterpret_cast<char *>(&result) + map.offsetInfo.offset, &result, sizeof(uint32_t));
+        memcpy(
+            reinterpret_cast<char *>(&result) + map.offsetInfo.offset.value,
+            &result,
+            sizeof(uint32_t));
     }
 }
-*/
+
+template<class OBJECT>
+void DeltaCoder<OBJECT>::DeltaEncode(
+    const OBJECT& base,
+    const OBJECT& toDelta,
+    GameInABox::Common::BitStream& dataOut) const
+{
+
+    for (const auto& map : myDeltaMap)
+    {
+        uint32_t base;
+        uint32_t toDelta;
+
+        memcpy(
+            &base,
+            reinterpret_cast<const char *>(&base) + map.offsetInfo.offset.value,
+            sizeof(uint32_t));
+
+        memcpy(
+            &toDelta,
+            reinterpret_cast<const char *>(&toDelta) + map.offsetInfo.offset.value,
+            sizeof(uint32_t));
+
+        DeltaCreate(base, toDelta, map, dataOut, myResearch);
+    }
+}
+
 }}} // namespace
 
 #endif // DELTA_HPP
