@@ -45,9 +45,10 @@ public:
     };
 
     Offset          offsetInfo{"", 0_bytes};
-    Bytes           offset{0};
     MapType         type{MapType::Ignore};
 
+    // RAM: TODO: Change this to the bits datatype after making
+    // the bits datatype signed.
     signed          bits{0};
 
     unsigned        maxRange{0};

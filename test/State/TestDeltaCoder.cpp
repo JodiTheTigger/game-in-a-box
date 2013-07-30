@@ -51,10 +51,9 @@ public:
     {
         myMap = std::vector<DeltaMapItem>
         {
-            // RAM: TODO: Find max bits.
             {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{8_bits}},
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{18_bits}},
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapFloatFull{}}
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, second), MapUnsigned{18_bits}},
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, waitWhat), MapFloatFull{}}
         };
 
         myIdentity = DeltaTester{0,0,0};
@@ -89,9 +88,6 @@ TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity)
     EXPECT_EQ(myFirst.first, result.first);
     EXPECT_EQ(myFirst.second, result.second);
     EXPECT_EQ(myFirst.waitWhat, result.waitWhat);
-
-    // RAM: DOES IT WORK NOW?
-    // NUP EXPECT_EQ(myFirst, result);
 }
 
 TEST_F(TestDeltaCoder, EncodeDecodeFullDiff) 
