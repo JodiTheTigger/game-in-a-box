@@ -36,6 +36,9 @@ using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Test -ve bits
+// RAM: TODO: Test all delta coder types, and their invalid values.
+
 class TestDeltaCoder : public ::testing::Test 
 {
 public:
@@ -176,11 +179,10 @@ TEST_F(TestDeltaCoder, RandomStates)
     
     for (int i = 0; i < 100; i++)
     {
-        // RAM: TODO: GET rid of c casts.
         states.push_back(DeltaTester{
-            uint32_t(even(generator) & 0xFF),
-            uint32_t(even(generator) & 0x3FFFF),
-            float(even(generator)) / 37.0f});
+            static_cast<uint32_t>(even(generator) & 0xFF),
+            static_cast<uint32_t>(even(generator) & 0x3FFFF),
+            static_cast<float>(even(generator)) / 37.0f});
     }
     
     for (int i = 0; i < 1000; i++)
