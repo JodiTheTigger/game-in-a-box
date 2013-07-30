@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef TYPESDELTA_HPP
-#define TYPESDELTA_HPP
+#ifndef DELTATYPES_HPP
+#define DELTATYPES_HPP
 
 #include <string>
 
@@ -101,4 +101,4 @@ struct Offset
 
 }}} // namespace
 
-#endif // TYPESDELTA_HPP
+#endif // DELTATYPES_HPP

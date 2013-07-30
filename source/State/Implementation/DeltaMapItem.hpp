@@ -21,7 +21,7 @@
 #ifndef DELTAMAPITEM_HPP
 #define DELTAMAPITEM_HPP
 
-#include "TypesDelta.hpp"
+#include "DeltaTypes.hpp"
 #include "Units.hpp"
 
 #include <memory>

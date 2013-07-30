@@ -18,8 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <DeltaCoder.hpp>
-#include <DeltaMapItem.hpp>
+#include <Implementation/DeltaCoder.hpp>
+#include <Implementation/DeltaMapItem.hpp>
+
+#include <Common/BitStream.hpp>
+#include <Common/BitStreamReadOnly.hpp>
 
 #include <gtest/gtest.h>
 
@@ -31,7 +34,7 @@
 using namespace std;
 using namespace GameInABox::Common;
 
-namespace GameInABox { namespace Unused {
+namespace GameInABox { namespace State { namespace Implementation {
 
 class TestDeltaCoder : public ::testing::Test 
 {
@@ -46,14 +49,16 @@ public:
 
     virtual void SetUp()
     {
-        // please remove if not used.
-        myMap = {{
-            {DELTAMAP(TestDeltaCoder::DeltaTester, first, 8)},
-            {DELTAMAP(TestDeltaCoder::DeltaTester, second, 18)},
-            {DELTAMAP(TestDeltaCoder::DeltaTester, waitWhat, 32)}}};
-            
-        myIdentity = DeltaTester();
-        myFirst = DeltaTester(1, 2, 3.141f);
+        myMap = std::vector<DeltaMapItem>
+        {
+            // RAM: TODO: Find max bits.
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{8_bits}},
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{18_bits}},
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapFloatFull{}}
+        };
+
+        myIdentity = DeltaTester{0,0,0};
+        myFirst = DeltaTester{1,2,3.141f};
     }
     
 protected:
@@ -63,9 +68,6 @@ protected:
         uint32_t first;
         uint32_t second;
         float waitWhat;
-        
-        DeltaTester(uint32_t f, uint32_t s, float w) : first(f), second(s), waitWhat(w) {};
-        DeltaTester() : DeltaTester(0,0,0) {};
     };
     
     vector<DeltaMapItem> myMap;
@@ -78,15 +80,18 @@ TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity)
     DeltaTester result;
     BitStream data(32);
         
-    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
+    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(nullptr, myFirst, data);
-    myCoder.DeltaDecode(nullptr, result, data);
+    myCoder.DeltaEncode(myIdentity, myFirst, data);
+    myCoder.DeltaDecode(myIdentity, result, data);
     
     // CBF defining a operator== for my struct.
     EXPECT_EQ(myFirst.first, result.first);
     EXPECT_EQ(myFirst.second, result.second);
     EXPECT_EQ(myFirst.waitWhat, result.waitWhat);
+
+    // RAM: DOES IT WORK NOW?
+    // NUP EXPECT_EQ(myFirst, result);
 }
 
 TEST_F(TestDeltaCoder, EncodeDecodeFullDiff) 
@@ -99,10 +104,10 @@ TEST_F(TestDeltaCoder, EncodeDecodeFullDiff)
     second.second = 8;
     second.waitWhat = 1.7f;
         
-    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
+    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(&myFirst, second, data);
-    myCoder.DeltaDecode(&myFirst, result, data);
+    myCoder.DeltaEncode(myFirst, second, data);
+    myCoder.DeltaDecode(myFirst, result, data);
     
     // CBF defining a operator== for my struct.
     EXPECT_EQ(second.first, result.first);
@@ -120,10 +125,10 @@ TEST_F(TestDeltaCoder, EncodeDecodePartialDiff)
     second.second = myFirst.second;
     second.waitWhat = 1.7f;
         
-    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
+    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(&myFirst, second, data);
-    myCoder.DeltaDecode(&myFirst, result, data);
+    myCoder.DeltaEncode(myFirst, second, data);
+    myCoder.DeltaDecode(myFirst, result, data);
     
     // CBF defining a operator== for my struct.
     EXPECT_EQ(second.first, result.first);
@@ -133,20 +138,11 @@ TEST_F(TestDeltaCoder, EncodeDecodePartialDiff)
 
 TEST_F(TestDeltaCoder, EncodeAgainstIdentity) 
 {
-    union FloatUInt32
-    {
-        float asFloat;
-        uint32_t asUint32;
-    };
-
-    DeltaTester result;
     BitStream data(32);
-    FloatUInt32 temp;
 
-            
-    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
+    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(nullptr, myFirst, data);
+    myCoder.DeltaEncode(myIdentity, myFirst, data);
     
     EXPECT_FALSE(data.Pull1Bit());
     EXPECT_FALSE(data.Pull1Bit());    
@@ -158,14 +154,14 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
         
     EXPECT_FALSE(data.Pull1Bit());
     EXPECT_FALSE(data.Pull1Bit());
-    temp.asUint32 = data.PullU32(32);
+    auto asUint32 = data.PullU32(32);
+    float asFloat;
 
-    // Oh wow, type punning. Great.
-    // http://stackoverflow.com/questions/13982340/is-it-safe-to-reinterpret-cast-an-integer-to-float
-    // I'll have to use the union hack. But first, there is
-    // no point using a union cast if the sizes don't match.
+    // aliasing is not allowed, memcpy.
     ASSERT_EQ(sizeof(float), sizeof(uint32_t));
-    EXPECT_EQ(3.141f, temp.asFloat);
+    memcpy(&asFloat, &asUint32, sizeof(float));
+
+    EXPECT_EQ(3.141f, asFloat);
 }
 
 
@@ -178,16 +174,17 @@ TEST_F(TestDeltaCoder, RandomStates)
     
     vector<DeltaTester> states;
             
-    DeltaCoder<DeltaTester> myCoder(myMap, myIdentity, true, true);
+    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
     generator.seed(1);
     
     for (int i = 0; i < 100; i++)
     {
-        states.push_back(DeltaTester(
+        // RAM: TODO: GET rid of c casts.
+        states.push_back(DeltaTester{
             uint32_t(even(generator) & 0xFF),
             uint32_t(even(generator) & 0x3FFFF),
-            float(even(generator)) / 37.0f));
+            float(even(generator)) / 37.0f});
     }
     
     for (int i = 0; i < 1000; i++)
@@ -201,19 +198,19 @@ TEST_F(TestDeltaCoder, RandomStates)
         from = even100(generator);
         to = even100(generator);
 
-        myCoder.DeltaEncode(&(states[from]), states[to], stream);
-        myCoder.DeltaDecode(&(states[from]), result, stream);
+        myCoder.DeltaEncode(states[from], states[to], stream);
+        myCoder.DeltaDecode(states[from], result, stream);
                 
-        EXPECT_EQ(states[to].first, result.first)
+        ASSERT_EQ(states[to].first, result.first)
                 << "From:" << ::testing::PrintToString(from)
                 << " To: " << ::testing::PrintToString(to)
                 << " i: " << i
                 << "\nstate from: " << ::testing::PrintToString(states[from])
                 << "\nstate to  : " << ::testing::PrintToString(states[to])
                 << "\nresult    : " << ::testing::PrintToString(result);
-        EXPECT_EQ(states[to].second, result.second);
-        EXPECT_EQ(states[to].waitWhat, result.waitWhat);
+        ASSERT_EQ(states[to].second, result.second);
+        ASSERT_EQ(states[to].waitWhat, result.waitWhat);
     }
 }
 
-}} // namespace
+}}} // namespace

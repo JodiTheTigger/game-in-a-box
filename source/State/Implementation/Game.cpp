@@ -21,7 +21,7 @@
 #include "Game.hpp"
 
 #include "Types.hpp"
-#include "TypesDelta.hpp"
+#include "DeltaTypes.hpp"
 #include "DeltaMapItem.hpp"
 #include "Units.hpp"
 

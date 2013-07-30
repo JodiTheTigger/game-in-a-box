@@ -18,13 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "Delta.hpp"
+#include "DeltaCoderTools.hpp"
 #include "DeltaMapItem.hpp"
 
-#include <cstdint>
-#include <cstring>
+#include <Common/BitStream.hpp>
+#include <Common/BitStreamReadOnly.hpp>
 
-// RAM: TODO: Check that float == 4 bytes.
+// #include <Common/Logging.hpp>
+
+#include <cstring>
 
 using namespace GameInABox::Common;
 

@@ -274,15 +274,21 @@ test/Network/MockIStateManager.hpp
 )
 
 set(STATE
-source/State/Implementation/Delta.hpp
-source/State/Implementation/Delta.cpp
+source/State/Implementation/DeltaTypes.hpp
+source/State/Implementation/DeltaCoder.hpp
+source/State/Implementation/DeltaCoder.tpp
+source/State/Implementation/DeltaCoderTools.cpp
+source/State/Implementation/DeltaCoderTools.hpp
 source/State/Implementation/Types.hpp
-source/State/Implementation/TypesDelta.hpp
 source/State/Implementation/Units.hpp
 source/State/Implementation/DeltaMapItem.hpp
 source/State/Implementation/DeltaMapItem.cpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
+)
+
+set(STATE_TEST
+test/State/TestDeltaCoder.cpp
 )
 
 set(UNUSED
@@ -298,13 +304,9 @@ source/Unused/RollingStatistics.hpp
 source/Unused/RollingStatistics.cpp
 source/Unused/ReflectionKey.hpp
 source/Unused/BaseClassUniquePointer.hpp
-source/Unused/DeltaMapItem.hpp
-source/Unused/DeltaCoder.hpp
-source/Unused/DeltaCoder-Implementation.hpp
 )
 
 set(UNUSED_TEST
-test/Unused/TestDeltaCoder.cpp
 test/Unused/TestAutoComplete.cpp
 test/Unused/TestIReflected.cpp
 test/Unused/TestReflectionManager.cpp
@@ -432,29 +434,30 @@ ${STATE}
 
 set_target_properties(game-in-a-box-state PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
-#ADD_EXECUTABLE(
-#game-in-a-box-state-tests
-#${STATE_TEST}
-#)
+ADD_EXECUTABLE(
+game-in-a-box-state-tests
+${STATE_TEST}
+)
 
 # Ignore google test and goole mock warnings
-#set_target_properties(game-in-a-box-state-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
+set_target_properties(game-in-a-box-state-tests PROPERTIES COMPILE_FLAGS "${PARANOID_FLAGS} ${GMOCK_FLAGS} ${IGNOREWARNINGS_FLAGS}")
 
-#target_link_libraries(
-#  game-in-a-box-state-tests
-#  game-in-a-box-state
-#  ${CMAKE_THREAD_LIBS_INIT}
-#  gmock
-#  gmock_main
-#  ${Boost_LIBRARIES})
+target_link_libraries(
+  game-in-a-box-state-tests
+  game-in-a-box-state
+  game-in-a-box-common
+  ${CMAKE_THREAD_LIBS_INIT}
+  gmock
+  gmock_main
+  ${Boost_LIBRARIES})
 
-#add_test(
-#  NAME game-in-a-box-state-tests
-#  COMMAND game-in-a-box-state-tests
-#)
+add_test(
+  NAME game-in-a-box-state-tests
+  COMMAND game-in-a-box-state-tests
+)
 
 # run tests after every build please.
-#add_custom_command(TARGET game-in-a-box-state-tests POST_BUILD COMMAND game-in-a-box-state-tests)
+add_custom_command(TARGET game-in-a-box-state-tests POST_BUILD COMMAND game-in-a-box-state-tests)
 
 ###############
 # Unused

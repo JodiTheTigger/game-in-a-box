@@ -18,82 +18,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef DELTA_HPP
-#define DELTA_HPP
+#ifndef DELTACODER_TPP
+#define DELTACODER_TPP
 
-#include "DeltaMapItem.hpp"
-
-#include <Common/BitStream.hpp>
-#include <Common/BitStreamReadOnly.hpp>
 #include <Common/Logging.hpp>
 
-#include <vector>
 #include <cstring> // memcpy
 #include <type_traits>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct Research
-{
-    bool doZeros;
-    bool doXor;
-};
-
-// /////////////////////
-// Delta Coder Interface
-// /////////////////////
-template<class OBJECT>
-class DeltaCoder
-{
-    // type checking
-    static_assert(std::is_standard_layout<OBJECT>::value,
-                  "DeltaCoder requires a standard layout object (pod struct, class or union).");
-
-    static_assert(sizeof(float) == sizeof(uint32_t),
-                  "DeltaCoder will have undefined behaviour unless sizeof(float) == sizeof(uint32_t).");
-
-    static_assert(sizeof(float) == 4,
-                  "DeltaCoder will have undefined behaviour unless sizeof(float) == 4.");
-
-public:
-    DeltaCoder(
-        std::vector<DeltaMapItem> deltaMap,
-        Research settings);
-
-     void DeltaDecode(
-         const OBJECT& base,
-         OBJECT& result,
-         GameInABox::Common::BitStreamReadOnly& dataIn) const;
-
-     void DeltaEncode(
-         const OBJECT& base,
-         const OBJECT& toDelta,
-         GameInABox::Common::BitStream& dataOut) const;
-
-private:
-    std::vector<DeltaMapItem> myDeltaMap;
-    const Research myResearch;
-};
-
 // /////////////////////
 // Delta Coder Implementation
 // /////////////////////
-
-#include <Common/Logging.hpp>
-
-void DeltaCreate(
-        std::uint32_t base,
-        std::uint32_t target,
-        const DeltaMapItem& map,
-        GameInABox::Common::BitStream& out,
-        Research settings);
-
-std::uint32_t DeltaParse(
-        std::uint32_t base,
-        const DeltaMapItem& map,
-        GameInABox::Common::BitStreamReadOnly& in,
-        Research settings);
-
 
 template<class OBJECT>
 DeltaCoder<OBJECT>::DeltaCoder(
@@ -107,6 +44,12 @@ DeltaCoder<OBJECT>::DeltaCoder(
     {
         if (map.type == DeltaMapItem::MapType::Ignore)
         {
+            Common::Log(
+                Common::LogLevel::Informational,
+                "DeltaCoder: Map item '",
+                map.offsetInfo.name.c_str(),
+                "' accesses memory out of bounds. Ignored.");
+
             continue;
         }
 
@@ -133,18 +76,18 @@ void DeltaCoder<OBJECT>::DeltaDecode(
 {
     for (const auto& map : myDeltaMap)
     {
-        uint32_t base;
+        std::uint32_t baseValue;
 
         memcpy(
-            &base,
+            &baseValue,
             reinterpret_cast<const char *>(&base) + map.offsetInfo.offset.value,
             sizeof(uint32_t));
 
-        auto result = DeltaParse(base, map, dataIn, myResearch);
+        auto resultValue = DeltaParse(baseValue, map, dataIn, myResearch);
 
         memcpy(
             reinterpret_cast<char *>(&result) + map.offsetInfo.offset.value,
-            &result,
+            &resultValue,
             sizeof(uint32_t));
     }
 }
@@ -158,23 +101,23 @@ void DeltaCoder<OBJECT>::DeltaEncode(
 
     for (const auto& map : myDeltaMap)
     {
-        uint32_t base;
-        uint32_t toDelta;
+        std::uint32_t baseValue;
+        std::uint32_t toDeltaValue;
 
         memcpy(
-            &base,
+            &baseValue,
             reinterpret_cast<const char *>(&base) + map.offsetInfo.offset.value,
             sizeof(uint32_t));
 
         memcpy(
-            &toDelta,
+            &toDeltaValue,
             reinterpret_cast<const char *>(&toDelta) + map.offsetInfo.offset.value,
             sizeof(uint32_t));
 
-        DeltaCreate(base, toDelta, map, dataOut, myResearch);
+        DeltaCreate(baseValue, toDeltaValue, map, dataOut, myResearch);
     }
 }
 
 }}} // namespace
 
-#endif // DELTA_HPP
+#endif // DELTACODER_TPP
