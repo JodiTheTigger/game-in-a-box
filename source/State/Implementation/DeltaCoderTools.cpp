@@ -23,8 +23,7 @@
 
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
-
-// #include <Common/Logging.hpp>
+#include <Common/Logging.hpp>
 
 #include <cstring>
 
@@ -32,8 +31,6 @@ using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// RAM: TODO: Marge this and TypesDelta into it's own Delta class please.
-// RAM: TODO: Research Xoring or not.
 void DeltaCreate(
         std::uint32_t base,
         std::uint32_t target,
@@ -273,8 +270,13 @@ std::uint32_t DeltaParse(
 
                 default:
                 case DeltaMapItem::MapType::Ignore:
-                {
-                    // RAM: TODO: LOG: Shouldn't happen.
+                {                    
+                    Common::Log(
+                        Common::LogLevel::Warning,
+                        "DeltaCoder: Map item '",
+                        map.offsetInfo.name.c_str(),
+                        "' is ignored returning 0xFFFFFFFF. This shouldn't happen, there is a bug. Find it and squash it!");
+
                     return 0xFFFFFFFF;
                 }
             }
