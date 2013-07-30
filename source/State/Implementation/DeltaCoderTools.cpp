@@ -104,7 +104,7 @@ void DeltaCreate(
                         // but reinterpret_cast only works on pointers. Meh, just memcpy.
                         memcpy(&uintTarget, &intTarget, sizeof(uint32_t));
 
-                        out.Push(uintTarget, map.bits);
+                        out.Push(uintTarget, map.resolution.value);
                     }
 
                     break;
@@ -138,11 +138,11 @@ void DeltaCreate(
                     // due to 2s complement, so no special treatment here.
                     if (settings.doXor)
                     {
-                        out.Push(base ^ target, map.bits);
+                        out.Push(base ^ target, map.resolution.value);
                     }
                     else
                     {
-                        out.Push(target, map.bits);
+                        out.Push(target, map.resolution.value);
                     }
 
                     break;
@@ -207,7 +207,7 @@ std::uint32_t DeltaParse(
                         float asFloat;
                         uint32_t result;
 
-                        asFloat = in.PullU32(map.bits);
+                        asFloat = in.PullU32(map.resolution.value);
                         memcpy(&result, &asFloat, sizeof(float));
 
                         return result;
@@ -216,7 +216,7 @@ std::uint32_t DeltaParse(
 
                 case DeltaMapItem::MapType::FloatRangedStrict:
                 {
-                    uint32_t delta = in.PullU32(map.bits);
+                    uint32_t delta = in.PullU32(map.resolution.value);
 
                     if (settings.doXor)
                     {
@@ -239,12 +239,12 @@ std::uint32_t DeltaParse(
 
                 case DeltaMapItem::MapType::Signed:
                 {
-                    uint32_t result = in.PullU32(map.bits);
+                    uint32_t result = in.PullU32(map.resolution.value);
 
                     // extend the sign bit all along to make a valid -ve number.
-                    if ((result & (1 << (map.bits - 1))) > 0)
+                    if ((result & (1 << (map.resolution.value - 1))) > 0)
                     {
-                        result |= (0xFFFFFFFF << map.bits);
+                        result |= (0xFFFFFFFF << map.resolution.value);
                     }
 
                     // full float.
@@ -263,11 +263,11 @@ std::uint32_t DeltaParse(
                     // full float.
                     if (settings.doXor)
                     {
-                        return base ^ in.PullU32(map.bits);
+                        return base ^ in.PullU32(map.resolution.value);
                     }
                     else
                     {
-                        return in.PullU32(map.bits);
+                        return in.PullU32(map.resolution.value);
                     }
                 }
 

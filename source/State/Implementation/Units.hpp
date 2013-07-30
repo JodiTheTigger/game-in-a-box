@@ -28,12 +28,12 @@ namespace GameInABox { namespace State { namespace Implementation {
 // /////////////////////
 struct Bits
 {
-    unsigned value;
+    signed value;
 };
 
 struct Bytes
 {
-    unsigned value;
+    signed value;
 };
 
 // /////////////////////
@@ -41,12 +41,12 @@ struct Bytes
 // /////////////////////
 Bits constexpr operator"" _bits(unsigned long long value)
 {
-    return {static_cast<unsigned>(value)};
+    return {static_cast<signed>(value)};
 }
 
 Bytes constexpr operator"" _bytes(unsigned long long value)
 {
-    return {static_cast<unsigned>(value)};
+    return {static_cast<signed>(value)};
 }
 
 // RAM: TODO: add, subtract, etc with the units.

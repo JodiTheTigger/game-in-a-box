@@ -27,16 +27,16 @@ namespace GameInABox { namespace State { namespace Implementation {
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatFull)
     : offsetInfo(offsetToUse)
     , type(MapType::Unsigned)
-    , bits(32)
+    , resolution({32})
 {
 }
 
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapSigned specs)
     : offsetInfo(offsetToUse)
     , type(MapType::Signed)
-    , bits(specs.resolution.value)
+    , resolution(specs.resolution)
 {
-    if (specs.resolution.value < 1)
+    if (resolution.value < 1)
     {
         type = MapType::Ignore;
 
@@ -48,9 +48,10 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapSigned specs)
     }
     else
     {
-        if (bits > 32)
+        // RAM: TODO: Just use units instead of "value"
+        if (resolution.value > 32)
         {
-            bits = 32;
+            resolution = 32_bits;
         }
     }
 }
@@ -58,9 +59,9 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapSigned specs)
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapUnsigned specs)
     : offsetInfo(offsetToUse)
     , type(MapType::Unsigned)
-    , bits(specs.resolution.value)
+    , resolution(specs.resolution)
 {
-    if (specs.resolution.value < 1)
+    if (resolution.value < 1)
     {
         type = MapType::Ignore;
 
@@ -72,9 +73,9 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapUnsigned specs)
     }
     else
     {
-        if (bits > 32)
+        if (resolution.value > 32)
         {
-            bits = 32;
+            resolution = 32_bits;
         }
     }
 }
@@ -85,19 +86,19 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRanged specs)
     if (specs.maxValue > 0)
     {
         // figure out the range in bits.
-        Bits resolution;
+        Bits maxResolution;
 
-        while ((1U << resolution.value) < (2U*specs.maxValue))
+        while ((1U << maxResolution.value) < (2U*specs.maxValue))
         {
-            ++(resolution.value);
+            ++(maxResolution.value);
         }
 
         // float has 23 bits of mantessa, no point doing this is we require a larger dynamic range.
-        if (resolution.value > 22)
+        if (maxResolution.value > 22)
         {
             // full float.
             type = MapType::Unsigned;
-            bits = 32;
+            resolution = 32_bits;
 
             Common::Log(
                 Common::LogLevel::Debug,
@@ -108,8 +109,8 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRanged specs)
         else
         {
             type = MapType::FloatRanged;
-            bits = resolution.value;
-            maxRange = 1 << resolution.value;
+            resolution = maxResolution;
+            maxRange = 1 << maxResolution.value;
         }
     }
     else
@@ -138,7 +139,7 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
             c = - specs.minValue;
             m = ((1 << specs.resolution.value) - 1) / range;
             inversem = static_cast<float>(1.0 / m);
-            bits = specs.resolution.value;
+            resolution = specs.resolution;
         }
         else
         {
