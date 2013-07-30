@@ -43,13 +43,40 @@ Bits constexpr operator"" _bits(unsigned long long value)
 {
     return {static_cast<signed>(value)};
 }
+Bits constexpr operator"" _bit(unsigned long long value)
+{
+    // Argh, Plurals
+    return {static_cast<signed>(value)};
+}
 
 Bytes constexpr operator"" _bytes(unsigned long long value)
 {
     return {static_cast<signed>(value)};
 }
+Bytes constexpr operator"" _byte(unsigned long long value)
+{
+    return {static_cast<signed>(value)};
+}
 
-// RAM: TODO: add, subtract, etc with the units.
+// /////////////////////
+// Comparisons and maths
+// /////////////////////
+
+#define COMPARISONS_AND_MATHS(DATATYPE)\
+inline bool operator==(const DATATYPE& lhs, const DATATYPE& rhs){return lhs.value==rhs.value;}\
+inline bool operator!=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator==(lhs,rhs);}\
+inline bool operator< (const DATATYPE& lhs, const DATATYPE& rhs){return lhs.value< rhs.value;}\
+inline bool operator> (const DATATYPE& lhs, const DATATYPE& rhs){return  operator< (rhs,lhs);}\
+inline bool operator<=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator> (lhs,rhs);}\
+inline bool operator>=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator< (lhs,rhs);}\
+\
+inline DATATYPE operator+(DATATYPE lhs, const DATATYPE& rhs){ lhs.value += rhs.value;  return lhs; }\
+inline DATATYPE operator-(DATATYPE lhs, const DATATYPE& rhs){ lhs.value -= rhs.value;  return lhs; }\
+inline DATATYPE operator*(DATATYPE lhs, const DATATYPE& rhs){ lhs.value *= rhs.value;  return lhs; }\
+inline DATATYPE operator/(DATATYPE lhs, const DATATYPE& rhs){ lhs.value /= rhs.value;  return lhs; }
+
+COMPARISONS_AND_MATHS(Bits);
+COMPARISONS_AND_MATHS(Bytes);
 
 }}} // namespace
 
