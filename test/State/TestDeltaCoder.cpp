@@ -38,6 +38,10 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 // RAM: TODO: Test all delta coder types, and their invalid values.
 
+
+// /////////////////////
+// Test Class
+// /////////////////////
 class TestDeltaCoder : public ::testing::Test 
 {
 public:
@@ -61,7 +65,7 @@ public:
 
         myIdentity = DeltaTester{{0,0,0}, 0, 0, 0, false, 0, 0};
         myFirst = DeltaTester{{0,0,0},1,2,3.141f,false,0,0};
-        mySecond = DeltaTester{{-1.0,69.0,42.3423},8,11,-2.87f,true,-44,88.88};
+        mySecond = DeltaTester{{1.0,0,-42.3423},8,11,-1024.0f,true,-44,88.88};
     }
 
 protected:
@@ -73,7 +77,7 @@ protected:
         uint32_t second;
         float waitWhat;
         bool ignored;
-        int32_t thisIsSigned;
+        int32_t third;
         double ignored2;
     };
     
@@ -81,8 +85,29 @@ protected:
     DeltaTester myIdentity;
     DeltaTester myFirst;
     DeltaTester mySecond;
+
+    DeltaTester TestMapFirstToSecond(std::vector<DeltaMapItem> map);
 };
 
+// /////////////////////
+// Helpers
+// /////////////////////
+TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapFirstToSecond(std::vector<DeltaMapItem> map)
+{
+    DeltaTester result;
+    BitStream stream(32);
+
+    DeltaCoder<DeltaTester> coder(map, {true, true});
+
+    coder.DeltaEncode(myFirst, mySecond, stream);
+    coder.DeltaDecode(myFirst, result, stream);
+
+    return result;
+}
+
+// /////////////////////
+// Tests
+// /////////////////////
 TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity) 
 {
     DeltaTester result;
@@ -221,24 +246,36 @@ TEST_F(TestDeltaCoder, RandomStates)
     }
 }
 
-TEST_F(TestDeltaCoder, NegativeBits)
+TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
 {
-    DeltaTester result;
-    BitStream stream(32);
-
     auto map = std::vector<DeltaMapItem>
     {
         // RAM: TODO: Support compiling -8_bits!
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{{-8}}}
     };
 
-    // should ignore everything as -ve bits don't make sense.
-    DeltaCoder<DeltaTester> myCoder(map, {true, true});
-
-    myCoder.DeltaEncode(myFirst, mySecond, stream);
-    myCoder.DeltaDecode(myFirst, result, stream);
+    auto result = TestMapFirstToSecond(map);
 
     EXPECT_EQ(myFirst.first, result.first);
 }
+
+/*
+TEST_F(TestDeltaCoder, FloatFull);
+TEST_F(TestDeltaCoder, Unsigned);
+TEST_F(TestDeltaCoder, UnsignedNegativeBits);
+TEST_F(TestDeltaCoder, Unsigned0Bits);
+TEST_F(TestDeltaCoder, Unsigned33Bits);
+TEST_F(TestDeltaCoder, Signed);
+TEST_F(TestDeltaCoder, SignedNegativeBits);
+TEST_F(TestDeltaCoder, Signed0Bits);
+TEST_F(TestDeltaCoder, Signed33Bits);
+TEST_F(TestDeltaCoder, FloatRangedAsFloat);
+TEST_F(TestDeltaCoder, FloatRangedAsInt);
+TEST_F(TestDeltaCoder, FloatRanged0Max);
+TEST_F(TestDeltaCoder, FloatRanged24bitMaxRange);
+TEST_F(TestDeltaCoder, FloatRangedStrict);
+TEST_F(TestDeltaCoder, FloatRangedStrict0Bits);
+TEST_F(TestDeltaCoder, FloatRangedStrict33Bits);
+*/
 
 }}} // namespace
