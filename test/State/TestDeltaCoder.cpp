@@ -36,7 +36,6 @@ using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// RAM: TODO: Test -ve bits
 // RAM: TODO: Test all delta coder types, and their invalid values.
 
 class TestDeltaCoder : public ::testing::Test 
@@ -47,6 +46,7 @@ public:
         , myMap()
         , myIdentity()
         , myFirst()
+        , mySecond()
     {
     }
 
@@ -59,22 +59,28 @@ public:
             {MAKE_OFFSET(TestDeltaCoder::DeltaTester, waitWhat), MapFloatFull{}}
         };
 
-        myIdentity = DeltaTester{0,0,0};
-        myFirst = DeltaTester{1,2,3.141f};
+        myIdentity = DeltaTester{{0,0,0}, 0, 0, 0, false, 0, 0};
+        myFirst = DeltaTester{{0,0,0},1,2,3.141f,false,0,0};
+        mySecond = DeltaTester{{-1.0,69.0,42.3423},8,11,-2.87f,true,-44,88.88};
     }
-    
+
 protected:
     
     struct DeltaTester
     {
+        float vector[3];
         uint32_t first;
         uint32_t second;
         float waitWhat;
+        bool ignored;
+        int32_t thisIsSigned;
+        double ignored2;
     };
     
     vector<DeltaMapItem> myMap;
     DeltaTester myIdentity;
     DeltaTester myFirst;
+    DeltaTester mySecond;
 };
 
 TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity) 
@@ -180,9 +186,13 @@ TEST_F(TestDeltaCoder, RandomStates)
     for (int i = 0; i < 100; i++)
     {
         states.push_back(DeltaTester{
+            {0,0,0},
             static_cast<uint32_t>(even(generator) & 0xFF),
             static_cast<uint32_t>(even(generator) & 0x3FFFF),
-            static_cast<float>(even(generator)) / 37.0f});
+            static_cast<float>(even(generator)) / 37.0f,
+            false,
+            0,
+            0});
     }
     
     for (int i = 0; i < 1000; i++)
@@ -209,6 +219,26 @@ TEST_F(TestDeltaCoder, RandomStates)
         ASSERT_EQ(states[to].second, result.second);
         ASSERT_EQ(states[to].waitWhat, result.waitWhat);
     }
+}
+
+TEST_F(TestDeltaCoder, NegativeBits)
+{
+    DeltaTester result;
+    BitStream stream(32);
+
+    auto map = std::vector<DeltaMapItem>
+    {
+        // RAM: TODO: Support compiling -8_bits!
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{{-8}}}
+    };
+
+    // should ignore everything as -ve bits don't make sense.
+    DeltaCoder<DeltaTester> myCoder(map, {true, true});
+
+    myCoder.DeltaEncode(myFirst, mySecond, stream);
+    myCoder.DeltaDecode(myFirst, result, stream);
+
+    EXPECT_EQ(myFirst.first, result.first);
 }
 
 }}} // namespace
