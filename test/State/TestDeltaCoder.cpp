@@ -89,13 +89,13 @@ protected:
     DeltaTester myBase;
     DeltaTester myTarget;
 
-    DeltaTester TestMapuint0Touint1(std::vector<DeltaMapItem> map);
+    DeltaTester TestMapBaseToTarget(std::vector<DeltaMapItem> map);
 };
 
 // /////////////////////
 // Helpers
 // /////////////////////
-TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapuint0Touint1(std::vector<DeltaMapItem> map)
+TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapBaseToTarget(std::vector<DeltaMapItem> map)
 {
     DeltaTester result;
     BitStream stream(32);
@@ -260,7 +260,7 @@ TEST_F(TestDeltaCoder, MapFloatFull)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatFull{}},
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
     EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
@@ -276,7 +276,7 @@ TEST_F(TestDeltaCoder, MapUnsigned)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{31_bits}},
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myTarget.uint0 & 0x3F, result.uint0);
     EXPECT_EQ(myTarget.uint1 & 0x7FFFFFF, result.uint1);
@@ -291,7 +291,7 @@ TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{{-8}}}
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myBase.uint0, result.uint0);
 }
@@ -303,7 +303,7 @@ TEST_F(TestDeltaCoder, MapUnsigned0Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{0_bits}}
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myBase.uint0, result.uint0);
 }
@@ -315,7 +315,7 @@ TEST_F(TestDeltaCoder, MapUnsigned33Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{33_bits}}
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myTarget.uint1, result.uint1);
 }
@@ -328,7 +328,7 @@ TEST_F(TestDeltaCoder, MapSigned)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapSigned{31_bits}},
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myTarget.int0, result.int0);
     EXPECT_EQ(myTarget.int1, result.int1);
@@ -342,7 +342,7 @@ TEST_F(TestDeltaCoder, MapSignedNegativeBits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{{-8}}}
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myBase.int0, result.int0);
 }
@@ -354,7 +354,7 @@ TEST_F(TestDeltaCoder, MapSigned0Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{0_bits}}
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myBase.int0, result.int0);
 }
@@ -366,24 +366,24 @@ TEST_F(TestDeltaCoder, MapSigned33Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapUnsigned{33_bits}}
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_EQ(myTarget.int1, result.int1);
 }
 
-TEST_F(TestDeltaCoder, FloatRangedAsFloat)
+TEST_F(TestDeltaCoder, MapFloatRangedAsFloat)
 {
     auto map = std::vector<DeltaMapItem>
     {
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[2]), MapFloatRanged{10000}},
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_FLOAT_EQ(myTarget.float03[2], result.float03[2]);
 }
 
-TEST_F(TestDeltaCoder, FloatRangedAsInt)
+TEST_F(TestDeltaCoder, MapFloatRangedAsInt)
 {
     auto map = std::vector<DeltaMapItem>
     {
@@ -391,41 +391,81 @@ TEST_F(TestDeltaCoder, FloatRangedAsInt)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRanged{127}}
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
     EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
 }
 
-TEST_F(TestDeltaCoder, FloatRanged0Max)
+TEST_F(TestDeltaCoder, MapFloatRanged0Max)
 {
     auto map = std::vector<DeltaMapItem>
     {
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRanged{0}},
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     // 0 range, so ignored, so no change from base.
     EXPECT_FLOAT_EQ(myBase.float03[0], result.float03[0]);
 }
 
-TEST_F(TestDeltaCoder, FloatRanged24bitMaxRange)
+TEST_F(TestDeltaCoder, MapFloatRanged24bitMaxRange)
 {
     auto map = std::vector<DeltaMapItem>
     {
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRanged{40000000}},
     };
 
-    auto result = TestMapuint0Touint1(map);
+    auto result = TestMapBaseToTarget(map);
 
     EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
 }
 
-/*
-TEST_F(TestDeltaCoder, FloatRangedStrict);
-TEST_F(TestDeltaCoder, FloatRangedStrict0Bits);
-TEST_F(TestDeltaCoder, FloatRangedStrict33Bits);
-*/
+TEST_F(TestDeltaCoder, MapFloatRangedStrict)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRangeStrict{0,1,6_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,8_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[2]), MapFloatRangeStrict{-100,0,16_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatRangeStrict{-2000,2000,13_bits}},
+    };
+
+    auto result = TestMapBaseToTarget(map);
+
+    // RAM: TODO: Due to less bits to encode, the error might be quite big,
+    // so figure out the correct range to allow.
+    EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
+    EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+    EXPECT_FLOAT_EQ(myTarget.float03[2], result.float03[2]);
+    EXPECT_FLOAT_EQ(myTarget.float3, result.float3);
+}
+
+TEST_F(TestDeltaCoder, MapFloatRangedStrict0Bits)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,0_bits}},
+    };
+
+    auto result = TestMapBaseToTarget(map);
+
+    // 0 bits, so ignore, so should equal the base.
+    EXPECT_FLOAT_EQ(myBase.float03[1], result.float03[1]);
+}
+
+TEST_F(TestDeltaCoder, MapFloatRangedStrict33Bits)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,33_bits}},
+    };
+
+    auto result = TestMapBaseToTarget(map);
+
+    // 33 bits should be treated as 32 bits.
+    EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+}
 
 }}} // namespace
