@@ -135,6 +135,11 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
         {
             type = MapType::FloatRangedStrict;
 
+            if (specs.resolution > 32_bit)
+            {
+                specs.resolution = 32_bit;
+            }
+
             c = - specs.minValue;
             m = ((1 << specs.resolution.value) - 1) / range;
             inversem = static_cast<float>(1.0 / m);

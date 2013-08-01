@@ -97,7 +97,7 @@ protected:
 // /////////////////////
 TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapBaseToTarget(std::vector<DeltaMapItem> map)
 {
-    DeltaTester result;
+    DeltaTester result = {{0,0,0}, 0, 0, 0, false, 0, 0, 0};
     BitStream stream(32);
 
     DeltaCoder<DeltaTester> coder(map, {true, true});
@@ -278,9 +278,9 @@ TEST_F(TestDeltaCoder, MapUnsigned)
 
     auto result = TestMapBaseToTarget(map);
 
-    EXPECT_EQ(myTarget.uint0 & 0x3F, result.uint0);
-    EXPECT_EQ(myTarget.uint1 & 0x7FFFFFF, result.uint1);
-    EXPECT_NE(myTarget.uint1 & 0xFFFFFFF, result.uint1);
+    EXPECT_EQ(myTarget.uint0 & 0x3F, result.uint0 & 0x3F);
+    EXPECT_EQ(myTarget.uint1 & 0x7FFFFFF, result.uint1 & 0x7FFFFFF);
+    EXPECT_NE(myTarget.uint1 & 0xFFFFFFF, result.uint1 & 0xFFFFFFF);
 }
 
 TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
