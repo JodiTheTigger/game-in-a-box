@@ -1,5 +1,5 @@
 /*
-    Game-in-a-box. Simple First Person Shooter Network Game.
+    Game-in-a-box. Simple uint0 Person Shooter Network Game.
     Copyright (C) 2012 Richard Maxwell <jodi.the.tigger@gmail.com>
     
     This file is part of Game-in-a-box
@@ -49,8 +49,8 @@ public:
         : ::testing::Test()
         , myMap()
         , myIdentity()
-        , myFirst()
-        , mySecond()
+        , myuint0()
+        , myuint1()
     {
     }
 
@@ -58,49 +58,50 @@ public:
     {
         myMap = std::vector<DeltaMapItem>
         {
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{8_bits}},
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, second), MapUnsigned{18_bits}},
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, waitWhat), MapFloatFull{}}
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{8_bits}},
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{18_bits}},
+            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatFull{}}
         };
 
-        myIdentity = DeltaTester{{0,0,0}, 0, 0, 0, false, 0, 0};
-        myFirst = DeltaTester{{0,0,0},1,2,3.141f,false,0,0};
-        mySecond = DeltaTester{{1.0,0,-42.3423},128,0xFFFFFFFF,-1024.0f,true,-44,88.88};
+        myIdentity = DeltaTester{{0,0,0}, 0, 0, 0, false, 0, 0, 0};
+        myuint0 = DeltaTester{{0,0,0},1,2,3.141f,false,0x11223344,22.22,12392};
+        myuint1 = DeltaTester{{1.0,0,-42.3423},128,0xFFFFFFFF,-1024.0f,true,-44,88.88,-1};
     }
 
 protected:
     
     struct DeltaTester
     {
-        float vector[3];
-        uint32_t first;
-        uint32_t second;
-        float waitWhat;
+        float float03[3];
+        uint32_t uint0;
+        uint32_t uint1;
+        float float3;
         bool ignored;
-        int32_t third;
+        int32_t int0;
         double ignored2;
+        int32_t int1;
     };
     
     vector<DeltaMapItem> myMap;
     DeltaTester myIdentity;
-    DeltaTester myFirst;
-    DeltaTester mySecond;
+    DeltaTester myuint0;
+    DeltaTester myuint1;
 
-    DeltaTester TestMapFirstToSecond(std::vector<DeltaMapItem> map);
+    DeltaTester TestMapuint0Touint1(std::vector<DeltaMapItem> map);
 };
 
 // /////////////////////
 // Helpers
 // /////////////////////
-TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapFirstToSecond(std::vector<DeltaMapItem> map)
+TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapuint0Touint1(std::vector<DeltaMapItem> map)
 {
     DeltaTester result;
     BitStream stream(32);
 
     DeltaCoder<DeltaTester> coder(map, {true, true});
 
-    coder.DeltaEncode(myFirst, mySecond, stream);
-    coder.DeltaDecode(myFirst, result, stream);
+    coder.DeltaEncode(myuint0, myuint1, stream);
+    coder.DeltaDecode(myuint0, result, stream);
 
     return result;
 }
@@ -115,55 +116,55 @@ TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity)
         
     DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(myIdentity, myFirst, data);
+    myCoder.DeltaEncode(myIdentity, myuint0, data);
     myCoder.DeltaDecode(myIdentity, result, data);
     
     // CBF defining a operator== for my struct.
-    EXPECT_EQ(myFirst.first, result.first);
-    EXPECT_EQ(myFirst.second, result.second);
-    EXPECT_EQ(myFirst.waitWhat, result.waitWhat);
+    EXPECT_EQ(myuint0.uint0, result.uint0);
+    EXPECT_EQ(myuint0.uint1, result.uint1);
+    EXPECT_EQ(myuint0.float3, result.float3);
 }
 
 TEST_F(TestDeltaCoder, EncodeDecodeFullDiff) 
 {
-    DeltaTester second;
+    DeltaTester uint1;
     DeltaTester result;
     BitStream data(32);
         
-    second.first = 4;
-    second.second = 8;
-    second.waitWhat = 1.7f;
+    uint1.uint0 = 4;
+    uint1.uint1 = 8;
+    uint1.float3 = 1.7f;
         
     DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(myFirst, second, data);
-    myCoder.DeltaDecode(myFirst, result, data);
+    myCoder.DeltaEncode(myuint0, uint1, data);
+    myCoder.DeltaDecode(myuint0, result, data);
     
     // CBF defining a operator== for my struct.
-    EXPECT_EQ(second.first, result.first);
-    EXPECT_EQ(second.second, result.second);
-    EXPECT_EQ(second.waitWhat, result.waitWhat);
+    EXPECT_EQ(uint1.uint0, result.uint0);
+    EXPECT_EQ(uint1.uint1, result.uint1);
+    EXPECT_EQ(uint1.float3, result.float3);
 }
 
 TEST_F(TestDeltaCoder, EncodeDecodePartialDiff) 
 {
-    DeltaTester second;
+    DeltaTester uint1;
     DeltaTester result;
     BitStream data(32);
         
-    second.first = 5;
-    second.second = myFirst.second;
-    second.waitWhat = 1.7f;
+    uint1.uint0 = 5;
+    uint1.uint1 = myuint0.uint1;
+    uint1.float3 = 1.7f;
         
     DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(myFirst, second, data);
-    myCoder.DeltaDecode(myFirst, result, data);
+    myCoder.DeltaEncode(myuint0, uint1, data);
+    myCoder.DeltaDecode(myuint0, result, data);
     
     // CBF defining a operator== for my struct.
-    EXPECT_EQ(second.first, result.first);
-    EXPECT_EQ(second.second, result.second);
-    EXPECT_EQ(second.waitWhat, result.waitWhat);
+    EXPECT_EQ(uint1.uint0, result.uint0);
+    EXPECT_EQ(uint1.uint1, result.uint1);
+    EXPECT_EQ(uint1.float3, result.float3);
 }
 
 TEST_F(TestDeltaCoder, EncodeAgainstIdentity) 
@@ -172,7 +173,7 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
 
     DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
     
-    myCoder.DeltaEncode(myIdentity, myFirst, data);
+    myCoder.DeltaEncode(myIdentity, myuint0, data);
     
     EXPECT_FALSE(data.Pull1Bit());
     EXPECT_FALSE(data.Pull1Bit());    
@@ -217,6 +218,7 @@ TEST_F(TestDeltaCoder, RandomStates)
             static_cast<float>(even(generator)) / 37.0f,
             false,
             0,
+            0,
             0});
     }
     
@@ -234,15 +236,15 @@ TEST_F(TestDeltaCoder, RandomStates)
         myCoder.DeltaEncode(states[from], states[to], stream);
         myCoder.DeltaDecode(states[from], result, stream);
                 
-        ASSERT_EQ(states[to].first, result.first)
+        ASSERT_EQ(states[to].uint0, result.uint0)
                 << "From:" << ::testing::PrintToString(from)
                 << " To: " << ::testing::PrintToString(to)
                 << " i: " << i
                 << "\nstate from: " << ::testing::PrintToString(states[from])
                 << "\nstate to  : " << ::testing::PrintToString(states[to])
                 << "\nresult    : " << ::testing::PrintToString(result);
-        ASSERT_EQ(states[to].second, result.second);
-        ASSERT_EQ(states[to].waitWhat, result.waitWhat);
+        ASSERT_EQ(states[to].uint1, result.uint1);
+        ASSERT_EQ(states[to].float3, result.float3);
     }
 }
 
@@ -250,34 +252,33 @@ TEST_F(TestDeltaCoder, MapFloatFull)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, vector[0]), MapFloatFull{}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, vector[1]), MapFloatFull{}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, vector[2]), MapFloatFull{}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, waitWhat), MapFloatFull{}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatFull{}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatFull{}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[2]), MapFloatFull{}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatFull{}},
     };
 
-    auto result = TestMapFirstToSecond(map);
+    auto result = TestMapuint0Touint1(map);
 
-    EXPECT_FLOAT_EQ(mySecond.vector[0], result.vector[0]);
-    EXPECT_FLOAT_EQ(mySecond.vector[1], result.vector[1]);
-    EXPECT_FLOAT_EQ(mySecond.vector[2], result.vector[2]);
-    EXPECT_FLOAT_EQ(mySecond.waitWhat, result.waitWhat);
+    EXPECT_FLOAT_EQ(myuint1.float03[0], result.float03[0]);
+    EXPECT_FLOAT_EQ(myuint1.float03[1], result.float03[1]);
+    EXPECT_FLOAT_EQ(myuint1.float03[2], result.float03[2]);
+    EXPECT_FLOAT_EQ(myuint1.float3, result.float3);
 }
-
 
 TEST_F(TestDeltaCoder, MapUnsigned)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{6_bits}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, second), MapUnsigned{31_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{6_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{31_bits}},
     };
 
-    auto result = TestMapFirstToSecond(map);
+    auto result = TestMapuint0Touint1(map);
 
-    EXPECT_EQ(mySecond.first & 0x3F, result.first);
-    EXPECT_EQ(mySecond.second & 0x7FFFFFF, result.second);
-    EXPECT_NE(mySecond.second & 0xFFFFFFF, result.second);
+    EXPECT_EQ(myuint1.uint0 & 0x3F, result.uint0);
+    EXPECT_EQ(myuint1.uint1 & 0x7FFFFFF, result.uint1);
+    EXPECT_NE(myuint1.uint1 & 0xFFFFFFF, result.uint1);
 }
 
 TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
@@ -285,44 +286,91 @@ TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
     auto map = std::vector<DeltaMapItem>
     {
         // RAM: TODO: Support compiling -8_bits!
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{{-8}}}
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{{-8}}}
     };
 
-    auto result = TestMapFirstToSecond(map);
+    auto result = TestMapuint0Touint1(map);
 
-    EXPECT_EQ(myFirst.first, result.first);
+    EXPECT_EQ(myuint0.uint0, result.uint0);
 }
 
 TEST_F(TestDeltaCoder, MapUnsigned0Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{0_bits}}
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{0_bits}}
     };
 
-    auto result = TestMapFirstToSecond(map);
+    auto result = TestMapuint0Touint1(map);
 
-    EXPECT_EQ(myFirst.first, result.first);
+    EXPECT_EQ(myuint0.uint0, result.uint0);
 }
 
 TEST_F(TestDeltaCoder, MapUnsigned33Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, second), MapUnsigned{33_bits}}
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{33_bits}}
     };
 
-    auto result = TestMapFirstToSecond(map);
+    auto result = TestMapuint0Touint1(map);
 
-    EXPECT_EQ(mySecond.second, result.second);
+    EXPECT_EQ(myuint1.uint1, result.uint1);
+}
+
+TEST_F(TestDeltaCoder, MapSigned)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{6_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapSigned{31_bits}},
+    };
+
+    auto result = TestMapuint0Touint1(map);
+
+    EXPECT_EQ(myuint1.int0, result.int0);
+    EXPECT_EQ(myuint1.int1, result.int1);
+}
+
+TEST_F(TestDeltaCoder, MapSignedNegativeBits)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        // RAM: TODO: Support compiling -8_bits!
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{{-8}}}
+    };
+
+    auto result = TestMapuint0Touint1(map);
+
+    EXPECT_EQ(myuint0.int0, result.int0);
+}
+
+TEST_F(TestDeltaCoder, MapSigned0Bits)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{0_bits}}
+    };
+
+    auto result = TestMapuint0Touint1(map);
+
+    EXPECT_EQ(myuint0.int0, result.int0);
+}
+
+TEST_F(TestDeltaCoder, MapSigned33Bits)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapUnsigned{33_bits}}
+    };
+
+    auto result = TestMapuint0Touint1(map);
+
+    EXPECT_EQ(myuint1.int1, result.int1);
 }
 
 
 /*
-TEST_F(TestDeltaCoder, Signed);
-TEST_F(TestDeltaCoder, SignedNegativeBits);
-TEST_F(TestDeltaCoder, Signed0Bits);
-TEST_F(TestDeltaCoder, Signed33Bits);
 TEST_F(TestDeltaCoder, FloatRangedAsFloat);
 TEST_F(TestDeltaCoder, FloatRangedAsInt);
 TEST_F(TestDeltaCoder, FloatRanged0Max);
