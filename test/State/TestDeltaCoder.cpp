@@ -65,7 +65,7 @@ public:
 
         myIdentity = DeltaTester{{0,0,0}, 0, 0, 0, false, 0, 0};
         myFirst = DeltaTester{{0,0,0},1,2,3.141f,false,0,0};
-        mySecond = DeltaTester{{1.0,0,-42.3423},8,11,-1024.0f,true,-44,88.88};
+        mySecond = DeltaTester{{1.0,0,-42.3423},128,0xFFFFFFFF,-1024.0f,true,-44,88.88};
     }
 
 protected:
@@ -246,6 +246,40 @@ TEST_F(TestDeltaCoder, RandomStates)
     }
 }
 
+TEST_F(TestDeltaCoder, MapFloatFull)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, vector[0]), MapFloatFull{}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, vector[1]), MapFloatFull{}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, vector[2]), MapFloatFull{}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, waitWhat), MapFloatFull{}},
+    };
+
+    auto result = TestMapFirstToSecond(map);
+
+    EXPECT_FLOAT_EQ(mySecond.vector[0], result.vector[0]);
+    EXPECT_FLOAT_EQ(mySecond.vector[1], result.vector[1]);
+    EXPECT_FLOAT_EQ(mySecond.vector[2], result.vector[2]);
+    EXPECT_FLOAT_EQ(mySecond.waitWhat, result.waitWhat);
+}
+
+
+TEST_F(TestDeltaCoder, MapUnsigned)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{6_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, second), MapUnsigned{31_bits}},
+    };
+
+    auto result = TestMapFirstToSecond(map);
+
+    EXPECT_EQ(mySecond.first & 0x3F, result.first);
+    EXPECT_EQ(mySecond.second & 0x7FFFFFF, result.second);
+    EXPECT_NE(mySecond.second & 0xFFFFFFF, result.second);
+}
+
 TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
 {
     auto map = std::vector<DeltaMapItem>
@@ -259,12 +293,32 @@ TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
     EXPECT_EQ(myFirst.first, result.first);
 }
 
+TEST_F(TestDeltaCoder, MapUnsigned0Bits)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, first), MapUnsigned{0_bits}}
+    };
+
+    auto result = TestMapFirstToSecond(map);
+
+    EXPECT_EQ(myFirst.first, result.first);
+}
+
+TEST_F(TestDeltaCoder, MapUnsigned33Bits)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, second), MapUnsigned{33_bits}}
+    };
+
+    auto result = TestMapFirstToSecond(map);
+
+    EXPECT_EQ(mySecond.second, result.second);
+}
+
+
 /*
-TEST_F(TestDeltaCoder, FloatFull);
-TEST_F(TestDeltaCoder, Unsigned);
-TEST_F(TestDeltaCoder, UnsignedNegativeBits);
-TEST_F(TestDeltaCoder, Unsigned0Bits);
-TEST_F(TestDeltaCoder, Unsigned33Bits);
 TEST_F(TestDeltaCoder, Signed);
 TEST_F(TestDeltaCoder, SignedNegativeBits);
 TEST_F(TestDeltaCoder, Signed0Bits);
