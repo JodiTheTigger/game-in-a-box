@@ -324,7 +324,7 @@ TEST_F(TestDeltaCoder, MapSigned)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{6_bits}},
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{8_bits}},
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapSigned{31_bits}},
     };
 

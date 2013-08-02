@@ -238,21 +238,18 @@ std::uint32_t DeltaParse(
                 {
                     uint32_t result = in.PullU32(map.resolution.value);
 
+                    if (settings.doXor)
+                    {
+                        result ^= base;
+                    }
+
                     // extend the sign bit all along to make a valid -ve number.
                     if ((result & (1 << (map.resolution.value - 1))) > 0)
                     {
                         result |= (0xFFFFFFFF << map.resolution.value);
                     }
 
-                    // full float.
-                    if (settings.doXor)
-                    {
-                        return base ^ result;
-                    }
-                    else
-                    {
-                        return result;
-                    }
+                    return result;
                 }
 
                 case DeltaMapItem::MapType::Unsigned:
