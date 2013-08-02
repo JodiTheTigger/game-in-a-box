@@ -36,9 +36,6 @@ using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// RAM: TODO: Test all delta coder types, and their invalid values.
-
-
 // /////////////////////
 // Test Class
 // /////////////////////
@@ -278,9 +275,10 @@ TEST_F(TestDeltaCoder, MapUnsigned)
 
     auto result = TestMapBaseToTarget(map);
 
+    // Note that the result is always based on the base when actually delta'd,
+    // so Only test the bits you care about, the other bits are "don't care" NOT "0".
     EXPECT_EQ(myTarget.uint0 & 0x3F, result.uint0 & 0x3F);
     EXPECT_EQ(myTarget.uint1 & 0x7FFFFFF, result.uint1 & 0x7FFFFFF);
-    EXPECT_NE(myTarget.uint1 & 0xFFFFFFF, result.uint1 & 0xFFFFFFF);
 }
 
 TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
@@ -293,7 +291,9 @@ TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
 
     auto result = TestMapBaseToTarget(map);
 
-    EXPECT_EQ(myBase.uint0, result.uint0);
+    // However, ignored items (for this test) are untouched, so are whatever
+    // you initially intilised the structure to. For use that's 0 for everything.
+    EXPECT_EQ(0, result.uint0);
 }
 
 TEST_F(TestDeltaCoder, MapUnsigned0Bits)
@@ -305,7 +305,7 @@ TEST_F(TestDeltaCoder, MapUnsigned0Bits)
 
     auto result = TestMapBaseToTarget(map);
 
-    EXPECT_EQ(myBase.uint0, result.uint0);
+    EXPECT_EQ(0, result.uint0);
 }
 
 TEST_F(TestDeltaCoder, MapUnsigned33Bits)
@@ -344,7 +344,7 @@ TEST_F(TestDeltaCoder, MapSignedNegativeBits)
 
     auto result = TestMapBaseToTarget(map);
 
-    EXPECT_EQ(myBase.int0, result.int0);
+    EXPECT_EQ(0, result.int0);
 }
 
 TEST_F(TestDeltaCoder, MapSigned0Bits)
@@ -356,7 +356,7 @@ TEST_F(TestDeltaCoder, MapSigned0Bits)
 
     auto result = TestMapBaseToTarget(map);
 
-    EXPECT_EQ(myBase.int0, result.int0);
+    EXPECT_EQ(0, result.int0);
 }
 
 TEST_F(TestDeltaCoder, MapSigned33Bits)
@@ -406,8 +406,8 @@ TEST_F(TestDeltaCoder, MapFloatRanged0Max)
 
     auto result = TestMapBaseToTarget(map);
 
-    // 0 range, so ignored, so no change from base.
-    EXPECT_FLOAT_EQ(myBase.float03[0], result.float03[0]);
+    // 0 range, so ignored.
+    EXPECT_FLOAT_EQ(0, result.float03[0]);
 }
 
 TEST_F(TestDeltaCoder, MapFloatRanged24bitMaxRange)
@@ -451,8 +451,8 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict0Bits)
 
     auto result = TestMapBaseToTarget(map);
 
-    // 0 bits, so ignore, so should equal the base.
-    EXPECT_FLOAT_EQ(myBase.float03[1], result.float03[1]);
+    // 0 bits, so ignore.
+    EXPECT_FLOAT_EQ(0, result.float03[1]);
 }
 
 TEST_F(TestDeltaCoder, MapFloatRangedStrict33Bits)

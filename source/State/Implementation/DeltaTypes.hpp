@@ -78,8 +78,8 @@ struct MapFloatRanged
 // A resolution of 0 is ignored for delta coding.
 struct MapFloatRangeStrict
 {
-    float maxValue;
     float minValue;
+    float maxValue;
     Bits resolution;
 };
 

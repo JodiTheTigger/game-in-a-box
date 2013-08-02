@@ -141,6 +141,8 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
             }
 
             c = - specs.minValue;
+
+            // RAM: whoops, overflow bug!
             m = ((1 << specs.resolution.value) - 1) / range;
             inversem = static_cast<float>(1.0 / m);
             resolution = specs.resolution;

@@ -48,7 +48,7 @@ DeltaCoder<OBJECT>::DeltaCoder(
                 Common::LogLevel::Informational,
                 "DeltaCoder: Map item '",
                 map.offsetInfo.name.c_str(),
-                "' accesses memory out of bounds. Ignored.");
+                "' set to ignore. Ignored.");
 
             continue;
         }
