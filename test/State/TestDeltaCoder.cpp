@@ -30,6 +30,7 @@
 #include <vector>
 #include <memory>
 #include <random>
+#include <array>
 
 using namespace std;
 using namespace GameInABox::Common;
@@ -80,24 +81,32 @@ protected:
         double ignored2;
         int32_t int1;
     };
+
+    std::array<Research, 4> myResearch =
+    {{
+        {false, false},
+        {false, true},
+        {true, false},
+        {true, true}
+    }};
     
     vector<DeltaMapItem> myMap;
     DeltaTester myIdentity;
     DeltaTester myBase;
     DeltaTester myTarget;
 
-    DeltaTester TestMapBaseToTarget(std::vector<DeltaMapItem> map);
+    DeltaTester TestMapBaseToTarget(std::vector<DeltaMapItem> map, Research settings);
 };
 
 // /////////////////////
 // Helpers
 // /////////////////////
-TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapBaseToTarget(std::vector<DeltaMapItem> map)
+TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapBaseToTarget(std::vector<DeltaMapItem> map, Research settings)
 {
     DeltaTester result = {{0,0,0}, 0, 0, 0, false, 0, 0, 0};
     BitStream stream(32);
 
-    DeltaCoder<DeltaTester> coder(map, {true, true});
+    DeltaCoder<DeltaTester> coder(map, settings);
 
     coder.DeltaEncode(myBase, myTarget, stream);
     coder.DeltaDecode(myBase, result, stream);
@@ -110,78 +119,88 @@ TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapBaseToTarget(std::vector<Delt
 // /////////////////////
 TEST_F(TestDeltaCoder, EncodeDecodeAgainstIdentity) 
 {
-    DeltaTester result;
-    BitStream data(32);
-        
-    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
-    
-    myCoder.DeltaEncode(myIdentity, myBase, data);
-    myCoder.DeltaDecode(myIdentity, result, data);
-    
-    // CBF defining a operator== for my struct.
-    EXPECT_EQ(myBase.uint0, result.uint0);
-    EXPECT_EQ(myBase.uint1, result.uint1);
-    EXPECT_EQ(myBase.float3, result.float3);
+    for (auto setting : myResearch)
+    {
+        DeltaTester result;
+        BitStream data(32);
+
+        DeltaCoder<DeltaTester> myCoder(myMap, setting);
+
+        myCoder.DeltaEncode(myIdentity, myBase, data);
+        myCoder.DeltaDecode(myIdentity, result, data);
+
+        // CBF defining a operator== for my struct.
+        EXPECT_EQ(myBase.uint0, result.uint0);
+        EXPECT_EQ(myBase.uint1, result.uint1);
+        EXPECT_EQ(myBase.float3, result.float3);
+    }
 }
 
 TEST_F(TestDeltaCoder, EncodeDecodeFullDiff) 
 {
-    DeltaTester uint1;
-    DeltaTester result;
-    BitStream data(32);
-        
-    uint1.uint0 = 4;
-    uint1.uint1 = 8;
-    uint1.float3 = 1.7f;
-        
-    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
-    
-    myCoder.DeltaEncode(myBase, uint1, data);
-    myCoder.DeltaDecode(myBase, result, data);
-    
-    // CBF defining a operator== for my struct.
-    EXPECT_EQ(uint1.uint0, result.uint0);
-    EXPECT_EQ(uint1.uint1, result.uint1);
-    EXPECT_EQ(uint1.float3, result.float3);
+    for (auto setting : myResearch)
+    {
+        DeltaTester uint1;
+        DeltaTester result;
+        BitStream data(32);
+
+        uint1.uint0 = 4;
+        uint1.uint1 = 8;
+        uint1.float3 = 1.7f;
+
+        DeltaCoder<DeltaTester> myCoder(myMap, setting);
+
+        myCoder.DeltaEncode(myBase, uint1, data);
+        myCoder.DeltaDecode(myBase, result, data);
+
+        // CBF defining a operator== for my struct.
+        EXPECT_EQ(uint1.uint0, result.uint0);
+        EXPECT_EQ(uint1.uint1, result.uint1);
+        EXPECT_EQ(uint1.float3, result.float3);
+    }
 }
 
 TEST_F(TestDeltaCoder, EncodeDecodePartialDiff) 
-{
-    DeltaTester uint1;
-    DeltaTester result;
-    BitStream data(32);
-        
-    uint1.uint0 = 5;
-    uint1.uint1 = myBase.uint1;
-    uint1.float3 = 1.7f;
-        
-    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
-    
-    myCoder.DeltaEncode(myBase, uint1, data);
-    myCoder.DeltaDecode(myBase, result, data);
-    
-    // CBF defining a operator== for my struct.
-    EXPECT_EQ(uint1.uint0, result.uint0);
-    EXPECT_EQ(uint1.uint1, result.uint1);
-    EXPECT_EQ(uint1.float3, result.float3);
+{    
+    for (auto setting : myResearch)
+    {
+        DeltaTester uint1;
+        DeltaTester result;
+        BitStream data(32);
+
+        uint1.uint0 = 5;
+        uint1.uint1 = myBase.uint1;
+        uint1.float3 = 1.7f;
+
+        DeltaCoder<DeltaTester> myCoder(myMap, setting);
+
+        myCoder.DeltaEncode(myBase, uint1, data);
+        myCoder.DeltaDecode(myBase, result, data);
+
+        // CBF defining a operator== for my struct.
+        EXPECT_EQ(uint1.uint0, result.uint0);
+        EXPECT_EQ(uint1.uint1, result.uint1);
+        EXPECT_EQ(uint1.float3, result.float3);
+    }
 }
 
+// This test is only valid against xor + encode zeros.
 TEST_F(TestDeltaCoder, EncodeAgainstIdentity) 
 {
     BitStream data(32);
 
     DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
-    
+
     myCoder.DeltaEncode(myIdentity, myBase, data);
-    
+
     EXPECT_FALSE(data.Pull1Bit());
-    EXPECT_FALSE(data.Pull1Bit());    
+    EXPECT_FALSE(data.Pull1Bit());
     EXPECT_EQ(1, data.PullU32(8));
-        
+
     EXPECT_FALSE(data.Pull1Bit());
-    EXPECT_FALSE(data.Pull1Bit());    
+    EXPECT_FALSE(data.Pull1Bit());
     EXPECT_EQ(2, data.PullU32(18));
-        
+
     EXPECT_FALSE(data.Pull1Bit());
     EXPECT_FALSE(data.Pull1Bit());
     auto asUint32 = data.PullU32(32);
@@ -198,52 +217,55 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
 
 TEST_F(TestDeltaCoder, RandomStates)
 {
-    minstd_rand generator;
-    uniform_int_distribution<uint32_t> even;
-    uniform_int_distribution<uint32_t> even100(0,99);
-    
-    vector<DeltaTester> states;
-            
-    DeltaCoder<DeltaTester> myCoder(myMap, {true, true});
-    
-    generator.seed(1);
-    
-    for (int i = 0; i < 100; i++)
+    for (auto setting : myResearch)
     {
-        states.push_back(DeltaTester{
-            {0,0,0},
-            static_cast<uint32_t>(even(generator) & 0xFF),
-            static_cast<uint32_t>(even(generator) & 0x3FFFF),
-            static_cast<float>(even(generator)) / 37.0f,
-            false,
-            0,
-            0,
-            0});
-    }
-    
-    for (int i = 0; i < 1000; i++)
-    {
-        uint32_t from;
-        uint32_t to;
-        DeltaTester result;
-        
-        BitStream stream(32);
-        
-        from = even100(generator);
-        to = even100(generator);
+        minstd_rand generator;
+        uniform_int_distribution<uint32_t> even;
+        uniform_int_distribution<uint32_t> even100(0,99);
 
-        myCoder.DeltaEncode(states[from], states[to], stream);
-        myCoder.DeltaDecode(states[from], result, stream);
-                
-        ASSERT_EQ(states[to].uint0, result.uint0)
-                << "From:" << ::testing::PrintToString(from)
-                << " To: " << ::testing::PrintToString(to)
-                << " i: " << i
-                << "\nstate from: " << ::testing::PrintToString(states[from])
-                << "\nstate to  : " << ::testing::PrintToString(states[to])
-                << "\nresult    : " << ::testing::PrintToString(result);
-        ASSERT_EQ(states[to].uint1, result.uint1);
-        ASSERT_EQ(states[to].float3, result.float3);
+        vector<DeltaTester> states;
+
+        DeltaCoder<DeltaTester> myCoder(myMap, setting);
+
+        generator.seed(1);
+
+        for (int i = 0; i < 100; i++)
+        {
+            states.push_back(DeltaTester{
+                {0,0,0},
+                static_cast<uint32_t>(even(generator) & 0xFF),
+                static_cast<uint32_t>(even(generator) & 0x3FFFF),
+                static_cast<float>(even(generator)) / 37.0f,
+                false,
+                0,
+                0,
+                0});
+        }
+
+        for (int i = 0; i < 1000; i++)
+        {
+            uint32_t from;
+            uint32_t to;
+            DeltaTester result;
+
+            BitStream stream(32);
+
+            from = even100(generator);
+            to = even100(generator);
+
+            myCoder.DeltaEncode(states[from], states[to], stream);
+            myCoder.DeltaDecode(states[from], result, stream);
+
+            ASSERT_EQ(states[to].uint0, result.uint0)
+                    << "From:" << ::testing::PrintToString(from)
+                    << " To: " << ::testing::PrintToString(to)
+                    << " i: " << i
+                    << "\nstate from: " << ::testing::PrintToString(states[from])
+                    << "\nstate to  : " << ::testing::PrintToString(states[to])
+                    << "\nresult    : " << ::testing::PrintToString(result);
+            ASSERT_EQ(states[to].uint1, result.uint1);
+            ASSERT_EQ(states[to].float3, result.float3);
+        }
     }
 }
 
@@ -257,12 +279,15 @@ TEST_F(TestDeltaCoder, MapFloatFull)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatFull{}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
-    EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
-    EXPECT_FLOAT_EQ(myTarget.float03[2], result.float03[2]);
-    EXPECT_FLOAT_EQ(myTarget.float3, result.float3);
+        EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
+        EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+        EXPECT_FLOAT_EQ(myTarget.float03[2], result.float03[2]);
+        EXPECT_FLOAT_EQ(myTarget.float3, result.float3);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapUnsigned)
@@ -273,12 +298,15 @@ TEST_F(TestDeltaCoder, MapUnsigned)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{31_bits}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    // Note that the result is always based on the base when actually delta'd,
-    // so Only test the bits you care about, the other bits are "don't care" NOT "0".
-    EXPECT_EQ(myTarget.uint0 & 0x3F, result.uint0 & 0x3F);
-    EXPECT_EQ(myTarget.uint1 & 0x7FFFFFF, result.uint1 & 0x7FFFFFF);
+        // Note that the result is always based on the base when actually delta'd,
+        // so Only test the bits you care about, the other bits are "don't care" NOT "0".
+        EXPECT_EQ(myTarget.uint0 & 0x3F, result.uint0 & 0x3F);
+        EXPECT_EQ(myTarget.uint1 & 0x7FFFFFF, result.uint1 & 0x7FFFFFF);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
@@ -289,11 +317,14 @@ TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{{-8}}}
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    // However, ignored items (for this test) are untouched, so are whatever
-    // you initially intilised the structure to. For use that's 0 for everything.
-    EXPECT_EQ(0, result.uint0);
+        // However, ignored items (for this test) are untouched, so are whatever
+        // you initially intilised the structure to. For use that's 0 for everything.
+        EXPECT_EQ(0, result.uint0);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapUnsigned0Bits)
@@ -303,9 +334,12 @@ TEST_F(TestDeltaCoder, MapUnsigned0Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{0_bits}}
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_EQ(0, result.uint0);
+        EXPECT_EQ(0, result.uint0);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapUnsigned33Bits)
@@ -315,9 +349,12 @@ TEST_F(TestDeltaCoder, MapUnsigned33Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{33_bits}}
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_EQ(myTarget.uint1, result.uint1);
+        EXPECT_EQ(myTarget.uint1, result.uint1);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapSigned)
@@ -328,10 +365,13 @@ TEST_F(TestDeltaCoder, MapSigned)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapSigned{31_bits}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_EQ(myTarget.int0, result.int0);
-    EXPECT_EQ(myTarget.int1, result.int1);
+        EXPECT_EQ(myTarget.int0, result.int0);
+        EXPECT_EQ(myTarget.int1, result.int1);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapSignedNegativeBits)
@@ -342,9 +382,12 @@ TEST_F(TestDeltaCoder, MapSignedNegativeBits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{{-8}}}
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_EQ(0, result.int0);
+        EXPECT_EQ(0, result.int0);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapSigned0Bits)
@@ -354,9 +397,12 @@ TEST_F(TestDeltaCoder, MapSigned0Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{0_bits}}
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_EQ(0, result.int0);
+        EXPECT_EQ(0, result.int0);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapSigned33Bits)
@@ -366,9 +412,12 @@ TEST_F(TestDeltaCoder, MapSigned33Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapUnsigned{33_bits}}
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_EQ(myTarget.int1, result.int1);
+        EXPECT_EQ(myTarget.int1, result.int1);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapFloatRangedAsFloat)
@@ -378,9 +427,12 @@ TEST_F(TestDeltaCoder, MapFloatRangedAsFloat)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[2]), MapFloatRanged{10000}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_FLOAT_EQ(myTarget.float03[2], result.float03[2]);
+        EXPECT_FLOAT_EQ(myTarget.float03[2], result.float03[2]);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapFloatRangedAsInt)
@@ -391,10 +443,13 @@ TEST_F(TestDeltaCoder, MapFloatRangedAsInt)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRanged{127}}
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
-    EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+        EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
+        EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapFloatRanged0Max)
@@ -404,10 +459,13 @@ TEST_F(TestDeltaCoder, MapFloatRanged0Max)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRanged{0}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    // 0 range, so ignored.
-    EXPECT_FLOAT_EQ(0, result.float03[0]);
+        // 0 range, so ignored.
+        EXPECT_FLOAT_EQ(0, result.float03[0]);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapFloatRanged24bitMaxRange)
@@ -417,9 +475,12 @@ TEST_F(TestDeltaCoder, MapFloatRanged24bitMaxRange)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRanged{40000000}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
+        EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapFloatRangedStrict)
@@ -432,14 +493,17 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatRangeStrict{-2000,2000,13_bits}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    // One bit worth is what the error is allowed to be.
-    // One bit has a delta range of the inverse m value.
-    EXPECT_NEAR(myTarget.float03[0], result.float03[0], map[0].inversem);
-    EXPECT_NEAR(myTarget.float03[1], result.float03[1], map[1].inversem);
-    EXPECT_NEAR(myTarget.float03[2], result.float03[2], map[2].inversem);
-    EXPECT_NEAR(myTarget.float3, result.float3, map[3].inversem);
+        // One bit worth is what the error is allowed to be.
+        // One bit has a delta range of the inverse m value.
+        EXPECT_NEAR(myTarget.float03[0], result.float03[0], map[0].inversem);
+        EXPECT_NEAR(myTarget.float03[1], result.float03[1], map[1].inversem);
+        EXPECT_NEAR(myTarget.float03[2], result.float03[2], map[2].inversem);
+        EXPECT_NEAR(myTarget.float3, result.float3, map[3].inversem);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapFloatRangedStrict0Bits)
@@ -449,10 +513,13 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict0Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,0_bits}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    // 0 bits, so ignore.
-    EXPECT_FLOAT_EQ(0, result.float03[1]);
+        // 0 bits, so ignore.
+        EXPECT_FLOAT_EQ(0, result.float03[1]);
+    }
 }
 
 TEST_F(TestDeltaCoder, MapFloatRangedStrict33Bits)
@@ -462,10 +529,13 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict33Bits)
         {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,33_bits}},
     };
 
-    auto result = TestMapBaseToTarget(map);
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
 
-    // 33 bits should be treated as 32 bits.
-    EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+        // 33 bits should be treated as 32 bits.
+        EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+    }
 }
 
 }}} // namespace
