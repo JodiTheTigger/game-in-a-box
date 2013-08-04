@@ -118,8 +118,8 @@ void DeltaCreate(
                     memcpy(&floatBase, &base, sizeof(float));
 
                     // Scale and convert to straight dword of x bits.
-                    floatTarget = floatTarget * map.m + map.c;
-                    floatBase = floatBase * map.m + map.c;
+                    floatTarget = (floatTarget + map.c) * map.m;
+                    floatBase = (floatBase + map.c) * map.m;
 
                     // Convert to dword and treat as a normal dword.
                     target = static_cast<uint32_t>(floatTarget);
@@ -220,13 +220,13 @@ std::uint32_t DeltaParse(
                         float floatBase;
 
                         memcpy(&floatBase, &base, sizeof(float));
-                        floatBase = floatBase * map.m + map.c;
+                        floatBase = (floatBase + map.c) * map.m;
                         auto baseConverted = static_cast<uint32_t>(floatBase);
 
                         delta ^= baseConverted;
                     }
 
-                    float asFloat = (delta - map.c) * map.inversem;
+                    float asFloat = (delta * map.inversem) - map.c;
                     uint32_t result;
 
                     memcpy(&result, &asFloat, sizeof(float));

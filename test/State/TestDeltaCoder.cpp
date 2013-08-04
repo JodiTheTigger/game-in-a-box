@@ -35,7 +35,7 @@ using namespace std;
 using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
-
+// RAM: TODO: Test all permetations of Research.
 // /////////////////////
 // Test Class
 // /////////////////////
@@ -434,12 +434,12 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict)
 
     auto result = TestMapBaseToTarget(map);
 
-    // RAM: TODO: Due to less bits to encode, the error might be quite big,
-    // so figure out the correct range to allow.
-    EXPECT_FLOAT_EQ(myTarget.float03[0], result.float03[0]);
-    EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
-    EXPECT_FLOAT_EQ(myTarget.float03[2], result.float03[2]);
-    EXPECT_FLOAT_EQ(myTarget.float3, result.float3);
+    // One bit worth is what the error is allowed to be.
+    // One bit has a delta range of the inverse m value.
+    EXPECT_NEAR(myTarget.float03[0], result.float03[0], map[0].inversem);
+    EXPECT_NEAR(myTarget.float03[1], result.float03[1], map[1].inversem);
+    EXPECT_NEAR(myTarget.float03[2], result.float03[2], map[2].inversem);
+    EXPECT_NEAR(myTarget.float3, result.float3, map[3].inversem);
 }
 
 TEST_F(TestDeltaCoder, MapFloatRangedStrict0Bits)
