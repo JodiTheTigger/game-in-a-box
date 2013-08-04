@@ -36,7 +36,6 @@ using namespace std;
 using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
-// RAM: TODO: Test all permetations of Research.
 // /////////////////////
 // Test Class
 // /////////////////////
@@ -313,8 +312,7 @@ TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        // RAM: TODO: Support compiling -8_bits!
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{{-8}}}
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{-8_bits}}
     };
 
     for (auto setting : myResearch)
@@ -378,8 +376,7 @@ TEST_F(TestDeltaCoder, MapSignedNegativeBits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        // RAM: TODO: Support compiling -8_bits!
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{{-8}}}
+        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{-8_bits}}
     };
 
     for (auto setting : myResearch)
