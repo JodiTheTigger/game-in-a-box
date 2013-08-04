@@ -37,15 +37,15 @@ Game::Game()
         {MAKE_OFFSET(StatePlayer, position.y), MapFloatRangeStrict{500.0f, -500.0f, 17_bits}},
         {MAKE_OFFSET(StatePlayer, position.z), MapFloatRangeStrict{500.0f, -500.0f, 17_bits}},
 
-        {MAKE_OFFSET(StatePlayer, orientation.x), MapFloatRangeStrict{1.0f, -1.0f, 12_bits}},
-        {MAKE_OFFSET(StatePlayer, orientation.y), MapFloatRangeStrict{1.0f, -1.0f, 12_bits}},
-        {MAKE_OFFSET(StatePlayer, orientation.z), MapFloatRangeStrict{1.0f, -1.0f, 12_bits}},
+        {MAKE_OFFSET(StatePlayer, lookAndDo.orientation.x), MapFloatRangeStrict{1.0f, -1.0f, 12_bits}},
+        {MAKE_OFFSET(StatePlayer, lookAndDo.orientation.y), MapFloatRangeStrict{1.0f, -1.0f, 12_bits}},
+        {MAKE_OFFSET(StatePlayer, lookAndDo.orientation.z), MapFloatRangeStrict{1.0f, -1.0f, 12_bits}},
 
         {MAKE_OFFSET(StatePlayer, health), MapUnsigned{10_bits}},
         {MAKE_OFFSET(StatePlayer, energy), MapUnsigned{10_bits}},
 
         // RAM: TODO: Automate this using enum::maxvalue and constexpr calculating max bits.
-        {MAKE_OFFSET(StatePlayer, flags), MapUnsigned{3_bits}},
+        {MAKE_OFFSET(StatePlayer, lookAndDo.flags), MapUnsigned{7_bits}},
     };
 
     auto mapMissle = std::vector<DeltaMapItem>

@@ -65,19 +65,29 @@ enum class FlagsPlayer : uint32_t
     TeamG = 1,
     TeamB = 2,
     Jet = 4,
+    Shoot = 8,
+    Forward = 16,
+    Backward = 32,
+    Left = 64,
+    Right = 128,
 
-    MaxValue = Jet
+    MaxValue = Right
+};
+
+struct StatePlayerClient
+{
+    Vec3 orientation;
+    FlagsPlayer flags;
 };
 
 struct StatePlayer
 {
-    ServerId        id;
-    Vec3            position;
-    Vec3            orientation;
-    std::uint32_t   health;
-    std::uint32_t   energy;
-    FlagsPlayer     flags;
-    ServerTick      lastShot;
+    ServerId            id;
+    Vec3                position;
+    StatePlayerClient   lookAndDo;
+    std::uint32_t       health;
+    std::uint32_t       energy;
+    ServerTick          lastShot;
 };
 
 struct StatePlayerNetwork
