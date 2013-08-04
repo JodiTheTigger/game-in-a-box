@@ -65,6 +65,8 @@ DeltaCoder<OBJECT>::DeltaCoder(
         }
 
         myDeltaMap.push_back(map);
+
+        // RAM: TODO: Sort by offet!
     }
 }
 
