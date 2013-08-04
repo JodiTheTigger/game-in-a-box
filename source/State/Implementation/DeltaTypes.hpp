@@ -21,9 +21,11 @@
 #ifndef DELTATYPES_HPP
 #define DELTATYPES_HPP
 
-#include <string>
-
 #include "Units.hpp"
+
+// offsetof()
+#include <cstddef>
+#include <string>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
