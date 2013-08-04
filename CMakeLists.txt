@@ -285,6 +285,8 @@ source/State/Implementation/DeltaMapItem.hpp
 source/State/Implementation/DeltaMapItem.cpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
+source/State/Implementation/GameNetworkClient.hpp
+source/State/Implementation/GameNetworkClient.cpp
 )
 
 set(STATE_TEST
@@ -457,7 +459,7 @@ add_test(
 )
 
 # run tests after every build please.
-add_custom_command(TARGET game-in-a-box-state-tests POST_BUILD COMMAND game-in-a-box-state-tests)
+#add_custom_command(TARGET game-in-a-box-state-tests POST_BUILD COMMAND game-in-a-box-state-tests)
 
 ###############
 # Unused
