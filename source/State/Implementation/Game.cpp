@@ -27,53 +27,10 @@
 
 #include <vector>
 
-// offsetof()
-#include <cstddef>
-
-
 namespace GameInABox { namespace State { namespace Implementation {
 
 Game::Game()
 {
-    // Just a scratch class for now.
-    /*
-        template<unsigned MaxPlayersPerTeam>
-        struct StateGame
-        {
-            const unsigned maxPlayersPerTeam = MaxPlayersPerTeam;
-            const unsigned maxPlayersPerGame = MaxPlayersPerTeam * 3;
-            const unsigned maxMisslesPerGame = maxPlayersPerGame * 4;
-
-            std::array<StatePlayerNetwork, maxPlayersPerGame>   playersNetwork;
-            std::array<StatePlayer, maxPlayersPerGame>          players;
-            std::array<StateMissle, maxMisslesPerGame>          missles;
-
-            StateMode mode;
-
-            // names are UTF8 encoded, maximum 16 code points, not null terminated.
-            // padded with spaces.
-            std::array<std::array<uint8_t, 16>, maxPlayersPerGame> playerNames;
-        };
-    */
-
-    // offsetof (type,member)
-    // std::is_standard_layout<A>::value
-
-    // Right, how do I want to define my delta?
-
-    /*
-        struct StatePlayer
-        {
-            ServerId        id;
-            Vec3            position;
-            Vec3            orientation;
-            std::uint32_t   health;
-            std::uint32_t   energy;
-            FlagsPlayer     flags;
-            ServerTick      lastShot;
-        };
-    */
-
     auto mapPlayer = std::vector<DeltaMapItem>
     {
         {MAKE_OFFSET(StatePlayer, position.x), MapFloatRangeStrict{500.0f, -500.0f, 17_bits}},
@@ -90,26 +47,6 @@ Game::Game()
         // RAM: TODO: Automate this using enum::maxvalue and constexpr calculating max bits.
         {MAKE_OFFSET(StatePlayer, flags), MapUnsigned{3_bits}},
     };
-
-    /*
-        struct StateMissle
-        {
-            ServerId id;
-            ServerId owner;
-
-            // Where it was fired from, or where it exploded
-            Vec3 source;
-
-            // Initial velocity, up to game how to predict the path.
-            Vec3 orientation;
-
-            // Time it was fired/exploded
-            ServerTick lastAction;
-
-            // Exploded or not?
-            FlagsMissle flags;
-        };
-    */
 
     auto mapMissle = std::vector<DeltaMapItem>
     {
@@ -129,11 +66,6 @@ Game::Game()
 
         {MAKE_OFFSET(StateMissle, flags), MapUnsigned{2_bits}},
     };
-
-   /* auto mapping =
-    {
-        {std::offsetof(StateGame, playersNetwork), maxPlayersPerGame,
-    };*/
 }
 
 }}} // namspace

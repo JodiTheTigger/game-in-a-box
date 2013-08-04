@@ -27,6 +27,11 @@ class Game
 {
 public:
     Game();
+
+    // All game stuff happens here.
+    // RAM: TODO: Need to pass max allowed time? How do we control the time
+    // allowed?
+    void Tick();
 };
 
 }}} // namespace
