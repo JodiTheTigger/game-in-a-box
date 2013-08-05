@@ -27,6 +27,7 @@
 
 namespace GameInABox { namespace Network {
 
+// RAM: TODO: Clean up this class.
 struct Delta
 {
     Sequence base{};

@@ -25,6 +25,7 @@
 
 namespace GameInABox { namespace Network {
 
+// RAM: TODO: Tidy this up.
 struct ClientHandle
 {
     explicit ClientHandle(uint32_t handle) : myValue(handle) {}
