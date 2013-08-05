@@ -88,7 +88,9 @@ struct StatePlayer
 
     StatePlayerClient   lookAndDo;
 
+    Vec3                jetDirection;
     std::uint32_t       health;
+
     std::uint32_t       energy;
     ServerTick          lastShot;
 
@@ -100,6 +102,7 @@ struct StatePlayer
     // Padding
     std::uint32_t   pad1;
     std::uint32_t   pad2;
+    std::uint32_t   pad3;
 };
 
 // //////////////
