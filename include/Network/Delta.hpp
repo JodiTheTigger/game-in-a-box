@@ -27,22 +27,11 @@
 
 namespace GameInABox { namespace Network {
 
-// RAM: TODO: Clean up this class.
 struct Delta
 {
-    Sequence base{};
-    Sequence to{};
-    std::vector<uint8_t> deltaPayload{};
-
-    Delta(Sequence newBase, Sequence newTo, std::vector<uint8_t> newPayload)
-        : base(newBase)
-        , to(newTo)
-        , deltaPayload(newPayload)
-    {
-    }
-
-    Delta() = default;
-    Delta(const Delta&) = default;
+    Sequence base;
+    Sequence to;
+    std::vector<uint8_t> deltaPayload;
 };
 
 }} // namespace
