@@ -25,23 +25,9 @@
 
 namespace GameInABox { namespace Network {
 
-// RAM: TODO: Tidy this up.
 struct ClientHandle
-{
-    explicit ClientHandle(uint32_t handle) : myValue(handle) {}
-    ClientHandle() : myValue(0) {}
-
-    ~ClientHandle() = default;
-    ClientHandle(const ClientHandle&) = default;
-    ClientHandle(ClientHandle&&) = default;
-
-    ClientHandle& operator=(const ClientHandle&) = default;
-    ClientHandle& operator=(ClientHandle&&) = default;
-
-    uint32_t Value() const { return myValue; }
-
-private:
-    uint32_t myValue;
+{    
+    std::uint32_t value;
 };
 
 }} // namespace

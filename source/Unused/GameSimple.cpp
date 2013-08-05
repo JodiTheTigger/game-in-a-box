@@ -72,7 +72,7 @@ Delta GameSimple::PrivateDeltaCreate(
         boost::optional<Sequence>) const
 {
     // RAM: TODO!
-    return {};
+    return Delta();
 }
 
 Sequence GameSimple::PrivateDeltaParse(

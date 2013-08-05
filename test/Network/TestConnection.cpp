@@ -171,7 +171,7 @@ TEST_F(TestConnection, ClientServerConnect)
 
     // Setup the state machine
     ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
-            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+            .WillByDefault(Return(boost::optional<ClientHandle>(ClientHandle{42})));
 
     ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
             .WillByDefault(Return(std::vector<uint8_t>()));
@@ -203,7 +203,7 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
 
     // Setup the state machine
     ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
-            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+            .WillByDefault(Return(boost::optional<ClientHandle>(ClientHandle{42})));
 
     ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
             .WillByDefault(Return(std::vector<uint8_t>()));
@@ -256,7 +256,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
 
     // Setup the state machine
     ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
-            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+            .WillByDefault(Return(boost::optional<ClientHandle>(ClientHandle{42})));
 
     ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
             .WillByDefault(Return(std::vector<uint8_t>()));
@@ -299,7 +299,7 @@ TEST_F(TestConnection, ClientServerConnectDisconnectFromServer)
 
     // Setup the state machine
     ON_CALL(stateMockNice, PrivateConnect( ::testing::_, ::testing::_))
-            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+            .WillByDefault(Return(boost::optional<ClientHandle>(ClientHandle{42})));
 
     ON_CALL(stateMockNice, PrivateStateInfo( ::testing::_ ))
             .WillByDefault(Return(std::vector<uint8_t>()));

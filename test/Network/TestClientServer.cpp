@@ -114,7 +114,7 @@ void TestClientServer::SetupDefaultMock(NiceMock<MockIStateManager> &mock)
             .WillByDefault(Return(frequenciesUseful));
 
     ON_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
-            .WillByDefault(Return(boost::optional<ClientHandle>(42)));
+            .WillByDefault(Return(boost::optional<ClientHandle>(ClientHandle{42})));
 
     ON_CALL(mock, PrivateStateInfo( ::testing::_ ))
             .WillByDefault(Return(std::vector<uint8_t>()));
