@@ -80,21 +80,26 @@ struct StatePlayerClient
     FlagsPlayer flags;
 };
 
+// multiples of 16 bytes please.
 struct StatePlayer
 {
     ServerId            id;
     Vec3                position;
+
     StatePlayerClient   lookAndDo;
+
     std::uint32_t       health;
     std::uint32_t       energy;
     ServerTick          lastShot;
-};
 
-struct StatePlayerNetwork
-{
+    // network stuff.
     std::uint32_t   lastAck;
     std::uint32_t   latencyInMs; // argh, needs a millisecond datatype please.
     ServerId        playerId;
+
+    // Padding
+    std::uint32_t   pad1;
+    std::uint32_t   pad2;
 };
 
 // //////////////
@@ -140,13 +145,12 @@ enum class StateMode : std::uint32_t
 };
 
 template<unsigned MaxPlayersPerTeam>
-struct StateGame
+struct StateGameSnapshot
 {
     static const unsigned maxPlayersPerTeam = MaxPlayersPerTeam;
     static const unsigned maxPlayersPerGame = MaxPlayersPerTeam * 3;
     static const unsigned maxMisslesPerGame = maxPlayersPerGame * 4;
 
-    std::array<StatePlayerNetwork, maxPlayersPerGame>   playersNetwork;
     std::array<StatePlayer, maxPlayersPerGame>          players;
     std::array<StateMissle, maxMisslesPerGame>          missles;
 
