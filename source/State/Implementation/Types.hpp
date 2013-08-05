@@ -85,6 +85,7 @@ struct StatePlayer
     ServerId            id;
     Vec3                position;
     StatePlayerClient   lookAndDo;
+    Vec3                jetDirection;
     std::uint32_t       health;
     std::uint32_t       energy;
     ServerTick          lastShot;
