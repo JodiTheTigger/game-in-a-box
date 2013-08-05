@@ -21,10 +21,23 @@
 #ifndef GAMENETWORKCLIENT_HPP
 #define GAMENETWORKCLIENT_HPP
 
+// scratch class for now.
+// used to keep snapshots for the
+// network subsystem.
+
+#include "Types.hpp"
+
+#include <boost/circular_buffer.hpp>
+
 class GameNetworkClient
 {
 public:
-    GameNetworkClient();
+    GameNetworkClient(unsigned bufferSize);
+
+    //void Tick(StatePlayerClient newState);
+
+private:
+    //boost::circular_buffer<StatePlayerClient> myStates;
 };
 
 #endif // GAMENETWORKCLIENT_HPP

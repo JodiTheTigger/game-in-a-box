@@ -20,6 +20,7 @@
 
 #include "GameNetworkClient.hpp"
 
-GameNetworkClient::GameNetworkClient()
+GameNetworkClient::GameNetworkClient(unsigned)// bufferSize)
+    //: myStates(bufferSize)
 {
 }
