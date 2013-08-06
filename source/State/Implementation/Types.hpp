@@ -61,6 +61,7 @@ using ServerId = uint32_t;
 // //////////////
 enum class FlagsPlayer : uint32_t
 {
+    NoFlags = 0,
     TeamR = 0,
     TeamG = 1,
     TeamB = 2,
