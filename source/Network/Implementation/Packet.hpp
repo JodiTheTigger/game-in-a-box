@@ -48,6 +48,9 @@ enum class Command : uint8_t
     DeltaNoAck = 0x7F
 };
 
+// Compile test to make sure Sequence will fit
+static_assert(Sequence::bits() < 16, "Sequence::bits() > 15. Packet coding assumes max of 15 bits.");
+
 class Packet
 {
 public:

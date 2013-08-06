@@ -25,7 +25,7 @@
 
 namespace GameInABox { namespace Network {
 
-using Sequence = WrappingCounter<uint16_t, 15>;
+using Sequence = WrappingCounter<std::uint32_t, 15>;
 
 }} // namespace.
 

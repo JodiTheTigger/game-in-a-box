@@ -34,7 +34,7 @@ Packet::Packet(std::vector<uint8_t> fromBuffer)
 Packet::Packet(Sequence sequence, Command command)
     : Packet()
 {
-    Push(back_inserter(data), sequence.Value());
+    Push(back_inserter(data), static_cast<std::uint16_t>(sequence.Value()));
     data.push_back(static_cast<uint8_t>(static_cast<uint8_t>(command) | MaskTopByteIsCommand));
 }
 
