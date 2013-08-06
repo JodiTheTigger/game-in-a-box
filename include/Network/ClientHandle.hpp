@@ -30,6 +30,11 @@ struct ClientHandle
     std::uint32_t value;
 };
 
+
+// RAM: TODO: use COMPARISONS_AND_MATHS please.
+inline bool operator==(const ClientHandle& lhs, const ClientHandle& rhs){return lhs.value==rhs.value;}
+inline bool operator!=(const ClientHandle& lhs, const ClientHandle& rhs){return !operator==(lhs,rhs);}
+
 }} // namespace
 
 #endif // CLIENTHANDLE_HPP
