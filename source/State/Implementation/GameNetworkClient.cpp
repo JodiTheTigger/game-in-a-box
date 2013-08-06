@@ -20,7 +20,73 @@
 
 #include "GameNetworkClient.hpp"
 
-GameNetworkClient::GameNetworkClient(unsigned)// bufferSize)
-    //: myStates(bufferSize)
+#include "DeltaMapItem.hpp"
+
+#include <Common/BitStream.hpp>
+#include <Common/BitStreamReadOnly.hpp>
+
+namespace GameInABox { namespace State { namespace Implementation {
+
+using namespace GameInABox::Network;
+using namespace GameInABox::Common;
+
+GameNetworkClient::GameNetworkClient(ClientHandle client, unsigned bufferSize)
+    : myStates(bufferSize)
+    , myCurrentSequence()
+    , myHandle(client)
+    , myCoder({
+                std::vector<DeltaMapItem>
+                {
+                    {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{0, 71071, 17_bits}},
+                    {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{0, 71071, 17_bits}},
+                    {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{0, 71071, 17_bits}},
+                    {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
+                },
+                Research{true, true}})
+    , myIdentity{Vec3{0,0,0},FlagsPlayer::NoFlags}
 {
 }
+
+
+void GameNetworkClient::Tick(StatePlayerClient)
+{
+
+}
+
+Delta GameNetworkClient::DeltaCreate(
+        ClientHandle handle,
+        boost::optional<Sequence> lastSequenceAcked) const
+{
+    if (handle != myHandle)
+    {
+        // RAM: TODO: Log: Shouldn't happen.
+        return Delta();
+    }
+
+    // ////
+    // First, perfect state, then corner cases.
+    // ////
+
+    // buffer size should be less than the player state size.
+    BitStream bits(sizeof(StatePlayerClient));
+
+    if (lastSequenceAcked)
+    {
+        unsigned indexBase = lastSequenceAcked.get().Value(); // RAM: TODO: FIX
+
+        myCoder.DeltaEncode(myStates[indexBase], myStates.back(), bits);
+    }
+    else
+    {
+        // diff against identity.
+        myCoder.DeltaEncode(myIdentity, myStates.back(), bits);
+    }
+
+    return Delta{
+        Sequence{0}, // RAM: TODO: FIX
+        myCurrentSequence,
+        bits.TakeBuffer()};
+}
+
+
+}}} // namespace

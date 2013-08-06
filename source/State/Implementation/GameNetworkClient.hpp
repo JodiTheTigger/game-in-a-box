@@ -26,18 +26,37 @@
 // network subsystem.
 
 #include "Types.hpp"
+#include "DeltaCoder.hpp"
+
+#include <Network/Sequence.hpp>
+#include <Network/Delta.hpp>
+#include <Network/ClientHandle.hpp>
 
 #include <boost/circular_buffer.hpp>
+#include <boost/optional.hpp>
+
+namespace GameInABox { namespace State { namespace Implementation {
 
 class GameNetworkClient
 {
 public:
-    GameNetworkClient(unsigned bufferSize);
+    GameNetworkClient(GameInABox::Network::ClientHandle client, unsigned bufferSize);
 
-    //void Tick(StatePlayerClient newState);
+    void Tick(StatePlayerClient newState);
+
+    GameInABox::Network::Delta DeltaCreate(
+            GameInABox::Network::ClientHandle handle,
+            boost::optional<GameInABox::Network::Sequence> lastAcked) const;
 
 private:
-    //boost::circular_buffer<StatePlayerClient> myStates;
+    boost::circular_buffer<StatePlayerClient> myStates;
+    GameInABox::Network::Sequence myCurrentSequence;
+    GameInABox::Network::ClientHandle myHandle;
+
+    DeltaCoder<StatePlayerClient>   myCoder;
+    const StatePlayerClient               myIdentity;
 };
+
+}}} // namespace
 
 #endif // GAMENETWORKCLIENT_HPP
