@@ -30,7 +30,10 @@ namespace GameInABox { namespace State { namespace Implementation {
 using namespace GameInABox::Network;
 using namespace GameInABox::Common;
 
-GameNetworkClient::GameNetworkClient(ClientHandle client, unsigned bufferSize)
+GameNetworkClient::GameNetworkClient(
+        GameInABox::Network::ClientHandle client,
+        StatePlayerClient identity,
+        unsigned bufferSize)
     : myStates(bufferSize)
     , myCurrentSequence()
     , myHandle(client)
@@ -43,7 +46,7 @@ GameNetworkClient::GameNetworkClient(ClientHandle client, unsigned bufferSize)
                     {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
                 },
                 Research{true, true}})
-    , myIdentity{Vec3{0,0,0},FlagsPlayer::NoFlags}
+    , myIdentity(identity)
 {
 }
 
@@ -53,22 +56,23 @@ void GameNetworkClient::Tick(StatePlayerClient)
 
 }
 
+// ClientHandle is ignored as the network layer
+// verifies we're talking to the correct person.
+// I don't need it here for now.
 Delta GameNetworkClient::DeltaCreate(
-        ClientHandle handle,
-        boost::optional<Sequence> lastSequenceAcked) const
+        ClientHandle,
+        boost::optional<Sequence> /*lastSequenceAcked*/) const
 {
-    if (handle != myHandle)
-    {
-        // RAM: TODO: Log: Shouldn't happen.
-        return Delta();
-    }
-
+    /* RAM: What? shouldn't Delta.base be optional to signify using the identity?
     // ////
     // First, perfect state, then corner cases.
     // ////
+    auto base = &myIdentity;
+    auto baseSequence =
+    auto target = myStates.back();
 
     // buffer size should be less than the player state size.
-    BitStream bits(sizeof(StatePlayerClient));
+    auto bits = BitStream(sizeof(StatePlayerClient));
 
     if (lastSequenceAcked)
     {
@@ -86,6 +90,8 @@ Delta GameNetworkClient::DeltaCreate(
         Sequence{0}, // RAM: TODO: FIX
         myCurrentSequence,
         bits.TakeBuffer()};
+        */
+    return Delta();
 }
 
 

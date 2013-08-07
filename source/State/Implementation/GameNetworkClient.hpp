@@ -40,7 +40,10 @@ namespace GameInABox { namespace State { namespace Implementation {
 class GameNetworkClient
 {
 public:
-    GameNetworkClient(GameInABox::Network::ClientHandle client, unsigned bufferSize);
+    GameNetworkClient(
+            GameInABox::Network::ClientHandle client,
+            StatePlayerClient identity,
+            unsigned bufferSize);
 
     void Tick(StatePlayerClient newState);
 
@@ -54,7 +57,7 @@ private:
     GameInABox::Network::ClientHandle myHandle;
 
     DeltaCoder<StatePlayerClient>   myCoder;
-    const StatePlayerClient               myIdentity;
+    const StatePlayerClient         myIdentity;
 };
 
 }}} // namespace
