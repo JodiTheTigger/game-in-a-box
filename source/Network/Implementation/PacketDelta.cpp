@@ -105,15 +105,15 @@ PacketDelta::PacketDelta(
     data.insert(end(data), begin(deltaPayload), end(deltaPayload));
 }
 
-Sequence PacketDelta::GetSequenceBase() const
+uint8_t PacketDelta::GetSequenceDifference() const
 {
     if (data.size() >= MinimumPacketSize)
     {
-        return Sequence{GetSequence() - Sequence{data[OffsetDeltaBase]}};
+        return data[OffsetDeltaDifference];
     }
     else
     {
-        return {};
+        return 0;
     }
 }
 

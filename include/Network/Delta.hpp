@@ -27,11 +27,9 @@
 
 namespace GameInABox { namespace Network {
 
-// RAM: TODO: Note that if base == to, then the delta is done against identity.
-// Maybe change struct to target, delta?
 struct Delta
 {
-    Sequence base;
+    uint8_t difference;
     Sequence to;
     std::vector<uint8_t> deltaPayload;
 };

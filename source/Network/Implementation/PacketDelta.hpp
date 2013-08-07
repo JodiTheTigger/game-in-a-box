@@ -25,6 +25,7 @@
 #include "Packet.hpp"
 
 #include <boost/optional.hpp>
+#include <cstdint>
 
 namespace GameInABox { namespace Network { namespace Implementation {
 
@@ -62,7 +63,7 @@ public:
     virtual ~PacketDelta() = default;
 
     // Values are undefined if !IsValid().
-    Sequence GetSequenceBase() const;
+    uint8_t GetSequenceDifference() const;
     boost::optional<Sequence> GetSequenceAck() const;
 
     bool IsValid() const override { return IsPacket(data); }
@@ -73,7 +74,7 @@ protected:
     // No, I'm not going to use a struct to determine offsets.
     static const std::size_t OffsetSequenceAck = 2;
     static const std::size_t OffsetIsServerFlags = 2;
-    static const std::size_t OffsetDeltaBase = 4;
+    static const std::size_t OffsetDeltaDifference = 4;
     static const std::size_t OffsetData = 5;
     static const std::size_t MinimumPacketSize = OffsetData;
 

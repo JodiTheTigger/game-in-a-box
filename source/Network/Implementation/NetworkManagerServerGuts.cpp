@@ -225,7 +225,7 @@ void NetworkManagerServerGuts::PrivateProcessIncomming()
 
                         // Pass to gamestate (which will decompress the delta itself).
                         auto deltaData = Delta{
-                                delta.GetSequenceBase(),
+                                delta.GetSequenceDifference(),
                                 delta.GetSequence(),
                                 move(decompressed)};
 
@@ -258,8 +258,7 @@ void NetworkManagerServerGuts::PrivateSendState()
                     // get the packet, and fragment it, then send it.
                     auto deltaData = myStateManager.DeltaCreate(*client, connection.LastSequenceAck());
 
-                    auto distance = deltaData.to - deltaData.base;
-                    if (distance <= PacketDelta::MaximumDeltaDistance())
+                    if (deltaData.difference <= PacketDelta::MaximumDeltaDistance())
                     {
                         // Compress, encrypt, send
                         auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
@@ -273,7 +272,7 @@ void NetworkManagerServerGuts::PrivateSendState()
                         auto deltaPacket = PacketDelta{
                                 deltaData.to,
                                 addressToState.second.lastAcked,
-                                static_cast<uint8_t>(distance),
+                                deltaData.difference,
                                 move(compressed)};
 
                         if (deltaPacket.data.size() <= MaxPacketSizeInBytes)

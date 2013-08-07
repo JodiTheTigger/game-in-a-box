@@ -46,11 +46,11 @@ Delta DeltaCreate(
 {
     if (lastAcked)
     {
-        return {Sequence(lastAcked->Value() + 1), Sequence(lastAcked->Value() + 1), {}};
+        return {0, Sequence(lastAcked->Value() + 1), {}};
     }
     else
     {
-        return {Sequence{0},Sequence{0}, {}};
+        return {0, Sequence{0}, {}};
     }
 }
 
