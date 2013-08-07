@@ -41,7 +41,6 @@ class GameNetworkClient
 {
 public:
     GameNetworkClient(
-            GameInABox::Network::ClientHandle client,
             StatePlayerClient identity,
             unsigned bufferSize);
 

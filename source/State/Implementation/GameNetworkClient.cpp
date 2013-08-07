@@ -31,12 +31,10 @@ using namespace GameInABox::Network;
 using namespace GameInABox::Common;
 
 GameNetworkClient::GameNetworkClient(
-        GameInABox::Network::ClientHandle client,
         StatePlayerClient identity,
         unsigned bufferSize)
     : myStates(bufferSize)
     , myCurrentSequence()
-    , myHandle(client)
     , myCoder({
                 std::vector<DeltaMapItem>
                 {
@@ -51,48 +49,68 @@ GameNetworkClient::GameNetworkClient(
 }
 
 
-void GameNetworkClient::Tick(StatePlayerClient)
+void GameNetworkClient::Tick(StatePlayerClient newState)
 {
-
+    myStates.push_back(newState);
+    ++myCurrentSequence;
 }
 
 // ClientHandle is ignored as the network layer
 // verifies we're talking to the correct person.
-// I don't need it here for now.
 Delta GameNetworkClient::DeltaCreate(
         ClientHandle,
-        boost::optional<Sequence> /*lastSequenceAcked*/) const
+        boost::optional<Sequence> lastSequenceAcked) const
 {
-    /* RAM: What? shouldn't Delta.base be optional to signify using the identity?
-    // ////
-    // First, perfect state, then corner cases.
-    // ////
     auto base = &myIdentity;
-    auto baseSequence =
-    auto target = myStates.back();
+    const auto& current = myStates.back();
+    auto difference = unsigned{0};
 
     // buffer size should be less than the player state size.
-    auto bits = BitStream(sizeof(StatePlayerClient));
+    BitStream bits(sizeof(StatePlayerClient));
 
+    // Default is diff against identity (difference==0) unless otherwise.
     if (lastSequenceAcked)
     {
-        unsigned indexBase = lastSequenceAcked.get().Value(); // RAM: TODO: FIX
+        difference = myCurrentSequence - lastSequenceAcked.get();
+        auto bufferSize = myStates.size();
 
-        myCoder.DeltaEncode(myStates[indexBase], myStates.back(), bits);
+        if ((difference <= bufferSize) && (difference < 256))
+        {
+            base = &myStates[bufferSize - difference];
+        }
+        else
+        {
+            difference = 0;
+        }
+    }
+
+    // Don't just use == overator overloading as for delta difference.
+    // We don't test against everything.
+    // RAM: TODO: DO use == overloading. Change the struct strcuture so we
+    // can compare stuff to make readability easier.
+    if (
+            (current.orientation.x == base->orientation.x) &&
+            (current.orientation.y == base->orientation.y) &&
+            (current.orientation.z == base->orientation.z) &&
+            (current.flags == base->flags)
+        )
+    {
+        // Same == 1 bit.
+        bits.Push(true);
     }
     else
     {
-        // diff against identity.
-        myCoder.DeltaEncode(myIdentity, myStates.back(), bits);
+        // Not same = 1 bit + encoding.
+        bits.Push(false);
+
+        // Delta code between last and current.
+        myCoder.DeltaEncode(*base, current, bits);
     }
 
     return Delta{
-        Sequence{0}, // RAM: TODO: FIX
+        static_cast<uint8_t>(difference),
         myCurrentSequence,
         bits.TakeBuffer()};
-        */
-    return Delta();
 }
-
 
 }}} // namespace
