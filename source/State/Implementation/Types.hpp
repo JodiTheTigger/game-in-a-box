@@ -98,12 +98,6 @@ struct StatePlayer
     // network stuff.
     std::uint32_t   lastAck;
     std::uint32_t   latencyInMs; // argh, needs a millisecond datatype please.
-    ServerId        playerId;
-
-    // Padding
-    std::uint32_t   pad1;
-    std::uint32_t   pad2;
-    std::uint32_t   pad3;
 };
 
 // //////////////
@@ -160,7 +154,7 @@ struct StateGameSnapshot
 
     StateMode mode;
 
-    // names are UTF8 encoded, maximum 16 code points, not null terminated.
+    // names are UTF8 encoded, maximum 16 bytes, not null terminated.
     // padded with spaces.
     std::array<std::array<uint8_t, 16>, maxPlayersPerGame> playerNames;
 };
