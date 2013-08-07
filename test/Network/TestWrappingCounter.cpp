@@ -28,6 +28,7 @@ using namespace std;
 
 namespace GameInABox { namespace Network {
 
+// RAM: TODO! TEST prefix ++ and --
 template <typename T>
 class TestWrappingCounter : public ::testing::Test
 {

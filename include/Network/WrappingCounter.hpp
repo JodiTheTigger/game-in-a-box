@@ -48,6 +48,20 @@ public:
     explicit WrappingCounter(T newValue) : myValue(newValue & max()) {}
     WrappingCounter(const WrappingCounter<T, BITS>& other) : myValue(other.myValue) {};
 
+    WrappingCounter<T, BITS>& operator++()
+    {
+        ++myValue;
+        myValue &= max();
+        return *this;
+    }
+
+    WrappingCounter<T, BITS>& operator--()
+    {
+        --myValue;
+        myValue &= max();
+        return *this;
+    }
+
 private:
     T myValue;
 };
