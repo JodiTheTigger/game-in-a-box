@@ -40,6 +40,8 @@ namespace GameInABox { namespace State { namespace Implementation {
 template<class OBJECT>
 class DeltaCoder
 {
+    typedef std::function<bool(const OBJECT&, const OBJECT&)> Comparer;
+
     // type checking
     static_assert(std::is_standard_layout<OBJECT>::value,
                   "DeltaCoder requires a standard layout object (pod struct, class or union).");
@@ -56,6 +58,7 @@ class DeltaCoder
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
+        // Comparer comparisonFunction, // RAM: TODO: FINISH!
         Research settings);
 
      void DeltaDecode(
