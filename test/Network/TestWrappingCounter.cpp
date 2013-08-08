@@ -28,7 +28,6 @@ using namespace std;
 
 namespace GameInABox { namespace Network {
 
-// RAM: TODO! TEST prefix ++ and --
 template <typename T>
 class TestWrappingCounter : public ::testing::Test
 {
@@ -504,6 +503,72 @@ TYPED_TEST(TestWrappingCounter, MaxMinusMax)
     ASSERT_EQ(typename TestFixture::Datum{0}, toTestA);
     ASSERT_EQ(typename TestFixture::Datum{0}, toTestB);
     ASSERT_EQ(typename TestFixture::Datum{0}, toTestC);
+}
+
+TYPED_TEST(TestWrappingCounter, TestPreIncrement)
+{
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
+    {
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i+1);
+
+        ++a;
+
+        ASSERT_EQ(a, b);
+    }
+
+    for (uint64_t i(0); i < TestFixture::maxValue7; i++)
+    {
+        typename TestFixture::WrapCount7 a(i);
+        typename TestFixture::WrapCount7 b(i+1);
+
+        ++a;
+
+        ASSERT_EQ(a, b);
+    }
+
+    for (uint64_t i(0); i < TestFixture::maxValue15; i++)
+    {
+        typename TestFixture::WrapCount15 a(i);
+        typename TestFixture::WrapCount15 b(i+1);
+
+        ++a;
+
+        ASSERT_EQ(a, b);
+    }
+}
+
+TYPED_TEST(TestWrappingCounter, TestPreDecrement)
+{
+    for (uint64_t i(0); i < TestFixture::maxValue; i++)
+    {
+        typename TestFixture::WrapCount a(i);
+        typename TestFixture::WrapCount b(i-1);
+
+        --a;
+
+        ASSERT_EQ(a, b);
+    }
+
+    for (uint64_t i(0); i < TestFixture::maxValue7; i++)
+    {
+        typename TestFixture::WrapCount7 a(i);
+        typename TestFixture::WrapCount7 b(i-1);
+
+        --a;
+
+        ASSERT_EQ(a, b);
+    }
+
+    for (uint64_t i(0); i < TestFixture::maxValue15; i++)
+    {
+        typename TestFixture::WrapCount15 a(i);
+        typename TestFixture::WrapCount15 b(i-1);
+
+        --a;
+
+        ASSERT_EQ(a, b);
+    }
 }
 
 }} // namespace
