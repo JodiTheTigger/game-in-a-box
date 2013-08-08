@@ -32,6 +32,8 @@ namespace GameInABox { namespace State { namespace Implementation {
 // //////////////
 union Vec3
 {
+    // RAM: TODO: To avoid aliasing, don't use a union, make it a std::array, and
+    // have global accessors so you can x(vector), y(vector), etc.
     std::array<float, 3> values;
     struct
     {
