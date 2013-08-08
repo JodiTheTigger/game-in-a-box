@@ -23,6 +23,7 @@
 
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
+#include <Common/UnitOperators.hpp>
 
 #include <gtest/gtest.h>
 
