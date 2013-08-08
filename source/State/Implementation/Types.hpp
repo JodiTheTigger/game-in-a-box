@@ -30,29 +30,21 @@ namespace GameInABox { namespace State { namespace Implementation {
 // //////////////
 // Data Types
 // //////////////
-union Vec3
+// NOTE: These are for seralisation only,
+// For general math/cpu programing use a proper data structure.
+struct Vec3
 {
-    // RAM: TODO: To avoid aliasing, don't use a union, make it a std::array, and
-    // have global accessors so you can x(vector), y(vector), etc.
-    std::array<float, 3> values;
-    struct
-    {
-        float x;
-        float y;
-        float z;
-    };
+    float x;
+    float y;
+    float z;
 };
 
-union Vec4
+struct Vec4
 {
-    std::array<float, 4> values;
-    struct
-    {
-        float x;
-        float y;
-        float z;
-        float w;
-    };
+    float x;
+    float y;
+    float z;
+    float w;
 };
 
 using ServerTick = uint32_t;
