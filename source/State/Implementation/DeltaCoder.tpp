@@ -25,6 +25,7 @@
 
 #include <cstring> // memcpy
 #include <type_traits>
+#include <algorithm>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -66,7 +67,14 @@ DeltaCoder<OBJECT>::DeltaCoder(
 
         myDeltaMap.push_back(map);
 
-        // RAM: TODO: Sort by offet!
+        // sort so the memory access is linear and not random.
+        std::sort(
+            begin(myDeltaMap),
+            end(myDeltaMap),
+            [](DeltaMapItem a, DeltaMapItem b)
+            {
+                return a.offsetInfo.offset.value < b.offsetInfo.offset.value;
+            });
     }
 }
 
