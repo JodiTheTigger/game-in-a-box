@@ -189,6 +189,7 @@ include/Common/BitStreamReadOnly.hpp
 include/Common/BufferSerialisation.hpp
 include/Common/MakeUnique.hpp
 include/Common/Logging.hpp
+include/Common/UnitOperators.hpp
 )
 
 set(NETWORK_HEADERS
