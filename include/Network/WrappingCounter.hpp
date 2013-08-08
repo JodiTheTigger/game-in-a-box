@@ -41,6 +41,7 @@ public:
 
     static constexpr T max() { return (1 << bits()) - 1; }
 
+    // RAM: TODO: just replace with .value and then use common macros.
     T Value() const { return myValue; }
     T& Value() { return myValue; }
 
