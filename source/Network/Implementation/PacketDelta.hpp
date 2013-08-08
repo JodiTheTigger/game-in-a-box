@@ -29,8 +29,6 @@
 
 namespace GameInABox { namespace Network { namespace Implementation {
 
-// RAM: TODO: Forget sequence base, just return the delta value. As we need to
-// know if we are a delta against identity (ie delta is zero).
 class PacketDelta : public Packet
 {
 public:
