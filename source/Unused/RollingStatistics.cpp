@@ -24,12 +24,6 @@
 #include <cmath>
 #include <algorithm>
 
-// RAM: TODO! ARGH! MSVC WART! Need to have a pre-compiled header to put all the warts into
-// but for now, this will have to do.
-#ifdef _MSC_VER
-#define roundf(dbl) dbl >= 0.0 ? (int)(dbl + 0.5) : ((dbl - (double)(int)dbl) <= -0.5 ? (int)dbl : (int)(dbl - 0.5))
-#endif
-
 using namespace std;
 using namespace GameInABox::Unused;
 
