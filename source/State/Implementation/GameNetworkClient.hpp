@@ -53,7 +53,6 @@ public:
 private:
     boost::circular_buffer<StatePlayerClient> myStates;
     GameInABox::Network::Sequence myCurrentSequence;
-    GameInABox::Network::ClientHandle myHandle;
 
     DeltaCoder<StatePlayerClient>   myCoder;
     const StatePlayerClient         myIdentity;

@@ -57,7 +57,6 @@ GameNetworkClient::GameNetworkClient(
 {
 }
 
-
 void GameNetworkClient::Tick(StatePlayerClient newState)
 {
     myStates.push_back(newState);
@@ -74,9 +73,6 @@ Delta GameNetworkClient::DeltaCreate(
     const auto& current = myStates.back();
     auto difference = unsigned{0};
 
-    // buffer size should be less than the player state size.
-    BitStream bits(sizeof(StatePlayerClient));
-
     // Default is diff against identity (difference==0) unless otherwise.
     if (lastSequenceAcked)
     {
@@ -91,7 +87,10 @@ Delta GameNetworkClient::DeltaCreate(
         {
             difference = 0;
         }
-    }
+    }    
+
+    // buffer size should be less than the player state size.
+    BitStream bits(sizeof(StatePlayerClient));
 
     if (myCoder.isEqualForCoding(current, *base))
     {
