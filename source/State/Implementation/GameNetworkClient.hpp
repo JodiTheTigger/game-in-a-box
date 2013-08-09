@@ -47,7 +47,7 @@ public:
     void Tick(StatePlayerClient newState);
 
     GameInABox::Network::Delta DeltaCreate(
-            GameInABox::Network::ClientHandle handle,
+            GameInABox::Network::ClientHandle,
             boost::optional<GameInABox::Network::Sequence> lastAcked) const;
 
 private:
