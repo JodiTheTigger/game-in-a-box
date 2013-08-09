@@ -40,6 +40,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 template<class OBJECT>
 class DeltaCoder
 {
+    // RAM: TODO: Move out of DeltaCoder as it's not used by this class.
     typedef std::function<bool(const OBJECT&, const OBJECT&)> Comparer;
 
     // type checking
@@ -58,8 +59,16 @@ class DeltaCoder
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        // Comparer comparisonFunction, // RAM: TODO: FINISH!
-        Research settings);
+        Comparer comparisonFunction,
+        Research settings);    
+
+    DeltaCoder(
+        std::vector<DeltaMapItem> deltaMap,
+        Research settings)
+        : DeltaCoder(
+              deltaMap,
+              [](const OBJECT& a, const OBJECT& b) { return a == b; },
+              settings) {}
 
      void DeltaDecode(
          const OBJECT& base,
@@ -70,6 +79,8 @@ public:
          const OBJECT& base,
          const OBJECT& toDelta,
          GameInABox::Common::BitStream& dataOut) const;
+
+     const Comparer isEqualForCoding;
 
 private:
     std::vector<DeltaMapItem> myDeltaMap;

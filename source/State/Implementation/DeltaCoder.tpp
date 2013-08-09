@@ -36,8 +36,10 @@ namespace GameInABox { namespace State { namespace Implementation {
 template<class OBJECT>
 DeltaCoder<OBJECT>::DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
+        Comparer comparisonFunction,
         Research settings)
-    : myDeltaMap()
+    : isEqualForCoding(comparisonFunction)
+    , myDeltaMap()
     , myResearch(settings)
 {
     // Ignore ignored deltaMapItems and ones that buffer overrun.

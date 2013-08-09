@@ -43,6 +43,15 @@ GameNetworkClient::GameNetworkClient(
                     {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{0, 71071, 17_bits}},
                     {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
                 },
+                [](const StatePlayerClient& a, const StatePlayerClient& b)
+                {
+                    return (
+                                (a.orientation.x == b.orientation.x) &&
+                                (a.orientation.y == b.orientation.y) &&
+                                (a.orientation.z == b.orientation.z) &&
+                                (a.flags == b.flags)
+                           );
+                },
                 Research{true, true}})
     , myIdentity(identity)
 {

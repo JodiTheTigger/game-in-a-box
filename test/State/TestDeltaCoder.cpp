@@ -37,6 +37,19 @@ using namespace std;
 using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
+
+struct DeltaTester
+{
+    float float03[3];
+    uint32_t uint0;
+    uint32_t uint1;
+    float float3;
+    bool ignored;
+    int32_t int0;
+    double ignored2;
+    int32_t int1;
+};
+
 // /////////////////////
 // Test Class
 // /////////////////////
@@ -56,9 +69,9 @@ public:
     {
         myMap = std::vector<DeltaMapItem>
         {
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{8_bits}},
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{18_bits}},
-            {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatFull{}}
+            {MAKE_OFFSET(DeltaTester, uint0), MapUnsigned{8_bits}},
+            {MAKE_OFFSET(DeltaTester, uint1), MapUnsigned{18_bits}},
+            {MAKE_OFFSET(DeltaTester, float3), MapFloatFull{}}
         };
 
         myIdentity = DeltaTester{{0,0,0}, 0, 0, 0, false, 0, 0, 0};
@@ -69,19 +82,6 @@ public:
     }
 
 protected:
-    
-    struct DeltaTester
-    {
-        float float03[3];
-        uint32_t uint0;
-        uint32_t uint1;
-        float float3;
-        bool ignored;
-        int32_t int0;
-        double ignored2;
-        int32_t int1;
-    };
-
     std::array<Research, 4> myResearch =
     {{
         {false, false},
@@ -98,10 +98,24 @@ protected:
     DeltaTester TestMapBaseToTarget(std::vector<DeltaMapItem> map, Research settings);
 };
 
+inline bool operator==(const DeltaTester& lhs, const DeltaTester& rhs)
+{
+    return
+    (
+        (lhs.float03[0]==rhs.float03[0]) &&
+        (lhs.float03[1]==rhs.float03[1]) &&
+        (lhs.float03[2]==rhs.float03[2]) &&
+        (lhs.uint0==rhs.uint0) &&
+        (lhs.uint1==rhs.uint1) &&
+        (lhs.float3==rhs.float3) &&
+        (lhs.int0==rhs.int0)
+    );
+}
+
 // /////////////////////
 // Helpers
 // /////////////////////
-TestDeltaCoder::DeltaTester TestDeltaCoder::TestMapBaseToTarget(std::vector<DeltaMapItem> map, Research settings)
+DeltaTester TestDeltaCoder::TestMapBaseToTarget(std::vector<DeltaMapItem> map, Research settings)
 {
     DeltaTester result = {{0,0,0}, 0, 0, 0, false, 0, 0, 0};
     BitStream stream(32);
@@ -213,8 +227,6 @@ TEST_F(TestDeltaCoder, EncodeAgainstIdentity)
     EXPECT_EQ(3.141f, asFloat);
 }
 
-
-
 TEST_F(TestDeltaCoder, RandomStates)
 {
     for (auto setting : myResearch)
@@ -273,10 +285,10 @@ TEST_F(TestDeltaCoder, MapFloatFull)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatFull{}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatFull{}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[2]), MapFloatFull{}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatFull{}},
+        {MAKE_OFFSET(DeltaTester, float03[0]), MapFloatFull{}},
+        {MAKE_OFFSET(DeltaTester, float03[1]), MapFloatFull{}},
+        {MAKE_OFFSET(DeltaTester, float03[2]), MapFloatFull{}},
+        {MAKE_OFFSET(DeltaTester, float3), MapFloatFull{}},
     };
 
     for (auto setting : myResearch)
@@ -294,8 +306,8 @@ TEST_F(TestDeltaCoder, MapUnsigned)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{6_bits}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{31_bits}},
+        {MAKE_OFFSET(DeltaTester, uint0), MapUnsigned{6_bits}},
+        {MAKE_OFFSET(DeltaTester, uint1), MapUnsigned{31_bits}},
     };
 
     for (auto setting : myResearch)
@@ -313,7 +325,7 @@ TEST_F(TestDeltaCoder, MapUnsignedNegativeBits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{-8_bits}}
+        {MAKE_OFFSET(DeltaTester, uint0), MapUnsigned{-8_bits}}
     };
 
     for (auto setting : myResearch)
@@ -330,7 +342,7 @@ TEST_F(TestDeltaCoder, MapUnsigned0Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint0), MapUnsigned{0_bits}}
+        {MAKE_OFFSET(DeltaTester, uint0), MapUnsigned{0_bits}}
     };
 
     for (auto setting : myResearch)
@@ -345,7 +357,7 @@ TEST_F(TestDeltaCoder, MapUnsigned33Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, uint1), MapUnsigned{33_bits}}
+        {MAKE_OFFSET(DeltaTester, uint1), MapUnsigned{33_bits}}
     };
 
     for (auto setting : myResearch)
@@ -360,8 +372,8 @@ TEST_F(TestDeltaCoder, MapSigned)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{8_bits}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapSigned{31_bits}},
+        {MAKE_OFFSET(DeltaTester, int0), MapSigned{8_bits}},
+        {MAKE_OFFSET(DeltaTester, int1), MapSigned{31_bits}},
     };
 
     for (auto setting : myResearch)
@@ -377,7 +389,7 @@ TEST_F(TestDeltaCoder, MapSignedNegativeBits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{-8_bits}}
+        {MAKE_OFFSET(DeltaTester, int0), MapSigned{-8_bits}}
     };
 
     for (auto setting : myResearch)
@@ -392,7 +404,7 @@ TEST_F(TestDeltaCoder, MapSigned0Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int0), MapSigned{0_bits}}
+        {MAKE_OFFSET(DeltaTester, int0), MapSigned{0_bits}}
     };
 
     for (auto setting : myResearch)
@@ -407,7 +419,7 @@ TEST_F(TestDeltaCoder, MapSigned33Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, int1), MapUnsigned{33_bits}}
+        {MAKE_OFFSET(DeltaTester, int1), MapUnsigned{33_bits}}
     };
 
     for (auto setting : myResearch)
@@ -422,7 +434,7 @@ TEST_F(TestDeltaCoder, MapFloatRangedAsFloat)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[2]), MapFloatRanged{10000}},
+        {MAKE_OFFSET(DeltaTester, float03[2]), MapFloatRanged{10000}},
     };
 
     for (auto setting : myResearch)
@@ -437,8 +449,8 @@ TEST_F(TestDeltaCoder, MapFloatRangedAsInt)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRanged{4}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRanged{127}}
+        {MAKE_OFFSET(DeltaTester, float03[0]), MapFloatRanged{4}},
+        {MAKE_OFFSET(DeltaTester, float03[1]), MapFloatRanged{127}}
     };
 
     for (auto setting : myResearch)
@@ -454,7 +466,7 @@ TEST_F(TestDeltaCoder, MapFloatRanged0Max)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRanged{0}},
+        {MAKE_OFFSET(DeltaTester, float03[0]), MapFloatRanged{0}},
     };
 
     for (auto setting : myResearch)
@@ -470,7 +482,7 @@ TEST_F(TestDeltaCoder, MapFloatRanged24bitMaxRange)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRanged{40000000}},
+        {MAKE_OFFSET(DeltaTester, float03[0]), MapFloatRanged{40000000}},
     };
 
     for (auto setting : myResearch)
@@ -485,10 +497,10 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[0]), MapFloatRangeStrict{0,1,6_bits}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,8_bits}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[2]), MapFloatRangeStrict{-100,0,16_bits}},
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float3), MapFloatRangeStrict{-2000,2000,13_bits}},
+        {MAKE_OFFSET(DeltaTester, float03[0]), MapFloatRangeStrict{0,1,6_bits}},
+        {MAKE_OFFSET(DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,8_bits}},
+        {MAKE_OFFSET(DeltaTester, float03[2]), MapFloatRangeStrict{-100,0,16_bits}},
+        {MAKE_OFFSET(DeltaTester, float3), MapFloatRangeStrict{-2000,2000,13_bits}},
     };
 
     for (auto setting : myResearch)
@@ -508,7 +520,7 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict0Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,0_bits}},
+        {MAKE_OFFSET(DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,0_bits}},
     };
 
     for (auto setting : myResearch)
@@ -524,7 +536,7 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict33Bits)
 {
     auto map = std::vector<DeltaMapItem>
     {
-        {MAKE_OFFSET(TestDeltaCoder::DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,33_bits}},
+        {MAKE_OFFSET(DeltaTester, float03[1]), MapFloatRangeStrict{-100,50,33_bits}},
     };
 
     for (auto setting : myResearch)
