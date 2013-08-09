@@ -275,6 +275,7 @@ test/Network/MockIStateManager.hpp
 )
 
 set(STATE
+source/State/Implementation/DeltaBuffer.hpp
 source/State/Implementation/DeltaTypes.hpp
 source/State/Implementation/DeltaCoder.hpp
 source/State/Implementation/DeltaCoder.tpp
