@@ -93,16 +93,7 @@ Delta GameNetworkClient::DeltaCreate(
         }
     }
 
-    // Don't just use == overator overloading as for delta difference.
-    // We don't test against everything.
-    // RAM: TODO: DO use == overloading. Change the struct strcuture so we
-    // can compare stuff to make readability easier.
-    if (
-            (current.orientation.x == base->orientation.x) &&
-            (current.orientation.y == base->orientation.y) &&
-            (current.orientation.z == base->orientation.z) &&
-            (current.flags == base->flags)
-        )
+    if (myCoder.isEqualForCoding(current, *base))
     {
         // Same == 1 bit.
         bits.Push(true);

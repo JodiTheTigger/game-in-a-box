@@ -40,7 +40,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 template<class OBJECT>
 class DeltaCoder
 {
-    // RAM: TODO: Move out of DeltaCoder as it's not used by this class.
     typedef std::function<bool(const OBJECT&, const OBJECT&)> Comparer;
 
     // type checking
