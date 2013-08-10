@@ -34,10 +34,23 @@ using namespace GameInABox::Common;
 // RAM: TODO Think of a name (DeltaStatePlayerClient?)
 // RAM: TODO Move to its own class
 // RAM: TODO Is this even done right? what are the couplings?
-class DeltaThinkOfANameLater
+// RAM: TODO couplings are game stuff in state, rest in network. So the gamenetworkclient shold be a template
+// under network, and the thinkofanamelater and the actual deltacoder object itself should be defined in the gamestate.
+class DeltaStatePlayerClient
 {
 public:
-    DeltaThinkOfANameLater(DeltaCoder<StatePlayerClient> coder) : myCoder(coder) {}
+    DeltaStatePlayerClient()
+        : myCoder({
+            std::vector<DeltaMapItem>
+            {
+                {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{0, 71071, 17_bits}},
+                {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{0, 71071, 17_bits}},
+                {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{0, 71071, 17_bits}},
+                {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
+            },
+            Research{true, true}})
+    {
+    }
 
     std::vector<uint8_t> operator()(const StatePlayerClient& base, const StatePlayerClient& target)
     {
@@ -73,16 +86,7 @@ private:
 GameNetworkClient::GameNetworkClient(
         StatePlayerClient identity,
         unsigned bufferSize)
-    : myCoder({
-                std::vector<DeltaMapItem>
-                {
-                    {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{0, 71071, 17_bits}},
-                    {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{0, 71071, 17_bits}},
-                    {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{0, 71071, 17_bits}},
-                    {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
-                },
-                Research{true, true}})
-    , myBuffer(identity, bufferSize, DeltaThinkOfANameLater(myCoder))
+    : myBuffer(identity, bufferSize, DeltaStatePlayerClient())
 {    
 }
 

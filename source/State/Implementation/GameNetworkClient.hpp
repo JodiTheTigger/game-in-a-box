@@ -33,11 +33,9 @@
 #include <Network/Delta.hpp>
 #include <Network/ClientHandle.hpp>
 
-#include <boost/circular_buffer.hpp>
-#include <boost/optional.hpp>
-
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Make this an implementation of IStateManager please.
 class GameNetworkClient
 {
 public:
@@ -52,7 +50,6 @@ public:
             boost::optional<GameInABox::Network::Sequence> lastAcked) const;
 
 private:
-    DeltaCoder<StatePlayerClient>   myCoder;
     DeltaBuffer<StatePlayerClient>  myBuffer;
 };
 
