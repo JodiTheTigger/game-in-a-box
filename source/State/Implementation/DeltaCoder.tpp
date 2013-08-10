@@ -54,7 +54,7 @@ DeltaCoder<OBJECT>::DeltaCoder(
             continue;
         }
 
-        if ((map.offsetInfo.offset.value + 4) > sizeof(OBJECT))
+        if ((map.offsetInfo.offset.value + 4) > static_cast<signed>(sizeof(OBJECT)))
         {
             Common::Log(
                 Common::LogLevel::Warning,
