@@ -37,12 +37,13 @@ template<typename STATE>
 class DeltaBuffer
 {
 public:
-    typedef std::function<GameInABox::Network::Delta(const STATE&, const STATE&)> StateCoder;
+    typedef std::function<std::vector<uint8_t>(const STATE&, const STATE&)> StateCoder;
 
-    DeltaBuffer(STATE identity, StateCoder coder, unsigned stateBufferSize)
+    DeltaBuffer(STATE identity, unsigned stateBufferSize, StateCoder coder)
         : myStates(stateBufferSize)
         , myCurrentSequence()
         , myIdentity(identity)
+        , myStateCoder(coder)
     {
     }
 
@@ -52,13 +53,14 @@ public:
         ++myCurrentSequence;
     }
 
-    GameInABox::Network::Delta DeltaCreate(
-            GameInABox::Network::ClientHandle,
-            boost::optional<GameInABox::Network::Sequence> lastSequenceAcked) const
+    GameInABox::Network::Delta DeltaCreate(boost::optional<GameInABox::Network::Sequence> lastSequenceAcked) const
     {
         auto base = &myIdentity;
         const auto& current = myStates.back();
         auto difference = unsigned{0};
+
+        // ClientHandle is ignored as the network layer
+        // verifies we're talking to the correct person.
 
         // Default is diff against identity (difference==0) unless otherwise.
         if (lastSequenceAcked)
@@ -76,8 +78,12 @@ public:
             }
         }
 
-        // Code
-        return myStateCoder(*base, current);
+        return GameInABox::Network::Delta
+        {
+            static_cast<uint8_t>(difference),
+            myCurrentSequence,
+            myStateCoder(*base, current)
+        };
     }
 
 private:

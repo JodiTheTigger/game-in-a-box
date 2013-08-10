@@ -30,12 +30,50 @@ namespace GameInABox { namespace State { namespace Implementation {
 using namespace GameInABox::Network;
 using namespace GameInABox::Common;
 
+// RAM: Oh wow, functors FTW.
+// RAM: TODO Think of a name (DeltaStatePlayerClient?)
+// RAM: TODO Move to its own class
+// RAM: TODO Is this even done right? what are the couplings?
+class DeltaThinkOfANameLater
+{
+public:
+    DeltaThinkOfANameLater(DeltaCoder<StatePlayerClient> coder) : myCoder(coder) {}
+
+    std::vector<uint8_t> operator()(const StatePlayerClient& base, const StatePlayerClient& target)
+    {
+        // buffer size should be less than the player state size.
+        BitStream bits(sizeof(StatePlayerClient));
+
+        if  (
+                (base.orientation.x == target.orientation.x) &&
+                (base.orientation.y == target.orientation.y) &&
+                (base.orientation.z == target.orientation.z) &&
+                (base.flags == target.flags)
+            )
+        {
+            // Same == 1 bit.
+            bits.Push(true);
+        }
+        else
+        {
+            // Not same = 1 bit + encoding.
+            bits.Push(false);
+
+            // Delta code between last and current.
+            myCoder.DeltaEncode(base, target, bits);
+        }
+
+        return bits.TakeBuffer();
+    }
+
+private:
+    DeltaCoder<StatePlayerClient> myCoder;
+};
+
 GameNetworkClient::GameNetworkClient(
         StatePlayerClient identity,
         unsigned bufferSize)
-    : myStates(bufferSize)
-    , myCurrentSequence()
-    , myCoder({
+    : myCoder({
                 std::vector<DeltaMapItem>
                 {
                     {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{0, 71071, 17_bits}},
@@ -43,73 +81,21 @@ GameNetworkClient::GameNetworkClient(
                     {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{0, 71071, 17_bits}},
                     {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
                 },
-                [](const StatePlayerClient& a, const StatePlayerClient& b)
-                {
-                    return (
-                                (a.orientation.x == b.orientation.x) &&
-                                (a.orientation.y == b.orientation.y) &&
-                                (a.orientation.z == b.orientation.z) &&
-                                (a.flags == b.flags)
-                           );
-                },
                 Research{true, true}})
-    , myIdentity(identity)
-{
+    , myBuffer(identity, bufferSize, DeltaThinkOfANameLater(myCoder))
+{    
 }
 
 void GameNetworkClient::Tick(StatePlayerClient newState)
 {
-    myStates.push_back(newState);
-    ++myCurrentSequence;
+    myBuffer.Tick(newState);
 }
 
-// ClientHandle is ignored as the network layer
-// verifies we're talking to the correct person.
 Delta GameNetworkClient::DeltaCreate(
         ClientHandle,
         boost::optional<Sequence> lastSequenceAcked) const
 {
-    auto base = &myIdentity;
-    const auto& current = myStates.back();
-    auto difference = unsigned{0};
-
-    // Default is diff against identity (difference==0) unless otherwise.
-    if (lastSequenceAcked)
-    {
-        difference = myCurrentSequence - lastSequenceAcked.get();
-        auto bufferSize = myStates.size();
-
-        if ((difference <= bufferSize) && (difference < 256))
-        {
-            base = &myStates[bufferSize - difference];
-        }
-        else
-        {
-            difference = 0;
-        }
-    }    
-
-    // buffer size should be less than the player state size.
-    BitStream bits(sizeof(StatePlayerClient));
-
-    if (myCoder.isEqualForCoding(current, *base))
-    {
-        // Same == 1 bit.
-        bits.Push(true);
-    }
-    else
-    {
-        // Not same = 1 bit + encoding.
-        bits.Push(false);
-
-        // Delta code between last and current.
-        myCoder.DeltaEncode(*base, current, bits);
-    }
-
-    return Delta{
-        static_cast<uint8_t>(difference),
-        myCurrentSequence,
-        bits.TakeBuffer()};
+    return myBuffer.DeltaCreate(lastSequenceAcked);
 }
 
 }}} // namespace

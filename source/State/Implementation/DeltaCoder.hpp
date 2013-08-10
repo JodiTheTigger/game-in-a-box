@@ -40,8 +40,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 template<class OBJECT>
 class DeltaCoder
 {
-    typedef std::function<bool(const OBJECT&, const OBJECT&)> Comparer;
-
     // type checking
     static_assert(std::is_standard_layout<OBJECT>::value,
                   "DeltaCoder requires a standard layout object (pod struct, class or union).");
@@ -58,16 +56,7 @@ class DeltaCoder
 public:
     DeltaCoder(
         std::vector<DeltaMapItem> deltaMap,
-        Comparer comparisonFunction,
         Research settings);    
-
-    DeltaCoder(
-        std::vector<DeltaMapItem> deltaMap,
-        Research settings)
-        : DeltaCoder(
-              deltaMap,
-              [](const OBJECT& a, const OBJECT& b) { return a == b; },
-              settings) {}
 
      void DeltaDecode(
          const OBJECT& base,
@@ -78,8 +67,6 @@ public:
          const OBJECT& base,
          const OBJECT& toDelta,
          GameInABox::Common::BitStream& dataOut) const;
-
-     const Comparer isEqualForCoding;
 
 private:
     std::vector<DeltaMapItem> myDeltaMap;

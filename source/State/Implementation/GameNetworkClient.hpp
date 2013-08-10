@@ -27,6 +27,7 @@
 
 #include "Types.hpp"
 #include "DeltaCoder.hpp"
+#include "DeltaBuffer.hpp"
 
 #include <Network/Sequence.hpp>
 #include <Network/Delta.hpp>
@@ -51,11 +52,8 @@ public:
             boost::optional<GameInABox::Network::Sequence> lastAcked) const;
 
 private:
-    boost::circular_buffer<StatePlayerClient> myStates;
-    GameInABox::Network::Sequence myCurrentSequence;
-
     DeltaCoder<StatePlayerClient>   myCoder;
-    const StatePlayerClient         myIdentity;
+    DeltaBuffer<StatePlayerClient>  myBuffer;
 };
 
 }}} // namespace
