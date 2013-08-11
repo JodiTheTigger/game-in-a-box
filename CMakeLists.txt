@@ -283,6 +283,8 @@ source/State/Implementation/DeltaCoderTools.cpp
 source/State/Implementation/DeltaCoderTools.hpp
 source/State/Implementation/DeltaStatePlayerClient.cpp
 source/State/Implementation/DeltaStatePlayerClient.hpp
+source/State/Implementation/DeltaStateGameSnapshot.cpp
+source/State/Implementation/DeltaStateGameSnapshot.hpp
 source/State/Implementation/Types.hpp
 source/State/Implementation/Units.hpp
 source/State/Implementation/DeltaMapItem.hpp

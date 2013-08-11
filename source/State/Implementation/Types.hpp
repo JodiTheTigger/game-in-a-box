@@ -137,7 +137,7 @@ enum class StateMode : std::uint32_t
 };
 
 template<unsigned MaxPlayersPerTeam>
-struct StateGameSnapshot
+struct StateGameSnapshotGeneral
 {
     static const unsigned maxPlayersPerTeam = MaxPlayersPerTeam;
     static const unsigned maxPlayersPerGame = MaxPlayersPerTeam * 3;
@@ -152,6 +152,8 @@ struct StateGameSnapshot
     // padded with spaces.
     std::array<std::array<uint8_t, 16>, maxPlayersPerGame> playerNames;
 };
+
+typedef StateGameSnapshotGeneral<128> StateGameSnapshot;
 
 }}} // namespace
 
