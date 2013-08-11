@@ -281,6 +281,8 @@ source/State/Implementation/DeltaCoder.hpp
 source/State/Implementation/DeltaCoder.tpp
 source/State/Implementation/DeltaCoderTools.cpp
 source/State/Implementation/DeltaCoderTools.hpp
+source/State/Implementation/DeltaStatePlayerClient.cpp
+source/State/Implementation/DeltaStatePlayerClient.hpp
 source/State/Implementation/Types.hpp
 source/State/Implementation/Units.hpp
 source/State/Implementation/DeltaMapItem.hpp

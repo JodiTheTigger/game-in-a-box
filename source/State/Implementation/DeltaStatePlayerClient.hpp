@@ -18,32 +18,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "GameNetworkClient.hpp"
+#ifndef DELTASTATEPLAYERCLIENT_HPP
+#define DELTASTATEPLAYERCLIENT_HPP
 
-#include "DeltaStatePlayerClient.hpp"
+#include "DeltaCoder.hpp"
+#include "Types.hpp"
+
+#include <cstdint>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-using namespace GameInABox::Network;
-using namespace GameInABox::Common;
-
-GameNetworkClient::GameNetworkClient(
-        StatePlayerClient identity,
-        unsigned bufferSize)
-    : myBuffer(identity, bufferSize, DeltaStatePlayerClient())
-{    
-}
-
-void GameNetworkClient::Tick(StatePlayerClient newState)
+class DeltaStatePlayerClient
 {
-    myBuffer.Tick(newState);
-}
+public:
+    DeltaStatePlayerClient();
 
-Delta GameNetworkClient::DeltaCreate(
-        ClientHandle,
-        boost::optional<Sequence> lastSequenceAcked) const
-{
-    return myBuffer.DeltaCreate(lastSequenceAcked);
-}
+    std::vector<uint8_t> operator()(
+            const StatePlayerClient& base,
+            const StatePlayerClient& target);
+
+private:
+    DeltaCoder<StatePlayerClient> myCoder;
+};
 
 }}} // namespace
+
+#endif // DELTASTATEPLAYERCLIENT_HPP

@@ -26,7 +26,6 @@
 // network subsystem.
 
 #include "Types.hpp"
-#include "DeltaCoder.hpp"
 #include "DeltaBuffer.hpp"
 
 #include <Network/Sequence.hpp>
