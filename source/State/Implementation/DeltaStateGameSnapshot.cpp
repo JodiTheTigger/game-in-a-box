@@ -21,8 +21,10 @@
 #include "DeltaStateGameSnapshot.hpp"
 
 #include <Common/BitStream.hpp>
+#include <Common/BitStreamReadOnly.hpp>
 
 using GameInABox::Common::BitStream;
+using GameInABox::Common::BitStreamReadOnly;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -72,7 +74,7 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
         const StateGameSnapshot&,
         const StateGameSnapshot&)
 {
-    /*
+    /* RAM: TODO!
     // buffer size should be less than the player state size.
     BitStream bits(sizeof(StatePlayerClient));
 
@@ -98,5 +100,15 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
     return bits.TakeBuffer();*/
     return {};
 }
+
+
+StateGameSnapshot DeltaStateGameSnapshot::operator()(
+         const StateGameSnapshot& base,
+         const std::vector<uint8_t>&)
+{
+    // RAM: TODO!
+    return base;
+}
+
 
 }}} // namespace

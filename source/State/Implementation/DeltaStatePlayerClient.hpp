@@ -37,6 +37,10 @@ public:
             const StatePlayerClient& base,
             const StatePlayerClient& target);
 
+    StatePlayerClient operator()(
+            const StatePlayerClient& base,
+            const std::vector<uint8_t>& payload);
+
 private:
     DeltaCoder<StatePlayerClient> myCoder;
 };

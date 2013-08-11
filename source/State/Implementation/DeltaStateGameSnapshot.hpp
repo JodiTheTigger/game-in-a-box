@@ -37,6 +37,10 @@ public:
             const StateGameSnapshot& base,
             const StateGameSnapshot& target);
 
+    StateGameSnapshot operator()(
+            const StateGameSnapshot& base,
+            const std::vector<uint8_t>& payload);
+
 private:
     DeltaCoder<StatePlayer> myCoderPlayer;
     DeltaCoder<StateMissle> myCoderMissle;

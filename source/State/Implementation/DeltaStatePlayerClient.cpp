@@ -21,11 +21,14 @@
 #include "DeltaStatePlayerClient.hpp"
 
 #include <Common/BitStream.hpp>
+#include <Common/BitStreamReadOnly.hpp>
 
 using GameInABox::Common::BitStream;
+using GameInABox::Common::BitStreamReadOnly;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Unit test please.
 DeltaStatePlayerClient::DeltaStatePlayerClient()
     : myCoder({
         std::vector<DeltaMapItem>
@@ -66,6 +69,26 @@ std::vector<uint8_t> DeltaStatePlayerClient::operator()(
     }
 
     return bits.TakeBuffer();
+}
+
+StatePlayerClient DeltaStatePlayerClient::operator()(
+        const StatePlayerClient& base,
+        const std::vector<uint8_t>& payload)
+{
+    BitStreamReadOnly bits(payload);
+
+    if (bits.Pull1Bit())
+    {
+        return base;
+    }
+    else
+    {
+        StatePlayerClient result;
+
+        myCoder.DeltaDecode(base, result, bits);
+
+        return result;
+    }
 }
 
 }}} // namespace
