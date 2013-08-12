@@ -190,6 +190,7 @@ include/Common/BufferSerialisation.hpp
 include/Common/MakeUnique.hpp
 include/Common/Logging.hpp
 include/Common/UnitOperators.hpp
+include/Common/MathConstants.hpp
 )
 
 set(NETWORK_HEADERS

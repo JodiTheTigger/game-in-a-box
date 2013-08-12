@@ -22,6 +22,7 @@
 #include <Implementation/Types.hpp>
 
 #include <Common/UnitOperators.hpp>
+#include <Common/MathConstants.hpp>
 
 #include <gtest/gtest.h>
 
@@ -33,10 +34,6 @@ using namespace std;
 using namespace GameInABox::Common;
 
 namespace GameInABox { namespace State { namespace Implementation {
-
-// Really? We don't have a library constant yet?
-// RAM: TODO: Put this somewhere common.
-static constexpr double Pi() { return 3.1415926535897932384626433832795028841971693993751058209749445923078164; }
 
 // /////////////////////
 // Test Class
