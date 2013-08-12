@@ -28,17 +28,21 @@ using GameInABox::Common::BitStreamReadOnly;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// Really? We don't have a library constant yet?
+// RAM: TODO: Put this somewhere common.
+static constexpr double Pi() { return 3.1415926535897932384626433832795028841971693993751058209749445923078164; }
+
 // RAM: TODO: Unit test please.
-DeltaStatePlayerClient::DeltaStatePlayerClient()
+DeltaStatePlayerClient::DeltaStatePlayerClient(Research settings)
     : myCoder({
         std::vector<DeltaMapItem>
         {
-            {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{0, 71071, 17_bits}},
-            {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{0, 71071, 17_bits}},
-            {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{0, 71071, 17_bits}},
+            {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{-2 * Pi(), 2 * Pi(), 17_bits}},
+            {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{-2 * Pi(), 2 * Pi(), 17_bits}},
+            {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{-2 * Pi(), 2 * Pi(), 17_bits}},
             {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
         },
-        Research{true, true}})
+        settings})
 {
 }
 

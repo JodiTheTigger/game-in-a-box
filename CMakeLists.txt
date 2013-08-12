@@ -297,6 +297,8 @@ source/State/Implementation/GameNetworkClient.cpp
 
 set(STATE_TEST
 test/State/TestDeltaCoder.cpp
+test/State/TestDeltaStatePlayerClient.cpp
+test/State/TestDeltaStateGameSnapshot.cpp
 )
 
 set(UNUSED

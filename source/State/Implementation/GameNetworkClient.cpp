@@ -30,7 +30,7 @@ using namespace GameInABox::Common;
 GameNetworkClient::GameNetworkClient(
         StatePlayerClient identity,
         unsigned bufferSize)
-    : myBuffer(identity, bufferSize, DeltaStatePlayerClient())
+    : myBuffer(identity, bufferSize, DeltaStatePlayerClient({true, true}))
 {    
 }
 
