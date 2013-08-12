@@ -31,7 +31,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 class DeltaStateGameSnapshot
 {
 public:
-    DeltaStateGameSnapshot();
+    DeltaStateGameSnapshot(Research settings);
 
     std::vector<uint8_t> operator()(
             const StateGameSnapshot& base,

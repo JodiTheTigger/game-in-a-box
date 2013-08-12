@@ -28,7 +28,7 @@ using GameInABox::Common::BitStreamReadOnly;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-DeltaStateGameSnapshot::DeltaStateGameSnapshot()
+DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
     : myCoderPlayer({
         std::vector<DeltaMapItem>
         {
@@ -46,7 +46,7 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot()
             // RAM: TODO: Automate this using enum::maxvalue and constexpr calculating max bits.
             {MAKE_OFFSET(StatePlayer, lookAndDo.flags), MapUnsigned{7_bits}},
         },
-        Research{true, true}})
+        settings})
     , myCoderMissle({
         std::vector<DeltaMapItem>
         {
@@ -66,7 +66,7 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot()
 
             {MAKE_OFFSET(StateMissle, flags), MapUnsigned{2_bits}},
         },
-        Research{true, true}})
+        settings})
 {
 }
 

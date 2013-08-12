@@ -29,7 +29,6 @@ using GameInABox::Common::BitStreamReadOnly;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// RAM: TODO: Unit test please.
 DeltaStatePlayerClient::DeltaStatePlayerClient(Research settings)
     : myCoder({
         std::vector<DeltaMapItem>
