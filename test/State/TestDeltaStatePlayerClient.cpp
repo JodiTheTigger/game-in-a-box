@@ -69,7 +69,7 @@ protected:
 void TestDeltaStatePlayerClient::TestN(std::function<StatePlayerClient()> baseGetter, unsigned count)
 {
     minstd_rand generator;
-    uniform_real_distribution<float> angles(-2*Pi(), 2*Pi());
+    uniform_real_distribution<float> angles(-Tau(), Tau());
     uniform_int_distribution<uint32_t> flags(0, static_cast<uint>(FlagsPlayer::MaxValue));
 
     generator.seed(1);
@@ -113,7 +113,7 @@ void TestDeltaStatePlayerClient::TestN(std::function<StatePlayerClient()> baseGe
 TEST_F(TestDeltaStatePlayerClient, Random1000)
 {
     minstd_rand generator;
-    uniform_real_distribution<float> angles(-2*Pi(), 2*Pi());
+    uniform_real_distribution<float> angles(-Tau(), Tau());
     uniform_int_distribution<uint32_t> flags(0, static_cast<uint>(FlagsPlayer::MaxValue));
 
     generator.seed(1);
