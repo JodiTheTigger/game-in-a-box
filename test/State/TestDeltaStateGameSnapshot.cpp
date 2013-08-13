@@ -29,6 +29,7 @@
 #include <vector>
 #include <random>
 #include <functional>
+#include <limits>
 
 using namespace std;
 using namespace GameInABox::Common;
@@ -43,6 +44,12 @@ class TestDeltaStateGameSnapshot : public ::testing::Test
 public:
     TestDeltaStateGameSnapshot()
         : ::testing::Test()
+        , myGenerator()
+        , myAngles(-2*Pi(), 2*Pi())
+        , myFlagsPlayer(0, static_cast<uint>(FlagsPlayer::MaxValue))
+        , myFlagsMissle(0, static_cast<uint>(FlagsMissle::MaxValue))
+        , myFlagsMode(0, static_cast<uint>(StateMode::MaxValue))
+        , myRandomUint32(0, std::numeric_limits<uint32_t>::max())
     {
     }
 
@@ -59,54 +66,143 @@ protected:
         {true, true}
     }};
 
+    minstd_rand myGenerator;
+    uniform_real_distribution<float> myAngles;
+    uniform_int_distribution<uint32_t> myFlagsPlayer;
+    uniform_int_distribution<uint32_t> myFlagsMissle;
+    uniform_int_distribution<uint32_t> myFlagsMode;
+    uniform_int_distribution<uint32_t> myRandomUint32;
+
     void TestN(std::function<StateGameSnapshot()> baseGetter, unsigned count);
+    StateGameSnapshot RandomGameState();
 };
 
 
 // /////////////////////
 // Helpers
 // /////////////////////
-void TestDeltaStateGameSnapshot::TestN(std::function<StateGameSnapshot()> /*baseGetter*/, unsigned count)
+void TestDeltaStateGameSnapshot::TestN(std::function<StateGameSnapshot()> baseGetter, unsigned count)
 {
-    minstd_rand generator;
-    uniform_real_distribution<float> angles(-2*Pi(), 2*Pi());
-    uniform_int_distribution<uint32_t> flags(0, static_cast<uint>(FlagsPlayer::MaxValue));
-
-    generator.seed(1);
-
     for (auto setting : myResearch)
     {
         DeltaStateGameSnapshot toTest(setting);
 
         for (unsigned i = 0; i < count; ++i)
         {
-            /* RAM: TODO:
-            auto target = StateGameSnapshot
-            {
-                {
-                    angles(generator),
-                    angles(generator),
-                    angles(generator)
-                },
-                static_cast<FlagsPlayer>(flags(generator))
-            };
-
+            auto target = RandomGameState();
             auto base = baseGetter();
 
             auto coded = toTest(base, target);
             auto decoded = toTest(base, coded);
 
-            ASSERT_EQ(decoded.flags, target.flags) << " i: " << i;
+            // now test!
 
-            // One bit worth is what the error is allowed to be.
-            // One bit has a delta range of the inverse m value.
-            // But since we don't know that info, lets just assume 3dp
-            ASSERT_NEAR(decoded.orientation.x, target.orientation.x, 0.001);
-            ASSERT_NEAR(decoded.orientation.y, target.orientation.y, 0.001);
-            ASSERT_NEAR(decoded.orientation.z, target.orientation.z, 0.001);
-            */
+            // first the flags
+            ASSERT_EQ(decoded.mode, target.mode) << " i: " << i;
+
+            for (uint i = 0; i < decoded.players.size(); ++i)
+            {
+                auto& playerTarget = target.players[i];
+                auto& playerDecoded = decoded.players[i];
+
+                // One bit worth is what the error is allowed to be.
+                // One bit has a delta range of the inverse m value.
+                // But since we don't know that info, lets just assume 3dp
+                ASSERT_NEAR(playerDecoded.position.x, playerTarget.position.x, 0.001);
+                ASSERT_NEAR(playerDecoded.position.y, playerTarget.position.y, 0.001);
+                ASSERT_NEAR(playerDecoded.position.z, playerTarget.position.z, 0.001);
+
+                ASSERT_EQ(playerDecoded.lookAndDo.flags, playerTarget.lookAndDo.flags);
+
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.x, playerTarget.lookAndDo.orientation.x, 0.001);
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.y, playerTarget.lookAndDo.orientation.y, 0.001);
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.z, playerTarget.lookAndDo.orientation.z, 0.001);
+
+                ASSERT_NEAR(playerDecoded.jetDirection.x, playerTarget.jetDirection.x, 0.001);
+                ASSERT_NEAR(playerDecoded.jetDirection.y, playerTarget.jetDirection.y, 0.001);
+                ASSERT_NEAR(playerDecoded.jetDirection.z, playerTarget.jetDirection.z, 0.001);
+
+                ASSERT_EQ(playerDecoded.health, playerTarget.health);
+                ASSERT_EQ(playerDecoded.energy, playerTarget.energy);
+            }
+
+            for (uint i = 0; i < decoded.missles.size(); ++i)
+            {
+                // RAM: TODO!
+                ASSERT_FALSE(true);
+            }
         }
     }
+}
+
+StateGameSnapshot TestDeltaStateGameSnapshot::RandomGameState()
+{
+    StateGameSnapshot result;
+
+    for (auto& player : result.players)
+    {
+        player =
+        {
+            0,
+            {
+                myAngles(myGenerator),
+                myAngles(myGenerator),
+                myAngles(myGenerator)
+            },
+            {
+                {
+                    myAngles(myGenerator),
+                    myAngles(myGenerator),
+                    myAngles(myGenerator)
+                },
+                static_cast<FlagsPlayer>(myFlagsPlayer(myGenerator))
+            },
+            {
+
+                myAngles(myGenerator),
+                myAngles(myGenerator),
+                myAngles(myGenerator)
+            },
+            myRandomUint32(myGenerator),
+            myRandomUint32(myGenerator),
+            0,
+            0,
+            0
+        };
+    }
+
+    for (auto& missle : result.missles)
+    {
+        missle =
+        {
+            0,
+            0,
+            {
+                myAngles(myGenerator),
+                myAngles(myGenerator),
+                myAngles(myGenerator)
+            },
+            {
+                myAngles(myGenerator),
+                myAngles(myGenerator),
+                myAngles(myGenerator)
+            },
+            myRandomUint32(myGenerator),
+            static_cast<FlagsMissle>(myFlagsMissle(myGenerator))
+        };
+    }
+
+    result.mode = static_cast<StateMode>(myFlagsMode(myGenerator));
+
+    for (auto& name : result.playerNames)
+    {
+        for (auto& namePoint: name)
+        {
+            namePoint = static_cast<uint8_t>(myRandomUint32(myGenerator));
+        }
+    }
+
+    return result;
 }
 
 // /////////////////////
@@ -114,97 +210,53 @@ void TestDeltaStateGameSnapshot::TestN(std::function<StateGameSnapshot()> /*base
 // /////////////////////
 TEST_F(TestDeltaStateGameSnapshot, Random1000)
 {
-    /*
-    minstd_rand generator;
-    uniform_real_distribution<float> angles(-2*Pi(), 2*Pi());
-    uniform_int_distribution<uint32_t> flags(0, static_cast<uint>(FlagsPlayer::MaxValue));
-
-    generator.seed(1);
+    myGenerator.seed(1);
 
     TestN([&]()
     {
-        return StateGameSnapshot
-        {
-            {
-                angles(generator),
-                angles(generator),
-                angles(generator)
-            },
-            static_cast<FlagsPlayer>(flags(generator))
-        };
+        return RandomGameState();
     },
-    1000);*/
+    1000);
 }
 
-                       /*
-                        *
-                       struct StateGameSnapshotGeneral
-                       {
-                           static const unsigned maxPlayersPerTeam = MaxPlayersPerTeam;
-                           static const unsigned maxPlayersPerGame = MaxPlayersPerTeam * 3;
-                           static const unsigned maxMisslesPerGame = maxPlayersPerGame * 4;
-
-                           std::array<StatePlayer, maxPlayersPerGame>          players;
-                           std::array<StateMissle, maxMisslesPerGame>          missles;
-
-                           StateMode mode;
-
-                           // names are UTF8 encoded, maximum 16 bytes, not null terminated.
-                           // padded with spaces.
-                           std::array<std::array<uint8_t, 16>, maxPlayersPerGame> playerNames;
-                       };
-                                              */
-
-
-                       /*
-                        *
-                       struct StatePlayerClient
-                       {
-                           Vec3 orientation;
-                           FlagsPlayer flags;
-                       };
-
-                       // multiples of 16 bytes please.
-                       struct StatePlayer
-                       {
-                           ServerId            id;
-                           Vec3                position;
-
-                           StatePlayerClient   lookAndDo;
-
-                           Vec3                jetDirection;
-                           std::uint32_t       health;
-
-                           std::uint32_t       energy;
-                           ServerTick          lastShot;
-
-                           // network stuff.
-                           std::uint32_t   lastAck;
-                           std::uint32_t   latencyInMs; // argh, needs a millisecond datatype please.
-                       };*/
 TEST_F(TestDeltaStateGameSnapshot, Random1000FromZeroIdentity)
 {
-    /*
+    auto basePlayer = StatePlayer
+    {
+        0,
+        {0.0, 0.0, 0.0},
+        {{0.0, 0.0, 0.0}, FlagsPlayer::Default},
+        {0.0, 0.0, 0.0},
+        0,
+        0,
+        0,
+        0,
+        0
+    };
+
+    auto baseMissle = StateMissle
+    {
+        0,
+        0,
+        {0.0, 0.0, 0.0},
+        {0.0, 0.0, 0.0},
+        0,
+        FlagsMissle::Default
+    };
+
     auto base = StateGameSnapshot
     {
-        {{
-            0,
-            {0.0, 0.0, 0.0},
-            {{0.0, 0.0, 0.0}, FlagsPlayer::NoFlags},
-            {0.0, 0.0, 0.0},
-            0,
-            0,
-            0,
-            0,
-            0
-        }}
+        {{basePlayer}},
+        {{baseMissle}},
+        StateMode::Default,
+        {{" "}}
     };
 
     TestN([&base]()
     {
         return base;
     },
-    1000);*/
+    1000);
 }
 
 }}} // namespace
