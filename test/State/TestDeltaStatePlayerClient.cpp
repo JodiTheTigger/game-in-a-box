@@ -142,7 +142,7 @@ TEST_F(TestDeltaStatePlayerClient, Random1000FromZeroIdentity)
             0.0,
             0.0,
         },
-        FlagsPlayer::NoFlags
+        FlagsPlayer::Default
     };
 
     TestN([&base]()

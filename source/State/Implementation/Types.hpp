@@ -55,7 +55,6 @@ using ServerId = uint32_t;
 // //////////////
 enum class FlagsPlayer : uint32_t
 {
-    NoFlags = 0,
     TeamR = 0,
     TeamG = 1,
     TeamB = 2,
@@ -66,6 +65,7 @@ enum class FlagsPlayer : uint32_t
     Left = 64,
     Right = 128,
 
+    Default = TeamR,
     MaxValue = Right
 };
 
@@ -103,6 +103,7 @@ enum class FlagsMissle : uint32_t
     Armed = 1,
     Exploded = 2,
 
+    Default = Inactive,
     MaxValue = Exploded
 };
 
@@ -133,6 +134,7 @@ enum class StateMode : std::uint32_t
     Playing,
     EndCredits,
 
+    Default = Loading,
     MaxValue = EndCredits
 };
 
