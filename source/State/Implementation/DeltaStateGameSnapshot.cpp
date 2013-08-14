@@ -28,6 +28,23 @@ using GameInABox::Common::BitStreamReadOnly;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Make this a helper class.
+constexpr unsigned BitsNeededForValue(unsigned value, unsigned bits)
+{
+    return ((1U < bits) > value) ? bits : BitsNeededForValue(value, bits);
+}
+
+constexpr Bits BitsNeededForValue(unsigned value)
+{
+    return Bits{static_cast<signed>(BitsNeededForValue(value, 1))};
+}
+
+template<class T>
+constexpr Bits BitsNeededForValue(T value)
+{
+    return BitsNeededForValue(static_cast<unsigned>(value));
+}
+
 DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
     : myCoderPlayer({
         std::vector<DeltaMapItem>
@@ -43,8 +60,7 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
             {MAKE_OFFSET(StatePlayer, health), MapUnsigned{10_bits}},
             {MAKE_OFFSET(StatePlayer, energy), MapUnsigned{10_bits}},
 
-            // RAM: TODO: Automate this using enum::maxvalue and constexpr calculating max bits.
-            {MAKE_OFFSET(StatePlayer, lookAndDo.flags), MapUnsigned{7_bits}},
+            {MAKE_OFFSET(StatePlayer, lookAndDo.flags), MapUnsigned{BitsNeededForValue(FlagsPlayer::MaxValue)}},
         },
         settings})
     , myCoderMissle({
@@ -64,7 +80,7 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
             // RAM: TODO: Find max bits, wrapping counter?
             {MAKE_OFFSET(StateMissle, lastAction), MapUnsigned{32_bits}},
 
-            {MAKE_OFFSET(StateMissle, flags), MapUnsigned{2_bits}},
+            {MAKE_OFFSET(StateMissle, flags), MapUnsigned{BitsNeededForValue(FlagsMissle::MaxValue)}},
         },
         settings})
 {
