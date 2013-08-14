@@ -39,11 +39,15 @@ constexpr Bits BitsNeededForValue(unsigned value)
     return Bits{static_cast<signed>(BitsNeededForValue(value, 1))};
 }
 
-template<class T>
-constexpr Bits BitsNeededForValue(T value)
+template<typename T>
+class BitsForEnum
 {
-    return BitsNeededForValue(static_cast<unsigned>(value));
-}
+public:
+    static constexpr Bits Result()
+    {
+        return BitsNeededForValue(static_cast<unsigned>(T::MaxValue));
+    }
+};
 
 DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
     : myCoderPlayer({
@@ -60,7 +64,7 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
             {MAKE_OFFSET(StatePlayer, health), MapUnsigned{10_bits}},
             {MAKE_OFFSET(StatePlayer, energy), MapUnsigned{10_bits}},
 
-            {MAKE_OFFSET(StatePlayer, lookAndDo.flags), MapUnsigned{BitsNeededForValue(FlagsPlayer::MaxValue)}},
+            {MAKE_OFFSET(StatePlayer, lookAndDo.flags), MapUnsigned{BitsForEnum<FlagsPlayer>::Result()}},
         },
         settings})
     , myCoderMissle({
@@ -80,7 +84,7 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
             // RAM: TODO: Find max bits, wrapping counter?
             {MAKE_OFFSET(StateMissle, lastAction), MapUnsigned{32_bits}},
 
-            {MAKE_OFFSET(StateMissle, flags), MapUnsigned{BitsNeededForValue(FlagsMissle::MaxValue)}},
+            {MAKE_OFFSET(StateMissle, flags), MapUnsigned{BitsForEnum<FlagsMissle>::Result()}},
         },
         settings})
 {
