@@ -29,14 +29,14 @@ using GameInABox::Common::BitStreamReadOnly;
 namespace GameInABox { namespace State { namespace Implementation {
 
 // RAM: TODO: Make this a helper class.
-constexpr unsigned BitsNeededForValue(unsigned value, unsigned bits)
+constexpr unsigned BitsNeeded(unsigned value, unsigned bits)
 {
-    return ((1U < bits) > value) ? bits : BitsNeededForValue(value, bits);
+    return ((1U << bits) > value) ? bits : BitsNeeded(value, bits + 1);
 }
 
-constexpr Bits BitsNeededForValue(unsigned value)
+constexpr Bits BitsNeeded(unsigned value)
 {
-    return Bits{static_cast<signed>(BitsNeededForValue(value, 1))};
+    return Bits{static_cast<signed>(BitsNeeded(value, 1))};
 }
 
 template<typename T>
@@ -45,7 +45,7 @@ class BitsForEnum
 public:
     static constexpr Bits Result()
     {
-        return BitsNeededForValue(static_cast<unsigned>(T::MaxValue));
+        return BitsNeeded(static_cast<unsigned>(T::MaxValue));
     }
 };
 
