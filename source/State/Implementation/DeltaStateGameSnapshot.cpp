@@ -94,6 +94,18 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
         const StateGameSnapshot&,
         const StateGameSnapshot&)
 {
+    //bool nothingChanged = true;
+/*
+    BitStream changedPlayers(base.players.size());
+    BitStream changedPlayersDelta;
+
+    for (int i = 0; i < base.players.size(); ++i)
+    {
+        if (base.
+
+    }
+*/
+
     /* RAM: TODO!
     // buffer size should be less than the player state size.
     BitStream bits(sizeof(StatePlayerClient));
