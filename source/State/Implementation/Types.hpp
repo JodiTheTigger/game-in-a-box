@@ -47,6 +47,12 @@ struct Vec4
     float w;
 };
 
+inline bool operator==(const Vec3& lhs, const Vec3& rhs){return ((lhs.x==rhs.x) && (lhs.y==rhs.y) && (lhs.z==rhs.z));}
+inline bool operator!=(const Vec3& lhs, const Vec3& rhs){return !operator==(lhs,rhs);}
+
+inline bool operator==(const Vec4& lhs, const Vec4& rhs){return ((lhs.x==rhs.x) && (lhs.y==rhs.y) && (lhs.z==rhs.z) && (lhs.w==rhs.w));}
+inline bool operator!=(const Vec4& lhs, const Vec4& rhs){return !operator==(lhs,rhs);}
+
 using ServerTick = uint32_t;
 using ServerId = uint32_t;
 
