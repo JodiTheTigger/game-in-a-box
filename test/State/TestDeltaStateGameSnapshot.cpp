@@ -45,7 +45,7 @@ public:
     TestDeltaStateGameSnapshot()
         : ::testing::Test()
         , myGenerator()
-        , myAngles(-2*Pi(), 2*Pi())
+        , myAngles(-Tau(), Tau())
         , myFlagsPlayer(0, static_cast<uint>(FlagsPlayer::MaxValue))
         , myFlagsMissle(0, static_cast<uint>(FlagsMissle::MaxValue))
         , myFlagsMode(0, static_cast<uint>(StateMode::MaxValue))
@@ -128,8 +128,24 @@ void TestDeltaStateGameSnapshot::TestN(std::function<StateGameSnapshot()> baseGe
 
             for (uint i = 0; i < decoded.missles.size(); ++i)
             {
-                // RAM: TODO!
-                ASSERT_FALSE(true);
+                auto& missleTarget = target.missles[i];
+                auto& missleDecoded = decoded.missles[i];
+
+                ASSERT_NEAR(missleDecoded.source.x, missleTarget.source.x, 0.001);
+                ASSERT_NEAR(missleDecoded.source.y, missleTarget.source.y, 0.001);
+                ASSERT_NEAR(missleDecoded.source.z, missleTarget.source.z, 0.001);
+
+                ASSERT_NEAR(missleDecoded.orientation.x, missleTarget.orientation.x, 0.001);
+                ASSERT_NEAR(missleDecoded.orientation.y, missleTarget.orientation.y, 0.001);
+                ASSERT_NEAR(missleDecoded.orientation.z, missleTarget.orientation.z, 0.001);
+
+                ASSERT_EQ(missleDecoded.lastAction, missleTarget.lastAction);
+                ASSERT_EQ(missleDecoded.flags, missleTarget.flags);
+            }
+
+            for (uint i = 0; i < decoded.playerNames.size(); ++i)
+            {
+                ASSERT_EQ(decoded.playerNames[i], target.playerNames[i]);
             }
         }
     }
