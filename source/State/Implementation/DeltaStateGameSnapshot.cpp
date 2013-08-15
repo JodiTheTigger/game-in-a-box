@@ -104,7 +104,7 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
     // Players always exist.
     // Guessing on the size of the delta buffer.
     // RAM: TODO: Find an optimum size.
-    BitStream changedPlayers(base.players.size());
+    BitStream changedPlayers(BitsNeeded(base.players.size()).value / 8);
     BitStream deltas(1 << 16);
 
     for (unsigned i = 0; i < base.players.size(); ++i)
@@ -195,8 +195,54 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
 
 StateGameSnapshot DeltaStateGameSnapshot::operator()(
          const StateGameSnapshot& base,
-         const std::vector<uint8_t>&)
+         const std::vector<uint8_t>& payload)
 {
+    BitStream data(payload);
+    BitStream changedPlayers(BitsNeeded(base.players.size()).value / 8);
+    BitStream changedMissles(BitsNeeded(base.missles.size()).value / 8);
+    BitStream changedString(BitsNeeded(base.playerNames.size()).value / 8);
+
+    // Bah, this is kack handed. Need to do it a better way.
+    for (auto i = 0; i < (BitsNeeded(base.players.size()).value / 8); ++i)
+    {
+        changedPlayers.Push(data.PullU8(8), 8);
+    }
+
+    for (auto i = 0; i < (BitsNeeded(base.missles.size()).value / 8); ++i)
+    {
+        changedPlayers.Push(data.PullU8(8), 8);
+    }
+
+    for (auto i = 0; i < (BitsNeeded(base.playerNames.size()).value / 8); ++i)
+    {
+        changedPlayers.Push(data.PullU8(8), 8);
+    }
+
+    // right players.
+    for (unsigned i = 0; i < base.players.size(); ++i)
+    {
+        /*
+        auto& playerBase = base.players[i];
+        auto& playerTarget = target.players[i];
+
+        if (
+                (playerBase.position != playerTarget.position) ||
+                (playerBase.lookAndDo.orientation != playerTarget.lookAndDo.orientation) ||
+                (playerBase.lookAndDo.flags != playerTarget.lookAndDo.flags) ||
+                (playerBase.jetDirection != playerTarget.jetDirection) ||
+                (playerBase.health != playerTarget.health) ||
+                (playerBase.energy != playerTarget.energy)
+            )
+        {
+            changedPlayers.Push(true);
+            myCoderPlayer.DeltaEncode(playerBase, playerTarget, deltas);
+        }
+        else
+        {
+            changedPlayers.Push(false);
+        }*/
+    }
+
     // RAM: TODO!
     return base;
 }
