@@ -91,46 +91,105 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
 }
 
 std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
-        const StateGameSnapshot&,
-        const StateGameSnapshot&)
+        const StateGameSnapshot& base,
+        const StateGameSnapshot& target)
 {
-    //bool nothingChanged = true;
-/*
+    // NOTE: Ideas for further improvement:
+    // Instead of sending all player state and missle state, use the q3 method
+    // and only send "active" units. Because if only 1 missle changes, then ontop
+    // of sending whatever delta the one missle requires, we also send #missles bits
+    // stating that nothing else has changed. That's 128*3*4 bits = 1536 bits = 192 bytes.
+    // for now, assume compressions magically deals with all this :-/
+
+    // Players always exist.
+    // Guessing on the size of the delta buffer.
+    // RAM: TODO: Find an optimum size.
     BitStream changedPlayers(base.players.size());
-    BitStream changedPlayersDelta;
+    BitStream deltas(1 << 16);
 
-    for (int i = 0; i < base.players.size(); ++i)
+    for (unsigned i = 0; i < base.players.size(); ++i)
     {
-        if (base.
+        auto& playerBase = base.players[i];
+        auto& playerTarget = target.players[i];
 
-    }
-*/
-
-    /* RAM: TODO!
-    // buffer size should be less than the player state size.
-    BitStream bits(sizeof(StatePlayerClient));
-
-    if  (
-            (base.orientation.x == target.orientation.x) &&
-            (base.orientation.y == target.orientation.y) &&
-            (base.orientation.z == target.orientation.z) &&
-            (base.flags == target.flags)
-        )
-    {
-        // Same == 1 bit.
-        bits.Push(true);
-    }
-    else
-    {
-        // Not same = 1 bit + encoding.
-        bits.Push(false);
-
-        // Delta code between last and current.
-        myCoder.DeltaEncode(base, target, bits);
+        if (
+                (playerBase.position != playerTarget.position) ||
+                (playerBase.lookAndDo.orientation != playerTarget.lookAndDo.orientation) ||
+                (playerBase.lookAndDo.flags != playerTarget.lookAndDo.flags) ||
+                (playerBase.jetDirection != playerTarget.jetDirection) ||
+                (playerBase.health != playerTarget.health) ||
+                (playerBase.energy != playerTarget.energy)
+            )
+        {
+            changedPlayers.Push(true);
+            myCoderPlayer.DeltaEncode(playerBase, playerTarget, deltas);
+        }
+        else
+        {
+            changedPlayers.Push(false);
+        }
     }
 
-    return bits.TakeBuffer();*/
-    return {};
+    // missles always exist.
+    BitStream changedMissles(BitsNeeded(base.missles.size()).value / 8);
+
+    for (unsigned i = 0; i < base.missles.size(); ++i)
+    {
+        auto& missleBase = base.missles[i];
+        auto& missleTarget = target.missles[i];
+
+        if (
+               (missleBase.owner != missleTarget.owner) ||
+               (missleBase.source != missleTarget.source) ||
+               (missleBase.orientation != missleTarget.orientation) ||
+               (missleBase.lastAction != missleTarget.lastAction) ||
+               (missleBase.flags != missleTarget.flags)
+           )
+        {
+            changedMissles.Push(true);
+            myCoderMissle.DeltaEncode(missleBase, missleTarget, deltas);
+        }
+        else
+        {
+            changedMissles.Push(false);
+        }
+    }
+
+    // Noticing a pattern here.
+    // RAM: TODO: Deduplicate code please.
+    BitStream changedString(BitsNeeded(base.playerNames.size()).value / 8);
+
+    for (unsigned i = 0; i < base.playerNames.size(); ++i)
+    {
+        auto& nameBase = base.playerNames[i];
+        auto& nameTarget = target.playerNames[i];
+
+        if (nameBase != nameTarget)
+        {
+            changedString.Push(true);
+
+            // just xor the strings together.
+            for (unsigned j = 0; j < nameBase.size(); ++j)
+            {
+                deltas.Push(static_cast<uint8_t>(nameBase[j] ^ nameTarget[j]), 8);
+            }
+        }
+        else
+        {
+            changedString.Push(false);
+        }
+    }
+
+    // write it all out.
+    auto result = changedPlayers.TakeBuffer();
+    auto missles = changedMissles.TakeBuffer();
+    auto names = changedString.TakeBuffer();
+    auto data = deltas.TakeBuffer();
+    result.insert(end(result), begin(missles), end(missles));
+    result.insert(end(result), begin(names), end(names));
+    result.insert(end(result), begin(data), end(data));
+
+    return result;
 }
 
 
