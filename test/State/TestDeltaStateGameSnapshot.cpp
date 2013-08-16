@@ -108,17 +108,17 @@ void TestDeltaStateGameSnapshot::TestN(std::function<StateGameSnapshot()> baseGe
                 // One bit worth is what the error is allowed to be.
                 // One bit has a delta range of the inverse m value.
                 // But since we don't know that info, lets just assume 3dp
-                ASSERT_NEAR(playerDecoded.position.x, playerTarget.position.x, 0.001);
+                ASSERT_NEAR(playerDecoded.position.x, playerTarget.position.x, 0.001) << " i: " << i;
                 ASSERT_NEAR(playerDecoded.position.y, playerTarget.position.y, 0.001);
                 ASSERT_NEAR(playerDecoded.position.z, playerTarget.position.z, 0.001);
 
                 ASSERT_EQ(playerDecoded.lookAndDo.flags, playerTarget.lookAndDo.flags);
 
-                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.x, playerTarget.lookAndDo.orientation.x, 0.001);
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.x, playerTarget.lookAndDo.orientation.x, 0.001) << " i: " << i;
                 ASSERT_NEAR(playerDecoded.lookAndDo.orientation.y, playerTarget.lookAndDo.orientation.y, 0.001);
                 ASSERT_NEAR(playerDecoded.lookAndDo.orientation.z, playerTarget.lookAndDo.orientation.z, 0.001);
 
-                ASSERT_NEAR(playerDecoded.jetDirection.x, playerTarget.jetDirection.x, 0.001);
+                ASSERT_NEAR(playerDecoded.jetDirection.x, playerTarget.jetDirection.x, 0.001) << " i: " << i;
                 ASSERT_NEAR(playerDecoded.jetDirection.y, playerTarget.jetDirection.y, 0.001);
                 ASSERT_NEAR(playerDecoded.jetDirection.z, playerTarget.jetDirection.z, 0.001);
 
