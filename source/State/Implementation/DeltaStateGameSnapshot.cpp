@@ -87,6 +87,11 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
     BitStream changedPlayers(BitsNeeded(base.players.size()).value / 8);
     BitStream deltas(1 << 16);
 
+    // write the mode first.
+    auto mode = static_cast<uint32_t>(base.mode) ^ static_cast<uint32_t>(target.mode);
+
+    deltas.Push(mode, BitsForEnum<StateMode>::Result().value);
+
     for (unsigned i = 0; i < base.players.size(); ++i)
     {
         auto& playerBase = base.players[i];
@@ -198,6 +203,19 @@ StateGameSnapshot DeltaStateGameSnapshot::operator()(
     for (auto i = 0; i < (BitsNeeded(base.playerNames.size()).value / 8); ++i)
     {
         changedString.Push(data.PullU8(8), 8);
+    }    
+
+    // Mode
+    auto stateValue = static_cast<uint32_t>(base.mode) ^ data.PullU32(BitsForEnum<StateMode>::Result().value);
+
+    if (stateValue <= static_cast<uint32_t>(StateMode::MaxValue))
+    {
+        target.mode = static_cast<StateMode>(stateValue);
+    }
+    else
+    {
+        // WTF?
+        target.mode = StateMode::Default;
     }
 
     // right players.
