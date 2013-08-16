@@ -19,6 +19,7 @@
 */
 
 #include "DeltaStatePlayerClient.hpp"
+#include "MathBitTwiddling.hpp"
 
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
@@ -33,10 +34,10 @@ DeltaStatePlayerClient::DeltaStatePlayerClient(Research settings)
     : myCoder({
         std::vector<DeltaMapItem>
         {
-            {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{-2 * Pi(), 2 * Pi(), 17_bits}},
-            {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{-2 * Pi(), 2 * Pi(), 17_bits}},
-            {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{-2 * Pi(), 2 * Pi(), 17_bits}},
-            {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{7_bits}}
+            {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
+            {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
+            {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
+            {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{BitsForEnum<FlagsPlayer>::Result()}}
         },
         settings})
 {
