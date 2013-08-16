@@ -197,6 +197,8 @@ StateGameSnapshot DeltaStateGameSnapshot::operator()(
          const StateGameSnapshot& base,
          const std::vector<uint8_t>& payload)
 {
+    StateGameSnapshot target;
+
     BitStream data(payload);
     BitStream changedPlayers(BitsNeeded(base.players.size()).value / 8);
     BitStream changedMissles(BitsNeeded(base.missles.size()).value / 8);
@@ -210,41 +212,67 @@ StateGameSnapshot DeltaStateGameSnapshot::operator()(
 
     for (auto i = 0; i < (BitsNeeded(base.missles.size()).value / 8); ++i)
     {
-        changedPlayers.Push(data.PullU8(8), 8);
+        changedMissles.Push(data.PullU8(8), 8);
     }
 
     for (auto i = 0; i < (BitsNeeded(base.playerNames.size()).value / 8); ++i)
     {
-        changedPlayers.Push(data.PullU8(8), 8);
+        changedString.Push(data.PullU8(8), 8);
     }
 
     // right players.
     for (unsigned i = 0; i < base.players.size(); ++i)
     {
-        /*
         auto& playerBase = base.players[i];
         auto& playerTarget = target.players[i];
 
-        if (
-                (playerBase.position != playerTarget.position) ||
-                (playerBase.lookAndDo.orientation != playerTarget.lookAndDo.orientation) ||
-                (playerBase.lookAndDo.flags != playerTarget.lookAndDo.flags) ||
-                (playerBase.jetDirection != playerTarget.jetDirection) ||
-                (playerBase.health != playerTarget.health) ||
-                (playerBase.energy != playerTarget.energy)
-            )
+        if (changedPlayers.Pull1Bit())
         {
-            changedPlayers.Push(true);
-            myCoderPlayer.DeltaEncode(playerBase, playerTarget, deltas);
+            myCoderPlayer.DeltaDecode(playerBase, playerTarget, data);
         }
         else
         {
-            changedPlayers.Push(false);
-        }*/
+            playerTarget = playerBase;
+        }
     }
 
-    // RAM: TODO!
-    return base;
+    // missles
+    for (unsigned i = 0; i < base.players.size(); ++i)
+    {
+        auto& missleBase = base.missles[i];
+        auto& missleTarget = target.missles[i];
+
+        if (changedMissles.Pull1Bit())
+        {
+            myCoderMissle.DeltaDecode(missleBase, missleTarget, data);
+        }
+        else
+        {
+            missleTarget = missleBase;
+        }
+    }
+
+    // names
+    for (unsigned i = 0; i < base.playerNames.size(); ++i)
+    {
+        auto& nameBase = base.playerNames[i];
+        auto& nameTarget = target.playerNames[i];
+
+        if (changedMissles.Pull1Bit())
+        {
+            // just xor the strings together.
+            for (unsigned j = 0; j < nameBase.size(); ++j)
+            {
+                nameTarget[j] = nameBase[j] ^ data.PullU8(8);
+            }
+        }
+        else
+        {
+            nameTarget = nameBase;
+        }
+    }
+
+    return target;
 }
 
 
