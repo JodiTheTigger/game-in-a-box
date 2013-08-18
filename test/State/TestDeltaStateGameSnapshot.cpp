@@ -76,7 +76,8 @@ protected:
     void TestN(
             std::function<StateGameSnapshot()> baseGetter,
             std::function<StateGameSnapshot()> targetGetter,
-            unsigned count);
+            unsigned count,
+            float floatTolerance);
     StateGameSnapshot RandomGameState();
 };
 
@@ -87,7 +88,8 @@ protected:
 void TestDeltaStateGameSnapshot::TestN(
         std::function<StateGameSnapshot()> baseGetter,
         std::function<StateGameSnapshot()> targetGetter,
-        unsigned count)
+        unsigned count,
+        float floatTolerance)
 {
     for (auto setting : myResearch)
     {
@@ -111,22 +113,19 @@ void TestDeltaStateGameSnapshot::TestN(
                 auto& playerTarget = target.players[i];
                 auto& playerDecoded = decoded.players[i];
 
-                // One bit worth is what the error is allowed to be.
-                // One bit has a delta range of the inverse m value.
-                // But since we don't know that info, lets just assume 3dp
-                ASSERT_NEAR(playerDecoded.position.x, playerTarget.position.x, 0.001) << " i: " << i;
-                ASSERT_NEAR(playerDecoded.position.y, playerTarget.position.y, 0.001);
-                ASSERT_NEAR(playerDecoded.position.z, playerTarget.position.z, 0.001);
+                ASSERT_NEAR(playerDecoded.position.x, playerTarget.position.x, floatTolerance) << " i: " << i;
+                ASSERT_NEAR(playerDecoded.position.y, playerTarget.position.y, floatTolerance);
+                ASSERT_NEAR(playerDecoded.position.z, playerTarget.position.z, floatTolerance);
 
                 ASSERT_EQ(playerDecoded.lookAndDo.flags, playerTarget.lookAndDo.flags);
 
-                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.x, playerTarget.lookAndDo.orientation.x, 0.001) << " i: " << i;
-                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.y, playerTarget.lookAndDo.orientation.y, 0.001);
-                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.z, playerTarget.lookAndDo.orientation.z, 0.001);
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.x, playerTarget.lookAndDo.orientation.x, floatTolerance) << " i: " << i;
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.y, playerTarget.lookAndDo.orientation.y, floatTolerance);
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.z, playerTarget.lookAndDo.orientation.z, floatTolerance);
 
-                ASSERT_NEAR(playerDecoded.jetDirection.x, playerTarget.jetDirection.x, 0.001) << " i: " << i;
-                ASSERT_NEAR(playerDecoded.jetDirection.y, playerTarget.jetDirection.y, 0.001);
-                ASSERT_NEAR(playerDecoded.jetDirection.z, playerTarget.jetDirection.z, 0.001);
+                ASSERT_NEAR(playerDecoded.jetDirection.x, playerTarget.jetDirection.x, floatTolerance) << " i: " << i;
+                ASSERT_NEAR(playerDecoded.jetDirection.y, playerTarget.jetDirection.y, floatTolerance);
+                ASSERT_NEAR(playerDecoded.jetDirection.z, playerTarget.jetDirection.z, floatTolerance);
 
                 ASSERT_EQ(playerDecoded.health, playerTarget.health);
                 ASSERT_EQ(playerDecoded.energy, playerTarget.energy);
@@ -137,13 +136,13 @@ void TestDeltaStateGameSnapshot::TestN(
                 auto& missleTarget = target.missles[i];
                 auto& missleDecoded = decoded.missles[i];
 
-                ASSERT_NEAR(missleDecoded.source.x, missleTarget.source.x, 0.001);
-                ASSERT_NEAR(missleDecoded.source.y, missleTarget.source.y, 0.001);
-                ASSERT_NEAR(missleDecoded.source.z, missleTarget.source.z, 0.001);
+                ASSERT_NEAR(missleDecoded.source.x, missleTarget.source.x, floatTolerance);
+                ASSERT_NEAR(missleDecoded.source.y, missleTarget.source.y, floatTolerance);
+                ASSERT_NEAR(missleDecoded.source.z, missleTarget.source.z, floatTolerance);
 
-                ASSERT_NEAR(missleDecoded.orientation.x, missleTarget.orientation.x, 0.001);
-                ASSERT_NEAR(missleDecoded.orientation.y, missleTarget.orientation.y, 0.001);
-                ASSERT_NEAR(missleDecoded.orientation.z, missleTarget.orientation.z, 0.001);
+                ASSERT_NEAR(missleDecoded.orientation.x, missleTarget.orientation.x, floatTolerance);
+                ASSERT_NEAR(missleDecoded.orientation.y, missleTarget.orientation.y, floatTolerance);
+                ASSERT_NEAR(missleDecoded.orientation.z, missleTarget.orientation.z, floatTolerance);
 
                 ASSERT_EQ(missleDecoded.lastAction, missleTarget.lastAction);
                 ASSERT_EQ(missleDecoded.flags, missleTarget.flags);
@@ -234,6 +233,11 @@ TEST_F(TestDeltaStateGameSnapshot, Random1000)
 {
     myGenerator.seed(1);
 
+    // 0.001 ==
+    // One bit worth is what the error is allowed to be.
+    // One bit has a delta range of the inverse m value.
+    // But since we don't know that info, lets just assume 3dp
+
     TestN([&]()
     {
         return RandomGameState();
@@ -242,7 +246,8 @@ TEST_F(TestDeltaStateGameSnapshot, Random1000)
     {
         return RandomGameState();
     },
-    1000);
+    1000,
+    0.001);
 }
 
 TEST_F(TestDeltaStateGameSnapshot, Random1000FromZeroIdentity)
@@ -286,7 +291,8 @@ TEST_F(TestDeltaStateGameSnapshot, Random1000FromZeroIdentity)
     {
         return RandomGameState();
     },
-    1000);
+    1000,
+    0.001);
 }
 
 
@@ -331,7 +337,8 @@ TEST_F(TestDeltaStateGameSnapshot, RandomOnceFromZeroIdentity)
     {
         return RandomGameState();
     },
-    1);
+    1,
+    0.001);
 }
 
 TEST_F(TestDeltaStateGameSnapshot, ZeroToZero)
@@ -375,7 +382,8 @@ TEST_F(TestDeltaStateGameSnapshot, ZeroToZero)
     {
         return base;
     },
-    1);
+    1,
+    0.001);
 }
 
 }}} // namespace
