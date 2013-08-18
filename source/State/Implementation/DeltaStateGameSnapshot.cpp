@@ -84,7 +84,7 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
     // Players always exist.
     // Guessing on the size of the delta buffer.
     // RAM: TODO: Find an optimum size.
-    BitStream changedPlayers(BitsNeeded(base.players.size()).value / 8);
+    BitStream changedPlayers(base.players.size() / 8);
     BitStream deltas(1 << 16);
 
     // write the mode first.
@@ -116,7 +116,7 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
     }
 
     // missles always exist.
-    BitStream changedMissles(BitsNeeded(base.missles.size()).value / 8);
+    BitStream changedMissles(base.missles.size() / 8);
 
     for (unsigned i = 0; i < base.missles.size(); ++i)
     {
@@ -142,7 +142,7 @@ std::vector<uint8_t> DeltaStateGameSnapshot::operator()(
 
     // Noticing a pattern here.
     // RAM: TODO: Deduplicate code please.
-    BitStream changedString(BitsNeeded(base.playerNames.size()).value / 8);
+    BitStream changedString(base.playerNames.size() / 8);
 
     for (unsigned i = 0; i < base.playerNames.size(); ++i)
     {
@@ -185,22 +185,22 @@ StateGameSnapshot DeltaStateGameSnapshot::operator()(
     StateGameSnapshot target;
 
     BitStream data(payload);
-    BitStream changedPlayers(BitsNeeded(base.players.size()).value / 8);
-    BitStream changedMissles(BitsNeeded(base.missles.size()).value / 8);
-    BitStream changedString(BitsNeeded(base.playerNames.size()).value / 8);
+    BitStream changedPlayers(base.players.size() / 8);
+    BitStream changedMissles(base.missles.size() / 8);
+    BitStream changedString(base.playerNames.size() / 8);
 
     // Bah, this is kack handed. Need to do it a better way.
-    for (auto i = 0; i < (BitsNeeded(base.players.size()).value / 8); ++i)
+    for (unsigned i = 0; i < (base.players.size() / 8); ++i)
     {
         changedPlayers.Push(data.PullU8(8), 8);
     }
 
-    for (auto i = 0; i < (BitsNeeded(base.missles.size()).value / 8); ++i)
+    for (unsigned i = 0; i < (base.missles.size() / 8); ++i)
     {
         changedMissles.Push(data.PullU8(8), 8);
     }
 
-    for (auto i = 0; i < (BitsNeeded(base.playerNames.size()).value / 8); ++i)
+    for (unsigned i = 0; i < (base.playerNames.size() / 8); ++i)
     {
         changedString.Push(data.PullU8(8), 8);
     }    
@@ -235,7 +235,7 @@ StateGameSnapshot DeltaStateGameSnapshot::operator()(
     }
 
     // missles
-    for (unsigned i = 0; i < base.players.size(); ++i)
+    for (unsigned i = 0; i < base.missles.size(); ++i)
     {
         auto& missleBase = base.missles[i];
         auto& missleTarget = target.missles[i];
@@ -256,7 +256,7 @@ StateGameSnapshot DeltaStateGameSnapshot::operator()(
         auto& nameBase = base.playerNames[i];
         auto& nameTarget = target.playerNames[i];
 
-        if (changedMissles.Pull1Bit())
+        if (changedString.Pull1Bit())
         {
             // just xor the strings together.
             for (unsigned j = 0; j < nameBase.size(); ++j)
