@@ -78,7 +78,8 @@ protected:
             std::function<StateGameSnapshot()> targetGetter,
             unsigned count,
             float floatTolerance);
-    StateGameSnapshot RandomGameState();
+
+    StateGameSnapshot GameStateRandom();
 };
 
 
@@ -156,7 +157,7 @@ void TestDeltaStateGameSnapshot::TestN(
     }
 }
 
-StateGameSnapshot TestDeltaStateGameSnapshot::RandomGameState()
+StateGameSnapshot TestDeltaStateGameSnapshot::GameStateRandom()
 {
     StateGameSnapshot result;
 
@@ -226,6 +227,41 @@ StateGameSnapshot TestDeltaStateGameSnapshot::RandomGameState()
     return result;
 }
 
+
+StateGameSnapshot GameStateZero()
+{
+    auto basePlayer = StatePlayer
+    {
+        0,
+        {0.0, 0.0, 0.0},
+        {{0.0, 0.0, 0.0}, FlagsPlayer::Default},
+        {0.0, 0.0, 0.0},
+        0,
+        0,
+        0,
+        0,
+        0
+    };
+
+    auto baseMissle = StateMissle
+    {
+        0,
+        0,
+        {0.0, 0.0, 0.0},
+        {0.0, 0.0, 0.0},
+        0,
+        FlagsMissle::Default
+    };
+
+    return StateGameSnapshot
+    {
+        {{basePlayer}},
+        {{baseMissle}},
+        StateMode::Default,
+        {{" "}}
+    };
+}
+
 // /////////////////////
 // Tests
 // /////////////////////
@@ -240,11 +276,11 @@ TEST_F(TestDeltaStateGameSnapshot, Random1000)
 
     TestN([&]()
     {
-        return RandomGameState();
+        return GameStateRandom();
     },
     [&]()
     {
-        return RandomGameState();
+        return GameStateRandom();
     },
     1000,
     0.001);
@@ -252,138 +288,36 @@ TEST_F(TestDeltaStateGameSnapshot, Random1000)
 
 TEST_F(TestDeltaStateGameSnapshot, Random1000FromZeroIdentity)
 {
-    auto basePlayer = StatePlayer
-    {
-        0,
-        {0.0, 0.0, 0.0},
-        {{0.0, 0.0, 0.0}, FlagsPlayer::Default},
-        {0.0, 0.0, 0.0},
-        0,
-        0,
-        0,
-        0,
-        0
-    };
-
-    auto baseMissle = StateMissle
-    {
-        0,
-        0,
-        {0.0, 0.0, 0.0},
-        {0.0, 0.0, 0.0},
-        0,
-        FlagsMissle::Default
-    };
-
-    auto base = StateGameSnapshot
-    {
-        {{basePlayer}},
-        {{baseMissle}},
-        StateMode::Default,
-        {{" "}}
-    };
-
-    TestN([&base]()
-    {
-        return base;
-    },
-    [&]()
-    {
-        return RandomGameState();
-    },
-    1000,
-    0.001);
+    TestN(
+        GameStateZero,
+        [&]()
+        {
+            return GameStateRandom();
+        },
+        1000,
+        0.001);
 }
 
 
 TEST_F(TestDeltaStateGameSnapshot, RandomOnceFromZeroIdentity)
 {
-    auto basePlayer = StatePlayer
-    {
-        0,
-        {0.0, 0.0, 0.0},
-        {{0.0, 0.0, 0.0}, FlagsPlayer::Default},
-        {0.0, 0.0, 0.0},
-        0,
-        0,
-        0,
-        0,
-        0
-    };
-
-    auto baseMissle = StateMissle
-    {
-        0,
-        0,
-        {0.0, 0.0, 0.0},
-        {0.0, 0.0, 0.0},
-        0,
-        FlagsMissle::Default
-    };
-
-    auto base = StateGameSnapshot
-    {
-        {{basePlayer}},
-        {{baseMissle}},
-        StateMode::Default,
-        {{" "}}
-    };
-
-    TestN([&base]()
-    {
-        return base;
-    },
-    [&]()
-    {
-        return RandomGameState();
-    },
-    1,
-    0.001);
+    TestN(
+        GameStateZero,
+        [&]()
+        {
+            return GameStateRandom();
+        },
+        1,
+        0.001);
 }
 
 TEST_F(TestDeltaStateGameSnapshot, ZeroToZero)
 {
-    auto basePlayer = StatePlayer
-    {
-        0,
-        {0.0, 0.0, 0.0},
-        {{0.0, 0.0, 0.0}, FlagsPlayer::Default},
-        {0.0, 0.0, 0.0},
-        0,
-        0,
-        0,
-        0,
-        0
-    };
-
-    auto baseMissle = StateMissle
-    {
-        0,
-        0,
-        {0.0, 0.0, 0.0},
-        {0.0, 0.0, 0.0},
-        0,
-        FlagsMissle::Default
-    };
-
-    auto base = StateGameSnapshot
-    {
-        {{basePlayer}},
-        {{baseMissle}},
-        StateMode::Default,
-        {{" "}}
-    };
-
-    TestN([&base]()
-    {
-        return base;
-    },
-    [&base]()
-    {
-        return base;
-    },
-    1,
-    0.001);
+    TestN(
+        GameStateZero,
+        GameStateZero,
+        1,
+        0.001);
 }
 
 }}} // namespace
