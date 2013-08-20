@@ -58,6 +58,9 @@ public:
     }
 
 protected:
+    static const int N = 8;
+    static constexpr float Tolerance{0.01f};
+
     std::array<Research, 4> myResearch =
     {{
         {false, false},
@@ -185,8 +188,8 @@ StateGameSnapshot TestDeltaStateGameSnapshot::GameStateRandom()
                 myAngles(myGenerator),
                 myAngles(myGenerator)
             },
-            myRandomUint32(myGenerator),
-            myRandomUint32(myGenerator),
+            myRandomUint32(myGenerator) % 1024,
+            myRandomUint32(myGenerator) % 1024,
             0,
             0,
             0
@@ -265,7 +268,7 @@ StateGameSnapshot GameStateZero()
 // /////////////////////
 // Tests
 // /////////////////////
-TEST_F(TestDeltaStateGameSnapshot, Random1000)
+TEST_F(TestDeltaStateGameSnapshot, RandomN)
 {
     myGenerator.seed(1);
 
@@ -282,11 +285,11 @@ TEST_F(TestDeltaStateGameSnapshot, Random1000)
     {
         return GameStateRandom();
     },
-    1000,
-    0.001);
+    N,
+    Tolerance);
 }
 
-TEST_F(TestDeltaStateGameSnapshot, Random1000FromZeroIdentity)
+TEST_F(TestDeltaStateGameSnapshot, RandomNFromZeroIdentity)
 {
     TestN(
         GameStateZero,
@@ -294,8 +297,8 @@ TEST_F(TestDeltaStateGameSnapshot, Random1000FromZeroIdentity)
         {
             return GameStateRandom();
         },
-        1000,
-        0.001);
+        N,
+        Tolerance);
 }
 
 
@@ -308,7 +311,7 @@ TEST_F(TestDeltaStateGameSnapshot, RandomOnceFromZeroIdentity)
             return GameStateRandom();
         },
         1,
-        0.001);
+        Tolerance);
 }
 
 TEST_F(TestDeltaStateGameSnapshot, ZeroToZero)
@@ -317,7 +320,7 @@ TEST_F(TestDeltaStateGameSnapshot, ZeroToZero)
         GameStateZero,
         GameStateZero,
         1,
-        0.001);
+        Tolerance);
 }
 
 TEST_F(TestDeltaStateGameSnapshot, Mode)
@@ -334,7 +337,7 @@ TEST_F(TestDeltaStateGameSnapshot, Mode)
             return target;
         },
         1,
-        0.001);
+        Tolerance);
 }
 
 }}} // namespace
