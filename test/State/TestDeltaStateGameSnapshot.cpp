@@ -320,4 +320,21 @@ TEST_F(TestDeltaStateGameSnapshot, ZeroToZero)
         0.001);
 }
 
+TEST_F(TestDeltaStateGameSnapshot, Mode)
+{
+    auto target = GameStateZero();
+
+    // Test only the game mode.
+    target.mode = StateMode::Playing;
+
+    TestN(
+        GameStateZero,
+        [&]()
+        {
+            return target;
+        },
+        1,
+        0.001);
+}
+
 }}} // namespace
