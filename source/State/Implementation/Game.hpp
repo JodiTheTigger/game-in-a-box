@@ -22,6 +22,7 @@
 #define GAME_HPP
 
 #include <btBulletDynamicsCommon.h>
+#include <array>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -41,6 +42,11 @@ private:
     btCollisionDispatcher myPhysicsDispatcher;
     btSequentialImpulseConstraintSolver myPhyiscsSolver;
     btDiscreteDynamicsWorld myPhysicsWorld;
+
+    /* RAM: Can't do, abstract base class.
+    std::array<btCollisionShape, 6> myCollisionCube;
+    btCollisionShape myCollisionPlayer;
+    btCollisionShape myCollisionMissle;*/
 };
 
 }}} // namespace

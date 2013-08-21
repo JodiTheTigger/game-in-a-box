@@ -36,7 +36,18 @@ Game::Game()
     , myCollisionConfiguration()
     , myPhysicsDispatcher(&myCollisionConfiguration)
     , myPhyiscsSolver()
-    , myPhysicsWorld(&myPhysicsDispatcher, &myPhysicsBroadPhase, &myPhyiscsSolver, &myCollisionConfiguration)
+    , myPhysicsWorld(&myPhysicsDispatcher, &myPhysicsBroadPhase, &myPhyiscsSolver, &myCollisionConfiguration)/*
+    , myCollisionCube(
+    {
+        btStaticPlaneShape(btVector3(-1,0,0),500),
+        btStaticPlaneShape(btVector3(1,0,0),500),
+        btStaticPlaneShape(btVector3(0,1,0),500),
+        btStaticPlaneShape(btVector3(0,-1,0),500),
+        btStaticPlaneShape(btVector3(0,0,1),500),
+        btStaticPlaneShape(btVector3(0,0,-1),500)
+    })
+    , myCollisionPlayer(btSphereShape(0.5))
+    , myCollisionMissle(btSphereShape(0.1))*/
 {
     auto mapPlayer = std::vector<DeltaMapItem>
     {
