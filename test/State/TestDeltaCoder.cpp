@@ -548,4 +548,20 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrict33Bits)
     }
 }
 
+TEST_F(TestDeltaCoder, MapFloatRangedStrictOnLimit)
+{
+    auto map = std::vector<DeltaMapItem>
+    {
+        {MAKE_OFFSET(DeltaTester, float03[1]), MapFloatRangeStrict{-88.0, 45,32_bits}},
+    };
+
+    for (auto setting : myResearch)
+    {
+        auto result = TestMapBaseToTarget(map, setting);
+
+        // 33 bits should be treated as 32 bits.
+        EXPECT_FLOAT_EQ(myTarget.float03[1], result.float03[1]);
+    }
+}
+
 }}} // namespace
