@@ -261,7 +261,7 @@ StateGameSnapshot GameStateZero()
         {{basePlayer}},
         {{baseMissle}},
         StateMode::Default,
-        {{" "}}
+        {{{" "}}}
     };
 }
 
