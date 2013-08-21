@@ -32,6 +32,11 @@ using namespace GameInABox::Network;
 namespace GameInABox { namespace State { namespace Implementation {
 
 Game::Game()
+    : myPhysicsBroadPhase()
+    , myCollisionConfiguration()
+    , myPhysicsDispatcher(&myCollisionConfiguration)
+    , myPhyiscsSolver()
+    , myPhysicsWorld(&myPhysicsDispatcher, &myPhysicsBroadPhase, &myPhyiscsSolver, &myCollisionConfiguration)
 {
     auto mapPlayer = std::vector<DeltaMapItem>
     {
@@ -68,6 +73,17 @@ Game::Game()
 
         {MAKE_OFFSET(StateMissle, flags), MapUnsigned{2_bits}},
     };
+
+
+    // /////////////////////
+    // Physics setup.
+    // /////////////////////
+    // Gravity is team dependant.
+    myPhysicsWorld.setGravity(btVector3(0,0,0));
+
+    // For our first game, everyone is a sphere 500mm in diameter.
+    // we have a network resolution of 20mm
+    // the game is in a 1kmx1kmx1km box (+/- 1km = 1000m = 100,000cm = 50,000 network units = 17 bits).
 }
 
 }}} // namspace

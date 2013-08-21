@@ -337,13 +337,14 @@ enable_testing()
 ###############
 # Third party
 ###############
-# for now include tird party via source, as opposed to getting CMake to download
+# for now include third party via source, as opposed to getting CMake to download
 # it at compile time.
 
 add_subdirectory(third-party/gmock-1.6.0)
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 
 add_subdirectory(third-party/bullet-2.x)
+include_directories(SYSTEM ${BULLET_PHYSICS_SOURCE_DIR}/src)
 
 ###############
 # Common
@@ -459,6 +460,7 @@ target_link_libraries(
   ${CMAKE_THREAD_LIBS_INIT}
   gmock
   gmock_main
+  BulletCollision
   ${Boost_LIBRARIES})
 
 add_test(
@@ -503,6 +505,7 @@ target_link_libraries(
   gmock
   gmock_main
   ${Boost_LIBRARIES})
+
 
 add_test(
   NAME game-in-a-box-unused-tests

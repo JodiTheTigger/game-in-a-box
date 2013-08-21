@@ -21,6 +21,8 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+#include <btBulletDynamicsCommon.h>
+
 namespace GameInABox { namespace State { namespace Implementation {
 
 class Game
@@ -32,6 +34,13 @@ public:
     // RAM: TODO: Need to pass max allowed time? How do we control the time
     // allowed?
     void Tick();
+
+private:
+    btDbvtBroadphase myPhysicsBroadPhase;
+    btDefaultCollisionConfiguration myCollisionConfiguration;
+    btCollisionDispatcher myPhysicsDispatcher;
+    btSequentialImpulseConstraintSolver myPhyiscsSolver;
+    btDiscreteDynamicsWorld myPhysicsWorld;
 };
 
 }}} // namespace
