@@ -204,6 +204,14 @@ include/Network/NetworkManagerServer.hpp
 include/Network/NetworkPacket.hpp
 include/Network/Sequence.hpp
 include/Network/WrappingCounter.hpp
+include/Network/MathBitTwiddling.hpp
+include/Network/Units.hpp
+include/Network/DeltaBuffer.hpp
+include/Network/DeltaCoder.hpp
+include/Network/DeltaCoder.tpp
+include/Network/DeltaCoderTools.hpp
+include/Network/DeltaMapItem.hpp
+include/Network/DeltaTypes.hpp
 )
 
 set(COMMON
@@ -213,6 +221,8 @@ source/Common/Logging.cpp
 )
 
 set(NETWORK
+source/Network/DeltaMapItem.cpp
+source/Network/DeltaCoderTools.cpp
 source/Network/INetworkManager.cpp
 source/Network/INetworkProvider.cpp
 source/Network/IStateManager.cpp
@@ -260,6 +270,7 @@ test/Common/TestBufferSerialisation.cpp
 
 set(NETWORK_TEST
 test/Network/TestConnection.cpp
+test/Network/TestDeltaCoder.cpp
 test/Network/TestPackets.cpp
 test/Network/TestPacketDelta.cpp
 test/Network/TestPacketFragment.cpp
@@ -276,21 +287,11 @@ test/Network/MockIStateManager.hpp
 )
 
 set(STATE
-source/State/Implementation/MathBitTwiddling.hpp
-source/State/Implementation/DeltaBuffer.hpp
-source/State/Implementation/DeltaTypes.hpp
-source/State/Implementation/DeltaCoder.hpp
-source/State/Implementation/DeltaCoder.tpp
-source/State/Implementation/DeltaCoderTools.cpp
-source/State/Implementation/DeltaCoderTools.hpp
 source/State/Implementation/DeltaStatePlayerClient.cpp
 source/State/Implementation/DeltaStatePlayerClient.hpp
 source/State/Implementation/DeltaStateGameSnapshot.cpp
 source/State/Implementation/DeltaStateGameSnapshot.hpp
 source/State/Implementation/Types.hpp
-source/State/Implementation/Units.hpp
-source/State/Implementation/DeltaMapItem.hpp
-source/State/Implementation/DeltaMapItem.cpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
@@ -298,7 +299,6 @@ source/State/Implementation/GameNetworkClient.cpp
 )
 
 set(STATE_TEST
-test/State/TestDeltaCoder.cpp
 test/State/TestDeltaStatePlayerClient.cpp
 test/State/TestDeltaStateGameSnapshot.cpp
 )
@@ -457,6 +457,7 @@ set_target_properties(game-in-a-box-state-tests PROPERTIES COMPILE_FLAGS "${PARA
 target_link_libraries(
   game-in-a-box-state-tests
   game-in-a-box-state
+  game-in-a-box-network
   game-in-a-box-common
   ${CMAKE_THREAD_LIBS_INIT}
   gmock

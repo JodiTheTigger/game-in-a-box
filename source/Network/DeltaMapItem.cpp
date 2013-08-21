@@ -23,7 +23,7 @@
 #include <Common/Logging.hpp>
 #include <Common/UnitOperators.hpp>
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatFull)
     : offsetInfo(offsetToUse)
@@ -171,4 +171,4 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
     }
 }
 
-}}} // namespace
+}} // namespace

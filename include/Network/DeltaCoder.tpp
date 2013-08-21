@@ -27,7 +27,7 @@
 #include <type_traits>
 #include <algorithm>
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 // /////////////////////
 // Delta Coder Implementation
@@ -128,6 +128,6 @@ void DeltaCoder<OBJECT>::DeltaEncode(
     }
 }
 
-}}} // namespace
+}} // namespace
 
 #endif // DELTACODER_TPP

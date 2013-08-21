@@ -18,12 +18,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Implementation/DeltaCoder.hpp>
-#include <Implementation/DeltaMapItem.hpp>
-
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
 #include <Common/UnitOperators.hpp>
+
+#include <DeltaMapItem.hpp>
+#include <DeltaCoder.hpp>
 
 #include <gtest/gtest.h>
 
@@ -36,7 +36,7 @@
 using namespace std;
 using namespace GameInABox::Common;
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 struct DeltaTester
 {
@@ -564,4 +564,4 @@ TEST_F(TestDeltaCoder, MapFloatRangedStrictOnLimit)
     }
 }
 
-}}} // namespace
+}} // namespace

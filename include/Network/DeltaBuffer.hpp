@@ -21,17 +21,15 @@
 #ifndef DELTABUFFER_HPP
 #define DELTABUFFER_HPP
 
-#include "Types.hpp"
 #include "DeltaCoder.hpp"
-
-#include <Network/Sequence.hpp>
-#include <Network/Delta.hpp>
-#include <Network/ClientHandle.hpp>
+#include "Sequence.hpp"
+#include "Delta.hpp"
+#include "ClientHandle.hpp"
 
 #include <boost/circular_buffer.hpp>
 #include <boost/optional.hpp>
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 template<typename STATE>
 class DeltaBuffer
@@ -53,7 +51,7 @@ public:
         ++myCurrentSequence;
     }
 
-    GameInABox::Network::Delta DeltaCreate(boost::optional<GameInABox::Network::Sequence> lastSequenceAcked) const
+    Delta DeltaCreate(boost::optional<Sequence> lastSequenceAcked) const
     {
         auto base = &myIdentity;
         const auto& current = myStates.back();
@@ -78,7 +76,7 @@ public:
             }
         }
 
-        return GameInABox::Network::Delta
+        return Delta
         {
             static_cast<uint8_t>(difference),
             myCurrentSequence,
@@ -90,10 +88,10 @@ private:
     boost::circular_buffer<STATE> myStates;
     GameInABox::Network::Sequence myCurrentSequence;
 
-    const StatePlayerClient     myIdentity;
-    const StateCoder            myStateCoder;
+    const STATE         myIdentity;
+    const StateCoder    myStateCoder;
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // DELTABUFFER_HPP

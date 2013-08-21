@@ -18,46 +18,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef UNITS_HPP
-#define UNITS_HPP
+#ifndef DELTACODERTOOLS_HPP
+#define DELTACODERTOOLS_HPP
 
-namespace GameInABox { namespace State { namespace Implementation {
+#include <cstdint>
 
-// /////////////////////
-// Unit Structs
-// /////////////////////
-struct Bits
+namespace GameInABox { namespace Common {
+class BitStream;
+class BitStreamReadOnly;
+}}
+
+namespace GameInABox { namespace Network {
+struct DeltaMapItem;
+
+struct Research
 {
-    signed value;
+    bool doZeros;
+    bool doXor;
 };
 
-struct Bytes
-{
-    signed value;
-};
-
 // /////////////////////
-// User defined literals for units.
+// Delta Coder Implementation
 // /////////////////////
-Bits constexpr operator"" _bits(unsigned long long value)
-{
-    return {static_cast<signed>(value)};
-}
-Bits constexpr operator"" _bit(unsigned long long value)
-{
-    // Argh, Plurals
-    return {static_cast<signed>(value)};
-}
+void DeltaCreate(
+        std::uint32_t base,
+        std::uint32_t target,
+        const DeltaMapItem& map,
+        GameInABox::Common::BitStream& out,
+        Research settings);
 
-Bytes constexpr operator"" _bytes(unsigned long long value)
-{
-    return {static_cast<signed>(value)};
-}
-Bytes constexpr operator"" _byte(unsigned long long value)
-{
-    return {static_cast<signed>(value)};
-}
+std::uint32_t DeltaParse(
+        std::uint32_t base,
+        const DeltaMapItem& map,
+        GameInABox::Common::BitStreamReadOnly& in,
+        Research settings);
 
-}}} // namespace
+}} // namespace
 
-#endif // UNITS_HPP
+#endif // DELTACODERTOOLS_HPP

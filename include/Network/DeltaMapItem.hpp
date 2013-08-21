@@ -26,7 +26,7 @@
 
 #include <memory>
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 class DeltaMapItem
 {
@@ -68,6 +68,6 @@ public:
     ~DeltaMapItem() = default;
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // DELTAMAPITEM_HPP

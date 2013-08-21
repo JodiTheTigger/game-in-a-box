@@ -21,8 +21,9 @@
 #ifndef DELTASTATEPLAYERCLIENT_HPP
 #define DELTASTATEPLAYERCLIENT_HPP
 
-#include "DeltaCoder.hpp"
 #include "Types.hpp"
+
+#include <Network/DeltaCoder.hpp>
 
 #include <cstdint>
 
@@ -31,7 +32,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 class DeltaStatePlayerClient
 {
 public:
-    DeltaStatePlayerClient(Research settings);
+    DeltaStatePlayerClient(GameInABox::Network::Research settings);
 
     std::vector<uint8_t> operator()(
             const StatePlayerClient& base,
@@ -42,7 +43,7 @@ public:
             const std::vector<uint8_t>& payload);
 
 private:
-    DeltaCoder<StatePlayerClient> myCoder;
+    GameInABox::Network::DeltaCoder<StatePlayerClient> myCoder;
 };
 
 }}} // namespace

@@ -31,7 +31,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 class DeltaStateGameSnapshot
 {
 public:
-    DeltaStateGameSnapshot(Research settings);
+    DeltaStateGameSnapshot(GameInABox::Network::Research settings);
 
     std::vector<uint8_t> operator()(
             const StateGameSnapshot& base,
@@ -42,8 +42,8 @@ public:
             const std::vector<uint8_t>& payload);
 
 private:
-    DeltaCoder<StatePlayer> myCoderPlayer;
-    DeltaCoder<StateMissle> myCoderMissle;
+    GameInABox::Network::DeltaCoder<StatePlayer> myCoderPlayer;
+    GameInABox::Network::DeltaCoder<StateMissle> myCoderMissle;
 };
 
 }}} // namespace

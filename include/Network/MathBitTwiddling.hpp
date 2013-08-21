@@ -3,7 +3,7 @@
 
 #include "Units.hpp"
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 constexpr unsigned BitsNeeded(unsigned value, unsigned bits)
 {
@@ -25,6 +25,6 @@ public:
     }
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // MATHBITTWIDDLING_HPP

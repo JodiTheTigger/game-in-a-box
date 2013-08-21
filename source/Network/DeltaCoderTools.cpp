@@ -30,7 +30,7 @@
 
 using namespace GameInABox::Common;
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 void DeltaCreate(
         std::uint32_t base,
@@ -282,5 +282,5 @@ std::uint32_t DeltaParse(
     }
 }
 
-}}} // namespace
+}} // namespace
 

@@ -27,7 +27,7 @@
 #include <cstddef>
 #include <string>
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 // /////////////////////
 // Delta Map Data Types
@@ -101,6 +101,6 @@ struct Offset
 // ///////////////////
 #define MAKE_OFFSET(CLASS_TYPE, CLASS_MEMBER) Offset{{#CLASS_MEMBER}, {offsetof(CLASS_TYPE, CLASS_MEMBER)}}
 
-}}} // namespace
+}} // namespace
 
 #endif // DELTATYPES_HPP

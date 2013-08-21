@@ -27,6 +27,8 @@
 
 #include <vector>
 
+using namespace GameInABox::Network;
+
 namespace GameInABox { namespace State { namespace Implementation {
 
 Game::Game()

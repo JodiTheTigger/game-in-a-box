@@ -32,7 +32,7 @@ class BitStream;
 class BitStreamReadOnly;
 }}
 
-namespace GameInABox { namespace State { namespace Implementation {
+namespace GameInABox { namespace Network {
 
 // /////////////////////
 // Delta Coder Interface
@@ -73,7 +73,7 @@ private:
     const Research myResearch;
 };
 
-}}} // namespace
+}} // namespace
 
 
 // /////////////////////

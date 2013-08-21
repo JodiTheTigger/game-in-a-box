@@ -49,7 +49,7 @@ public:
             boost::optional<GameInABox::Network::Sequence> lastAcked) const;
 
 private:
-    DeltaBuffer<StatePlayerClient>  myBuffer;
+    GameInABox::Network::DeltaBuffer<StatePlayerClient>  myBuffer;
 };
 
 }}} // namespace

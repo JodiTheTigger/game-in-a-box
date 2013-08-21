@@ -33,6 +33,7 @@
 
 using namespace std;
 using namespace GameInABox::Common;
+using namespace GameInABox::Network;
 
 namespace GameInABox { namespace State { namespace Implementation {
 

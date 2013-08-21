@@ -19,14 +19,16 @@
 */
 
 #include "DeltaStateGameSnapshot.hpp"
-#include "MathBitTwiddling.hpp"
 
+#include <Network/MathBitTwiddling.hpp>
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
 #include <Common/MathConstants.hpp>
 
 using GameInABox::Common::BitStream;
 using GameInABox::Common::BitStreamReadOnly;
+
+using namespace GameInABox::Network;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
