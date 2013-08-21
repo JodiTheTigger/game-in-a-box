@@ -59,7 +59,7 @@ public:
 
 protected:
     static const int N = 8;
-    static constexpr float Tolerance{0.01f};
+    static constexpr float Tolerance{0.004f};
 
     std::array<Research, 4> myResearch =
     {{

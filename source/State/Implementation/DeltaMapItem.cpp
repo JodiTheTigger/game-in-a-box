@@ -143,7 +143,6 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRangeStrict specs)
 
             c = - specs.minValue;
 
-            // RAM TODO: truncate or round when converting from int to float: investiage.
             auto maxIntValue = (0xFFFFFFFF >> (32 - specs.resolution.value));
             m = maxIntValue / range;
             inversem = static_cast<float>(1.0 / m);

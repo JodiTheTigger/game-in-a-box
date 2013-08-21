@@ -26,6 +26,7 @@
 #include <Common/Logging.hpp>
 
 #include <cstring>
+#include <cmath>
 
 using namespace GameInABox::Common;
 
@@ -122,8 +123,8 @@ void DeltaCreate(
                     floatBase = (floatBase + map.c) * map.m;
 
                     // Convert to dword and treat as a normal dword.
-                    target = static_cast<uint32_t>(floatTarget);
-                    base = static_cast<uint32_t>(floatBase);
+                    target = static_cast<uint32_t>(std::lround(floatTarget));
+                    base = static_cast<uint32_t>(std::lround(floatBase));
 
                     // drop through to DeltaMapItem::MapType::Unsigned on purpose.
                 }
@@ -221,7 +222,7 @@ std::uint32_t DeltaParse(
 
                         memcpy(&floatBase, &base, sizeof(float));
                         floatBase = (floatBase + map.c) * map.m;
-                        auto baseConverted = static_cast<uint32_t>(floatBase);
+                        auto baseConverted = static_cast<uint32_t>(std::lround(floatBase));
 
                         delta ^= baseConverted;
                     }
