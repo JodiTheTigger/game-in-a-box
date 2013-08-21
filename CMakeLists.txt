@@ -179,9 +179,6 @@ FIND_PACKAGE ( Threads )
 ###############
 # Source Code
 ###############
-# RAM: TODO: Move No.hpp and Units.hpp into a common header directory maybe?
-# Maybe BaseClassUniquePointer.hpp too if it's ever used?
-
 set(COMMON_HEADERS
 include/Common/No.hpp
 include/Common/BitStream.hpp
@@ -338,15 +335,15 @@ endif()
 enable_testing()
 
 ###############
-# Testing
+# Third party
 ###############
-# yikes! enable google test. Since this doesn't have a module, do it manually.
-# http://stackoverflow.com/questions/9689183/cmake-googletest/9695234#9695234
-# yikes! that wasted a day of my life. Doesn't work as it can't find a make target
-# Maybe it only works in windows? Either way, include gmock with the source.
+# for now include tird party via source, as opposed to getting CMake to download
+# it at compile time.
 
 add_subdirectory(third-party/gmock-1.6.0)
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
+
+add_subdirectory(third-party/bullet-2.x)
 
 ###############
 # Common
