@@ -469,7 +469,7 @@ add_test(
 )
 
 # run tests after every build please.
-#add_custom_command(TARGET game-in-a-box-state-tests POST_BUILD COMMAND game-in-a-box-state-tests)
+add_custom_command(TARGET game-in-a-box-state-tests POST_BUILD COMMAND game-in-a-box-state-tests)
 
 ###############
 # Unused
