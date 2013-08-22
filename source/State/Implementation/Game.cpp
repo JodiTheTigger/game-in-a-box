@@ -123,6 +123,22 @@ Game::Game()
         btDefaultMotionState{btTransform(btQuaternion(0,0,0,1),btVector3(0,0,500))}
     };
 
+    // let's do the walls.
+    for (auto i = 0; i < sides.size(); ++i)
+    {
+        btRigidBody::btRigidBodyConstructionInfo wallBody
+        (
+            0,
+            sideMotions[i],
+            sides[i],
+            btVector3(0,0,0)
+        );
+
+        // the ridid body needs to be dynamic.
+    }
+
+
+
     // person mass is 50kg, bullet mass is, um, 200g.
 }
 
