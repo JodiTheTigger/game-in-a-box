@@ -25,9 +25,11 @@
 #include "DeltaMapItem.hpp"
 #include "Units.hpp"
 
+#include <Common/MakeUnique.hpp>
 #include <vector>
 
 using namespace GameInABox::Network;
+using namespace std;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -36,21 +38,11 @@ Game::Game()
     , myCollisionConfiguration()
     , myPhysicsDispatcher(&myCollisionConfiguration)
     , myPhyiscsSolver()
-    , myPhysicsWorld(&myPhysicsDispatcher, &myPhysicsBroadPhase, &myPhyiscsSolver, &myCollisionConfiguration)/*
-    , myCollisionCube(
-    {
-        btStaticPlaneShape(btVector3(-1,0,0),500),
-        btStaticPlaneShape(btVector3(1,0,0),500),
-        btStaticPlaneShape(btVector3(0,1,0),500),
-        btStaticPlaneShape(btVector3(0,-1,0),500),
-        btStaticPlaneShape(btVector3(0,0,1),500),
-        btStaticPlaneShape(btVector3(0,0,-1),500)
-    })
-    , myCollisionPlayer(btSphereShape(0.5))
-    , myCollisionMissle(btSphereShape(0.1))*/
+    , myPhysicsWorld(&myPhysicsDispatcher, &myPhysicsBroadPhase, &myPhyiscsSolver, &myCollisionConfiguration)
 {
     auto mapPlayer = std::vector<DeltaMapItem>
     {
+        // RAM: TODO: This is all inavlid! Fix!
         {MAKE_OFFSET(StatePlayer, position.x), MapFloatRangeStrict{500.0f, -500.0f, 17_bits}},
         {MAKE_OFFSET(StatePlayer, position.y), MapFloatRangeStrict{500.0f, -500.0f, 17_bits}},
         {MAKE_OFFSET(StatePlayer, position.z), MapFloatRangeStrict{500.0f, -500.0f, 17_bits}},
@@ -68,6 +60,7 @@ Game::Game()
 
     auto mapMissle = std::vector<DeltaMapItem>
     {
+        // RAM: TODO: This is all inavlid! Fix!
         // RAM: TODO: Find max bits.
         {MAKE_OFFSET(StateMissle, owner), MapUnsigned{32_bits}},
 
@@ -95,6 +88,42 @@ Game::Game()
     // For our first game, everyone is a sphere 500mm in diameter.
     // we have a network resolution of 20mm
     // the game is in a 1kmx1kmx1km box (+/- 1km = 1000m = 100,000cm = 50,000 network units = 17 bits).
+
+    /* try not to use the heap. leave here for now incase I do need to later.
+    std::array<std::unique_ptr<btCollisionShape>, 6> sidesP =
+    {
+        make_unique<btStaticPlaneShape>(btVector3(1,0,0),0),
+        make_unique<btStaticPlaneShape>(btVector3(-1,0,0),0),
+        make_unique<btStaticPlaneShape>(btVector3(0,1,0),0),
+        make_unique<btStaticPlaneShape>(btVector3(0,-1,0),0),
+        make_unique<btStaticPlaneShape>(btVector3(0,0,1),0),
+        make_unique<btStaticPlaneShape>(btVector3(0,0,-1),0)
+    };*/
+
+    std::array<btStaticPlaneShape, 6> sides =
+    {
+        btStaticPlaneShape{btVector3(1,0,0),0},
+        btStaticPlaneShape{btVector3(-1,0,0),0},
+        btStaticPlaneShape{btVector3(0,1,0),0},
+        btStaticPlaneShape{btVector3(0,-1,0),0},
+        btStaticPlaneShape{btVector3(0,0,1),0},
+        btStaticPlaneShape{btVector3(0,0,-1),0}
+    };
+
+    auto player = btSphereShape{0.5};
+    auto missle = btSphereShape{0.1};
+
+    std::array<btDefaultMotionState, 6> sideMotion =
+    {
+        btDefaultMotionState{btTransform(btQuaternion(0,0,0,1),btVector3(-500,0,0))},
+        btDefaultMotionState{btTransform(btQuaternion(0,0,0,1),btVector3(500,0,0))},
+        btDefaultMotionState{btTransform(btQuaternion(0,0,0,1),btVector3(0,-500,0))},
+        btDefaultMotionState{btTransform(btQuaternion(0,0,0,1),btVector3(0,500,0))},
+        btDefaultMotionState{btTransform(btQuaternion(0,0,0,1),btVector3(0,0,-500))},
+        btDefaultMotionState{btTransform(btQuaternion(0,0,0,1),btVector3(0,0,500))}
+    };
+
+    // person mass is 50kg, bullet mass is, um, 200g.
 }
 
 }}} // namspace
