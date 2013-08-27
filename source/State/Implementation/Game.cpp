@@ -26,6 +26,7 @@
 #include "Units.hpp"
 
 #include "PhysicsCube.hpp"
+#include "PhysicsPlayers.hpp"
 
 #include <Common/MakeUnique.hpp>
 #include <vector>
@@ -41,6 +42,8 @@ Game::Game()
     , myPhysicsDispatcher(&myCollisionConfiguration)
     , myPhyiscsSolver()
     , myPhysicsWorld(&myPhysicsDispatcher, &myPhysicsBroadPhase, &myPhyiscsSolver, &myCollisionConfiguration)
+    , myPhysicsLevel(make_unique<PhysicsCube>())
+    , myPhysicsPlayers(make_unique<PhysicsPlayers>())
 {
     auto mapPlayer = std::vector<DeltaMapItem>
     {
@@ -89,12 +92,13 @@ Game::Game()
 
     // For our first game, everyone is a sphere 500mm in diameter.
     // we have a network resolution of 20mm
-    // the game is in a 1kmx1kmx1km box (+/- 1km = 1000m = 100,000cm = 50,000 network units = 17 bits).
 
-    auto player = btSphereShape{0.5};
     auto missle = btSphereShape{0.1};
 
-    // person mass is 50kg, bullet mass is, um, 200g.
+    Add(myPhysicsWorld, *myPhysicsLevel);
+    Add(myPhysicsWorld, *myPhysicsPlayers);
+
+    // well then, we're good to go I assume.
 }
 
 }}} // namspace

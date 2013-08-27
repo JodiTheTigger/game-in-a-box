@@ -23,6 +23,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+namespace GameInABox { namespace State { namespace Implementation {
+
 // the game is in a 1kmx1kmx1km box (+/- 1km = 1000m = 100,000cm = 50,000 network units = 17 bits).
 struct PhysicsCube
 {
@@ -66,5 +68,7 @@ inline btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsCube& r
 
     return lhs;
 }
+
+}}} // namespace
 
 #endif // PHYSICSCUBE_HPP

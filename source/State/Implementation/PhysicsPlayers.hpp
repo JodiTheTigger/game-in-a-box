@@ -18,39 +18,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef GAME_HPP
-#define GAME_HPP
+#ifndef PHYSICSPLAYERS_HPP
+#define PHYSICSPLAYERS_HPP
 
 #include <btBulletDynamicsCommon.h>
 
 #include <memory>
+#include <vector>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-class PhysicsCube;
-class PhysicsPlayers;
-
-class Game
+struct PhysicsPlayers
 {
-public:
-    Game();
+    // RAM: TODO: should be using units!
+    static constexpr btScalar Mass{50.0};
 
-    // All game stuff happens here.
-    // RAM: TODO: Need to pass max allowed time? How do we control the time
-    // allowed?
-    void Tick();
+    PhysicsPlayers();
 
-private:
-    btDbvtBroadphase myPhysicsBroadPhase;
-    btDefaultCollisionConfiguration myCollisionConfiguration;
-    btCollisionDispatcher myPhysicsDispatcher;
-    btSequentialImpulseConstraintSolver myPhyiscsSolver;
-    btDiscreteDynamicsWorld myPhysicsWorld;
-
-    std::unique_ptr<PhysicsCube> myPhysicsLevel;
-    std::unique_ptr<PhysicsPlayers> myPhysicsPlayers;
+    btSphereShape                                       playersShape;
+    std::vector<std::unique_ptr<btDefaultMotionState>>  playersMotion;
+    std::vector<std::unique_ptr<btRigidBody>>           players;
 };
+
+btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs)
+{
+    for (auto& player : rhs.players)
+    {
+        lhs.addRigidBody(player.get());
+    }
+
+    return lhs;
+}
 
 }}} // namespace
 
-#endif // GAME_HPP
+#endif // PHYSICSPLAYERS_HPP
