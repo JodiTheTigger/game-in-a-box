@@ -21,6 +21,8 @@
 #ifndef PHYSICSPLAYERS_HPP
 #define PHYSICSPLAYERS_HPP
 
+#include "Types.hpp"
+
 #include <btBulletDynamicsCommon.h>
 
 #include <memory>
@@ -39,6 +41,8 @@ struct PhysicsPlayers
     std::vector<std::unique_ptr<btDefaultMotionState>>  playersMotion;
     std::vector<std::unique_ptr<btRigidBody>>           players;
 };
+
+btVector3 Up(FlagsPlayer team);
 
 btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs)
 {

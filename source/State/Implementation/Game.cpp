@@ -101,4 +101,19 @@ Game::Game()
     // well then, we're good to go I assume.
 }
 
+void Game::Tick()
+{
+    // Update all player's movement and gravity
+
+    // physics!
+    // RAM: TODO: Should I make this alterable?
+    // The game sends network ticks every 50ms (20hz).
+    // how fast should I simulate? should it be a multiple of 50ms?
+    // 50 ticks/second = 20ms time step. If this can take a while, I might split it up into
+    // 5ms
+    //myPhysicsWord
+
+    // Update game state transitions
+}
+
 }}} // namspace

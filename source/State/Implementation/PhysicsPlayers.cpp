@@ -20,8 +20,6 @@
 
 #include "PhysicsPlayers.hpp"
 
-#include "Types.hpp"
-
 #include <Common/MakeUnique.hpp>
 
 namespace GameInABox { namespace State { namespace Implementation {
@@ -32,24 +30,24 @@ btVector3 Position(FlagsPlayer team, unsigned number)
     static_assert(StateGameSnapshot::maxPlayersPerTeam < 1025, "I assumed no more than 1024 players per team. Bad assumption. Bother.");
 
     auto x = float{static_cast<float>(number % 32)};
-    auto y = float{static_cast<float>(number & 31)};
+    auto z = float{static_cast<float>(number & 31)};
 
     switch (team)
     {
         case FlagsPlayer::TeamR:
         {
-            return btVector3{x, y, 400};
+            return btVector3{x, 400, z};
         }
 
         case FlagsPlayer::TeamG:
         {
-            return btVector3{400, x, y};
+            return btVector3{z, x, 400};
         }
 
         default:
         case FlagsPlayer::TeamB:
         {
-            return btVector3{y, 400, x};
+            return btVector3{400, z, x};
         }
     }
 }
@@ -100,6 +98,29 @@ PhysicsPlayers::PhysicsPlayers()
                         static_cast<btCollisionShape*>(&playersShape)
                     }));
     }
+}
+
+btVector3 Up(FlagsPlayer team)
+{
+    switch (team)
+    {
+        case FlagsPlayer::TeamR:
+        {
+            return btVector3{0, 1, 0};
+        }
+
+        case FlagsPlayer::TeamG:
+        {
+            return btVector3{0, 0, 1};
+        }
+
+        default:
+        case FlagsPlayer::TeamB:
+        {
+            return btVector3{1, 0, 0};
+        }
+    }
+
 }
 
 }}} // namespace
