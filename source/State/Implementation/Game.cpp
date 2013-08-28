@@ -21,12 +21,13 @@
 #include "Game.hpp"
 
 #include "Types.hpp"
-#include "DeltaTypes.hpp"
-#include "DeltaMapItem.hpp"
-#include "Units.hpp"
 
 #include "PhysicsCube.hpp"
 #include "PhysicsPlayers.hpp"
+
+#include "Network/DeltaTypes.hpp"
+#include "Network/DeltaMapItem.hpp"
+#include "Network/Units.hpp"
 
 #include <Common/MakeUnique.hpp>
 #include <vector>
@@ -110,8 +111,8 @@ void Game::Tick()
     // The game sends network ticks every 50ms (20hz).
     // how fast should I simulate? should it be a multiple of 50ms?
     // 50 ticks/second = 20ms time step. If this can take a while, I might split it up into
-    // 5ms
-    //myPhysicsWord
+    // 5ms. But the default is 16.6ms. Hmm, lets stick to 20ms and see if we go unstable.
+    myPhysicsWorld.stepSimulation(0.02, 1, 0.02);
 
     // Update game state transitions
 }

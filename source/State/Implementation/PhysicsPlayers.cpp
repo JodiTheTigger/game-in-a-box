@@ -24,6 +24,28 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+btVector3 Up(FlagsPlayer team)
+{
+    switch (team)
+    {
+        case FlagsPlayer::TeamR:
+        {
+            return btVector3{0, 1, 0};
+        }
+
+        case FlagsPlayer::TeamG:
+        {
+            return btVector3{0, 0, 1};
+        }
+
+        default:
+        case FlagsPlayer::TeamB:
+        {
+            return btVector3{1, 0, 0};
+        }
+    }
+}
+
 btVector3 Position(FlagsPlayer team, unsigned number)
 {
     // just put people in an evenly spaced grid (max 1024 players per team).
@@ -64,63 +86,29 @@ PhysicsPlayers::PhysicsPlayers()
     auto inertia = btVector3{0,0,0};
     playersShape.calculateLocalInertia(Mass, inertia);
 
-    // motion states
-    for (unsigned player = 0; player < StateGameSnapshot::maxPlayersPerTeam; ++player)
+    for (auto team : {FlagsPlayer::TeamR, FlagsPlayer::TeamG, FlagsPlayer::TeamB})
     {
-        playersMotion.insert(
-                    end(playersMotion),
-                    make_unique<btDefaultMotionState>(btTransform(btQuaternion(0,0,0,1), Position(FlagsPlayer::TeamR, player))));
-    }
+        auto gravity = Up(team) * 9.8;
 
-    for (unsigned player = 0; player < StateGameSnapshot::maxPlayersPerTeam; ++player)
-    {
-        playersMotion.insert(
-                    end(playersMotion),
-                    make_unique<btDefaultMotionState>(btTransform(btQuaternion(0,0,0,1), Position(FlagsPlayer::TeamG, player))));
-    }
-
-    for (unsigned player = 0; player < StateGameSnapshot::maxPlayersPerTeam; ++player)
-    {
-        playersMotion.insert(
-                    end(playersMotion),
-                    make_unique<btDefaultMotionState>(btTransform(btQuaternion(0,0,0,1), Position(FlagsPlayer::TeamB, player))));
-    }
-
-    // ridged bodies.
-    for (auto& motion : playersMotion)
-    {
-        players.insert(
-                    end(players),
-                    make_unique<btRigidBody>(btRigidBody::btRigidBodyConstructionInfo
-                    {
-                        Mass,
-                        motion.get(),
-                        static_cast<btCollisionShape*>(&playersShape)
-                    }));
-    }
-}
-
-btVector3 Up(FlagsPlayer team)
-{
-    switch (team)
-    {
-        case FlagsPlayer::TeamR:
+        for (unsigned player = 0; player < StateGameSnapshot::maxPlayersPerTeam; ++player)
         {
-            return btVector3{0, 1, 0};
-        }
+            playersMotion.insert(
+                        end(playersMotion),
+                        make_unique<btDefaultMotionState>(btTransform(btQuaternion(0,0,0,1), Position(team, player))));
 
-        case FlagsPlayer::TeamG:
-        {
-            return btVector3{0, 0, 1};
-        }
+            players.insert(
+                        end(players),
+                        make_unique<btRigidBody>(btRigidBody::btRigidBodyConstructionInfo
+                        {
+                            Mass,
+                            playersMotion.back().get(),
+                            static_cast<btCollisionShape*>(&playersShape)
+                        }));
 
-        default:
-        case FlagsPlayer::TeamB:
-        {
-            return btVector3{1, 0, 0};
+            players.back()->setFlags(BT_DISABLE_WORLD_GRAVITY);
+            players.back()->setGravity(gravity);
         }
     }
-
 }
 
 }}} // namespace
