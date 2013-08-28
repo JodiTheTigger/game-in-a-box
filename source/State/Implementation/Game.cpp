@@ -102,6 +102,11 @@ Game::Game()
     // well then, we're good to go I assume.
 }
 
+Game::~Game()
+{
+    // require as smart pointers are used, and they don't like default constructed destructors.
+}
+
 void Game::Tick()
 {
     // Update all player's movement and gravity

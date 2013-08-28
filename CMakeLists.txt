@@ -301,6 +301,7 @@ source/State/Implementation/GameNetworkClient.cpp
 set(STATE_TEST
 test/State/TestDeltaStatePlayerClient.cpp
 test/State/TestDeltaStateGameSnapshot.cpp
+test/State/TestGame.cpp
 )
 
 set(UNUSED
@@ -437,7 +438,7 @@ add_custom_command(TARGET game-in-a-box-network-tests POST_BUILD COMMAND game-in
 ###############
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/State/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/source/State/)
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/State/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/test/State/)
 
 add_library(
 game-in-a-box-state
@@ -463,7 +464,9 @@ target_link_libraries(
   ${CMAKE_THREAD_LIBS_INIT}
   gmock
   gmock_main
+  BulletDynamics
   BulletCollision
+  LinearMath
   ${Boost_LIBRARIES})
 
 add_test(

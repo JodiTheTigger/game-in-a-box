@@ -111,4 +111,14 @@ PhysicsPlayers::PhysicsPlayers()
     }
 }
 
+btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs)
+{
+    for (auto& player : rhs.players)
+    {
+        lhs.addRigidBody(player.get());
+    }
+
+    return lhs;
+}
+
 }}} // namespace

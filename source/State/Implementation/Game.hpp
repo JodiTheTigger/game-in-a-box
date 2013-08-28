@@ -21,6 +21,8 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+#include <Common/No.hpp>
+
 #include <btBulletDynamicsCommon.h>
 
 #include <memory>
@@ -30,10 +32,11 @@ namespace GameInABox { namespace State { namespace Implementation {
 class PhysicsCube;
 class PhysicsPlayers;
 
-class Game
+class Game : GameInABox::Common::NoCopyMoveNorAssign
 {
 public:
     Game();
+    ~Game();
 
     // All game stuff happens here.
     // RAM: TODO: Need to pass max allowed time? How do we control the time

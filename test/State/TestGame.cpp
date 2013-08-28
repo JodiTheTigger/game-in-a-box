@@ -1,51 +1,41 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012-2013 Richard Maxwell <jodi.the.tigger@gmail.com>
-
+    
     This file is part of Game-in-a-box
-
+    
     Game-in-a-box is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
+    
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-
+    
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef PHYSICSPLAYERS_HPP
-#define PHYSICSPLAYERS_HPP
+#include <Implementation/Game.hpp>
 
-#include "Types.hpp"
+#include <gtest/gtest.h>
 
-#include <btBulletDynamicsCommon.h>
-
-#include <memory>
-#include <vector>
+using namespace std;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct PhysicsPlayers
+// Class definition!
+class TestGame : public ::testing::Test
 {
-    // RAM: TODO: should be using units!
-    static constexpr btScalar Mass{50.0};
-
-    PhysicsPlayers();
-
-    btSphereShape                                       playersShape;
-    std::vector<std::unique_ptr<btDefaultMotionState>>  playersMotion;
-    std::vector<std::unique_ptr<btRigidBody>>           players;
 };
 
-btVector3 Up(FlagsPlayer team);
+TEST_F(TestGame, CreateDestroy)
+{
+    Game toTest;
 
-btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs);
+    // shouldn't crash
+}
 
 }}} // namespace
-
-#endif // PHYSICSPLAYERS_HPP
