@@ -35,7 +35,20 @@ TEST_F(TestGame, CreateDestroy)
 {
     Game toTest;
 
+    // shouldn't crash destroying either.
+}
+
+
+TEST_F(TestGame, TickFor1GameSecond)
+{
+    Game toTest;
+
     // shouldn't crash
+    // also, how long to do 1 seconds worth of physics time?
+    for (int i = 0; i < 20 ; ++i)
+    {
+        toTest.Tick();
+    }
 }
 
 }}} // namespace
