@@ -86,7 +86,7 @@ DeltaMapItem::DeltaMapItem(Offset offsetToUse, MapFloatRanged specs)
     if (specs.maxValue > 0)
     {
         // figure out the range in bits.
-        Bits maxResolution;
+        Bits maxResolution{0};
 
         while ((1U << maxResolution.value) < (2U*specs.maxValue))
         {

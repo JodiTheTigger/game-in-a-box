@@ -121,4 +121,14 @@ btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs)
     return lhs;
 }
 
+btDiscreteDynamicsWorld& Remove(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs)
+{
+    for (auto& player : rhs.players)
+    {
+        lhs.removeRigidBody(player.get());
+    }
+
+    return lhs;
+}
+
 }}} // namespace

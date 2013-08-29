@@ -105,6 +105,10 @@ Game::Game()
 Game::~Game()
 {
     // require as smart pointers are used, and they don't like default constructed destructors.
+
+    // NOOO! change this to a class so it auto-deletes!
+    Remove(myPhysicsWorld, *myPhysicsLevel);
+    Remove(myPhysicsWorld, *myPhysicsPlayers);
 }
 
 void Game::Tick()

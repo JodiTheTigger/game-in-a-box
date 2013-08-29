@@ -45,6 +45,7 @@ struct PhysicsPlayers
 btVector3 Up(FlagsPlayer team);
 
 btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs);
+btDiscreteDynamicsWorld& Remove(btDiscreteDynamicsWorld& lhs, PhysicsPlayers& rhs);
 
 }}} // namespace
 

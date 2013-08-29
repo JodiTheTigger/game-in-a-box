@@ -69,6 +69,16 @@ inline btDiscreteDynamicsWorld& Add(btDiscreteDynamicsWorld& lhs, PhysicsCube& r
     return lhs;
 }
 
+inline btDiscreteDynamicsWorld& Remove(btDiscreteDynamicsWorld& lhs, PhysicsCube& rhs)
+{
+    for (auto& wall : rhs.walls)
+    {
+        lhs.removeRigidBody(&wall);
+    }
+
+    return lhs;
+}
+
 }}} // namespace
 
 #endif // PHYSICSCUBE_HPP
