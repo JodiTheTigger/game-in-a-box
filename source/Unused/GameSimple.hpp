@@ -53,7 +53,7 @@ private:
             GameInABox::Network::ClientHandle client,
             boost::optional<GameInABox::Network::Sequence> lastAcked) const override;
 
-    virtual GameInABox::Network::Sequence PrivateDeltaParse(
+    virtual boost::optional<GameInABox::Network::Sequence> PrivateDeltaParse(
             GameInABox::Network::ClientHandle client,
             const GameInABox::Network::Delta& payload) override;
 };

@@ -66,7 +66,7 @@ Delta IStateManager::DeltaCreate(
     return PrivateDeltaCreate(client, lastAcked);
 }
 
-Sequence IStateManager::DeltaParse(
+boost::optional<Sequence> IStateManager::DeltaParse(
         ClientHandle client,
         const Delta& payload)
 {

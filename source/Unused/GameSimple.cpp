@@ -75,7 +75,7 @@ Delta GameSimple::PrivateDeltaCreate(
     return Delta();
 }
 
-Sequence GameSimple::PrivateDeltaParse(
+boost::optional<Sequence> GameSimple::PrivateDeltaParse(
         ClientHandle,
         const Delta &)
 {

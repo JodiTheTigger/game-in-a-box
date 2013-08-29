@@ -90,7 +90,7 @@ private:
 
     Huffman myCompressor;
 
-    Sequence myLastSequenceProcessed;
+    boost::optional<Sequence> myLastSequenceProcessed;
 
     uint8_t myPacketSentCount;
 

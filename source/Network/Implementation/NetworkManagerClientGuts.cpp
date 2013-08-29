@@ -263,8 +263,9 @@ void NetworkManagerClientGuts::DeltaSend()
             auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
 
             std::array<uint8_t, 4> code;
+            uint16_t rawAck = myLastSequenceProcessed ? myLastSequenceProcessed->Value() : 0;
             Push(begin(code), deltaData.to.Value());
-            Push(begin(code) + 2, myLastSequenceProcessed.Value());
+            Push(begin(code) + 2, rawAck);
             XorCode(begin(code), end(code), myConnection.Key().data);
             XorCode(begin(compressed), end(compressed), code);
 

@@ -264,8 +264,10 @@ void NetworkManagerServerGuts::PrivateSendState()
                         auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
 
                         std::array<uint8_t, 4> code;
+                        auto ack = addressToState.second.lastAcked;
+                        uint16_t rawAck = ack ? ack->Value() : 0;
                         Push(begin(code), deltaData.to.Value());
-                        Push(begin(code) + 2, addressToState.second.lastAcked.Value());
+                        Push(begin(code) + 2, rawAck);
                         XorCode(begin(code), end(code), connection.Key().data);
                         XorCode(begin(compressed), end(compressed), code);
 

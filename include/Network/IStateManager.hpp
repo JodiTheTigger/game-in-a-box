@@ -64,8 +64,8 @@ public:
             ClientHandle client,
             boost::optional<Sequence> lastAcked) const;
 
-    // Returns the ack sequence of the payload (not necessarly equal to Delta::to).
-    Sequence DeltaParse(
+    // Returns the ack sequence of the payload.
+    boost::optional<Sequence> DeltaParse(
             ClientHandle client,
             const Delta& payload);
 
@@ -93,7 +93,7 @@ private:
             ClientHandle client,
             boost::optional<Sequence> lastAcked) const = 0;
 
-    virtual Sequence PrivateDeltaParse(
+    virtual boost::optional<Sequence> PrivateDeltaParse(
             ClientHandle client,
             const Delta& payload) = 0;
 };

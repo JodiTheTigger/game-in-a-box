@@ -60,7 +60,7 @@ private:
     struct State
     {
         Connection connection;
-        Sequence lastAcked;
+        boost::optional<Sequence> lastAcked;
     };
 
     INetworkProvider& myNetwork;

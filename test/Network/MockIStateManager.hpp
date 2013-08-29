@@ -49,7 +49,7 @@ public:
     MOCK_CONST_METHOD2(PrivateDeltaCreate, Delta (
                            ClientHandle,
                            boost::optional<Sequence>));
-    MOCK_METHOD2(PrivateDeltaParse, Sequence (
+    MOCK_METHOD2(PrivateDeltaParse, boost::optional<Sequence> (
                     ClientHandle,
                     const Delta&));
 };
