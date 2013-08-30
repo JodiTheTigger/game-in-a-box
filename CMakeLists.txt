@@ -204,6 +204,7 @@ include/Network/WrappingCounter.hpp
 include/Network/MathBitTwiddling.hpp
 include/Network/Units.hpp
 include/Network/DeltaBuffer.hpp
+include/Network/DeltaParser.hpp
 include/Network/DeltaCoder.hpp
 include/Network/DeltaCoder.tpp
 include/Network/DeltaCoderTools.hpp
