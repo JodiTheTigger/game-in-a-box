@@ -38,7 +38,8 @@ using namespace std;
 namespace GameInABox { namespace State { namespace Implementation {
 
 Game::Game()
-    : myPhysicsBroadPhase()
+    : IStateManager()
+    , myPhysicsBroadPhase()
     , myCollisionConfiguration()
     , myPhysicsDispatcher(&myCollisionConfiguration)
     , myPhyiscsSolver()
@@ -125,5 +126,69 @@ void Game::Tick()
 
     // Update game state transitions
 }
+
+// ///////////////////
+// IStateManager
+// ///////////////////
+
+std::array<uint64_t, 256> Game::PrivateGetHuffmanFrequencies() const
+{
+    // STUB: RAM: TODO!
+    return {1};
+}
+
+std::vector<uint8_t> Game::PrivateStateInfo(const boost::optional<ClientHandle>&) const
+{
+    // STUB: RAM: TODO!
+    return {};
+}
+
+boost::optional<ClientHandle> Game::PrivateConnect(
+        std::vector<uint8_t>,
+        std::string&)
+{
+    // STUB: RAM: TODO!
+    return {};
+}
+
+void Game::PrivateDisconnect(ClientHandle)
+{
+    // STUB: RAM: TODO!
+}
+
+bool Game::PrivateIsConnected(ClientHandle) const
+{
+    // STUB: RAM: TODO!
+    return true;
+}
+
+bool Game::PrivateCanReceive(boost::optional<ClientHandle>, std::size_t)
+{
+    // STUB: RAM: TODO!
+    return true;
+}
+
+bool Game::PrivateCanSend(boost::optional<ClientHandle>, std::size_t)
+{
+    // STUB: RAM: TODO!
+    return true;
+}
+
+Delta Game::PrivateDeltaCreate(
+        ClientHandle,
+        boost::optional<Sequence>) const
+{
+    // STUB: RAM: TODO!
+    return {0, Sequence{0}, {}};
+}
+
+boost::optional<Sequence> Game::PrivateDeltaParse(
+        ClientHandle,
+        const Delta&)
+{
+    // STUB: RAM: TODO!
+    return {};
+}
+
 
 }}} // namspace

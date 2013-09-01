@@ -22,6 +22,7 @@
 #define GAME_HPP
 
 #include <Common/No.hpp>
+#include <Network/IStateManager.hpp>
 
 #include <btBulletDynamicsCommon.h>
 
@@ -32,7 +33,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 class PhysicsCube;
 class PhysicsPlayers;
 
-class Game : GameInABox::Common::NoCopyMoveNorAssign
+class Game : GameInABox::Network::IStateManager
 {
 public:
     Game();
@@ -52,6 +53,29 @@ private:
 
     std::unique_ptr<PhysicsCube> myPhysicsLevel;
     std::unique_ptr<PhysicsPlayers> myPhysicsPlayers;
+
+    // IStateManager
+    std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const override;
+
+    std::vector<uint8_t> PrivateStateInfo(const boost::optional<GameInABox::Network::ClientHandle>& client) const override;
+
+    boost::optional<GameInABox::Network::ClientHandle> PrivateConnect(
+            std::vector<uint8_t> connectData,
+            std::string& failReason) override;
+
+    void PrivateDisconnect(GameInABox::Network::ClientHandle playerToDisconnect) override;
+    bool PrivateIsConnected(GameInABox::Network::ClientHandle client) const override;
+
+    bool PrivateCanReceive(boost::optional<GameInABox::Network::ClientHandle> client, std::size_t bytes) override;
+    bool PrivateCanSend(boost::optional<GameInABox::Network::ClientHandle> client, std::size_t bytes) override;
+
+    GameInABox::Network::Delta PrivateDeltaCreate(
+            GameInABox::Network::ClientHandle client,
+            boost::optional<GameInABox::Network::Sequence> lastAcked) const override;
+
+    boost::optional<GameInABox::Network::Sequence> PrivateDeltaParse(
+            GameInABox::Network::ClientHandle client,
+            const GameInABox::Network::Delta& payload) override;
 };
 
 }}} // namespace
