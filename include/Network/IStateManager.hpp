@@ -40,6 +40,7 @@ namespace GameInABox { namespace Network {
 class IStateManager : GameInABox::Common::NoCopyMoveNorAssign
 {
 public:
+    // RAM: TODO: Seperate the packet from the compression.
     std::array<uint64_t, 256> GetHuffmanFrequencies() const;
 
     // Returns general state info if the client handle is invalid
