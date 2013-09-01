@@ -26,7 +26,7 @@
 // network subsystem.
 
 #include "Types.hpp"
-#include "DeltaBuffer.hpp"
+#include "DeltaCreator.hpp"
 
 #include <Network/Sequence.hpp>
 #include <Network/Delta.hpp>
@@ -49,7 +49,7 @@ public:
             boost::optional<GameInABox::Network::Sequence> lastAcked) const;
 
 private:
-    GameInABox::Network::DeltaBuffer<StatePlayerClient>  myBuffer;
+    GameInABox::Network::DeltaCreator<StatePlayerClient>  myBuffer;
 };
 
 }}} // namespace

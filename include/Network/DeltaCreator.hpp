@@ -32,12 +32,12 @@
 namespace GameInABox { namespace Network {
 
 template<typename STATE>
-class DeltaBuffer
+class DeltaCreator
 {
 public:
     typedef std::function<std::vector<uint8_t>(const STATE&, const STATE&)> StateCoder;
 
-    DeltaBuffer(STATE identity, unsigned stateBufferSize, StateCoder coder)
+    DeltaCreator(STATE identity, unsigned stateBufferSize, StateCoder coder)
         : myStates(stateBufferSize)
         , myCurrentSequence()
         , myIdentity(identity)
