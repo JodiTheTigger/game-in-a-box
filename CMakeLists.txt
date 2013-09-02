@@ -285,6 +285,8 @@ test/Network/MockIStateManager.hpp
 )
 
 set(STATE
+source/State/Implementation/ConnectionTracker.cpp
+source/State/Implementation/ConnectionTracker.hpp
 source/State/Implementation/DeltaStatePlayerClient.cpp
 source/State/Implementation/DeltaStatePlayerClient.hpp
 source/State/Implementation/DeltaStateGameSnapshot.cpp
