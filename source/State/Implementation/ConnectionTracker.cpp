@@ -62,6 +62,15 @@ void ConnectionTracker::Delete(ClientHandle toRemove)
     }
 }
 
+bool ConnectionTracker::IsConnected(ClientHandle toTest)
+{
+    if (toTest.value < myMaximumAllowed)
+    {
+        return myClients[toTest.value] == State::Used;
+    }
+
+    return false;
+}
 
 void ConnectionTracker::FindNextFree()
 {

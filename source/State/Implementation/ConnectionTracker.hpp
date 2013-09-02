@@ -25,6 +25,7 @@
 #include <boost/optional.hpp>
 #include <vector>
 
+// RAM: TODO: move to Network.
 class ConnectionTracker
 {
 public:
@@ -37,6 +38,8 @@ public:
     // Removes the passed client from the connection list.
     // Ignored if it isn't connected.
     void Delete(GameInABox::Network::ClientHandle toRemove);
+
+    bool IsConnected(GameInABox::Network::ClientHandle toTest);
 
 private:
     enum class State
