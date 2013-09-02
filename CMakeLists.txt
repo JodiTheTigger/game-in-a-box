@@ -210,6 +210,7 @@ include/Network/DeltaCoder.tpp
 include/Network/DeltaCoderTools.hpp
 include/Network/DeltaMapItem.hpp
 include/Network/DeltaTypes.hpp
+include/Network/ClientTracker.hpp
 )
 
 set(COMMON
@@ -226,6 +227,7 @@ source/Network/INetworkProvider.cpp
 source/Network/IStateManager.cpp
 source/Network/NetworkManagerClient.cpp
 source/Network/NetworkManagerServer.cpp
+source/Network/ClientTracker.cpp
 source/Network/Implementation/Connection.cpp
 source/Network/Implementation/Connection.hpp
 source/Network/Implementation/Hash.hpp
@@ -285,8 +287,6 @@ test/Network/MockIStateManager.hpp
 )
 
 set(STATE
-source/State/Implementation/ConnectionTracker.cpp
-source/State/Implementation/ConnectionTracker.hpp
 source/State/Implementation/DeltaStatePlayerClient.cpp
 source/State/Implementation/DeltaStatePlayerClient.hpp
 source/State/Implementation/DeltaStateGameSnapshot.cpp

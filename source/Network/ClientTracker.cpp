@@ -18,11 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "ConnectionTracker.hpp"
+#include "ClientTracker.hpp"
 
-using namespace GameInABox::Network;
+namespace GameInABox { namespace Network {
 
-ConnectionTracker::ConnectionTracker(unsigned maximum)
+ClientTracker::ClientTracker(unsigned maximum)
     : myClients()
     , myNextFree(0)
     , myMaximumAllowed(maximum)
@@ -30,7 +30,7 @@ ConnectionTracker::ConnectionTracker(unsigned maximum)
     myClients.reserve(myMaximumAllowed);
 }
 
-boost::optional<ClientHandle> ConnectionTracker::New()
+boost::optional<ClientHandle> ClientTracker::New()
 {
     if (myNextFree < myMaximumAllowed)
     {
@@ -48,7 +48,7 @@ boost::optional<ClientHandle> ConnectionTracker::New()
     }
 }
 
-void ConnectionTracker::Delete(ClientHandle toRemove)
+void ClientTracker::Delete(ClientHandle toRemove)
 {
     myClients[toRemove.value] = State::Free;
 
@@ -62,7 +62,7 @@ void ConnectionTracker::Delete(ClientHandle toRemove)
     }
 }
 
-bool ConnectionTracker::IsConnected(ClientHandle toTest)
+bool ClientTracker::IsConnected(ClientHandle toTest)
 {
     if (toTest.value < myMaximumAllowed)
     {
@@ -72,10 +72,12 @@ bool ConnectionTracker::IsConnected(ClientHandle toTest)
     return false;
 }
 
-void ConnectionTracker::FindNextFree()
+void ClientTracker::FindNextFree()
 {
     while ((myNextFree < myMaximumAllowed) && (myClients[myNextFree] != State::Free))
     {
         ++myNextFree;
     }
 }
+
+}} // namespace

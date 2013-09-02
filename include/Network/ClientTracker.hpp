@@ -18,28 +18,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef CONNECTIONTRACKER_HPP
-#define CONNECTIONTRACKER_HPP
+#ifndef CLIENTTRACKER_HPP
+#define CLIENTTRACKER_HPP
 
-#include <Network/ClientHandle.hpp>
+#include "ClientHandle.hpp"
+
 #include <boost/optional.hpp>
 #include <vector>
 
-// RAM: TODO: move to Network.
-class ConnectionTracker
+namespace GameInABox { namespace Network {
+
+class ClientTracker
 {
 public:
-    ConnectionTracker() : ConnectionTracker(0) {}
-    ConnectionTracker(unsigned maximum);
+    ClientTracker() : ClientTracker(0) {}
+    ClientTracker(unsigned maximum);
 
     // returns an index of the next free slot, if there is one.
-    boost::optional<GameInABox::Network::ClientHandle> New();
+    boost::optional<ClientHandle> New();
 
     // Removes the passed client from the connection list.
     // Ignored if it isn't connected.
-    void Delete(GameInABox::Network::ClientHandle toRemove);
+    void Delete(ClientHandle toRemove);
 
-    bool IsConnected(GameInABox::Network::ClientHandle toTest);
+    bool IsConnected(ClientHandle toTest);
 
 private:
     enum class State
@@ -55,4 +57,6 @@ private:
     void FindNextFree();
 };
 
-#endif // CONNECTIONTRACKER_HPP
+}} // namespace
+
+#endif // CLIENTTRACKER_HPP
