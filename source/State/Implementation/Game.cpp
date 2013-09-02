@@ -134,7 +134,7 @@ void Game::Tick()
 std::array<uint64_t, 256> Game::PrivateGetHuffmanFrequencies() const
 {
     // STUB: RAM: TODO!
-    return {1};
+    return {{1}};
 }
 
 std::vector<uint8_t> Game::PrivateStateInfo(const boost::optional<ClientHandle>&) const
