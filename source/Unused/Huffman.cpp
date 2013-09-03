@@ -32,11 +32,11 @@
 #include <string>
 
 using namespace std;
-using namespace GameInABox::Network::Implementation;
+using namespace GameInABox::Unused;
 using GameInABox::Common::BitStream;
 using GameInABox::Common::BitStreamReadOnly;
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Unused {
 
 class Node
 {
@@ -105,7 +105,7 @@ struct NodeCompare
     }
 };
 
-}}} // namespace
+}} // namespace
 
 Huffman::Huffman(const std::array<uint64_t, 256>& frequencies)
     : myEncodeMap()

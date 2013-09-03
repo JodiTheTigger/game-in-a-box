@@ -58,7 +58,6 @@ NetworkManagerClientGuts::NetworkManagerClientGuts(
     , myStateManager(stateManager)
     , myServerAddress()
     , myClientId(0)
-    , myCompressor(stateManager.GetHuffmanFrequencies())
     , myLastSequenceProcessed(0)
     , myPacketSentCount(0)
 {
@@ -221,19 +220,16 @@ void NetworkManagerClientGuts::DeltaReceive()
             XorCode(begin(code), end(code), myConnection.Key().data);
             XorCode(begin(payload), end(payload), code);
 
-            // Bah, I wrote Huffman and Bitstream before I knew about iterators
+            // Bah, I wrote Bitstream before I knew about iterators
             // or streams. This results in lots of copies that arn't really needed.
             // Need to benchmark to see if the copies matter, and if so, rewrite
             // to use iterators or streams.
-
-            // Decompress (2nd Copy)
-            auto decompressed = move(myCompressor.Decode(payload));
 
             // Pass to gamestate (which will decompress the delta itself).
             auto deltaData = Delta{
                     delta.GetSequenceDifference(),
                     delta.GetSequence(),
-                    move(decompressed)};
+                    move(payload)};
 
            myLastSequenceProcessed = myStateManager.DeltaParse(
                 myConnection.IdClient().get(),
@@ -244,10 +240,6 @@ void NetworkManagerClientGuts::DeltaReceive()
 
 void NetworkManagerClientGuts::DeltaSend()
 {
-    // Delta compression aggression should be inferred by the packet distance,
-    // thus how well the packet compresses, therefore how big the packet should get.
-    // A large packet delta should require more aggressive delta creation to get
-    // smaller packet sizes.
     auto id = myConnection.IdClient();
     auto deltaData = myStateManager.DeltaCreate(
                 *id,
@@ -259,15 +251,12 @@ void NetworkManagerClientGuts::DeltaSend()
         // store the distance as a byte.
         if (deltaData.difference <= PacketDelta::MaximumDeltaDistance())
         {
-            // Compress, encrypt, send
-            auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
-
             std::array<uint8_t, 4> code;
             uint16_t rawAck = myLastSequenceProcessed ? myLastSequenceProcessed->Value() : 0;
             Push(begin(code), deltaData.to.Value());
             Push(begin(code) + 2, rawAck);
             XorCode(begin(code), end(code), myConnection.Key().data);
-            XorCode(begin(compressed), end(compressed), code);
+            XorCode(begin(deltaData.deltaPayload), end(deltaData.deltaPayload), code);
 
             // Add the client id and payload.
             PacketDelta delta(
@@ -275,7 +264,7 @@ void NetworkManagerClientGuts::DeltaSend()
                     myLastSequenceProcessed,
                     deltaData.difference,
                     myClientId,
-                    move(compressed));
+                    move(deltaData.deltaPayload));
 
             // client packets are not fragmented.
             if (!delta.data.empty())

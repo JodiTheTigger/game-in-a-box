@@ -23,12 +23,6 @@
 using namespace GameInABox::Unused;
 using namespace GameInABox::Network;
 
-std::array<uint64_t, 256> GameSimple::PrivateGetHuffmanFrequencies() const
-{
-    // RAM: TODO! BUILD BROKEN! FIX!
-    return myFrequencies;
-}
-
 std::vector<uint8_t> GameSimple::PrivateStateInfo(const boost::optional<ClientHandle>&) const
 {
     // RAM: TODO

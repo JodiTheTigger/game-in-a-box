@@ -49,7 +49,6 @@ NetworkManagerServerGuts::NetworkManagerServerGuts(
     , myStateManager(stateManager)
     , myTimepiece(timepiece)
     , myAddressToState()
-    , myCompressor(stateManager.GetHuffmanFrequencies())
 {
 }
 
@@ -221,13 +220,11 @@ void NetworkManagerServerGuts::PrivateProcessIncomming()
                         XorCode(begin(code), end(code), connection.Key().data);
                         XorCode(begin(payload), end(payload), code);
 
-                        auto decompressed = move(myCompressor.Decode(payload));
-
                         // Pass to gamestate (which will decompress the delta itself).
                         auto deltaData = Delta{
                                 delta.GetSequenceDifference(),
                                 delta.GetSequence(),
-                                move(decompressed)};
+                                move(payload)};
 
                         addressToState->second.lastAcked = myStateManager.DeltaParse(*client, deltaData);
                     }
@@ -260,22 +257,19 @@ void NetworkManagerServerGuts::PrivateSendState()
 
                     if (deltaData.difference <= PacketDelta::MaximumDeltaDistance())
                     {
-                        // Compress, encrypt, send
-                        auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
-
                         std::array<uint8_t, 4> code;
                         auto ack = addressToState.second.lastAcked;
                         uint16_t rawAck = ack ? ack->Value() : 0;
                         Push(begin(code), deltaData.to.Value());
                         Push(begin(code) + 2, rawAck);
                         XorCode(begin(code), end(code), connection.Key().data);
-                        XorCode(begin(compressed), end(compressed), code);
+                        XorCode(begin(deltaData.deltaPayload), end(deltaData.deltaPayload), code);
 
                         auto deltaPacket = PacketDelta{
                                 deltaData.to,
                                 addressToState.second.lastAcked,
                                 deltaData.difference,
-                                move(compressed)};
+                                move(deltaData.deltaPayload)};
 
                         if (deltaPacket.data.size() <= MaxPacketSizeInBytes)
                         {

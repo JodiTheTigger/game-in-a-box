@@ -55,8 +55,6 @@ private:
     std::unique_ptr<PhysicsPlayers> myPhysicsPlayers;
 
     // IStateManager
-    std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const override;
-
     std::vector<uint8_t> PrivateStateInfo(const boost::optional<GameInABox::Network::ClientHandle>& client) const override;
 
     boost::optional<GameInABox::Network::ClientHandle> PrivateConnect(

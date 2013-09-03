@@ -231,8 +231,6 @@ source/Network/ClientTracker.cpp
 source/Network/Implementation/Connection.cpp
 source/Network/Implementation/Connection.hpp
 source/Network/Implementation/Hash.hpp
-source/Network/Implementation/Huffman.hpp
-source/Network/Implementation/Huffman.cpp
 source/Network/Implementation/NetworkKey.hpp
 source/Network/Implementation/NetworkKey.cpp
 source/Network/Implementation/NetworkManagerServerGuts.cpp
@@ -281,7 +279,6 @@ test/Network/TestNetworkProviderInMemory.cpp
 test/Network/TestClientServer.cpp
 test/Network/TestClientServerN.cpp
 test/Network/TestWrappingCounter.cpp
-test/Network/TestHuffman.cpp
 test/Network/MockINetworkProvider.hpp
 test/Network/MockIStateManager.hpp
 )
@@ -320,6 +317,8 @@ source/Unused/RollingStatistics.hpp
 source/Unused/RollingStatistics.cpp
 source/Unused/ReflectionKey.hpp
 source/Unused/BaseClassUniquePointer.hpp
+source/Unused/Huffman.hpp
+source/Unused/Huffman.cpp
 )
 
 set(UNUSED_TEST
@@ -327,6 +326,7 @@ test/Unused/TestAutoComplete.cpp
 test/Unused/TestIReflected.cpp
 test/Unused/TestReflectionManager.cpp
 test/Unused/TestRollingStatistics.cpp
+test/Unused/TestHuffman.cpp
 )
 
 ###############

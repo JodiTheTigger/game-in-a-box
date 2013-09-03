@@ -26,7 +26,7 @@
 #include <array>
 #include <memory>
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Unused {
 class Node;
 
 // Based off http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
@@ -70,6 +70,6 @@ private:
     std::vector<uint16_t> GetXBitBytesStartingWith(uint16_t startValue, uint8_t bitSize, uint8_t totalBitSize);
 };
 
-}}} // namespace
+}} // namespace
 
 #endif // HUFFMAN_H

@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Implementation/Huffman.hpp>
+#include <Huffman.hpp>
 
 #include <gtest/gtest.h>
 
@@ -27,7 +27,7 @@
 
 using namespace std;
 
-namespace GameInABox { namespace Network { namespace Implementation {
+namespace GameInABox { namespace Unused {
 
 // Class definition!
 class TestHuffman : public ::testing::Test 
@@ -214,4 +214,4 @@ TEST_F(TestHuffman, TestBufferTwoBytes)
 }
 
 
-}}} // namespace
+}} // namespace

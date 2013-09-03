@@ -22,7 +22,6 @@
 #define NETWORKMANAGERCLIENTGUTS_H
 
 #include "IStateManager.hpp"
-#include "Huffman.hpp"
 #include "WrappingCounter.hpp"
 #include "INetworkManager.hpp"
 #include "PacketFragmentManager.hpp"
@@ -87,8 +86,6 @@ private:
 
     boost::asio::ip::udp::endpoint myServerAddress;
     uint16_t myClientId;
-
-    Huffman myCompressor;
 
     boost::optional<Sequence> myLastSequenceProcessed;
 

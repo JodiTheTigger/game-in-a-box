@@ -40,9 +40,6 @@ namespace GameInABox { namespace Network {
 class IStateManager : GameInABox::Common::NoCopyMoveNorAssign
 {
 public:
-    // RAM: TODO: Seperate the packet from the compression.
-    std::array<uint64_t, 256> GetHuffmanFrequencies() const;
-
     // Returns general state info if the client handle is invalid
     // Otherwise info specific to the client (which is passed into Connect()).
     std::vector<uint8_t> StateInfo(const boost::optional<ClientHandle>& client) const;
@@ -76,8 +73,6 @@ protected:
     ~IStateManager() = default;
     
 private:
-    virtual std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const = 0;
-
     virtual std::vector<uint8_t> PrivateStateInfo(const boost::optional<ClientHandle>& client) const = 0;
 
     virtual boost::optional<ClientHandle> PrivateConnect(

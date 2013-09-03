@@ -22,7 +22,6 @@
 #define NETWORKMANAGERSERVERGUTS_H
 
 #include "Sequence.hpp"
-#include "Huffman.hpp"
 #include "Hash.hpp"
 #include "INetworkManager.hpp"
 #include "Connection.hpp"
@@ -68,8 +67,6 @@ private:
     TimeFunction myTimepiece;
 
     std::unordered_map<boost::asio::ip::udp::endpoint, State> myAddressToState;
-
-    Huffman myCompressor;
 
     void PrivateProcessIncomming() override;
     void PrivateSendState() override;

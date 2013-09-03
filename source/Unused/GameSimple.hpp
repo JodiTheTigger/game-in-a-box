@@ -34,9 +34,6 @@ public:
     virtual ~GameSimple() {};
     
 private:
-    std::array<uint64_t, 256> myFrequencies;
-
-    std::array<uint64_t, 256> PrivateGetHuffmanFrequencies() const override;    
     std::vector<uint8_t> PrivateStateInfo(const boost::optional<GameInABox::Network::ClientHandle>& client) const override;
 
     boost::optional<GameInABox::Network::ClientHandle> PrivateConnect(
