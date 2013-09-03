@@ -54,10 +54,10 @@ void GameSimple::PrivateDisconnect(ClientHandle)
     // RAM: TODO
 }
 
-bool GameSimple::PrivateIsConnected(ClientHandle) const
+boost::optional<std::string> GameSimple::PrivateIsDisconnected(ClientHandle) const
 {
     // RAM: TODO
-    return false;
+    return {};
 }
 
 

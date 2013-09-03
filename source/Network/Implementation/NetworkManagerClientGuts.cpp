@@ -134,13 +134,22 @@ void NetworkManagerClientGuts::PrivateSendState()
 {
     if (myConnection.IsConnected())
     {
-        if ((myConnection.IdClient()) && (myStateManager.IsConnected(myConnection.IdClient().get())))
+        if (myConnection.IdClient())
         {
-            DeltaSend();
+            auto failReason = myStateManager.IsDisconnected(myConnection.IdClient().get());
+
+            if (!failReason)
+            {
+                DeltaSend();
+            }
+            else
+            {
+                Fail(*failReason);
+            }
         }
         else
         {
-            Fail("IStateManager: Not Connected.");
+            Fail("IStateManager: Connected but missing IdClient. Disconnecting.");
         }
     }
     else

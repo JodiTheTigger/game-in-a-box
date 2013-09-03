@@ -33,15 +33,13 @@ public:
     typedef std::array<uint64_t, 256>       FrequencyArray;
     typedef boost::optional<ClientHandle>   OptionalClient;
 
-    MOCK_CONST_METHOD0(PrivateGetHuffmanFrequencies, FrequencyArray ());
-
     MOCK_CONST_METHOD1(PrivateStateInfo, std::vector<uint8_t> (const OptionalClient&));
 
     MOCK_METHOD2(PrivateConnect, OptionalClient (std::vector<uint8_t>,
                                                std::string&));
 
     MOCK_METHOD1(PrivateDisconnect, void (ClientHandle));
-    MOCK_CONST_METHOD1(PrivateIsConnected, bool (ClientHandle));
+    MOCK_CONST_METHOD1(PrivateIsDisconnected, boost::optional<std::string> (ClientHandle));
 
     MOCK_METHOD2(PrivateCanSend, bool (OptionalClient, std::size_t));
     MOCK_METHOD2(PrivateCanReceive, bool (OptionalClient, std::size_t));

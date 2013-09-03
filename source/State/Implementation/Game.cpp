@@ -149,10 +149,10 @@ void Game::PrivateDisconnect(ClientHandle)
     // STUB: RAM: TODO!
 }
 
-bool Game::PrivateIsConnected(ClientHandle) const
+boost::optional<std::string> Game::PrivateIsDisconnected(ClientHandle) const
 {
     // STUB: RAM: TODO!
-    return true;
+    return {};
 }
 
 bool Game::PrivateCanReceive(boost::optional<ClientHandle>, std::size_t)

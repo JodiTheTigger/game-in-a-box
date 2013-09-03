@@ -62,7 +62,7 @@ private:
             std::string& failReason) override;
 
     void PrivateDisconnect(GameInABox::Network::ClientHandle playerToDisconnect) override;
-    bool PrivateIsConnected(GameInABox::Network::ClientHandle client) const override;
+    boost::optional<std::string> PrivateIsDisconnected(GameInABox::Network::ClientHandle client) const override;
 
     bool PrivateCanReceive(boost::optional<GameInABox::Network::ClientHandle> client, std::size_t bytes) override;
     bool PrivateCanSend(boost::optional<GameInABox::Network::ClientHandle> client, std::size_t bytes) override;

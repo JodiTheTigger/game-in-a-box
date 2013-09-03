@@ -250,7 +250,9 @@ void NetworkManagerServerGuts::PrivateSendState()
 
             if (client)
             {
-                if (myStateManager.IsConnected(*client))
+                auto failReason = myStateManager.IsDisconnected(*client);
+
+                if (!failReason)
                 {
                     // get the packet, and fragment it, then send it.
                     auto deltaData = myStateManager.DeltaCreate(*client, connection.LastSequenceAck());
@@ -299,7 +301,7 @@ void NetworkManagerServerGuts::PrivateSendState()
                 }
                 else
                 {
-                    connection.Disconnect("IStateManager: Not Connected.");
+                    connection.Disconnect(*failReason);
                 }
             }
             else

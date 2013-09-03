@@ -68,28 +68,8 @@ public:
     TestClientServer()
         : stateMockServer()
         , stateMockClient()
-        , frequencies()
-        , frequenciesUseful()
         , theNetwork()
     {
-        // all equally probable.
-        frequencies.fill(1);
-
-        // all set or all zero more probable.
-        frequenciesUseful.fill(1);
-
-        // 8 bits
-        frequenciesUseful[0x00] = 10;
-        frequenciesUseful[0xFF] = 10;
-
-        // 7 bits
-        frequenciesUseful[0x7F] = 9;
-        frequenciesUseful[0xFE] = 9;
-
-        // 6 bits
-        frequenciesUseful[0x3F] = 8;
-        frequenciesUseful[0x7E] = 8;
-        frequenciesUseful[0xFC] = 8;
     }
 
     // Helpers
@@ -97,8 +77,6 @@ public:
 
     NiceMock<MockIStateManager> stateMockServer;
     NiceMock<MockIStateManager> stateMockClient;
-    std::array<uint64_t, 256> frequencies;
-    std::array<uint64_t, 256> frequenciesUseful;
 
     NetworkProviderInMemory theNetwork;
 };
@@ -108,11 +86,6 @@ public:
 // ///////////////////
 void TestClientServer::SetupDefaultMock(NiceMock<MockIStateManager> &mock)
 {
-    // right, what do we expect?
-    // Huffman frequencies, CanSend, CanReceive and Deltas.
-    ON_CALL(mock, PrivateGetHuffmanFrequencies())
-            .WillByDefault(Return(frequenciesUseful));
-
     ON_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
             .WillByDefault(Return(boost::optional<ClientHandle>(ClientHandle{42})));
 
@@ -125,8 +98,8 @@ void TestClientServer::SetupDefaultMock(NiceMock<MockIStateManager> &mock)
     ON_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
-    ON_CALL(mock, PrivateIsConnected( ::testing::_ ))
-            .WillByDefault(Return(bool(true)));
+    ON_CALL(mock, PrivateIsDisconnected( ::testing::_ ))
+            .WillByDefault(Return(boost::optional<std::string>()));
 
     ON_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .WillByDefault(Invoke(DeltaCreate));
@@ -140,9 +113,6 @@ void TestClientServer::SetupDefaultMock(NiceMock<MockIStateManager> &mock)
 // ///////////////////
 TEST_F(TestClientServer, CreateClient)
 {
-    ON_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
-            .WillByDefault(Return(frequencies));
-
     NetworkManagerClientGuts toTest(theNetwork, stateMockClient);
 
     EXPECT_FALSE(toTest.IsConnected());
@@ -152,9 +122,6 @@ TEST_F(TestClientServer, CreateClient)
 
 TEST_F(TestClientServer, CreateServer)
 {
-    ON_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
-            .WillByDefault(Return(frequencies));
-
     // Don't crash.
     NetworkManagerServerGuts(theNetwork, stateMockServer);
 }
@@ -212,9 +179,6 @@ TEST_F(TestClientServer, ClientTimeout)
     OClock testTime{Clock::now()};
 
     // Client
-    ON_CALL(stateMockClient, PrivateGetHuffmanFrequencies())
-            .WillByDefault(Return(frequenciesUseful));
-
     ON_CALL(stateMockClient, PrivateCanReceive( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
@@ -225,9 +189,6 @@ TEST_F(TestClientServer, ClientTimeout)
             .WillByDefault(Return(std::vector<uint8_t>()));
 
     // Server
-    ON_CALL(stateMockServer, PrivateGetHuffmanFrequencies())
-            .WillByDefault(Return(frequenciesUseful));
-
     ON_CALL(stateMockServer, PrivateCanReceive( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
@@ -332,8 +293,8 @@ TEST_F(TestClientServer, StateDisconnect)
         // don't like the client sending after 50 ticks.
         if (count == 50)
         {
-            ON_CALL(stateMockServer, PrivateIsConnected( ::testing::_ ))
-                    .WillByDefault(Return(bool(false)));
+            ON_CALL(stateMockServer, PrivateIsDisconnected( ::testing::_ ))
+                    .WillByDefault(Return(boost::optional<std::string>("Fail 50.")));
         }
     }
 

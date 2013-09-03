@@ -44,9 +44,15 @@ public:
     // Otherwise info specific to the client (which is passed into Connect()).
     std::vector<uint8_t> StateInfo(const boost::optional<ClientHandle>& client) const;
 
+    // Return a valid handle if connected. Otherwise return null handle and update failreason.
     boost::optional<ClientHandle> Connect(std::vector<uint8_t> connectData, std::string& failReason);
+
+    // The Client has disconnected from the network, remove from gamestate.
     void Disconnect(ClientHandle toDisconnect);
-    bool IsConnected(ClientHandle client) const;
+
+    // Is the passed client disconnected? If so the string is the reason for the disconnect.
+    // Otherwise null.
+    boost::optional<std::string> IsDisconnected(ClientHandle client) const;
 
     // Called for each datagram received or to be sent, to be used by the state
     // manager for metrics and to control throttling. Return true to process the datagram further, false otherwise.
@@ -80,7 +86,7 @@ private:
             std::string& failReason) = 0;
 
     virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;    
-    virtual bool PrivateIsConnected(ClientHandle client) const = 0;
+    virtual boost::optional<std::string> PrivateIsDisconnected(ClientHandle client) const = 0;
 
     virtual bool PrivateCanReceive(boost::optional<ClientHandle> client, std::size_t bytes) = 0;
     virtual bool PrivateCanSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;

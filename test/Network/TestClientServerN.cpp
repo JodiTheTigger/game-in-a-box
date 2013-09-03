@@ -157,10 +157,7 @@ public:
 void TestClientServerN::SetupDefaultMock(NiceMock<MockIStateManager>& mock)
 {
     // right, what do we expect?
-    // Huffman frequencies, CanSend, CanReceive and Deltas.
-    ON_CALL(mock, PrivateGetHuffmanFrequencies())
-            .WillByDefault(Return(frequenciesUseful));
-
+    // CanSend, CanReceive and Deltas.
     ON_CALL(mock, PrivateConnect( ::testing::_, ::testing::_))
             .WillByDefault(Return(boost::optional<ClientHandle>(ClientHandle{42})));
 
@@ -173,8 +170,8 @@ void TestClientServerN::SetupDefaultMock(NiceMock<MockIStateManager>& mock)
     ON_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
-    ON_CALL(mock, PrivateIsConnected( ::testing::_ ))
-            .WillByDefault(Return(bool(true)));
+    ON_CALL(mock, PrivateIsDisconnected( ::testing::_ ))
+            .WillByDefault(Return(boost::optional<std::string>()));
 
     ON_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .WillByDefault(Invoke(std::bind(&TestClientServerN::DeltaCreate, this, std::placeholders::_1, std::placeholders::_2)));

@@ -44,7 +44,7 @@ private:
     bool PrivateCanReceive(boost::optional<GameInABox::Network::ClientHandle> client, std::size_t bytes) override;
 
     void PrivateDisconnect(GameInABox::Network::ClientHandle playerToDisconnect) override;
-    bool PrivateIsConnected(GameInABox::Network::ClientHandle client) const override;
+    boost::optional<std::string> PrivateIsDisconnected(GameInABox::Network::ClientHandle client) const override;
 
     virtual GameInABox::Network::Delta PrivateDeltaCreate(
             GameInABox::Network::ClientHandle client,
