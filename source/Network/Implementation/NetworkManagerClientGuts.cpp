@@ -136,16 +136,7 @@ void NetworkManagerClientGuts::PrivateSendState()
     {
         if (myConnection.IdClient())
         {
-            auto failReason = myStateManager.IsDisconnected(myConnection.IdClient().get());
-
-            if (!failReason)
-            {
-                DeltaSend();
-            }
-            else
-            {
-                Fail(*failReason);
-            }
+            DeltaSend();
         }
         else
         {

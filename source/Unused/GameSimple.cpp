@@ -54,13 +54,6 @@ void GameSimple::PrivateDisconnect(ClientHandle)
     // RAM: TODO
 }
 
-boost::optional<std::string> GameSimple::PrivateIsDisconnected(ClientHandle) const
-{
-    // RAM: TODO
-    return {};
-}
-
-
 Delta GameSimple::PrivateDeltaCreate(
         ClientHandle,
         boost::optional<Sequence>) const

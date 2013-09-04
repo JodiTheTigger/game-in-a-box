@@ -39,7 +39,6 @@ public:
                                                std::string&));
 
     MOCK_METHOD1(PrivateDisconnect, void (ClientHandle));
-    MOCK_CONST_METHOD1(PrivateIsDisconnected, boost::optional<std::string> (ClientHandle));
 
     MOCK_METHOD2(PrivateCanSend, bool (OptionalClient, std::size_t));
     MOCK_METHOD2(PrivateCanReceive, bool (OptionalClient, std::size_t));

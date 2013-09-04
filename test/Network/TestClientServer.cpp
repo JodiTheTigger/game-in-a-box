@@ -98,9 +98,6 @@ void TestClientServer::SetupDefaultMock(NiceMock<MockIStateManager> &mock)
     ON_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
-    ON_CALL(mock, PrivateIsDisconnected( ::testing::_ ))
-            .WillByDefault(Return(boost::optional<std::string>()));
-
     ON_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .WillByDefault(Invoke(DeltaCreate));
 
@@ -244,66 +241,6 @@ TEST_F(TestClientServer, ClientTimeout)
     EXPECT_FALSE(client.IsConnected());
     EXPECT_TRUE(client.HasFailed());
     EXPECT_NE("", client.FailReason());
-}
-
-TEST_F(TestClientServer, StateDisconnect)
-{
-    OClock testTime{Clock::now()};
-
-    for (auto mock : {&stateMockClient, &stateMockServer})
-    {
-        SetupDefaultMock(*mock);
-    }
-
-    NetworkManagerServerGuts server{theNetwork, stateMockServer, [&testTime] () -> OClock { return testTime; }};
-    NetworkManagerClientGuts client{theNetwork, stateMockClient, [&testTime] () -> OClock { return testTime; }};
-
-    auto addressServer = udp::endpoint{address_v4(1l), 13444};
-    auto addressClient = udp::endpoint{address_v4(2l), 4444};
-
-    theNetwork.RunAs(addressClient);
-    client.Connect(addressServer);
-    int count = 0;
-    bool keepGoing = true;
-
-    while (keepGoing)
-    {
-        // simulate 80+80 = 160ms latency.
-        testTime += std::chrono::milliseconds(80);
-
-        theNetwork.RunAs(addressServer);
-        server.ProcessIncomming();
-        server.SendState();
-
-        testTime += std::chrono::milliseconds(80);
-
-        theNetwork.RunAs(addressClient);
-        client.ProcessIncomming();
-        client.SendState();
-
-        if (++count > 500)
-        {
-            keepGoing = false;
-        }
-        else
-        {
-            keepGoing = !client.HasFailed();
-        }
-
-        // don't like the client sending after 50 ticks.
-        if (count == 50)
-        {
-            ON_CALL(stateMockServer, PrivateIsDisconnected( ::testing::_ ))
-                    .WillByDefault(Return(boost::optional<std::string>("Fail 50.")));
-        }
-    }
-
-    // Should be disconnected.
-    EXPECT_FALSE(client.IsConnected());
-    EXPECT_TRUE(client.HasFailed());
-
-    // NOT a timeout.
-    EXPECT_EQ(std::string::npos, client.FailReason().find("imeout"));
 }
 
 TEST_F(TestClientServer, NoReceive)

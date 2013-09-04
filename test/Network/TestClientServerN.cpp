@@ -170,9 +170,6 @@ void TestClientServerN::SetupDefaultMock(NiceMock<MockIStateManager>& mock)
     ON_CALL(mock, PrivateCanSend( ::testing::_, ::testing::_))
             .WillByDefault(Return(bool(true)));
 
-    ON_CALL(mock, PrivateIsDisconnected( ::testing::_ ))
-            .WillByDefault(Return(boost::optional<std::string>()));
-
     ON_CALL(mock, PrivateDeltaCreate( ::testing::_, ::testing::_))
             .WillByDefault(Invoke(std::bind(&TestClientServerN::DeltaCreate, this, std::placeholders::_1, std::placeholders::_2)));
 

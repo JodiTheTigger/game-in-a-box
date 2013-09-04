@@ -250,58 +250,49 @@ void NetworkManagerServerGuts::PrivateSendState()
 
             if (client)
             {
-                auto failReason = myStateManager.IsDisconnected(*client);
+                // get the packet, and fragment it, then send it.
+                auto deltaData = myStateManager.DeltaCreate(*client, connection.LastSequenceAck());
 
-                if (!failReason)
+                if (deltaData.difference <= PacketDelta::MaximumDeltaDistance())
                 {
-                    // get the packet, and fragment it, then send it.
-                    auto deltaData = myStateManager.DeltaCreate(*client, connection.LastSequenceAck());
+                    std::array<uint8_t, 4> code;
+                    auto ack = addressToState.second.lastAcked;
+                    uint16_t rawAck = ack ? ack->Value() : 0;
+                    Push(begin(code), deltaData.to.Value());
+                    Push(begin(code) + 2, rawAck);
+                    XorCode(begin(code), end(code), connection.Key().data);
+                    XorCode(begin(deltaData.deltaPayload), end(deltaData.deltaPayload), code);
 
-                    if (deltaData.difference <= PacketDelta::MaximumDeltaDistance())
+                    auto deltaPacket = PacketDelta{
+                            deltaData.to,
+                            addressToState.second.lastAcked,
+                            deltaData.difference,
+                            move(deltaData.deltaPayload)};
+
+                    if (deltaPacket.data.size() <= MaxPacketSizeInBytes)
                     {
-                        std::array<uint8_t, 4> code;
-                        auto ack = addressToState.second.lastAcked;
-                        uint16_t rawAck = ack ? ack->Value() : 0;
-                        Push(begin(code), deltaData.to.Value());
-                        Push(begin(code) + 2, rawAck);
-                        XorCode(begin(code), end(code), connection.Key().data);
-                        XorCode(begin(deltaData.deltaPayload), end(deltaData.deltaPayload), code);
+                        auto fragments = PacketFragmentManager::FragmentPacket(deltaPacket);
 
-                        auto deltaPacket = PacketDelta{
-                                deltaData.to,
-                                addressToState.second.lastAcked,
-                                deltaData.difference,
-                                move(deltaData.deltaPayload)};
-
-                        if (deltaPacket.data.size() <= MaxPacketSizeInBytes)
+                        for (auto& fragment: fragments)
                         {
-                            auto fragments = PacketFragmentManager::FragmentPacket(deltaPacket);
-
-                            for (auto& fragment: fragments)
+                            if (!fragment.empty())
                             {
-                                if (!fragment.empty())
+                                if (myStateManager.CanSend(*client, fragment.size()))
                                 {
-                                    if (myStateManager.CanSend(*client, fragment.size()))
-                                    {
-                                        responses.emplace_back(move(fragment), addressToState.first);
-                                    }
+                                    responses.emplace_back(move(fragment), addressToState.first);
                                 }
                             }
-                        }
-                        else
-                        {
-                            Log(LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
                         }
                     }
                     else
                     {
-                        // Delta distance to too far. fail.
-                        Log(LogLevel::Informational, "Delta distance > 255.");
+                        Log(LogLevel::Informational, "Packetsize is > MaxPacketSizeInBytes. Not sending.");
                     }
                 }
                 else
                 {
-                    connection.Disconnect(*failReason);
+                    // Delta distance to too far. fail.
+                    Log(LogLevel::Informational, "Delta distance > 255.");
                 }
             }
             else

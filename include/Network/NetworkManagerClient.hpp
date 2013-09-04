@@ -43,7 +43,6 @@ public:
             INetworkProvider& network,
             IStateManager& stateManager);
 
-    // RAM: What to do with these, as they are not accessable via the state.
     void Connect(boost::asio::ip::udp::endpoint serverAddress);
     void Disconnect();
 

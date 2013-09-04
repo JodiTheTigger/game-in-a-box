@@ -50,10 +50,6 @@ public:
     // The Client has disconnected from the network, remove from gamestate.
     void Disconnect(ClientHandle toDisconnect);
 
-    // Is the passed client disconnected? If so the string is the reason for the disconnect.
-    // Otherwise null.
-    boost::optional<std::string> IsDisconnected(ClientHandle client) const;
-
     // Called for each datagram received or to be sent, to be used by the state
     // manager for metrics and to control throttling. Return true to process the datagram further, false otherwise.
     // If !client it is for handshaking.
@@ -85,8 +81,7 @@ private:
             std::vector<uint8_t> connectData,
             std::string& failReason) = 0;
 
-    virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;    
-    virtual boost::optional<std::string> PrivateIsDisconnected(ClientHandle client) const = 0;
+    virtual void PrivateDisconnect(ClientHandle playerToDisconnect) = 0;
 
     virtual bool PrivateCanReceive(boost::optional<ClientHandle> client, std::size_t bytes) = 0;
     virtual bool PrivateCanSend(boost::optional<ClientHandle> client, std::size_t bytes) = 0;

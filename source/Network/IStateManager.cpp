@@ -49,11 +49,6 @@ bool IStateManager::CanSend(boost::optional<ClientHandle> client, std::size_t by
     return PrivateCanSend(client, bytes);
 }
 
-boost::optional<std::string> IStateManager::IsDisconnected(ClientHandle client) const
-{
-    return PrivateIsDisconnected(client);
-}
-
 Delta IStateManager::DeltaCreate(
         ClientHandle client,
         boost::optional<Sequence> lastAcked) const
