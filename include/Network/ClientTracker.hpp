@@ -28,6 +28,7 @@
 
 namespace GameInABox { namespace Network {
 
+// RAM: TODO: Make the value random, track index in the lower bits, upper bits are random.
 class ClientTracker
 {
 public:
