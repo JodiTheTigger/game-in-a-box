@@ -292,6 +292,8 @@ source/State/Implementation/DeltaStatePlayerClient.hpp
 source/State/Implementation/DeltaStateGameSnapshot.cpp
 source/State/Implementation/DeltaStateGameSnapshot.hpp
 source/State/Implementation/Types.hpp
+source/State/Implementation/Entity.hpp
+source/State/Implementation/EntityTime.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
