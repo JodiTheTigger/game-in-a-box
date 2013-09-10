@@ -18,46 +18,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#include <Implementation/Entity.hpp>
 
-#include "EntityTime.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
-#include "EntityMissle.hpp"
+// RAM: TODO: just here to check it builds, move into its own test later.
+#include <Implementation/EntityIntersect.hpp>
+
+#include <gmock/gmock.h>
+
+using namespace std;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+// Class definition!
+class TestEntity : public ::testing::Test
 {
-    None,
-    Time,
-    Player,
-    PlayerAction,
-    Missle,
-
-    MaxValue = Time
 };
 
-struct EntityNone
+TEST_F(TestEntity, Empty)
 {
+    Entity toTest{EntityType::None, EntityNone{}};
 
-};
-
-struct Entity
-{
-    EntityType type;
-
-    union
-    {
-        EntityNone nothing;
-        EntityTime time;
-        EntityPlayer player;
-        EntityPlayerAction playerAction;
-        EntityMissle missle;
-    };
-};
+    // Shouldn't crash.
+    EXPECT_EQ(toTest.type, EntityType::None);
+}
 
 }}} // namespace
-
-#endif // ENTITY_HPP

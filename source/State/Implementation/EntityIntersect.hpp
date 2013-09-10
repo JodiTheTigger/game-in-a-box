@@ -18,46 +18,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#ifndef ENTITYINTERSECT_HPP
+#define ENTITYINTERSECT_HPP
 
-#include "EntityTime.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
-#include "EntityMissle.hpp"
+#include "Entity.hpp"
+
+#include <vector>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+struct IntersectionType
 {
-    None,
-    Time,
-    Player,
-    PlayerAction,
-    Missle,
-
-    MaxValue = Time
+    EntityType a;
+    EntityType b;
 };
 
-struct EntityNone
+struct Intersection
 {
+    IntersectionType type;
 
+    // RAM: TODO: Pointers or indexes, need to make up my mind.
+    Entity* a;
+    Entity* b;
+    //size_t indexA;
+    //size_t indexB;
 };
 
-struct Entity
-{
-    EntityType type;
-
-    union
-    {
-        EntityNone nothing;
-        EntityTime time;
-        EntityPlayer player;
-        EntityPlayerAction playerAction;
-        EntityMissle missle;
-    };
-};
+// Does all the intersections between all entities. This might take a while.
+std::vector<Intersection> Intersect(const std::vector<Entity>& entities);
 
 }}} // namespace
 
-#endif // ENTITY_HPP
+#endif // ENTITYINTERSECT_HPP

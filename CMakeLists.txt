@@ -293,7 +293,12 @@ source/State/Implementation/DeltaStateGameSnapshot.cpp
 source/State/Implementation/DeltaStateGameSnapshot.hpp
 source/State/Implementation/Types.hpp
 source/State/Implementation/Entity.hpp
+source/State/Implementation/EntityPlayer.hpp
+source/State/Implementation/EntityPlayerAction.hpp
+source/State/Implementation/EntityMissle.hpp
 source/State/Implementation/EntityTime.hpp
+source/State/Implementation/EntityIntersect.cpp
+source/State/Implementation/EntityIntersect.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
@@ -303,6 +308,7 @@ source/State/Implementation/GameNetworkClient.cpp
 set(STATE_TEST
 test/State/TestDeltaStatePlayerClient.cpp
 test/State/TestDeltaStateGameSnapshot.cpp
+test/State/TestEntity.cpp
 )
 
 set(UNUSED

@@ -18,46 +18,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#ifndef ENTITYMISSLE_HPP
+#define ENTITYMISSLE_HPP
 
-#include "EntityTime.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
-#include "EntityMissle.hpp"
+#include "Types.hpp"
+
+// RAM: TODO: Move this to common.
+#include <Network/WrappingCounter.hpp>
+#include <cstdint>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+enum class EntityStateMissle : uint32_t
 {
-    None,
-    Time,
-    Player,
-    PlayerAction,
-    Missle,
-
-    MaxValue = Time
+    Flying,
+    Exploding
 };
 
-struct EntityNone
+struct EntityMissle
 {
+    EntityStateMissle state;
 
-};
+    // RAM: TODO: Make this its own type.
+    GameInABox::Network::WrappingCounter<std::uint_fast32_t, 32> startTick;
 
-struct Entity
-{
-    EntityType type;
+    // RAM: TODO: Make this its own type.
+    Vec3 startPosition;
 
-    union
-    {
-        EntityNone nothing;
-        EntityTime time;
-        EntityPlayer player;
-        EntityPlayerAction playerAction;
-        EntityMissle missle;
-    };
+    // RAM: TODO: Make this its own type.
+    uint32_t ownerId;
 };
 
 }}} // namespace
 
-#endif // ENTITY_HPP
+
+#endif // ENTITYMISSLE_HPP

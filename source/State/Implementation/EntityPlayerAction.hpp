@@ -18,46 +18,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#ifndef ENTITYPLAYERACTION_HPP
+#define ENTITYPLAYERACTION_HPP
 
-#include "EntityTime.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
-#include "EntityMissle.hpp"
+#include "Types.hpp"
+
+#include <cstdint>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+enum class FlagsPlayerAction : uint32_t
 {
     None,
-    Time,
-    Player,
-    PlayerAction,
-    Missle,
-
-    MaxValue = Time
+    Foward  = (1 << 0),
+    Back    = (1 << 1),
+    Left    = (1 << 2),
+    Right   = (1 << 3),
+    Jet     = (1 << 4),
+    Fire    = (1 << 5)
 };
 
-struct EntityNone
+struct EntityPlayerAction
 {
-
-};
-
-struct Entity
-{
-    EntityType type;
-
-    union
-    {
-        EntityNone nothing;
-        EntityTime time;
-        EntityPlayer player;
-        EntityPlayerAction playerAction;
-        EntityMissle missle;
-    };
+    FlagsPlayerAction action;
+    Vec3 angleWeapon;
+    Vec3 angleJet;
 };
 
 }}} // namespace
 
-#endif // ENTITY_HPP
+
+#endif // ENTITYPLAYERACTION_HPP

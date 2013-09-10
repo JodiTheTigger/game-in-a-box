@@ -18,46 +18,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#include "EntityIntersect.hpp"
 
-#include "EntityTime.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
-#include "EntityMissle.hpp"
+#include <algorithm>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+using namespace std;
+
+vector<Intersection> Intersect(const vector<Entity>& entities)
 {
-    None,
-    Time,
-    Player,
-    PlayerAction,
-    Missle,
+    // RAM: TODO: Figure out a better way of turning a vector<A> to vector<A*>.
+    vector<const Entity*> pointers;
 
-    MaxValue = Time
-};
-
-struct EntityNone
-{
-
-};
-
-struct Entity
-{
-    EntityType type;
-
-    union
+    for(const auto& ent : entities)
     {
-        EntityNone nothing;
-        EntityTime time;
-        EntityPlayer player;
-        EntityPlayerAction playerAction;
-        EntityMissle missle;
-    };
-};
+        pointers.push_back(&ent);
+    }
+
+    // sorted stuff goes faster right?
+    sort(
+        begin(pointers),
+        end(pointers),
+        [](const Entity* a, const Entity* b)
+        {
+            return (a->type) < (b->type);
+        });
+
+    // do all the intersections here please.
+    //for (auto time : pointers_that_are_time)
+    //{
+    //    for (auto notTime : pointers_that_are_not_time)
+    //    {
+    //        result.push_back(IntersectTime(time, nottime));
+    //    }
+    //}
+
+    return {};
+}
 
 }}} // namespace
-
-#endif // ENTITY_HPP
