@@ -36,7 +36,7 @@ class TestEntity : public ::testing::Test
 
 TEST_F(TestEntity, Empty)
 {
-    Entity toTest{EntityType::None, EntityNone{}};
+    Entity toTest{EntityType::None, {EntityNone{}}};
 
     // Shouldn't crash.
     EXPECT_EQ(toTest.type, EntityType::None);
