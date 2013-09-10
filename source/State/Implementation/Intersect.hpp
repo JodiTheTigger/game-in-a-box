@@ -18,28 +18,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Implementation/Entity.hpp>
+#ifndef INTERSECT_HPP
+#define INTERSECT_HPP
 
-// RAM: TODO: just here to check it builds, move into its own test later.
-#include <Implementation/Intersect.hpp>
+#include "Entity.hpp"
 
-#include <gmock/gmock.h>
-
-using namespace std;
+#include <vector>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// Class definition!
-class TestEntity : public ::testing::Test
+struct IntersectionType
 {
+    EntityType a;
+    EntityType b;
 };
 
-TEST_F(TestEntity, Empty)
+struct Intersection
 {
-    Entity toTest{EntityType::None, EntityNone{}};
+    IntersectionType type;
 
-    // Shouldn't crash.
-    EXPECT_EQ(toTest.type, EntityType::None);
-}
+    // RAM: TODO: Pointers or indexes, need to make up my mind.
+    Entity* a;
+    Entity* b;
+    //size_t indexA;
+    //size_t indexB;
+};
+
+// Does all the intersections between all entities. This might take a while.
+std::vector<Intersection> Intersect(const std::vector<Entity>& entities);
 
 }}} // namespace
+
+#endif // INTERSECT_HPP
