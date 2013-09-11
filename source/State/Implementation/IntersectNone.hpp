@@ -35,8 +35,7 @@ struct IntersectFactory;
 template<>
 struct IntersectFactory<EntityType::None>
 {
-/* RAM: TODO: Why doesn't this work?
-    static Intersect GetIntersect()
+    static Intersection GetIntersect()
     {
         return
         {
@@ -44,35 +43,9 @@ struct IntersectFactory<EntityType::None>
             std::vector<EntityType>{},
             nullptr
         };
-    }*/
-
-    static std::vector<EntityType> Get()
-    {
-        return {};
-    }
-
-    static EntityType Get2()
-    {
-        return EntityType::None;
     }
 };
 
-/*
-template <>
-class IntersectFactory<EntityType::None>
-{
-public:
-    static Intersect GetIntersect()
-    {
-        return
-        {
-            EntityType::None,
-            {},
-            IntersectNone
-        };
-    }
-};
-*/
 }}} // namespace
 
 #endif // INTERSECTNONE_HPP
