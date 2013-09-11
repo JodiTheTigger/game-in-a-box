@@ -22,6 +22,13 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+std::vector<Intersect> IntersectPlayerAction(const Entity&, std::vector<Entity*>)
+{
+    // RAM: TODO: STUB!
+    return {};
+}
+
+/*
 Intersect IntersectPlayerAction(const Entity& a, const Entity& b)
 {
     // RAM: TODO: ASSERT(a.type == EntityType::PlayerAction);
@@ -47,6 +54,6 @@ Intersect IntersectPlayerAction(const Entity& a, const Entity& b)
             return Intersect{{EntityType::None, EntityType::None},nullptr, nullptr};
         }
     }
-}
+}*/
 
 }}} // namespace

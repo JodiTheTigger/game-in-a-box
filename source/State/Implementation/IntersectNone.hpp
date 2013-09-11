@@ -25,13 +25,9 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-Intersect IntersectNone(const Entity& a, const Entity& b);
+std::vector<Intersect> IntersectNone(const Entity& primary, std::vector<Entity*> filteredEntities);
 
-// RAM: TODO: MAke this work.
-// http://stackoverflow.com/questions/10694943/c-template-specialization-based-on-compile-time-value
-template<EntityType ENT>
-struct IntersectFactory;
-
+// Intersection parameters
 template<>
 struct IntersectFactory<EntityType::None>
 {
@@ -41,7 +37,7 @@ struct IntersectFactory<EntityType::None>
         {
             EntityType::None,
             std::vector<EntityType>{},
-            nullptr
+            IntersectNone
         };
     }
 };

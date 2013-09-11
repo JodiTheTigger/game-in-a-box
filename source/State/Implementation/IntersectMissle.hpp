@@ -25,7 +25,24 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-Intersect IntersectMissle(const Entity& a, const Entity& b);
+std::vector<Intersect> IntersectMissle(const Entity& primary, std::vector<Entity*> filteredEntities);
+
+// Intersection parameters
+template<>
+struct IntersectFactory<EntityType::Missle>
+{
+    static Intersection GetIntersect()
+    {
+        return
+        {
+            EntityType::Missle,
+
+            // RAM: TODO: Flesh this out
+            std::vector<EntityType>{EntityType::Missle},
+            IntersectMissle
+        };
+    }
+};
 
 }}} // namespace
 

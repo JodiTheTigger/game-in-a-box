@@ -22,10 +22,10 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-Intersect IntersectPlayer(const Entity&, const Entity&)
+std::vector<Intersect> IntersectPlayer(const Entity&, std::vector<Entity*>)
 {
-    // RAM: TODO: STUB
-    return {{EntityType::None, EntityType::None},nullptr, nullptr};
+    // RAM: TODO: STUB!
+    return {};
 }
 
 }}} // namespace

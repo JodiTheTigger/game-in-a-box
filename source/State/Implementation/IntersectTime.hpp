@@ -25,7 +25,25 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-Intersect IntersectTime(const Entity& a, const Entity& b);
+std::vector<Intersect> IntersectTime(const Entity& primary, std::vector<Entity*> filteredEntities);
+
+// Intersection parameters
+template<>
+struct IntersectFactory<EntityType::Time>
+{
+    static Intersection GetIntersect()
+    {
+        return
+        {
+            // RAM: TODO: Copy and pasting from template type, don't do this!
+            EntityType::Time,
+
+            // RAM: TODO: Flesh this out
+            std::vector<EntityType>{EntityType::Missle},
+            IntersectTime
+        };
+    }
+};
 
 }}} // namespace
 

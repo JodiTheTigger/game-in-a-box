@@ -32,20 +32,16 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 using namespace std;
 
-// yea, EntityType::None is a value, not a type, can't template drive that.
-/*
 // I Hate cut 'n' paste code as much as anyone, but I hate macros more by the look of it.
 array<Intersection, static_cast<unsigned>(EntityType::MaxValue)> intersects
 {
-
-    IntersectFactory<EntityType::None>::GetIntersect(),
+    // RAM: TODO: Keep None around till I know I don't need it, then remove it.
+    //IntersectFactory<EntityType::None>::GetIntersect(),
     IntersectFactory<EntityType::Time>::GetIntersect(),
     IntersectFactory<EntityType::Player>::GetIntersect(),
     IntersectFactory<EntityType::PlayerAction>::GetIntersect(),
     IntersectFactory<EntityType::Missle>::GetIntersect()
-
 };
-*/
 
 vector<Intersect> Intersections(const vector<Entity>& entities)
 {
@@ -77,6 +73,7 @@ vector<Intersect> Intersections(const vector<Entity>& entities)
     // RAM: TODO: Copy/paste code! fix it somehow!
     // RAM: TODO: Invert the order? for each ent do each collision type?
     // RAM: TODO: What if there isn't an intersection? What happens then?
+    /*
     for (auto a: times)
     {
         for (const auto& ent : entities)
@@ -105,6 +102,7 @@ vector<Intersect> Intersections(const vector<Entity>& entities)
             result.push_back(IntersectMissle(*a, ent));
         }
     }
+    */
 
     return result;
 }

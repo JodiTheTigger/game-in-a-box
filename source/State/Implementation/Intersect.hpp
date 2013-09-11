@@ -28,6 +28,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Do we need this if a+b are pointers?
 struct IntersectType
 {
     EntityType a;
@@ -36,6 +37,8 @@ struct IntersectType
 
 struct Intersect
 {
+    // RAM: TODO: Is this needed? We can just do a custom function that sorts
+    // via a->type and b->type.
     IntersectType type;
 
     // RAM: TODO: Pointers or indexes, need to make up my mind.
@@ -45,14 +48,25 @@ struct Intersect
     //size_t indexB;
 };
 
+// Defines the worker function that determines intersections between entities
+// Can by physics, state, user input, whatever.
 struct Intersection
 {
     using Tester = std::function<std::vector<Intersect>(const Entity&, std::vector<Entity*>)>;
 
+    // What we intersect with.
     EntityType primary;
+
+    // Types of entities we care about.
     std::vector<EntityType> validIntersections;
+
+    // Actual intersect test.
     Tester test;
 };
+
+// Used to generate a compile table of all Intersections we use
+template<EntityType ENT>
+struct IntersectFactory;
 
 // Does all the intersections between all entities. This might take a while.
 std::vector<Intersect> Intersections(const std::vector<Entity>& entities);
