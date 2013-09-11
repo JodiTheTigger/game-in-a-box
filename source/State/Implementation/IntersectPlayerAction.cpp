@@ -22,10 +22,31 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-Intersection IntersectPlayerAction(const Entity&, const Entity&)
+Intersect IntersectPlayerAction(const Entity& a, const Entity& b)
 {
-    // RAM: TODO: STUB
-    return {{EntityType::None, EntityType::None},nullptr, nullptr};
+    // RAM: TODO: ASSERT(a.type == EntityType::PlayerAction);
+    // RAM: TODO: Work code so the assert isn't even necessary!
+
+    switch (b.type)
+    {
+        // Player can create a missle.
+        case EntityType::None:
+        {
+            if (
+                    FlagIsSet(b.playerAction.allowedAction, FlagsPlayerAction::Fire) &&
+                    FlagIsSet(b.playerAction.action, FlagsPlayerAction::Fire)
+               )
+            {
+                // player is allowed to fire the missle. yay.
+                return Intersect{{EntityType::PlayerAction, EntityType::None}, &a, &b};
+            }
+        }
+
+        default:
+        {
+            return Intersect{{EntityType::None, EntityType::None},nullptr, nullptr};
+        }
+    }
 }
 
 }}} // namespace

@@ -19,20 +19,37 @@
 */
 
 #include "Intersect.hpp"
+#include "IntersectNone.hpp"
 #include "IntersectTime.hpp"
 #include "IntersectPlayer.hpp"
 #include "IntersectPlayerAction.hpp"
 #include "IntersectMissle.hpp"
 
 #include <algorithm>
+#include <array>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
 using namespace std;
 
-vector<Intersection> Intersect(const vector<Entity>& entities)
+// yea, EntityType::None is a value, not a type, can't template drive that.
+/*
+// I Hate cut 'n' paste code as much as anyone, but I hate macros more by the look of it.
+array<Intersection, static_cast<unsigned>(EntityType::MaxValue)> intersects
 {
-    vector<Intersection> result{};
+
+    IntersectFactory<EntityType::None>::GetIntersect(),
+    IntersectFactory<EntityType::Time>::GetIntersect(),
+    IntersectFactory<EntityType::Player>::GetIntersect(),
+    IntersectFactory<EntityType::PlayerAction>::GetIntersect(),
+    IntersectFactory<EntityType::Missle>::GetIntersect()
+
+};
+*/
+
+vector<Intersect> Intersections(const vector<Entity>& entities)
+{
+    vector<Intersect> result{};
 
     // Get lists of everything please.
     // RAM: TODO: Is there a way to automate this so it isn't

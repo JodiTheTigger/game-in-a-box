@@ -18,47 +18,54 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#ifndef ENTITYTYPES_HPP
+#define ENTITYTYPES_HPP
 
-#include "EntityTypes.hpp"
-#include "EntityTime.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
-#include "EntityMissle.hpp"
+#include <cstdint>
+
+// RAM: TODO: Move this to common.
+#include <Network/WrappingCounter.hpp>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+struct Tick
 {
-    None,
-    Time,
-    Player,
-    PlayerAction,
-    Missle,
-
-    MaxValue = Missle
+    GameInABox::Network::WrappingCounter<std::uint_fast32_t, 32> value;
 };
 
-struct EntityNone
+struct Id
 {
-
+    std::uint_fast32_t value;
 };
 
-struct Entity
+struct Health
 {
-    EntityType type;
+    std::uint_fast32_t value;
+};
 
-    union
-    {
-        EntityNone nothing;
-        EntityTime time;
-        EntityPlayer player;
-        EntityPlayerAction playerAction;
-        EntityMissle missle;
-    };
+struct Energy
+{
+    std::uint_fast32_t value;
+};
+
+// RAM: TODO: Was I going to bother with boost::units?
+// Meters
+struct Position
+{
+        float x;
+        float y;
+        float z;
+};
+
+// RAM: TODO: Was I going to bother with boost::units?
+// Rads
+struct Orientation
+{
+        float x;
+        float y;
+        float z;
 };
 
 }}} // namespace
 
-#endif // ENTITY_HPP
+#endif // ENTITYTYPES_HPP

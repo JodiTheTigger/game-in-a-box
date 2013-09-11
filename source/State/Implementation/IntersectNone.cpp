@@ -18,47 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
-
-#include "EntityTypes.hpp"
-#include "EntityTime.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
-#include "EntityMissle.hpp"
+#include "IntersectNone.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+
+Intersect IntersectNone(const Entity&, const Entity&)
 {
-    None,
-    Time,
-    Player,
-    PlayerAction,
-    Missle,
-
-    MaxValue = Missle
-};
-
-struct EntityNone
-{
-
-};
-
-struct Entity
-{
-    EntityType type;
-
-    union
-    {
-        EntityNone nothing;
-        EntityTime time;
-        EntityPlayer player;
-        EntityPlayerAction playerAction;
-        EntityMissle missle;
-    };
-};
+    // RAM: TODO: STUB
+    return {{EntityType::None, EntityType::None},nullptr, nullptr};
+}
 
 }}} // namespace
-
-#endif // ENTITY_HPP

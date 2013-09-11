@@ -22,7 +22,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-Intersection IntersectTime(const Entity&, const Entity&)
+Intersect IntersectTime(const Entity&, const Entity&)
 {
     // RAM: TODO: STUB
     return {{EntityType::None, EntityType::None},nullptr, nullptr};

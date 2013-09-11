@@ -21,6 +21,7 @@
 #ifndef ENTITYMISSLE_HPP
 #define ENTITYMISSLE_HPP
 
+#include "EntityTypes.hpp"
 #include "Types.hpp"
 
 // RAM: TODO: Move this to common.
@@ -45,8 +46,7 @@ struct EntityMissle
     // RAM: TODO: Make this its own type.
     Vec3 startPosition;
 
-    // RAM: TODO: Make this its own type.
-    uint32_t ownerId;
+    Id owner;
 };
 
 }}} // namespace

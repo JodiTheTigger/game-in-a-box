@@ -22,10 +22,18 @@
 #define ENTITYPLAYERACTION_HPP
 
 #include "Types.hpp"
+#include "EntityTypes.hpp"
 
 #include <cstdint>
 
 namespace GameInABox { namespace State { namespace Implementation {
+
+// RAM: Move to own header please.
+template<typename FLAGENUM>
+inline bool FlagIsSet(FLAGENUM flag, FLAGENUM toTest)
+{
+    return ((static_cast<unsigned>(flag) & static_cast<unsigned>(toTest)) != 0);
+}
 
 enum class FlagsPlayerAction : uint32_t
 {
@@ -43,6 +51,10 @@ struct EntityPlayerAction
     FlagsPlayerAction action;
     Vec3 angleWeapon;
     Vec3 angleJet;
+
+    // Server side
+    Tick lastFired;
+    FlagsPlayerAction allowedAction;
 };
 
 }}} // namespace

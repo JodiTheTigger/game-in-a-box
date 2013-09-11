@@ -24,28 +24,38 @@
 #include "Entity.hpp"
 
 #include <vector>
+#include <functional>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct IntersectionType
+struct IntersectType
 {
     EntityType a;
     EntityType b;
 };
 
-struct Intersection
+struct Intersect
 {
-    IntersectionType type;
+    IntersectType type;
 
     // RAM: TODO: Pointers or indexes, need to make up my mind.
-    Entity* a;
-    Entity* b;
+    const Entity* a;
+    const Entity* b;
     //size_t indexA;
     //size_t indexB;
 };
 
+struct Intersection
+{
+    using Tester = std::function<std::vector<Intersect>(const Entity&, std::vector<Entity*>)>;
+
+    EntityType primary;
+    std::vector<EntityType> validIntersections;
+    Tester test;
+};
+
 // Does all the intersections between all entities. This might take a while.
-std::vector<Intersection> Intersect(const std::vector<Entity>& entities);
+std::vector<Intersect> Intersections(const std::vector<Entity>& entities);
 
 }}} // namespace
 

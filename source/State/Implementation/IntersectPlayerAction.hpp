@@ -25,7 +25,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-Intersection IntersectPlayerAction(const Entity& a, const Entity& b);
+Intersect IntersectPlayerAction(const Entity& a, const Entity& b);
 
 }}} // namespace
 

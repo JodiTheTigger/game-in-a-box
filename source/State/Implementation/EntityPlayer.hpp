@@ -21,10 +21,13 @@
 #ifndef ENTITYPLAYER_HPP
 #define ENTITYPLAYER_HPP
 
+#include "EntityTypes.hpp"
+
 namespace GameInABox { namespace State { namespace Implementation {
 
 struct EntityPlayer
 {
+    Id id;
 };
 
 }}} // namespace

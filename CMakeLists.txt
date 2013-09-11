@@ -297,6 +297,7 @@ source/State/Implementation/EntityPlayer.hpp
 source/State/Implementation/EntityPlayerAction.hpp
 source/State/Implementation/EntityMissle.hpp
 source/State/Implementation/EntityTime.hpp
+source/State/Implementation/EntityTypes.hpp
 source/State/Implementation/Intersect.cpp
 source/State/Implementation/Intersect.hpp
 source/State/Implementation/IntersectTime.cpp
@@ -307,6 +308,8 @@ source/State/Implementation/IntersectPlayerAction.cpp
 source/State/Implementation/IntersectPlayerAction.hpp
 source/State/Implementation/IntersectMissle.cpp
 source/State/Implementation/IntersectMissle.hpp
+source/State/Implementation/IntersectNone.cpp
+source/State/Implementation/IntersectNone.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp

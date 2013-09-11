@@ -21,15 +21,13 @@
 #ifndef ENTITYTIME_HPP
 #define ENTITYTIME_HPP
 
-// RAM: TODO: Move this to common.
-#include <Network/WrappingCounter.hpp>
-#include <cstdint>
+#include "EntityTypes.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
 struct EntityTime
 {
-    GameInABox::Network::WrappingCounter<std::uint_fast32_t, 32> tick;
+    Tick time;
 };
 
 }}} // namespace
