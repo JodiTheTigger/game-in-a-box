@@ -52,13 +52,13 @@ struct Intersect
 // Can by physics, state, user input, whatever.
 struct Intersection
 {
-    using Tester = std::function<std::vector<Intersect>(const Entity&, std::vector<Entity*>)>;
+    using Tester = std::function<std::vector<Intersect>(const Entity&, const std::vector<const Entity*>&)>;
 
     // What we intersect with.
     EntityType primary;
 
     // Types of entities we care about.
-    std::vector<EntityType> validIntersections;
+    std::vector<EntityType> targets;
 
     // Actual intersect test.
     Tester test;

@@ -22,7 +22,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-std::vector<Intersect> IntersectNone(const Entity&, std::vector<Entity*>)
+std::vector<Intersect> IntersectNone(const Entity&, const std::vector<const Entity*>&)
 {
     // Don't do anything.
     return {};

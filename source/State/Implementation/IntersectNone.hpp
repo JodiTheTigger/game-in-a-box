@@ -25,7 +25,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-std::vector<Intersect> IntersectNone(const Entity& primary, std::vector<Entity*> filteredEntities);
+std::vector<Intersect> IntersectNone(const Entity& primary, const std::vector<const Entity*>& targets);
 
 // Intersection parameters
 template<>

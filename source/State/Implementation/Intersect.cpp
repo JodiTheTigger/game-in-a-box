@@ -32,8 +32,10 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 using namespace std;
 
+static const unsigned IntersectCount = static_cast<unsigned>(EntityType::MaxValue);
+
 // I Hate cut 'n' paste code as much as anyone, but I hate macros more by the look of it.
-array<Intersection, static_cast<unsigned>(EntityType::MaxValue)> intersects
+array<Intersection, IntersectCount> GIntersects
 {
     // RAM: TODO: Keep None around till I know I don't need it, then remove it.
     //IntersectFactory<EntityType::None>::GetIntersect(),
@@ -45,64 +47,51 @@ array<Intersection, static_cast<unsigned>(EntityType::MaxValue)> intersects
 
 vector<Intersect> Intersections(const vector<Entity>& entities)
 {
+    // //////////////
+    // keep in mind here that all loops aim to be done in parallel.
+    // //////////////
+
+    // filter all the lists to get primaries and targets.
+    array<vector<const Entity*>, IntersectCount> primaries{{}};
+    array<vector<const Entity*>, IntersectCount> targets{{}};
+
+    for (unsigned i = 0; i < IntersectCount; ++i)
+    {
+        for (const auto& ent : entities)
+        {
+            if (GIntersects[i].primary == ent.type)
+            {
+                primaries[i].push_back(&ent);
+            }
+
+            for (const auto& target : GIntersects[i].targets)
+            {
+                if (target == ent.type)
+                {
+                    targets[i].push_back(&ent);
+                }
+            }
+        }
+    }
+
+    // do the work!
+    array<vector<Intersect>, IntersectCount> results{{}};
+
+    for (unsigned i = 0; i < GIntersects.size(); ++i)
+    {
+        for (auto& primary : primaries[i])
+        {
+            results[i] = GIntersects[i].test(*primary, targets[i]);
+        }
+    }
+
+    // collapse/join the results.
     vector<Intersect> result{};
 
-    // Get lists of everything please.
-    // RAM: TODO: Is there a way to automate this so it isn't
-    // cut and paste code?
-    // or make arrays as we add the entites?
-    vector<const Entity*> times{};
-    vector<const Entity*> players{};
-    vector<const Entity*> playerActions{};
-    vector<const Entity*> missles{};
-
-    for(const auto& ent : entities)
+    for (auto&& toJoin : results)
     {
-        switch (ent.type)
-        {
-            case EntityType::Time: { times.push_back(&ent); break; }
-            case EntityType::Player: { players.push_back(&ent); break; }
-            case EntityType::PlayerAction: { playerActions.push_back(&ent); break; }
-            case EntityType::Missle: { missles.push_back(&ent); break; }
-            case EntityType::None: { break; }
-            default: { break; }
-        }
+        result.insert(end(result), begin(toJoin), end(toJoin));
     }
-
-    // RAM: TODO: Speed up by having intersection exclusions?
-    // RAM: TODO: Copy/paste code! fix it somehow!
-    // RAM: TODO: Invert the order? for each ent do each collision type?
-    // RAM: TODO: What if there isn't an intersection? What happens then?
-    /*
-    for (auto a: times)
-    {
-        for (const auto& ent : entities)
-        {
-            result.push_back(IntersectTime(*a, ent));
-        }
-    }
-    for (auto a: players)
-    {
-        for (const auto& ent : entities)
-        {
-            result.push_back(IntersectPlayer(*a, ent));
-        }
-    }
-    for (auto a: playerActions)
-    {
-        for (const auto& ent : entities)
-        {
-            result.push_back(IntersectPlayerAction(*a, ent));
-        }
-    }
-    for (auto a: missles)
-    {
-        for (const auto& ent : entities)
-        {
-            result.push_back(IntersectMissle(*a, ent));
-        }
-    }
-    */
 
     return result;
 }

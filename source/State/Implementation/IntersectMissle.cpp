@@ -22,7 +22,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-std::vector<Intersect> IntersectMissle(const Entity&, std::vector<Entity*>)
+std::vector<Intersect> IntersectMissle(const Entity&, const std::vector<const Entity*>&)
 {
     // RAM: TODO: STUB!
     return {};
