@@ -19,6 +19,7 @@
 */
 
 #include "Intersect.hpp"
+#include "Factory.hpp"
 #include "IntersectNone.hpp"
 #include "IntersectTime.hpp"
 #include "IntersectPlayer.hpp"
@@ -38,17 +39,17 @@ static const unsigned IntersectCount = static_cast<unsigned>(EntityType::MaxValu
 array<Intersection, IntersectCount> GIntersects
 {
     // RAM: TODO: Keep None around till I know I don't need it, then remove it.
-    //IntersectFactory<EntityType::None>::GetIntersect(),
-    IntersectFactory<EntityType::Time>::GetIntersect(),
-    IntersectFactory<EntityType::Player>::GetIntersect(),
-    IntersectFactory<EntityType::PlayerAction>::GetIntersect(),
-    IntersectFactory<EntityType::Missle>::GetIntersect()
+    //IntersectFactory<EntityType::None>::Get(),
+    Factory<Intersection, EntityType::Time>::Get(),
+    Factory<Intersection, EntityType::Player>::Get(),
+    Factory<Intersection, EntityType::PlayerAction>::Get(),
+    Factory<Intersection, EntityType::Missle>::Get()
 };
 
 vector<Intersect> Intersections(const vector<Entity>& entities)
 {
     // //////////////
-    // keep in mind here that all loops aim to be done in parallel.
+    // keep in mind here that all outer loops aim to be done in parallel.
     // //////////////
 
     // filter all the lists to get primaries and targets.
@@ -88,7 +89,7 @@ vector<Intersect> Intersections(const vector<Entity>& entities)
     // collapse/join the results.
     vector<Intersect> result{};
 
-    for (auto&& toJoin : results)
+    for (auto& toJoin : results)
     {
         result.insert(end(result), begin(toJoin), end(toJoin));
     }

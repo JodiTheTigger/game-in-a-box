@@ -1,46 +1,56 @@
 /*
     Game-in-a-box. Simple First Person Shooter Network Game.
     Copyright (C) 2012-2013 Richard Maxwell <jodi.the.tigger@gmail.com>
-
+    
     This file is part of Game-in-a-box
-
+    
     Game-in-a-box is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
+    
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-
+    
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Implementation/Entity.hpp>
+#ifndef ACTIONTIME_HPP
+#define ACTIONTIME_HPP
 
-// RAM: TODO: just here to check it builds, move into its own test later.
-#include <Implementation/Intersect.hpp>
-#include <Implementation/Action.hpp>
-
-#include <gmock/gmock.h>
-
-using namespace std;
+#include "Action.hpp"
+#include "Factory.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// Class definition!
-class TestEntity : public ::testing::Test
-{
-};
+Actors ActTime(
+        const Entity& protagonist,
+        const std::vector<const Entity*>& antagonists,
+        const std::vector<Entity>& world);
 
-TEST_F(TestEntity, Empty)
-{
-    Entity toTest{EntityType::None, {EntityNone{}}};
+// everything we deal with.
 
-    // Shouldn't crash.
-    EXPECT_EQ(toTest.type, EntityType::None);
-}
+// RAM: TODO: Is there a way to align this with the intersection define?
+// RAM: TODO: Flesh this out
+// RAM: Find out why this doesn't compile!
+/*
+template<>
+struct Factory<ActionSet, EntityType::Time>
+{
+    static ActionSet Get()
+    {
+        return ActionSet
+        {
+            EntityType::Time,
+            EntityType::Time,
+            ActTime
+        };
+    }
+};*/
 
 }}} // namespace
+
+#endif // ACTIONTIME_HPP

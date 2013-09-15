@@ -22,6 +22,7 @@
 #define INTERSECTPLAYERACTION_HPP
 
 #include "Intersect.hpp"
+#include "Factory.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -29,9 +30,9 @@ std::vector<Intersect> IntersectPlayerAction(const Entity& primary, const std::v
 
 // Intersection parameters
 template<>
-struct IntersectFactory<EntityType::PlayerAction>
+struct Factory<Intersection, EntityType::PlayerAction>
 {
-    static Intersection GetIntersect()
+    static Intersection Get()
     {
         return
         {

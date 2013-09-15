@@ -64,10 +64,6 @@ struct Intersection
     Tester test;
 };
 
-// Used to generate a compile table of all Intersections we use
-template<EntityType ENT>
-struct IntersectFactory;
-
 // Does all the intersections between all entities. This might take a while.
 std::vector<Intersect> Intersections(const std::vector<Entity>& entities);
 

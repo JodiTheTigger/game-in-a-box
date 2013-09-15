@@ -22,6 +22,7 @@
 #define INTERSECTTIME_HPP
 
 #include "Intersect.hpp"
+#include "Factory.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -29,9 +30,9 @@ std::vector<Intersect> IntersectTime(const Entity& primary, const std::vector<co
 
 // Intersection parameters
 template<>
-struct IntersectFactory<EntityType::Time>
+struct Factory<Intersection, EntityType::Time>
 {
-    static Intersection GetIntersect()
+    static Intersection Get()
     {
         return
         {

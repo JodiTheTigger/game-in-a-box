@@ -22,6 +22,7 @@
 #define INTERSECTNONE_HPP
 
 #include "Intersect.hpp"
+#include "Factory.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -29,9 +30,9 @@ std::vector<Intersect> IntersectNone(const Entity& primary, const std::vector<co
 
 // Intersection parameters
 template<>
-struct IntersectFactory<EntityType::None>
+struct Factory<Intersection, EntityType::None>
 {
-    static Intersection GetIntersect()
+    static Intersection Get()
     {
         return
         {

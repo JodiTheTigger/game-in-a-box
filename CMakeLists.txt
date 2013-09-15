@@ -292,6 +292,7 @@ source/State/Implementation/DeltaStatePlayerClient.hpp
 source/State/Implementation/DeltaStateGameSnapshot.cpp
 source/State/Implementation/DeltaStateGameSnapshot.hpp
 source/State/Implementation/Types.hpp
+source/State/Implementation/Factory.hpp
 source/State/Implementation/Entity.hpp
 source/State/Implementation/EntityPlayer.hpp
 source/State/Implementation/EntityPlayerAction.hpp
@@ -310,6 +311,10 @@ source/State/Implementation/IntersectMissle.cpp
 source/State/Implementation/IntersectMissle.hpp
 source/State/Implementation/IntersectNone.cpp
 source/State/Implementation/IntersectNone.hpp
+source/State/Implementation/Action.hpp
+source/State/Implementation/Action.cpp
+source/State/Implementation/ActionTime.hpp
+source/State/Implementation/ActionTime.cpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
