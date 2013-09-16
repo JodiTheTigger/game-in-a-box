@@ -20,3 +20,20 @@
 
 #include "ActionTime.hpp"
 
+namespace GameInABox { namespace State { namespace Implementation {
+
+/* Actors is not POD
+Actors ActTime(
+        const Entity&,
+        const std::vector<const Entity*>&,
+        const std::vector<Entity>&)
+{
+    Actors grr;
+
+    grr.protagonist = Entity{EntityType::None, {EntityNone{}}};
+    grr.antagonist = Entity{EntityType::None, {EntityNone{}}};
+
+    return grr;
+}*/
+
+}}} // namespace

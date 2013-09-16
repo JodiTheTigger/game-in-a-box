@@ -26,6 +26,7 @@
 
 namespace GameInABox { namespace Network {
 
+// RAM: TODO: Rule of 5 people!
 template<typename T, int BITS = 0>
 class WrappingCounter
 {
