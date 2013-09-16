@@ -39,8 +39,8 @@ Actors ActTime(
 // RAM: TODO: Is there a way to align this with the intersection define?
 // RAM: TODO: Flesh this out
 // RAM: Find out why this doesn't compile!
-// RAM: Doesn't compile as Actors doesn't have a default constructor
-// RAM: As Entity doesn't have a DC, as it's a union with varient members.
+// RAM: Doesn't compile as Actors doesn't have a default constructor.
+// RAM: This was because WrappingCounter wasn't a POD (now fixed).
 /*
 ActionSet::Action fred()
 {
