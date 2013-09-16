@@ -62,7 +62,7 @@ struct Entity
 };
 
 // Error checking.
-static_assert(std::is_pod<Entity>::value, "Sequence is not a POD.");
+static_assert(std::is_pod<Entity>::value, "Entity is not a POD.");
 
 }}} // namespace
 
