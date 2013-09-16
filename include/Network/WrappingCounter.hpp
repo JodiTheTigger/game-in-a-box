@@ -26,7 +26,6 @@
 
 namespace GameInABox { namespace Network {
 
-// RAM: TODO: Rule of 5 people!
 template<typename T, int BITS = 0>
 class WrappingCounter
 {
@@ -43,12 +42,14 @@ public:
     static constexpr T max() { return (1 << bits()) - 1; }
 
     // RAM: TODO: just replace with .value and then use common macros.
+    // RAM: TODO: can't do that cos the common macros don't & max() the values.
+    // RAM: TODO: Still need to implement the stuff that's in UnitOperators.hpp
     T Value() const { return myValue; }
     T& Value() { return myValue; }
 
-    WrappingCounter() : WrappingCounter(0) {};
+    // This class needs to stay as a POD.
+    WrappingCounter() = default;
     explicit WrappingCounter(T newValue) : myValue(newValue & max()) {}
-    WrappingCounter(const WrappingCounter<T, BITS>& other) : myValue(other.myValue) {};
 
     WrappingCounter<T, BITS>& operator++()
     {

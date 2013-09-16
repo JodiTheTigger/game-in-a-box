@@ -27,6 +27,8 @@
 #include "EntityPlayerAction.hpp"
 #include "EntityMissle.hpp"
 
+#include <type_traits>
+
 namespace GameInABox { namespace State { namespace Implementation {
 
 enum class EntityType
@@ -58,6 +60,9 @@ struct Entity
         EntityMissle missle;
     };
 };
+
+// Error checking.
+static_assert(std::is_pod<Entity>::value, "Sequence is not a POD.");
 
 }}} // namespace
 
