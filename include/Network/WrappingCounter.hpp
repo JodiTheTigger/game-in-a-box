@@ -69,6 +69,41 @@ private:
     T myValue;
 };
 
+template<typename T, int BITS> inline bool operator==(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return lhs.Value()==rhs.Value();}
+template<typename T, int BITS> inline bool operator!=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator==(lhs,rhs);}
+
+template<typename T, int BITS>
+bool operator<(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs)
+{
+    if (lhs == rhs)
+    {
+        return false;
+    }
+    else
+    {
+        if (rhs.Value() > lhs.Value())
+        {
+            return ((rhs - lhs) <= ((WrappingCounter<T, BITS>::max() >> 1) + 1));
+        }
+        else
+        {
+            return ((lhs - rhs) > ((WrappingCounter<T, BITS>::max() >> 1) + 1));
+        }
+    }
+}
+
+template<typename T, int BITS> inline bool operator> (const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return  operator< (rhs,lhs);}
+template<typename T, int BITS> inline bool operator<=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator> (lhs,rhs);}
+template<typename T, int BITS> inline bool operator>=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator< (lhs,rhs);}
+
+/* RAM: TODO
+template<class DATATYPE> inline DATATYPE operator+(DATATYPE lhs, const DATATYPE& rhs){ lhs.value += rhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs, const DATATYPE& rhs){ lhs.value -= rhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs)                     { lhs.value = -lhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator*(DATATYPE lhs, const DATATYPE& rhs){ lhs.value *= rhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator/(DATATYPE lhs, const DATATYPE& rhs){ lhs.value /= rhs.value;  return lhs; }
+*/
+
 // Maths
 template<typename T, int BITS>
 T operator-(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
@@ -100,18 +135,6 @@ WrappingCounter<T, BITS>& operator-=(WrappingCounter<T, BITS>& leftHandSide, con
 
 // Boolean Maths
 template<typename T, int BITS>
-bool operator==(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
-{
-    return leftHandSide.Value() == rightHandSide.Value();
-}
-
-template<typename T, int BITS>
-bool operator!=(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
-{
-    return !(leftHandSide.Value() == rightHandSide.Value());
-}
-
-template<typename T, int BITS>
 bool operator==(const WrappingCounter<T, BITS>& leftHandSide, uint64_t rightHandSide)
 {
     return leftHandSide.Value() == rightHandSide;
@@ -121,39 +144,6 @@ template<typename T, int BITS>
 bool operator==(uint64_t leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
     return leftHandSide == rightHandSide.Value();
-}
-
-template<typename T, int BITS>
-bool operator<(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
-{
-    if (leftHandSide == rightHandSide)
-    {
-        return false;
-    }
-    else
-    {
-        if (rightHandSide.Value() > leftHandSide.Value())
-        {
-            return ((rightHandSide - leftHandSide) <= ((WrappingCounter<T, BITS>::max() >> 1) + 1));
-        }
-        else
-        {
-            return ((leftHandSide - rightHandSide) > ((WrappingCounter<T, BITS>::max() >> 1) + 1));
-        }
-    }
-}
-
-template<typename T, int BITS>
-bool operator>(const WrappingCounter<T, BITS>& leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
-{
-    if (leftHandSide == rightHandSide)
-    {
-        return false;
-    }
-    else
-    {
-        return !(leftHandSide < rightHandSide);
-    }
 }
 
 }} // namespace
