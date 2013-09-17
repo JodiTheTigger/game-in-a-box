@@ -26,7 +26,7 @@
 namespace GameInABox { namespace State { namespace Implementation {
 
 bool CollideTimeTime(const Entity& protagonist, const Entity& antagonist);
-Entity ReactTimeTime(Entity protagonist, const Entity& antagonist, const std::vector<const Entity*>& theWorld);
+Entity ReactTimeTime(Entity protagonist, const Entity&, const std::vector<const Entity*>& theWorld);
 
 template<>
 struct Factory<Interaction, EntityType::Time>
