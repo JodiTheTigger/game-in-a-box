@@ -315,6 +315,10 @@ source/State/Implementation/Action.hpp
 source/State/Implementation/Action.cpp
 source/State/Implementation/ActionTime.hpp
 source/State/Implementation/ActionTime.cpp
+source/State/Implementation/Interaction.hpp
+source/State/Implementation/Interaction.cpp
+source/State/Implementation/ActTimeTime.hpp
+source/State/Implementation/ActTimeTime.cpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
