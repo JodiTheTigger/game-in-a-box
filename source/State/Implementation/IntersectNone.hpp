@@ -21,6 +21,8 @@
 #ifndef INTERSECTNONE_HPP
 #define INTERSECTNONE_HPP
 
+// RAM: TODO: Remove this class.
+
 #include "Intersect.hpp"
 #include "Factory.hpp"
 

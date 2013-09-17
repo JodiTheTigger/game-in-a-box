@@ -20,3 +20,9 @@
 
 #include "Action.hpp"
 
+std::vector<Entity> Act(
+        const std::vector<Entity>& entities,
+        const std::vector<Intersect>& intersections)
+{
+    // RAM: TODO! STUB!
+}

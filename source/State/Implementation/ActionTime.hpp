@@ -46,7 +46,7 @@ ActionSet::Action fred()
 {
     return ActTime;
 }*/
-/*
+
 template<>
 struct Factory<ActionSet, EntityType::Time>
 {
@@ -59,7 +59,7 @@ struct Factory<ActionSet, EntityType::Time>
             ActTime
         };
     }
-};*/
+};
 
 }}} // namespace
 

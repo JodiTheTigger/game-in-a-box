@@ -51,10 +51,9 @@ struct ActionSet
     Action work;
 };
 
-Actors Act(
-        const Entity& protagonist,
-        const std::vector<const Entity*>& antagonists,
-        const std::vector<Entity>& world);
+std::vector<Entity> Act(
+        const std::vector<Entity>& entities,
+        const std::vector<Intersect>& intersections);
 
 }}} // namespace
 
