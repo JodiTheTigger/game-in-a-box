@@ -30,9 +30,9 @@ bool CollideTimeTime(const Entity& protagonist, const Entity& antagonist)
     return (&protagonist == &antagonist);
 }
 
-Trouble ReactTimeTime(Trouble fight, const std::vector<const Entity*>&)
+Entity ReactTimeTime(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
 {
-    auto result = fight;
+    auto result = protagonist;
     // RAM: TODO: Fix the wrapping class please! result.protagonist.time.time.value++;
 
     return result;

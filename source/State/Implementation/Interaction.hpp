@@ -27,12 +27,6 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct Trouble
-{
-    Entity protagonist;
-    Entity antagonist;
-};
-
 struct Colliding
 {
     unsigned indexProtagonist;
@@ -42,7 +36,7 @@ struct Colliding
 struct Interaction
 {
     using Collision = std::function<bool(const Entity&, const Entity&)>;
-    using Reaction = std::function<Trouble(Trouble, const std::vector<const Entity*>&)>;
+    using Reaction = std::function<Entity(Entity, const Entity&, const std::vector<const Entity*>&)>;
 
     EntityType protagonist;
     EntityType antagonist;
