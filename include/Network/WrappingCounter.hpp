@@ -57,6 +57,12 @@ public:
         myValue &= max();
         return *this;
     }
+    WrappingCounter<T, BITS> operator++(int)
+    {
+      WrappingCounter<T, BITS> tmp(*this);
+      operator++();
+      return tmp;
+    }
 
     WrappingCounter<T, BITS>& operator--()
     {
@@ -64,10 +70,20 @@ public:
         myValue &= max();
         return *this;
     }
+    WrappingCounter<T, BITS> operator--(int)
+    {
+      WrappingCounter<T, BITS> tmp(*this);
+      operator--();
+      return tmp;
+    }
 
 private:
     T myValue;
 };
+
+// ///////////////////
+// Comparison Operators
+// ///////////////////
 
 template<typename T, int BITS> inline bool operator==(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return lhs.Value()==rhs.Value();}
 template<typename T, int BITS> inline bool operator!=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator==(lhs,rhs);}
@@ -103,8 +119,10 @@ template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs)                
 template<class DATATYPE> inline DATATYPE operator*(DATATYPE lhs, const DATATYPE& rhs){ lhs.value *= rhs.value;  return lhs; }
 template<class DATATYPE> inline DATATYPE operator/(DATATYPE lhs, const DATATYPE& rhs){ lhs.value /= rhs.value;  return lhs; }
 */
-
+// ///////////////////
 // Maths
+// ///////////////////
+
 template<typename T, int BITS>
 T operator-(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
 {
@@ -133,15 +151,17 @@ WrappingCounter<T, BITS>& operator-=(WrappingCounter<T, BITS>& leftHandSide, con
     return leftHandSide;
 }
 
+// ///////////////////
 // Boolean Maths
-template<typename T, int BITS>
-bool operator==(const WrappingCounter<T, BITS>& leftHandSide, uint64_t rightHandSide)
+// ///////////////////
+template<typename T, int BITS, typename U>
+inline bool operator==(const WrappingCounter<T, BITS>& leftHandSide, U rightHandSide)
 {
     return leftHandSide.Value() == rightHandSide;
 }
 
-template<typename T, int BITS>
-bool operator==(uint64_t leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
+template<typename T, int BITS, typename U>
+inline bool operator==(U leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
     return leftHandSide == rightHandSide.Value();
 }
