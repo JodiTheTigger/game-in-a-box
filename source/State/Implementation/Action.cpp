@@ -20,9 +20,26 @@
 
 #include "Action.hpp"
 
+#include <array>
+
+using namespace std;
+
+namespace GameInABox { namespace State { namespace Implementation {
+
+/*
+array<ActionSet, xxx> GIntersects
+{{
+    Factory<ActionSet, EntityType::Time>::Get(),
+    Factory<Intersection, EntityType::Player>::Get(),
+    Factory<Intersection, EntityType::PlayerAction>::Get(),
+    Factory<Intersection, EntityType::Missle>::Get()
+}};
+
 std::vector<Entity> Act(
         const std::vector<Entity>& entities,
         const std::vector<Intersect>& intersections)
 {
     // RAM: TODO! STUB!
 }
+*/
+}}} // namespace

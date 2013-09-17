@@ -31,22 +31,6 @@ Actors ActTime(
         const std::vector<const Entity*>& antagonists,
         const std::vector<Entity>& world);
 
-// RAM: debug
-//static_assert(std::is_pod<Entity>::value, "E Not Pod");
-//static_assert(std::is_pod<Actors>::value, "Not Pod");
-// everything we deal with.
-
-// RAM: TODO: Is there a way to align this with the intersection define?
-// RAM: TODO: Flesh this out
-// RAM: Find out why this doesn't compile!
-// RAM: Doesn't compile as Actors doesn't have a default constructor.
-// RAM: This was because WrappingCounter wasn't a POD (now fixed).
-/*
-ActionSet::Action fred()
-{
-    return ActTime;
-}*/
-
 template<>
 struct Factory<ActionSet, EntityType::Time>
 {
