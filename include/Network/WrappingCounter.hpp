@@ -109,7 +109,7 @@ template<typename T, int BITS> inline bool operator!=(const WRAP_C& lhs, const W
 
 // Compare against unsigned.
 template<typename T, int BITS, typename U> inline bool operator==(const WRAP_C& lhs, U rhs){return lhs.value==rhs;}
-template<typename T, int BITS, typename U> inline bool operator!=(const WRAP_C& lhs, U rhs){return !operator==(lhs);}
+template<typename T, int BITS, typename U> inline bool operator!=(const WRAP_C& lhs, U rhs){return !operator==(lhs,rhs);}
 
 template<typename T, int BITS, typename U> inline bool operator==(U lhs, const WRAP_C& rhs){return lhs==rhs.value;}
 template<typename T, int BITS, typename U> inline bool operator!=(U lhs, const WRAP_C& rhs){return !operator==(lhs,rhs);}
