@@ -42,7 +42,12 @@ public:
                 BITS;
     }
 
-    static constexpr T max() { return (1 << bits()) - 1; }
+    static constexpr T max()
+    {
+        return BITS >= std::numeric_limits<T>::digits ?
+            std::numeric_limits<T>::max() :
+            static_cast<T>((1UL << bits()) - 1);
+    }
 
     // RAM: TODO: just replace with .value and then use common macros.
     // RAM: TODO: can't do that cos the common macros don't & max() the values.
