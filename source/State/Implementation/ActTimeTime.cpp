@@ -33,7 +33,7 @@ bool CollideTimeTime(const Entity& protagonist, const Entity& antagonist)
 Entity ReactTimeTime(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
 {
     auto result = protagonist;
-    // RAM: TODO: Fix the wrapping class please! result.protagonist.time.time.value++;
+    ++(result.time.time.value);
 
     return result;
 }
