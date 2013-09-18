@@ -23,6 +23,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <type_traits>
 
 namespace GameInABox { namespace Network {
 
@@ -30,6 +31,8 @@ template<typename T, int BITS = 0>
 class WrappingCounter
 {
 public:
+    static_assert(std::is_unsigned<T>::value, "Wrapping Counter only works on unsigned types.");
+
     static constexpr unsigned bits()
     {
         return BITS == 0 ?
@@ -53,53 +56,69 @@ public:
 };
 
 // ///////////////////
+// Operators
+// ///////////////////
+
+#define WRAP_C WrappingCounter<T, BITS>
+
+// ///////////////////
 // Increment / Decrement
 // ///////////////////
 template<typename T, int BITS>
-inline WrappingCounter<T, BITS>& operator++(WrappingCounter<T, BITS>& rightHandSide)
+inline WRAP_C& operator++(WRAP_C& rhs)
 {
-    ++(rightHandSide.value);
-    rightHandSide.value &= WrappingCounter<T, BITS>::max();
+    ++(rhs.value);
+    rhs.value &= WRAP_C::max();
 
-    return rightHandSide;
+    return rhs;
 }
 
 template<typename T, int BITS>
-inline WrappingCounter<T, BITS> operator++(WrappingCounter<T, BITS>& rightHandSide, int)
+inline WRAP_C operator++(WRAP_C& lhs, int)
 {
-   auto copy = rightHandSide;
+   auto copy = lhs;
    ++copy;
 
    return copy;
 }
 
 template<typename T, int BITS>
-inline WrappingCounter<T, BITS>& operator--(WrappingCounter<T, BITS>& rightHandSide)
+inline WRAP_C& operator--(WRAP_C& rhs)
 {
-    --(rightHandSide.value);
-    rightHandSide.value &= WrappingCounter<T, BITS>::max();
+    --(rhs.value);
+    rhs.value &= WRAP_C::max();
 
-    return rightHandSide;
+    return rhs;
 }
 
 template<typename T, int BITS>
-inline WrappingCounter<T, BITS> operator--(WrappingCounter<T, BITS>& rightHandSide, int)
+inline WRAP_C operator--(WRAP_C& lhs, int)
 {
-    auto copy = rightHandSide;
+    auto copy = lhs;
     --copy;
 
     return copy;
 }
 
 // ///////////////////
-// Comparison Operators
+// Equality Operators
 // ///////////////////
 
-template<typename T, int BITS> inline bool operator==(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return lhs.value==rhs.value;}
-template<typename T, int BITS> inline bool operator!=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator==(lhs,rhs);}
+template<typename T, int BITS> inline bool operator==(const WRAP_C& lhs, const WRAP_C& rhs){return lhs.value==rhs.value;}
+template<typename T, int BITS> inline bool operator!=(const WRAP_C& lhs, const WRAP_C& rhs){return !operator==(lhs,rhs);}
 
+// Compare against unsigned.
+template<typename T, int BITS, typename U> inline bool operator==(const WRAP_C& lhs, U rhs){return lhs.value==rhs;}
+template<typename T, int BITS, typename U> inline bool operator!=(const WRAP_C& lhs, U rhs){return !operator==(lhs);}
+
+template<typename T, int BITS, typename U> inline bool operator==(U lhs, const WRAP_C& rhs){return lhs==rhs.value;}
+template<typename T, int BITS, typename U> inline bool operator!=(U lhs, const WRAP_C& rhs){return !operator==(lhs,rhs);}
+
+// ///////////////////
+// Comparison Operators
+// ///////////////////
 template<typename T, int BITS>
-bool operator<(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs)
+bool operator<(const WRAP_C& lhs, const WRAP_C& rhs)
 {
     if (lhs == rhs)
     {
@@ -109,72 +128,117 @@ bool operator<(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BIT
     {
         if (rhs.value > lhs.value)
         {
-            return ((rhs - lhs) <= ((WrappingCounter<T, BITS>::max() >> 1) + 1));
+            return ((rhs - lhs).value <= ((WRAP_C::max() >> 1) + 1));
         }
         else
         {
-            return ((lhs - rhs) > ((WrappingCounter<T, BITS>::max() >> 1) + 1));
+            return ((lhs - rhs).value > ((WRAP_C::max() >> 1) + 1));
         }
     }
 }
 
-template<typename T, int BITS> inline bool operator> (const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return  operator< (rhs,lhs);}
-template<typename T, int BITS> inline bool operator<=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator> (lhs,rhs);}
-template<typename T, int BITS> inline bool operator>=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator< (lhs,rhs);}
+template<typename T, int BITS> inline bool operator> (const WRAP_C& lhs, const WRAP_C& rhs){return  operator< (rhs,lhs);}
+template<typename T, int BITS> inline bool operator<=(const WRAP_C& lhs, const WRAP_C& rhs){return !operator> (lhs,rhs);}
+template<typename T, int BITS> inline bool operator>=(const WRAP_C& lhs, const WRAP_C& rhs){return !operator< (lhs,rhs);}
 
-/* RAM: TODO
-template<class DATATYPE> inline DATATYPE operator+(DATATYPE lhs, const DATATYPE& rhs){ lhs.value += rhs.value;  return lhs; }
-template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs, const DATATYPE& rhs){ lhs.value -= rhs.value;  return lhs; }
-template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs)                     { lhs.value = -lhs.value;  return lhs; }
-template<class DATATYPE> inline DATATYPE operator*(DATATYPE lhs, const DATATYPE& rhs){ lhs.value *= rhs.value;  return lhs; }
-template<class DATATYPE> inline DATATYPE operator/(DATATYPE lhs, const DATATYPE& rhs){ lhs.value /= rhs.value;  return lhs; }
-*/
+// ///////////////////
+// Maths assign
+// ///////////////////
+template<typename T, int BITS>
+inline WRAP_C& operator+=(WRAP_C& lhs, const WRAP_C& rhs)
+{
+    lhs.value += rhs.value;
+    lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
+template<typename T, int BITS>
+inline WRAP_C& operator-=(WRAP_C& lhs, const WRAP_C& rhs)
+{
+    lhs.value -= rhs.value;
+    lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
+template<typename T, int BITS>
+inline WRAP_C& operator*=(WRAP_C& lhs, const WRAP_C& rhs)
+{
+    lhs.value *= rhs.value;
+    lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
+template<typename T, int BITS>
+inline WRAP_C& operator/=(WRAP_C& lhs, const WRAP_C& rhs)
+{
+    lhs.value /= rhs.value;
+
+    // No need to clamp as it will always be smaller than max().
+    // lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
+// against unsigned
+
+template<typename T, int BITS>
+inline WRAP_C& operator+=(WRAP_C& lhs, T rhs)
+{
+    lhs.value += rhs;
+    lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
+template<typename T, int BITS>
+inline WRAP_C& operator-=(WRAP_C& lhs, T rhs)
+{
+    lhs.value -= rhs;
+    lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
+template<typename T, int BITS>
+inline WRAP_C& operator*=(WRAP_C& lhs, T rhs)
+{
+    lhs.value *= rhs;
+    lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
+template<typename T, int BITS>
+inline WRAP_C& operator/=(WRAP_C& lhs, T rhs)
+{
+    lhs.value /= rhs;
+
+    // No need to clamp as it will always be smaller than max().
+    // lhs.value &= WRAP_C::max();
+
+    return lhs;
+}
+
 // ///////////////////
 // Maths
 // ///////////////////
 
-template<typename T, int BITS>
-T operator-(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
-{
-    // Expecting overflow wraparound.
-    return T((leftHandSide.value - rightHandSide.value) & WrappingCounter<T, BITS>::max());
-}
+template<typename T, int BITS> inline WRAP_C operator+(WRAP_C lhs, const WRAP_C& rhs){ lhs += rhs;  return lhs; }
+template<typename T, int BITS> inline WRAP_C operator-(WRAP_C lhs, const WRAP_C& rhs){ lhs -= rhs;  return lhs; }
+template<typename T, int BITS> inline WRAP_C operator-(WRAP_C lhs)                     { lhs = WRAP_C{0} - lhs;  return lhs; }
+template<typename T, int BITS> inline WRAP_C operator*(WRAP_C lhs, const WRAP_C& rhs){ lhs *= rhs;  return lhs; }
+template<typename T, int BITS> inline WRAP_C operator/(WRAP_C lhs, const WRAP_C& rhs){ lhs /= rhs;  return lhs; }
 
-template<typename T, int BITS>
-T operator+(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
-{
-    // Expecting overflow wraparound.
-    return T((leftHandSide.value + rightHandSide.value) & WrappingCounter<T, BITS>::max());
-}
+// Unsigned
+template<typename T, int BITS> inline WRAP_C operator+(WRAP_C lhs, T rhs){ lhs += rhs;  return lhs; }
+template<typename T, int BITS> inline WRAP_C operator-(WRAP_C lhs, T rhs){ lhs -= rhs;  return lhs; }
+template<typename T, int BITS> inline WRAP_C operator*(WRAP_C lhs, T rhs){ lhs *= rhs;  return lhs; }
+template<typename T, int BITS> inline WRAP_C operator/(WRAP_C lhs, T rhs){ lhs /= rhs;  return lhs; }
 
-template<typename T, int BITS>
-WrappingCounter<T, BITS>& operator+=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
-{
-    leftHandSide.value = (leftHandSide.value + rightHandSide) & WrappingCounter<T, BITS>::max();
-    return leftHandSide;
-}
-
-template<typename T, int BITS>
-WrappingCounter<T, BITS>& operator-=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
-{
-    leftHandSide.value = (leftHandSide.value - rightHandSide) & WrappingCounter<T, BITS>::max();
-    return leftHandSide;
-}
-
-// ///////////////////
-// Boolean Maths
-// ///////////////////
-template<typename T, int BITS, typename U>
-inline bool operator==(const WrappingCounter<T, BITS>& leftHandSide, U rightHandSide)
-{
-    return leftHandSide.value == rightHandSide;
-}
-
-template<typename T, int BITS, typename U>
-inline bool operator==(U leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
-{
-    return leftHandSide == rightHandSide.value;
-}
+#undef WRAP_C
 
 }} // namespace
 

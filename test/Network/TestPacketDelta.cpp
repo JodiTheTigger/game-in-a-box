@@ -51,7 +51,7 @@ TEST_F(TestPacketDelta, Empty)
 
     EXPECT_EQ(0, toTest.data.size());
 
-    EXPECT_EQ(0, toTest.GetSequence());
+    EXPECT_EQ(0U, toTest.GetSequence());
     EXPECT_FALSE(toTest.GetSequenceAck());
     EXPECT_EQ(0, toTest.GetSequenceDifference());
     EXPECT_EQ(0, GetPayloadBuffer(toTest).size());
@@ -93,11 +93,11 @@ TEST_F(TestPacketDelta, NoData)
 
     EXPECT_NE(0, toTest.data.size());
 
-    EXPECT_EQ(2, toTest.GetSequence());
+    EXPECT_EQ(2U, toTest.GetSequence());
     EXPECT_EQ(6, toTest.GetSequenceDifference());
     EXPECT_EQ(0, GetPayloadBuffer(toTest).size());
     ASSERT_TRUE(toTest.GetSequenceAck());
-    EXPECT_EQ(4, toTest.GetSequenceAck().get());
+    EXPECT_EQ(4U, toTest.GetSequenceAck().get());
 }
 
 TEST_F(TestPacketDelta, NoAck)
@@ -117,12 +117,12 @@ TEST_F(TestPacketDelta, Simple)
 
     EXPECT_NE(0, toTest.data.size());
 
-    EXPECT_EQ(1, toTest.GetSequence());
+    EXPECT_EQ(1U, toTest.GetSequence());
     EXPECT_EQ(3, toTest.GetSequenceDifference());
     EXPECT_EQ(8, payload.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
     ASSERT_TRUE(toTest.GetSequenceAck());
-    EXPECT_EQ(2, toTest.GetSequenceAck().get());
+    EXPECT_EQ(2U, toTest.GetSequenceAck().get());
 }
 
 TEST_F(TestPacketDelta, SimpleConnectionIdNoPayload)
@@ -181,12 +181,12 @@ TEST_F(TestPacketDelta, EncodeDecode)
     EXPECT_NE(0, toTest.data.size());
 
     EXPECT_TRUE(toTest.IsValid());
-    EXPECT_EQ(1, toTest.GetSequence());
+    EXPECT_EQ(1U, toTest.GetSequence());
     EXPECT_EQ(3, toTest.GetSequenceDifference());
     EXPECT_EQ(8, payload.size());
     EXPECT_EQ(std::vector<uint8_t>({1,2,3,4,5,6,7,8}), payload);
     ASSERT_TRUE(toTest.GetSequenceAck());
-    EXPECT_EQ(2, toTest.GetSequenceAck().get());
+    EXPECT_EQ(2U, toTest.GetSequenceAck().get());
 }
 
 TEST_F(TestPacketDelta, ClientEmptyDelta)

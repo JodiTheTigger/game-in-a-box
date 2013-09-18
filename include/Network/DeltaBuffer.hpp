@@ -63,7 +63,7 @@ public:
         // Default is diff against identity (difference==0) unless otherwise.
         if (lastSequenceAcked)
         {
-            difference = myCurrentSequence - lastSequenceAcked.get();
+            difference = (myCurrentSequence - lastSequenceAcked.get()).value;
             auto bufferSize = myStates.size();
 
             if ((difference <= bufferSize) && (difference < 256))

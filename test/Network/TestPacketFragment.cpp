@@ -45,7 +45,7 @@ TEST_F(TestPacketFragment, Empty)
     EXPECT_EQ(0, toTest.FragmentId());
     EXPECT_EQ(0, toTest.data.size());
 
-    EXPECT_EQ(0, toTest.GetSequence());
+    EXPECT_EQ(0U, toTest.GetSequence());
     EXPECT_EQ(0, GetPayloadBuffer(toTest).size());
     EXPECT_EQ(0, toTest.data.size());
 }
@@ -59,7 +59,7 @@ TEST_F(TestPacketFragment, Valid)
     EXPECT_TRUE(toTest.IsLastFragment());
     EXPECT_EQ(0, toTest.FragmentId());
 
-    EXPECT_EQ(44, toTest.GetSequence());
+    EXPECT_EQ(44U, toTest.GetSequence());
     EXPECT_EQ(4, GetPayloadBuffer(toTest).size());
     EXPECT_EQ(7, toTest.data.size());
 }
