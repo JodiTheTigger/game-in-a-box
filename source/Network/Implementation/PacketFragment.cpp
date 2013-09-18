@@ -68,7 +68,7 @@ PacketFragment::PacketFragment(
             data.reserve(OffsetFragmentPayload + size);
 
             auto inserter = back_inserter(data);
-            Push(inserter, static_cast<std::uint16_t>(sequence.Value()));
+            Push(inserter, static_cast<std::uint16_t>(sequence.value));
             data.push_back(fragmentId);
 
             data[OffsetSequence] |= MaskTopByteIsFragmented;

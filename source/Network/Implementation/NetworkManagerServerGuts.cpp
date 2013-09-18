@@ -215,8 +215,8 @@ void NetworkManagerServerGuts::PrivateProcessIncomming()
 
                         std::array<uint8_t, 4> code;
                         auto ack = delta.GetSequenceAck();
-                        uint16_t rawAck = ack ? ack->Value() : 0;
-                        Push(begin(code), delta.GetSequence().Value());
+                        uint16_t rawAck = ack ? ack->value : 0;
+                        Push(begin(code), delta.GetSequence().value);
                         Push(begin(code) + 2, rawAck);
                         XorCode(begin(code), end(code), connection.Key().data);
                         XorCode(begin(payload), end(payload), code);
@@ -264,8 +264,8 @@ void NetworkManagerServerGuts::PrivateSendState()
                         auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
 
                         std::array<uint8_t, 4> code;
-                        Push(begin(code), deltaData.to.Value());
-                        Push(begin(code) + 2, addressToState.second.lastAcked.Value());
+                        Push(begin(code), deltaData.to.value);
+                        Push(begin(code) + 2, addressToState.second.lastAcked.value);
                         XorCode(begin(code), end(code), connection.Key().data);
                         XorCode(begin(compressed), end(compressed), code);
 

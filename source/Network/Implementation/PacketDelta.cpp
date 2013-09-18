@@ -69,10 +69,10 @@ PacketDelta::PacketDelta(
     data.reserve(MinimumPacketSize + payloadSize);
 
     auto inserter = back_inserter(data);
-    Push(inserter, static_cast<std::uint16_t>(sequence.Value()));
+    Push(inserter, static_cast<std::uint16_t>(sequence.value));
     if(sequenceAck)
     {
-        Push(inserter, static_cast<std::uint16_t>(sequenceAck->Value()));
+        Push(inserter, static_cast<std::uint16_t>(sequenceAck->value));
     }
     else
     {

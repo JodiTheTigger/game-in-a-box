@@ -44,48 +44,58 @@ public:
     // RAM: TODO: just replace with .value and then use common macros.
     // RAM: TODO: can't do that cos the common macros don't & max() the values.
     // RAM: TODO: Still need to implement the stuff that's in UnitOperators.hpp
-    T Value() const { return myValue; }
-    T& Value() { return myValue; }
 
     // This class needs to stay as a POD.
     WrappingCounter() = default;
-    explicit WrappingCounter(T newValue) : myValue(newValue & max()) {}
+    explicit WrappingCounter(T newValue) : value(newValue & max()) {}
 
-    WrappingCounter<T, BITS>& operator++()
-    {
-        ++myValue;
-        myValue &= max();
-        return *this;
-    }
-    WrappingCounter<T, BITS> operator++(int)
-    {
-      WrappingCounter<T, BITS> tmp(*this);
-      operator++();
-      return tmp;
-    }
-
-    WrappingCounter<T, BITS>& operator--()
-    {
-        --myValue;
-        myValue &= max();
-        return *this;
-    }
-    WrappingCounter<T, BITS> operator--(int)
-    {
-      WrappingCounter<T, BITS> tmp(*this);
-      operator--();
-      return tmp;
-    }
-
-private:
-    T myValue;
+    T value;
 };
+
+// ///////////////////
+// Increment / Decrement
+// ///////////////////
+template<typename T, int BITS>
+inline WrappingCounter<T, BITS>& operator++(WrappingCounter<T, BITS>& rightHandSide)
+{
+    ++(rightHandSide.value);
+    rightHandSide.value &= WrappingCounter<T, BITS>::max();
+
+    return rightHandSide;
+}
+
+template<typename T, int BITS>
+inline WrappingCounter<T, BITS> operator++(WrappingCounter<T, BITS>& rightHandSide, int)
+{
+   auto copy = rightHandSide;
+   ++copy;
+
+   return copy;
+}
+
+template<typename T, int BITS>
+inline WrappingCounter<T, BITS>& operator--(WrappingCounter<T, BITS>& rightHandSide)
+{
+    --(rightHandSide.value);
+    rightHandSide.value &= WrappingCounter<T, BITS>::max();
+
+    return rightHandSide;
+}
+
+template<typename T, int BITS>
+inline WrappingCounter<T, BITS> operator--(WrappingCounter<T, BITS>& rightHandSide, int)
+{
+    auto copy = rightHandSide;
+    --copy;
+
+    return copy;
+}
 
 // ///////////////////
 // Comparison Operators
 // ///////////////////
 
-template<typename T, int BITS> inline bool operator==(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return lhs.Value()==rhs.Value();}
+template<typename T, int BITS> inline bool operator==(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return lhs.value==rhs.value;}
 template<typename T, int BITS> inline bool operator!=(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BITS>& rhs){return !operator==(lhs,rhs);}
 
 template<typename T, int BITS>
@@ -97,7 +107,7 @@ bool operator<(const WrappingCounter<T, BITS>& lhs, const WrappingCounter<T, BIT
     }
     else
     {
-        if (rhs.Value() > lhs.Value())
+        if (rhs.value > lhs.value)
         {
             return ((rhs - lhs) <= ((WrappingCounter<T, BITS>::max() >> 1) + 1));
         }
@@ -127,27 +137,27 @@ template<typename T, int BITS>
 T operator-(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
 {
     // Expecting overflow wraparound.
-    return T((leftHandSide.Value() - rightHandSide.Value()) & WrappingCounter<T, BITS>::max());
+    return T((leftHandSide.value - rightHandSide.value) & WrappingCounter<T, BITS>::max());
 }
 
 template<typename T, int BITS>
 T operator+(const WrappingCounter<T, BITS> &leftHandSide, const WrappingCounter<T, BITS> &rightHandSide)
 {
     // Expecting overflow wraparound.
-    return T((leftHandSide.Value() + rightHandSide.Value()) & WrappingCounter<T, BITS>::max());
+    return T((leftHandSide.value + rightHandSide.value) & WrappingCounter<T, BITS>::max());
 }
 
 template<typename T, int BITS>
 WrappingCounter<T, BITS>& operator+=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
 {
-    leftHandSide.Value() = (leftHandSide.Value() + rightHandSide) & WrappingCounter<T, BITS>::max();
+    leftHandSide.value = (leftHandSide.value + rightHandSide) & WrappingCounter<T, BITS>::max();
     return leftHandSide;
 }
 
 template<typename T, int BITS>
 WrappingCounter<T, BITS>& operator-=(WrappingCounter<T, BITS>& leftHandSide, const T rightHandSide)
 {
-    leftHandSide.Value() = (leftHandSide.Value() - rightHandSide) & WrappingCounter<T, BITS>::max();
+    leftHandSide.value = (leftHandSide.value - rightHandSide) & WrappingCounter<T, BITS>::max();
     return leftHandSide;
 }
 
@@ -157,13 +167,13 @@ WrappingCounter<T, BITS>& operator-=(WrappingCounter<T, BITS>& leftHandSide, con
 template<typename T, int BITS, typename U>
 inline bool operator==(const WrappingCounter<T, BITS>& leftHandSide, U rightHandSide)
 {
-    return leftHandSide.Value() == rightHandSide;
+    return leftHandSide.value == rightHandSide;
 }
 
 template<typename T, int BITS, typename U>
 inline bool operator==(U leftHandSide, const WrappingCounter<T, BITS>& rightHandSide)
 {
-    return leftHandSide == rightHandSide.Value();
+    return leftHandSide == rightHandSide.value;
 }
 
 }} // namespace

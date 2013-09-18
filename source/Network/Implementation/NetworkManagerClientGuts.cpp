@@ -215,8 +215,8 @@ void NetworkManagerClientGuts::DeltaReceive()
             // attacks to control someone else's connection.
             std::array<uint8_t, 4> code;
             auto ack = delta.GetSequenceAck();
-            uint16_t rawAck = ack ? ack->Value() : 0;
-            Push(begin(code), delta.GetSequence().Value());
+            uint16_t rawAck = ack ? ack->value : 0;
+            Push(begin(code), delta.GetSequence().value);
             Push(begin(code) + 2, rawAck);
             XorCode(begin(code), end(code), myConnection.Key().data);
             XorCode(begin(payload), end(payload), code);
@@ -263,8 +263,8 @@ void NetworkManagerClientGuts::DeltaSend()
             auto compressed = move(myCompressor.Encode(deltaData.deltaPayload));
 
             std::array<uint8_t, 4> code;
-            Push(begin(code), deltaData.to.Value());
-            Push(begin(code) + 2, myLastSequenceProcessed.Value());
+            Push(begin(code), deltaData.to.value);
+            Push(begin(code) + 2, myLastSequenceProcessed.value);
             XorCode(begin(code), end(code), myConnection.Key().data);
             XorCode(begin(compressed), end(compressed), code);
 

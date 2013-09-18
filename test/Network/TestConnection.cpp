@@ -236,13 +236,13 @@ TEST_F(TestConnection, ClientServerConnectWithDelta)
     toTestServer.Process(PacketDelta{Sequence{1}, Sequence{55}, 0, Bytes(42,0x20)}.data);
     auto deltaResult2 = toTestServer.GetDefragmentedPacket();
     ASSERT_TRUE(toTestServer.LastSequenceAck());
-    EXPECT_EQ(55, toTestServer.LastSequenceAck()->Value());
+    EXPECT_EQ(55, toTestServer.LastSequenceAck()->value);
 
     // test old packet.
     toTestServer.Process(PacketDelta{Sequence{0}, Sequence{66}, 0, Bytes(42,0x20)}.data);
     auto deltaResult3 = toTestServer.GetDefragmentedPacket();
     EXPECT_FALSE(deltaResult3.IsValid());
-    EXPECT_EQ(55, toTestServer.LastSequenceAck()->Value());
+    EXPECT_EQ(55, toTestServer.LastSequenceAck()->value);
 }
 
 TEST_F(TestConnection, ClientServerConnectDisconnectFromClient)
