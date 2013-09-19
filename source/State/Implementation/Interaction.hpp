@@ -33,6 +33,15 @@ struct Colliding
     unsigned indexAntagonist;
 };
 
+enum class CollisionType
+{
+    // Collide with everything
+    All,
+
+    // Only collide with the first one
+    First,
+};
+
 struct Interaction
 {
     using Collision = std::function<bool(const Entity&, const Entity&)>;
@@ -40,6 +49,8 @@ struct Interaction
 
     EntityType protagonist;
     EntityType antagonist;
+
+    CollisionType howToCollide;
 
     Collision collide;
     Reaction react;

@@ -38,6 +38,8 @@ struct Factory<Interaction, EntityType::Time>
             EntityType::Time,
             EntityType::Time,
 
+            CollisionType::First,
+
             CollideTimeTime,
             ReactTimeTime
         };
