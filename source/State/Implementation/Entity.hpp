@@ -24,7 +24,6 @@
 #include "EntityTypes.hpp"
 #include "EntityTime.hpp"
 #include "EntityPlayer.hpp"
-#include "EntityPlayerAction.hpp"
 #include "EntityMissle.hpp"
 
 #include <type_traits>
@@ -56,13 +55,12 @@ struct Entity
         EntityNone nothing;
         EntityTime time;
         EntityPlayer player;
-        EntityPlayerAction playerAction;
         EntityMissle missle;
     };
 };
 
 // Error checking.
-static_assert(std::is_pod<Entity>::value, "Entity is not a POD.");
+static_assert(std::is_pod<Entity>::value, "Entity is not a plain old data sructure (POD).");
 
 }}} // namespace
 

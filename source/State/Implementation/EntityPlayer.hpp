@@ -21,13 +21,42 @@
 #ifndef ENTITYPLAYER_HPP
 #define ENTITYPLAYER_HPP
 
+#include "Types.hpp"
 #include "EntityTypes.hpp"
+
+#include <cstdint>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+enum class FlagsPlayerAction : uint32_t
+{
+    None    = 0,
+    Foward  = (1 << 0),
+    Back    = (1 << 1),
+    Left    = (1 << 2),
+    Right   = (1 << 3),
+    Jet     = (1 << 4),
+    Fire    = (1 << 5)
+};
+
+struct PlayerAction
+{
+    FlagsPlayerAction action;
+    Vec3 angleWeapon;
+    Vec3 angleJet;
+};
+
 struct EntityPlayer
 {
+    // RAM: TODO: Needed?
     Id id;
+
+    // Copied from the network system.
+    PlayerAction input;
+
+    // Server side
+    Tick lastFired;
+    FlagsPlayerAction allowedAction;
 };
 
 }}} // namespace
