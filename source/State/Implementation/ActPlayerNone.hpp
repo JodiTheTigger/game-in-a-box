@@ -40,7 +40,9 @@ struct Factory<Interaction, EntityType::Player>
             EntityType::Player,
             EntityType::None,
 
-            CollisionType::First,
+            // Need all possible nones as multiple people will
+            // be firing multiple rockets
+            CollisionType::All,
 
             CollidePlayerNone,
             ReactPlayerNone

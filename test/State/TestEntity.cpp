@@ -21,8 +21,7 @@
 #include <Implementation/Entity.hpp>
 
 // RAM: TODO: just here to check it builds, move into its own test later.
-#include <Implementation/Intersect.hpp>
-#include <Implementation/Action.hpp>
+#include <Implementation/Interaction.hpp>
 
 #include <gmock/gmock.h>
 
