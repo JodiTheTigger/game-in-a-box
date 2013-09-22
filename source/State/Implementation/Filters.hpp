@@ -18,13 +18,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef FLAGS_HPP
-#define FLAGS_HPP
+#ifndef FILTERS_HPP
+#define FILTERS_HPP
 
-template<typename FLAGENUM>
-inline constexpr bool FlagIsSet(FLAGENUM flag, FLAGENUM toTest)
+#include "Entity.hpp"
+#include "Flags.hpp"
+
+namespace GameInABox { namespace State { namespace Implementation {
+
+// Quick filters
+inline constexpr bool FilterNone(const Entity& toTest) { return toTest.type == EntityType::None; }
+inline constexpr bool FilterTime(const Entity& toTest) { return toTest.type == EntityType::Time; }
+
+inline bool constexpr FilterFiring(const Entity& toTest)
 {
-    return (static_cast<unsigned>(flag) & static_cast<unsigned>(toTest)) != 0;
+    return  FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Fire) &&
+            FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Fire);
 }
 
-#endif // FLAGS_HPP
+}}} // namespace
+
+#endif // FILTERS_HPP

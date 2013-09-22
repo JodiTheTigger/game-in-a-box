@@ -22,6 +22,7 @@
 
 #include "Interaction.hpp"
 #include "Factory.hpp"
+#include "Filters.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -35,11 +36,8 @@ struct Factory<Interaction, EntityType::Time>
     {
         return
         {
-            EntityType::Time,
-            EntityType::Time,
-
-            CollisionType::First,
-
+            FilterTime,
+            FilterTime,
             CollideTime,
             ReactTime
         };

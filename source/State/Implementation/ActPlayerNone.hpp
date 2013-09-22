@@ -23,7 +23,7 @@
 
 #include "Interaction.hpp"
 #include "Factory.hpp"
-
+#include "Filters.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -37,13 +37,8 @@ struct Factory<Interaction, EntityType::Player>
     {
         return
         {
-            EntityType::Player,
-            EntityType::None,
-
-            // Need all possible nones as multiple people will
-            // be firing multiple rockets
-            CollisionType::All,
-
+            FilterFiring,
+            FilterNone,
             CollidePlayerNone,
             ReactPlayerNone
         };
@@ -60,11 +55,8 @@ struct Factory<Interaction, EntityType::None>
     {
         return
         {
-            EntityType::None,
-            EntityType::Player,
-
-            CollisionType::First,
-
+            FilterNone,
+            FilterFiring,
             CollidePlayerNone,
             ReactPlayerNone
         };

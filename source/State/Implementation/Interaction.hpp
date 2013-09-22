@@ -27,32 +27,31 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+enum class CollideDirection
+{
+    AffectsProtagonist,
+    AffectsBoth
+};
+
 struct Colliding
 {
     unsigned indexProtagonist;
     unsigned indexAntagonist;
-};
 
-enum class CollisionType
-{
-    // Collide with everything
-    All,
-
-    // Only collide with the first one
-    First,
+    CollideDirection action;
 };
 
 struct Interaction
 {
+    using Filter = std::function<bool(const Entity&)>;
     using Collision = std::function<bool(const Entity&, const Entity&)>;
     using Reaction = std::function<Entity(Entity, const Entity&, const std::vector<const Entity*>&)>;
 
-    EntityType protagonist;
-    EntityType antagonist;
-
-    CollisionType howToCollide;
+    Filter filterProtagonist;
+    Filter filterAntogonist;
 
     Collision collide;
+
     Reaction react;
 };
 
