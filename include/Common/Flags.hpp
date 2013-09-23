@@ -27,4 +27,9 @@ inline constexpr bool FlagIsSet(FLAGENUM flag, FLAGENUM toTest)
     return (static_cast<unsigned>(flag) & static_cast<unsigned>(toTest)) != 0;
 }
 
+template<typename FLAGENUM>
+inline constexpr FLAGENUM FlagClear(FLAGENUM flag, FLAGENUM toClear)
+{
+    return static_cast<FLAGENUM>(static_cast<unsigned>(flag) & (-1 ^ static_cast<unsigned>(toClear)));
+}
 #endif // FLAGS_HPP
