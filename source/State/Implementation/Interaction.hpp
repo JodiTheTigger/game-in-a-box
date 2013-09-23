@@ -48,6 +48,7 @@ struct Interaction
     Reaction reactReverse;
 
     static inline Entity Copy(Entity copied, const Entity&, const std::vector<const Entity*>&) { return copied; }
+    static inline bool CollideAlways(const Entity&, const Entity&) { return true; }
 };
 
 std::vector<Colliding>  Collide(const std::vector<Entity>& theWorld);

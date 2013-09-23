@@ -20,34 +20,33 @@
 
 #include "ActPlayerNone.hpp"
 
-namespace GameInABox { namespace State { namespace Implementation {
+#include <cstdint>
 
-bool CollidePlayerNone(const Entity&, const Entity&)
-{
-    // RAM: TODO: STUB!
-    return false;
-}
+namespace GameInABox { namespace State { namespace Implementation {
 
 Entity ReactPlayerNone(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
 {
     auto result = protagonist;
 
-    // RAM: TODO: STUB!
+    result.player.energyShoot.value -= AmmoUsedPerShot.value;
+
     return result;
 }
 
-
-bool CollideNonePlayer(const Entity&, const Entity&)
-{
-    // RAM: TODO: STUB!
-    return false;
-}
-
-Entity ReactNonePlayer(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
+Entity ReactNonePlayer(Entity protagonist, const Entity& antagonist, const std::vector<const Entity*>&)
 {
     auto result = protagonist;
 
-    // RAM: TODO: STUB!
+    // change to a missle
+    result.type = EntityType::Missle;
+
+    result.missle.owner = antagonist.player.id;
+    result.missle.startPosition = antagonist.player.position;
+    result.missle.state = EntityStateMissle::Flying;
+
+    // RAM: TODO: How to get the current tick? Do we need it?
+    //result.missle.startTick = ???;
+
     return result;
 }
 

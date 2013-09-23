@@ -48,6 +48,11 @@ struct Energy
     std::uint_fast32_t value;
 };
 
+struct Ammo
+{
+    std::uint_fast32_t value;
+};
+
 // RAM: TODO: Was I going to bother with boost::units?
 // Meters
 struct Position

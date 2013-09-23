@@ -27,7 +27,6 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-bool CollidePlayerNone(const Entity& protagonist, const Entity& antagonist);
 Entity ReactPlayerNone(Entity protagonist, const Entity&, const std::vector<const Entity*>& theWorld);
 Entity ReactNonePlayer(Entity protagonist, const Entity&, const std::vector<const Entity*>& theWorld);
 
@@ -40,7 +39,7 @@ struct Factory<Interaction, EntityType::Player>
         {
             FilterFiring,
             FilterNone,
-            CollidePlayerNone,
+            Interaction::CollideAlways,
             ReactPlayerNone,
             ReactNonePlayer
         };

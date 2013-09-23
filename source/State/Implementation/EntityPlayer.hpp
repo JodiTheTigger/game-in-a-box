@@ -54,6 +54,9 @@ struct EntityPlayer
     // Copied from the network system.
     PlayerAction input;
 
+    Vec3 position;
+    Ammo energyShoot;
+
     // Server side
     Tick lastFired;
     FlagsPlayerAction allowedAction;

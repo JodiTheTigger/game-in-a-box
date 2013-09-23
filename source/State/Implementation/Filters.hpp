@@ -23,8 +23,12 @@
 
 #include "Entity.hpp"
 #include "Flags.hpp"
+#include "UnitOperators.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
+
+// RAM: TODO: Move these to some sort of game global settings header.
+static constexpr Ammo AmmoUsedPerShot{2500};
 
 // Quick filters
 inline constexpr bool FilterNone(const Entity& toTest) { return toTest.type == EntityType::None; }
@@ -33,7 +37,8 @@ inline constexpr bool FilterTime(const Entity& toTest) { return toTest.type == E
 inline bool constexpr FilterFiring(const Entity& toTest)
 {
     return  FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Fire) &&
-            FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Fire);
+            FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Fire) &&
+            (toTest.player.energyShoot >= AmmoUsedPerShot);
 }
 
 }}} // namespace
