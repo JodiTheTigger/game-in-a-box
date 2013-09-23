@@ -39,7 +39,8 @@ struct Factory<Interaction, EntityType::Time>
             FilterTime,
             FilterTime,
             CollideTime,
-            ReactTime
+            ReactTime,
+            Interaction::Copy
         };
     }
 };

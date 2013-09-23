@@ -27,18 +27,10 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class CollideDirection
-{
-    AffectsProtagonist,
-    AffectsBoth
-};
-
 struct Colliding
 {
     unsigned indexProtagonist;
     unsigned indexAntagonist;
-
-    CollideDirection action;
 };
 
 struct Interaction
@@ -53,6 +45,9 @@ struct Interaction
     Collision collide;
 
     Reaction react;
+    Reaction reactReverse;
+
+    static inline Entity Copy(Entity copied, const Entity&, const std::vector<const Entity*>&) { return copied; }
 };
 
 std::vector<Colliding>  Collide(const std::vector<Entity>& theWorld);
