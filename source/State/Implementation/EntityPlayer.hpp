@@ -51,6 +51,9 @@ struct EntityPlayer
     // RAM: TODO: Needed?
     Id id;
 
+    // time is just another data point.
+    Tick time;
+
     // Copied from the network system.
     PlayerAction input;
 

@@ -34,6 +34,11 @@ static constexpr Ammo AmmoUsedPerShot{2500};
 inline constexpr bool FilterNone(const Entity& toTest) { return toTest.type == EntityType::None; }
 inline constexpr bool FilterTime(const Entity& toTest) { return toTest.type == EntityType::Time; }
 
+inline constexpr bool FilterNotTimeNotNone(const Entity& toTest)
+{
+    return (toTest.type != EntityType::Time) && toTest.type != (EntityType::None);
+}
+
 inline bool constexpr FilterFiring(const Entity& toTest)
 {
     return  FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Fire) &&

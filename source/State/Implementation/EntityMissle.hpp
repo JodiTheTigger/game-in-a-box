@@ -24,10 +24,6 @@
 #include "EntityTypes.hpp"
 #include "Types.hpp"
 
-// RAM: TODO: Move this to common.
-#include <Network/WrappingCounter.hpp>
-#include <cstdint>
-
 namespace GameInABox { namespace State { namespace Implementation {
 
 enum class EntityStateMissle : uint32_t
@@ -38,10 +34,11 @@ enum class EntityStateMissle : uint32_t
 
 struct EntityMissle
 {
+    Tick time;
+
     EntityStateMissle state;
 
-    // RAM: TODO: Make this its own type.
-    GameInABox::Network::WrappingCounter<std::uint_fast32_t, 32> startTick;
+    Tick startTick;
 
     // RAM: TODO: Make this its own type.
     Vec3 startPosition;

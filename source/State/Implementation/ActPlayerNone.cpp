@@ -29,6 +29,9 @@ Entity ReactPlayerNone(Entity protagonist, const Entity&, const std::vector<cons
     auto result = protagonist;
 
     result.player.energyShoot.value -= AmmoUsedPerShot.value;
+    result.player.allowedAction = FlagClear(result.player.allowedAction, FlagsPlayerAction::Fire);
+
+    result.player.lastFired = result.player.time;
 
     return result;
 }
@@ -44,8 +47,9 @@ Entity ReactNonePlayer(Entity protagonist, const Entity& antagonist, const std::
     result.missle.startPosition = antagonist.player.position;
     result.missle.state = EntityStateMissle::Flying;
 
-    // RAM: TODO: How to get the current tick? Do we need it?
-    //result.missle.startTick = ???;
+    // RAM: TODO: Make sure we don't have off by one errors
+    // because the time collision is applied AFTER this one.
+    result.missle.startTick = result.missle.time;
 
     return result;
 }
