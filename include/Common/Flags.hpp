@@ -22,14 +22,21 @@
 #define FLAGS_HPP
 
 template<typename FLAGENUM>
-inline constexpr bool FlagIsSet(FLAGENUM flag, FLAGENUM toTest)
+inline constexpr bool FlagIsSet(FLAGENUM base, FLAGENUM flag)
 {
-    return (static_cast<unsigned>(flag) & static_cast<unsigned>(toTest)) != 0;
+    return (static_cast<unsigned>(base) & static_cast<unsigned>(flag)) != 0;
 }
 
 template<typename FLAGENUM>
-inline constexpr FLAGENUM FlagClear(FLAGENUM flag, FLAGENUM toClear)
+inline constexpr FLAGENUM FlagClear(FLAGENUM base, FLAGENUM flag)
 {
-    return static_cast<FLAGENUM>(static_cast<unsigned>(flag) & (-1 ^ static_cast<unsigned>(toClear)));
+    return static_cast<FLAGENUM>(static_cast<unsigned>(base) & (-1 ^ static_cast<unsigned>(flag)));
 }
+
+template<typename FLAGENUM>
+inline constexpr FLAGENUM FlagSet(FLAGENUM base, FLAGENUM flag)
+{
+    return static_cast<FLAGENUM>(static_cast<unsigned>(base) | static_cast<unsigned>(flag));
+}
+
 #endif // FLAGS_HPP
