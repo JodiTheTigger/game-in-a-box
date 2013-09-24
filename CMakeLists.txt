@@ -304,6 +304,8 @@ source/State/Implementation/Filters.hpp
 source/State/Implementation/Interaction.cpp
 source/State/Implementation/ActTime.hpp
 source/State/Implementation/ActTime.cpp
+source/State/Implementation/ActPlayer.hpp
+source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
 source/State/Implementation/Game.hpp
