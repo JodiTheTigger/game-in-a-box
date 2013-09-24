@@ -33,6 +33,7 @@ static constexpr Ammo AmmoUsedPerShot{2500};
 // Quick filters
 inline constexpr bool FilterNone(const Entity& toTest) { return toTest.type == EntityType::None; }
 inline constexpr bool FilterTime(const Entity& toTest) { return toTest.type == EntityType::Time; }
+inline constexpr bool FilterPlayer(const Entity& toTest) { return toTest.type == EntityType::Player; }
 
 inline constexpr bool FilterNotTimeNotNone(const Entity& toTest)
 {
