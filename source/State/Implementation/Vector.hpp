@@ -21,12 +21,22 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-
-// Using the 3rd party bullet physics sdk vector class.
+#include <type_traits>
+#include <cstdint>
+#include <array>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// Gee, why is getting a nice vector library so hard?
+// http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
+// http://www.boost.org/doc/libs/1_37_0/libs/numeric/ublas/doc/overview.htm
 
+using Vector4 = std::array<uint8_t, 4>;
+using Vector3 = Vector4;
+
+// Sigh, make sure it's a POD.
+static_assert(std::is_pod<Vector3>::value, "Vector3 is not a plain old data structure (POD).");
+static_assert(std::is_pod<Vector4>::value, "Vector4 is not a plain old data structure (POD).");
 
 }}} // namespace
 

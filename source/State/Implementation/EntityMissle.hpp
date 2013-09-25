@@ -35,14 +35,9 @@ enum class EntityStateMissle : uint32_t
 struct EntityMissle
 {
     Tick time;
-
     EntityStateMissle state;
-
     Tick startTick;
-
-    // RAM: TODO: Make this its own type.
-    Vec3 startPosition;
-
+    Position start;
     Id owner;
 };
 

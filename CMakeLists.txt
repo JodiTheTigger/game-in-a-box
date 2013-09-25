@@ -305,6 +305,7 @@ source/State/Implementation/ActPlayer.hpp
 source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
+source/State/Implementation/Vector.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
@@ -359,8 +360,6 @@ enable_testing()
 
 add_subdirectory(third-party/gmock-1.6.0)
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
-
-add_subdirectory(third-party/bullet-2.x)
 
 ###############
 # Common
