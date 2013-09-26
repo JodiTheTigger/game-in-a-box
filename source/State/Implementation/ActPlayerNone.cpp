@@ -44,7 +44,7 @@ Entity ReactNonePlayer(Entity protagonist, const Entity& antagonist, const std::
     result.type = EntityType::Missle;
 
     result.missle.owner = antagonist.player.id;
-    result.missle.start = antagonist.player.position;
+    result.missle.startPosition = antagonist.player.position;
     result.missle.state = EntityStateMissle::Flying;
 
     // RAM: TODO: Make sure we don't have off by one errors

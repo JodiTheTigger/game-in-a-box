@@ -40,7 +40,7 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
         if (!FlagIsSet(result.player.allowedAction, FlagsPlayerAction::Jet))
         {
             result.player.allowedAction = FlagSet(result.player.allowedAction, FlagsPlayerAction::Jet);
-            result.player.jet = result.player.input.look;
+            result.player.angleJet = result.player.input.angleLook;
         }
 
         // RAM: TODO: Add the actual thrust!

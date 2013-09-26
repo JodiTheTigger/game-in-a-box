@@ -21,8 +21,6 @@
 #ifndef ENTITYTYPES_HPP
 #define ENTITYTYPES_HPP
 
-#include "Vector.hpp"
-
 #include <cstdint>
 
 // RAM: TODO: Move this to common.
@@ -59,21 +57,18 @@ struct Ammo
 // Meters
 struct Position
 {
-    Vector3 value;
-};
-
-// RAM: TODO: Was I going to bother with boost::units?
-// Meters per second
-struct Velocity
-{
-    Vector3 value;
+        float x;
+        float y;
+        float z;
 };
 
 // RAM: TODO: Was I going to bother with boost::units?
 // Rads
 struct Orientation
 {
-    Vector3 value;
+        float x;
+        float y;
+        float z;
 };
 
 }}} // namespace

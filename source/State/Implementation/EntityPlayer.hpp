@@ -21,6 +21,7 @@
 #ifndef ENTITYPLAYER_HPP
 #define ENTITYPLAYER_HPP
 
+#include "Types.hpp"
 #include "EntityTypes.hpp"
 
 #include <cstdint>
@@ -41,7 +42,7 @@ enum class FlagsPlayerAction : uint32_t
 struct PlayerAction
 {
     FlagsPlayerAction action;
-    Orientation look;
+    Vec3 angleLook;
 };
 
 struct EntityPlayer
@@ -55,13 +56,13 @@ struct EntityPlayer
     // Copied from the network system.
     PlayerAction input;
 
-    Position position;
-    Velocity velocity;
+    Vec3 position;
+    Vec3 velocity;
 
     Ammo energyShoot;
 
     // jetting
-    Orientation jet;
+    Vec3 angleJet;
 
     // Server side
     Tick lastFired;

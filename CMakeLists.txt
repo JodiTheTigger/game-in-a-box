@@ -179,6 +179,9 @@ FIND_PACKAGE ( Threads )
 ###############
 # Source Code
 ###############
+# RAM: TODO: Move No.hpp and Units.hpp into a common header directory maybe?
+# Maybe BaseClassUniquePointer.hpp too if it's ever used?
+
 set(COMMON_HEADERS
 include/Common/No.hpp
 include/Common/BitStream.hpp
@@ -305,7 +308,6 @@ source/State/Implementation/ActPlayer.hpp
 source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
-source/State/Implementation/Vector.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
@@ -353,10 +355,12 @@ endif()
 enable_testing()
 
 ###############
-# Third party
+# Testing
 ###############
-# for now include tird party via source, as opposed to getting CMake to download
-# it at compile time.
+# yikes! enable google test. Since this doesn't have a module, do it manually.
+# http://stackoverflow.com/questions/9689183/cmake-googletest/9695234#9695234
+# yikes! that wasted a day of my life. Doesn't work as it can't find a make target
+# Maybe it only works in windows? Either way, include gmock with the source.
 
 add_subdirectory(third-party/gmock-1.6.0)
 include_directories(SYSTEM ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
