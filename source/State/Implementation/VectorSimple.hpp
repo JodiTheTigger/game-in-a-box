@@ -24,8 +24,6 @@
 #include <array>
 #include <cmath>
 
-// RAM: TODO: If referring, use reference, if copying use value.
-
 namespace GameInABox { namespace State { namespace Implementation {
 
 struct VectorSimple
@@ -128,13 +126,15 @@ inline VectorSimple& operator/=(VectorSimple& lhs, const VectorSimple& rhs)
     return lhs;
 }
 
-inline VectorSimple operator-(VectorSimple lhs)
+inline constexpr VectorSimple operator-(const VectorSimple& lhs)
 {
-    lhs.values[0] = -lhs.values[0];
-    lhs.values[1] = -lhs.values[1];
-    lhs.values[2] = -lhs.values[2];
-    lhs.values[3] = -lhs.values[3];
-    return lhs;
+    return VectorSimple
+    {{
+        -lhs.values[0],
+        -lhs.values[1],
+        -lhs.values[2],
+        -lhs.values[3]
+    }};
 }
 
 inline VectorSimple operator+(VectorSimple lhs, const VectorSimple& rhs){ lhs += rhs;  return lhs; }
@@ -145,15 +145,15 @@ inline VectorSimple operator/(VectorSimple lhs, const VectorSimple& rhs){ lhs /=
 // ///////////////////
 // Complicated Maths
 // ///////////////////
-inline VectorSimple Sqrt(const VectorSimple& rhs)
+inline constexpr VectorSimple Sqrt(const VectorSimple& rhs)
 {
     return VectorSimple
-    {
+    {{
             std::sqrt(rhs.values[0]),
             std::sqrt(rhs.values[1]),
             std::sqrt(rhs.values[2]),
             std::sqrt(rhs.values[3])
-    };
+    }};
 }
 
 inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
@@ -161,21 +161,56 @@ inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
     lhs *= rhs;
     auto sum = lhs.values[0] + lhs.values[1] + lhs.values[2] + lhs.values[3];
     return VectorSimple
-    {
+    {{
          sum,
          sum,
          sum,
          sum
-    };
+    }};
+}
+
+inline VectorSimple Length(const VectorSimple& rhs)
+{
+    float length = sqrt(rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3]);
+    return VectorSimple
+    {{
+         length,
+         length,
+         length,
+         length
+    }};
+}
+
+inline VectorSimple LengthSquared(const VectorSimple& rhs)
+{
+    auto sum = rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3];
+    return VectorSimple
+    {{
+         sum,
+         sum,
+         sum,
+         sum
+    }};
+}
+
+inline constexpr VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const VectorSimple& add)
+{
+    return VectorSimple
+    {{
+        fmaf(lhs.values[0], rhs.values[0], add.values[0]),
+        fmaf(lhs.values[1], rhs.values[1], add.values[1]),
+        fmaf(lhs.values[2], rhs.values[2], add.values[2]),
+        fmaf(lhs.values[3], rhs.values[3], add.values[3])
+    }};
 }
 
 // ///////////////////
 // Access
 // ///////////////////
-inline float X(const VectorSimple& rhs){ return rhs.values[0]; }
-inline float Y(const VectorSimple& rhs){ return rhs.values[1]; }
-inline float Z(const VectorSimple& rhs){ return rhs.values[2]; }
-inline float W(const VectorSimple& rhs){ return rhs.values[3]; }
+inline constexpr float X(const VectorSimple& rhs){ return rhs.values[0]; }
+inline constexpr float Y(const VectorSimple& rhs){ return rhs.values[1]; }
+inline constexpr float Z(const VectorSimple& rhs){ return rhs.values[2]; }
+inline constexpr float W(const VectorSimple& rhs){ return rhs.values[3]; }
 
 }}} // namespace
 

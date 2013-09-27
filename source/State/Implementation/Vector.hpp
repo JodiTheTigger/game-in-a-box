@@ -32,10 +32,21 @@ namespace GameInABox { namespace State { namespace Implementation {
 // http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
 // http://www.boost.org/doc/libs/1_37_0/libs/numeric/ublas/doc/overview.htm
 
-using Vector4 = VectorSimple;
+using Vector = VectorSimple;
 
-// Sigh, make sure it's a POD.
-static_assert(std::is_pod<Vector4>::value, "Vector4 is not a plain old data structure (POD).");
+// ///////////////////
+// Constants
+// ///////////////////
+constexpr Vector VectorZero{0.0f, 0.0f, 0.0f, 0.0f};
+constexpr Vector VectorOne{1.0f, 1.0f, 1.0f, 1.0f};
+constexpr Vector VectorNegativeOne{-1.0f, -1.0f, -1.0f, -1.0f};
+constexpr Vector VectorOneZeroW{1.0f, 1.0f, 1.0f, 0.0f};
+constexpr Vector VectorZeroWOne{0.0f, 0.0f, 0.0f, 1.0f};
+
+// ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Vector>::value, "Vector4 is not a plain old data structure (POD).");
 
 }}} // namespace
 
