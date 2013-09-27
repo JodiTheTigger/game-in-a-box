@@ -23,12 +23,12 @@ struct VectorSimpleByValue
 inline VectorSimpleByValue operator++(VectorSimpleByValue rhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         ++(rhs.values[0]),
         ++(rhs.values[1]),
         ++(rhs.values[2]),
         ++(rhs.values[3]),
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue operator++(VectorSimpleByValue lhs, int)
@@ -39,12 +39,12 @@ inline VectorSimpleByValue operator++(VectorSimpleByValue lhs, int)
 inline VectorSimpleByValue operator--(VectorSimpleByValue rhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         --(rhs.values[0]),
         --(rhs.values[1]),
         --(rhs.values[2]),
         --(rhs.values[3]),
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue operator--(VectorSimpleByValue lhs, int)
@@ -69,56 +69,56 @@ inline bool operator>=(VectorSimpleByValue lhs, VectorSimpleByValue rhs){return 
 inline VectorSimpleByValue operator+=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         lhs.values[0] + rhs.values[0],
         lhs.values[1] + rhs.values[1],
         lhs.values[2] + rhs.values[2],
         lhs.values[3] + rhs.values[3]
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue operator-=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         lhs.values[0] - rhs.values[0],
         lhs.values[1] - rhs.values[1],
         lhs.values[2] - rhs.values[2],
         lhs.values[3] - rhs.values[3]
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue operator*=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         lhs.values[0] * rhs.values[0],
         lhs.values[1] * rhs.values[1],
         lhs.values[2] * rhs.values[2],
         lhs.values[3] * rhs.values[3]
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue operator/=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         lhs.values[0] / rhs.values[0],
         lhs.values[1] / rhs.values[1],
         lhs.values[2] / rhs.values[2],
         lhs.values[3] / rhs.values[3]
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue operator-(VectorSimpleByValue lhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         -lhs.values[0],
         -lhs.values[1],
         -lhs.values[2],
         -lhs.values[3]
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue operator+(VectorSimpleByValue lhs, VectorSimpleByValue rhs){ lhs += rhs;  return lhs; }
@@ -132,12 +132,12 @@ inline VectorSimpleByValue operator/(VectorSimpleByValue lhs, VectorSimpleByValu
 inline VectorSimpleByValue Sqrt(VectorSimpleByValue rhs)
 {
     return VectorSimpleByValue
-    {{
+    {{{
             std::sqrt(rhs.values[0]),
             std::sqrt(rhs.values[1]),
             std::sqrt(rhs.values[2]),
             std::sqrt(rhs.values[3])
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue Dot(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
@@ -145,47 +145,47 @@ inline VectorSimpleByValue Dot(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
     lhs *= rhs;
     auto sum = lhs.values[0] + lhs.values[1] + lhs.values[2] + lhs.values[3];
     return VectorSimpleByValue
-    {{
+    {{{
          sum,
          sum,
          sum,
          sum
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue Length(VectorSimpleByValue rhs)
 {
     float length = sqrt(rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3]);
     return VectorSimpleByValue
-    {{
+    {{{
          length,
          length,
          length,
          length
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue LengthSquared(VectorSimpleByValue rhs)
 {
     auto sum = rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3];
     return VectorSimpleByValue
-    {{
+    {{{
          sum,
          sum,
          sum,
          sum
-    }};
+    }}};
 }
 
 inline VectorSimpleByValue Mad(VectorSimpleByValue lhs, VectorSimpleByValue rhs, VectorSimpleByValue add)
 {
     return VectorSimpleByValue
-    {{
+    {{{
         fmaf(lhs.values[0], rhs.values[0], add.values[0]),
         fmaf(lhs.values[1], rhs.values[1], add.values[1]),
         fmaf(lhs.values[2], rhs.values[2], add.values[2]),
         fmaf(lhs.values[3], rhs.values[3], add.values[3])
-    }};
+    }}};
 }
 
 // ///////////////////

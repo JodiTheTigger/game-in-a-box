@@ -128,13 +128,15 @@ inline VectorSimple& operator/=(VectorSimple& lhs, const VectorSimple& rhs)
 
 inline constexpr VectorSimple operator-(const VectorSimple& lhs)
 {
+    // Ugh, clang!
+    // Three braces: First for copy init, second for the struct, third for the array.
     return VectorSimple
-    {{
+    {{{
         -lhs.values[0],
         -lhs.values[1],
         -lhs.values[2],
         -lhs.values[3]
-    }};
+    }}};
 }
 
 inline VectorSimple operator+(VectorSimple lhs, const VectorSimple& rhs){ lhs += rhs;  return lhs; }
@@ -145,15 +147,15 @@ inline VectorSimple operator/(VectorSimple lhs, const VectorSimple& rhs){ lhs /=
 // ///////////////////
 // Complicated Maths
 // ///////////////////
-inline constexpr VectorSimple Sqrt(const VectorSimple& rhs)
+inline VectorSimple Sqrt(const VectorSimple& rhs)
 {
     return VectorSimple
-    {{
+    {{{
             std::sqrt(rhs.values[0]),
             std::sqrt(rhs.values[1]),
             std::sqrt(rhs.values[2]),
             std::sqrt(rhs.values[3])
-    }};
+    }}};
 }
 
 inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
@@ -161,47 +163,47 @@ inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
     lhs *= rhs;
     auto sum = lhs.values[0] + lhs.values[1] + lhs.values[2] + lhs.values[3];
     return VectorSimple
-    {{
+    {{{
          sum,
          sum,
          sum,
          sum
-    }};
+    }}};
 }
 
 inline VectorSimple Length(const VectorSimple& rhs)
 {
     float length = sqrt(rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3]);
     return VectorSimple
-    {{
+    {{{
          length,
          length,
          length,
          length
-    }};
+    }}};
 }
 
 inline VectorSimple LengthSquared(const VectorSimple& rhs)
 {
     auto sum = rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3];
     return VectorSimple
-    {{
+    {{{
          sum,
          sum,
          sum,
          sum
-    }};
+    }}};
 }
 
-inline constexpr VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const VectorSimple& add)
+inline VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const VectorSimple& add)
 {
     return VectorSimple
-    {{
+    {{{
         fmaf(lhs.values[0], rhs.values[0], add.values[0]),
         fmaf(lhs.values[1], rhs.values[1], add.values[1]),
         fmaf(lhs.values[2], rhs.values[2], add.values[2]),
         fmaf(lhs.values[3], rhs.values[3], add.values[3])
-    }};
+    }}};
 }
 
 // ///////////////////
