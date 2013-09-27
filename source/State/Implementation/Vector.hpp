@@ -37,16 +37,16 @@ using Vector = VectorSimple;
 // ///////////////////
 // Constants
 // ///////////////////
-constexpr Vector VectorZero{0.0f, 0.0f, 0.0f, 0.0f};
-constexpr Vector VectorOne{1.0f, 1.0f, 1.0f, 1.0f};
-constexpr Vector VectorNegativeOne{-1.0f, -1.0f, -1.0f, -1.0f};
-constexpr Vector VectorOneZeroW{1.0f, 1.0f, 1.0f, 0.0f};
-constexpr Vector VectorZeroWOne{0.0f, 0.0f, 0.0f, 1.0f};
+constexpr Vector VectorZero{{0.0f, 0.0f, 0.0f, 0.0f}};
+constexpr Vector VectorOne{{1.0f, 1.0f, 1.0f, 1.0f}};
+constexpr Vector VectorNegativeOne{{-1.0f, -1.0f, -1.0f, -1.0f}};
+constexpr Vector VectorOneZeroW{{1.0f, 1.0f, 1.0f, 0.0f}};
+constexpr Vector VectorZeroWOne{{0.0f, 0.0f, 0.0f, 1.0f}};
 
 // ///////////////////
 // Testing
 // ///////////////////
-static_assert(std::is_pod<Vector>::value, "Vector4 is not a plain old data structure (POD).");
+static_assert(std::is_pod<Vector>::value, "Vector is not a plain old data structure (POD).");
 
 }}} // namespace
 
