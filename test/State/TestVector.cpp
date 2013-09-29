@@ -86,7 +86,7 @@ TYPED_TEST_CASE(TestVector, TestVectorTypes);
 
 TYPED_TEST(TestVector, Empty)
 {
-    typename TestFixture::Vec toTest = {0,0,0,0};
+    typename TestFixture::Vec toTest = {{{0,0,0,0}}};
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, X(toTest));
@@ -97,8 +97,8 @@ TYPED_TEST(TestVector, Empty)
 
 TYPED_TEST(TestVector, Equal)
 {
-    auto a = typename TestFixture::Vec{-1.0f, 0.0f, 1.0f, 123456789.0f};
-    auto b = typename TestFixture::Vec{-1.0f, 0.0f, 1.0f, 123456789.0f};
+    auto a = typename TestFixture::Vec{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
+    auto b = typename TestFixture::Vec{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
 
     EXPECT_EQ(a, b);
     EXPECT_FLOAT_EQ(X(a), X(b));
@@ -109,16 +109,16 @@ TYPED_TEST(TestVector, Equal)
 
 TYPED_TEST(TestVector, NotEqual)
 {
-    auto a = typename TestFixture::Vec{-1.0f, 0.0f, 1.0f, 123456789.0f};
+    auto a = typename TestFixture::Vec{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
     auto b = std::vector<typename TestFixture::Vec>{};
 
-    b.push_back({1.0f, 0.0f, 1.0f, 123456789.0f});
-    b.push_back({0.0f, 0.0f, 1.0f, 123456789.0f});
-    b.push_back({-1.0f, 1.0f, 1.0f, 123456789.0f});
-    b.push_back({-1.0f, 0.0f, -1.0f, 123456789.0f});
-    b.push_back({-1.0f, 0.0f, -1.0f, 12345689.0f});
-    b.push_back({-1.0f, 0.0f, 1.0f, -123456789.0f});
-    b.push_back({0.0f, 0.0f, 0.0f, 0.0f});
+    b.push_back({{{1.0f, 0.0f, 1.0f, 123456789.0f}}});
+    b.push_back({{{0.0f, 0.0f, 1.0f, 123456789.0f}}});
+    b.push_back({{{-1.0f, 1.0f, 1.0f, 123456789.0f}}});
+    b.push_back({{{-1.0f, 0.0f, -1.0f, 123456789.0f}}});
+    b.push_back({{{-1.0f, 0.0f, -1.0f, 12345689.0f}}});
+    b.push_back({{{-1.0f, 0.0f, 1.0f, -123456789.0f}}});
+    b.push_back({{{0.0f, 0.0f, 0.0f, 0.0f}}});
 
     for (auto& toTest : b)
     {
@@ -236,6 +236,16 @@ TYPED_TEST(TestVector, Mad)
     }
 }
 
+TYPED_TEST(TestVector, FnXYZW)
+{
+    auto toTest = typename TestFixture::Vec{{{-1.0f, 0.0f, 2.0f, 123456789.0f}}};
+
+    EXPECT_FLOAT_EQ(X(toTest), -1.0f);
+    EXPECT_FLOAT_EQ(Y(toTest), 0.0f);
+    EXPECT_FLOAT_EQ(Z(toTest), 2.0f);
+    EXPECT_FLOAT_EQ(W(toTest), 123456789.0f);
+}
+
 TYPED_TEST(TestVector, FnMad)
 {
     auto asize = TestFixture::groupA.size();
@@ -251,6 +261,80 @@ TYPED_TEST(TestVector, FnMad)
     }
 }
 
+TYPED_TEST(TestVector, FnSqrt)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = Sqrt(TestFixture::groupA[i]);
+
+        ASSERT_FLOAT_EQ(X(result), sqrt(X(TestFixture::groupA[i]))) << " i: " << i;
+        ASSERT_FLOAT_EQ(Y(result), sqrt(Y(TestFixture::groupA[i])));
+        ASSERT_FLOAT_EQ(Z(result), sqrt(Z(TestFixture::groupA[i])));
+        ASSERT_FLOAT_EQ(W(result), sqrt(W(TestFixture::groupA[i])));
+    }
+}
+
+TYPED_TEST(TestVector, FnDot)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = Dot(TestFixture::groupA[i], TestFixture::groupB[i]);
+        auto dot =
+                (X(TestFixture::groupA[i]) * X(TestFixture::groupB[i])) +
+                (Y(TestFixture::groupA[i]) * Y(TestFixture::groupB[i])) +
+                (Z(TestFixture::groupA[i]) * Z(TestFixture::groupB[i])) +
+                (W(TestFixture::groupA[i]) * W(TestFixture::groupB[i]));
+
+        ASSERT_FLOAT_EQ(X(result), dot) << " i: " << i;
+        ASSERT_FLOAT_EQ(Y(result), dot);
+        ASSERT_FLOAT_EQ(Z(result), dot);
+        ASSERT_FLOAT_EQ(W(result), dot);
+    }
+}
+
+TYPED_TEST(TestVector, FnLength)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = Length(TestFixture::groupA[i]);
+        auto l =
+                sqrt(X(TestFixture::groupA[i]) +
+                     Y(TestFixture::groupA[i]) +
+                     Z(TestFixture::groupA[i]) +
+                     W(TestFixture::groupA[i]));
+
+        ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
+        ASSERT_FLOAT_EQ(Y(result), l);
+        ASSERT_FLOAT_EQ(Z(result), l);
+        ASSERT_FLOAT_EQ(W(result), l);
+    }
+}
+
+TYPED_TEST(TestVector, FnLengthSquared)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = Length(TestFixture::groupA[i]);
+        auto l =
+                X(TestFixture::groupA[i]) +
+                Y(TestFixture::groupA[i]) +
+                Z(TestFixture::groupA[i]) +
+                W(TestFixture::groupA[i]);
+
+        ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
+        ASSERT_FLOAT_EQ(Y(result), l);
+        ASSERT_FLOAT_EQ(Z(result), l);
+        ASSERT_FLOAT_EQ(W(result), l);
+    }
+}
 
 // RAM: TODO: Add, subtract, multiply, divide, length, length squared, dot, xyzw.
 
