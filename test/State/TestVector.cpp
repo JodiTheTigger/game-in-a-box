@@ -304,10 +304,10 @@ TYPED_TEST(TestVector, FnLength)
     {
         auto result = Length(TestFixture::groupA[i]);
         auto l =
-                sqrt(X(TestFixture::groupA[i]) +
-                     Y(TestFixture::groupA[i]) +
-                     Z(TestFixture::groupA[i]) +
-                     W(TestFixture::groupA[i]));
+                sqrt((X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+                     (Y(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+                     (Z(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+                     (W(TestFixture::groupA[i]) * X(TestFixture::groupA[i])));
 
         ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
         ASSERT_FLOAT_EQ(Y(result), l);
@@ -324,10 +324,12 @@ TYPED_TEST(TestVector, FnLengthSquared)
     {
         auto result = Length(TestFixture::groupA[i]);
         auto l =
-                X(TestFixture::groupA[i]) +
-                Y(TestFixture::groupA[i]) +
-                Z(TestFixture::groupA[i]) +
-                W(TestFixture::groupA[i]);
+                sqrt((X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+                     (Y(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+                     (Z(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+                     (W(TestFixture::groupA[i]) * X(TestFixture::groupA[i])));
+
+
 
         ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
         ASSERT_FLOAT_EQ(Y(result), l);
@@ -336,6 +338,52 @@ TYPED_TEST(TestVector, FnLengthSquared)
     }
 }
 
-// RAM: TODO: Add, subtract, multiply, divide, length, length squared, dot, xyzw.
+TYPED_TEST(TestVector, FnNormaliseFast)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = NormaliseFast(TestFixture::groupA[i]);
+        auto l =
+            (X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+            (Y(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+            (Z(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+            (W(TestFixture::groupA[i]) * X(TestFixture::groupA[i]));
+
+        auto answer = typename TestFixture::Vec{{{
+                X(TestFixture::groupA[i]) / l,
+                Y(TestFixture::groupA[i]) / l,
+                Z(TestFixture::groupA[i]) / l,
+                W(TestFixture::groupA[i]) / l}}};
+
+        ASSERT_EQ(result, answer) << " i: " << i;
+    }
+}
+
+TYPED_TEST(TestVector, FnNormaliseAccurate)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = NormaliseAccurate(TestFixture::groupA[i]);
+        auto l =
+            (X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+            (Y(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+            (Z(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
+            (W(TestFixture::groupA[i]) * X(TestFixture::groupA[i]));
+
+        auto answer = typename TestFixture::Vec{{{
+                X(TestFixture::groupA[i]) / l,
+                Y(TestFixture::groupA[i]) / l,
+                Z(TestFixture::groupA[i]) / l,
+                W(TestFixture::groupA[i]) / l}}};
+
+        ASSERT_EQ(result, answer) << " i: " << i;
+    }
+}
+
+// RAM: TODO: Benchmarking function.
 
 }}} // namespace
