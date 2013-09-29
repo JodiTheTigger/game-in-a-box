@@ -188,6 +188,18 @@ inline VectorSimpleByValue Mad(VectorSimpleByValue lhs, VectorSimpleByValue rhs,
     }}};
 }
 
+inline VectorSimpleByValue NormaliseFast(VectorSimpleByValue lhs)
+{
+    // RAM: TODO!
+    return lhs;
+}
+
+inline VectorSimpleByValue NormaliseAccurate(VectorSimpleByValue lhs)
+{
+    // RAM: TODO!
+    return lhs;
+}
+
 // ///////////////////
 // Access
 // ///////////////////

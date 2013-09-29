@@ -206,6 +206,18 @@ inline VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const 
     }}};
 }
 
+inline VectorSimple NormaliseFast(VectorSimple lhs)
+{
+    // RAM: TODO!
+    return lhs;
+}
+
+inline VectorSimple NormaliseAccurate(VectorSimple lhs)
+{
+    // RAM: TODO!
+    return lhs;
+}
+
 // ///////////////////
 // Access
 // ///////////////////
