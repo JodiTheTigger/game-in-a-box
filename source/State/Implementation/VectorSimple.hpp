@@ -53,7 +53,7 @@ inline VectorSimple& operator++(VectorSimple& rhs)
 inline VectorSimple operator++(VectorSimple& lhs, int)
 {
    auto copy = lhs;
-   ++copy;
+   ++lhs;
 
    return copy;
 }
@@ -71,7 +71,7 @@ inline VectorSimple& operator--(VectorSimple& rhs)
 inline VectorSimple operator--(VectorSimple& lhs, int)
 {
     auto copy = lhs;
-    --copy;
+    --lhs;
 
     return copy;
 }

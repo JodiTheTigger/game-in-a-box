@@ -20,36 +20,40 @@ struct VectorSimpleByValue
 // ///////////////////
 // Increment / Decrement
 // ///////////////////
-inline VectorSimpleByValue operator++(VectorSimpleByValue rhs)
+inline VectorSimpleByValue& operator++(VectorSimpleByValue& rhs)
 {
-    return VectorSimpleByValue
-    {{{
-        ++(rhs.values[0]),
-        ++(rhs.values[1]),
-        ++(rhs.values[2]),
-        ++(rhs.values[3]),
-    }}};
+    ++(rhs.values[0]);
+    ++(rhs.values[1]);
+    ++(rhs.values[2]);
+    ++(rhs.values[3]);
+
+    return rhs;
 }
 
-inline VectorSimpleByValue operator++(VectorSimpleByValue lhs, int)
+inline VectorSimpleByValue operator++(VectorSimpleByValue& lhs, int)
 {
-   return ++lhs;
+   auto copy = lhs;
+   ++lhs;
+
+   return copy;
 }
 
-inline VectorSimpleByValue operator--(VectorSimpleByValue rhs)
+inline VectorSimpleByValue& operator--(VectorSimpleByValue& rhs)
 {
-    return VectorSimpleByValue
-    {{{
-        --(rhs.values[0]),
-        --(rhs.values[1]),
-        --(rhs.values[2]),
-        --(rhs.values[3]),
-    }}};
+    --(rhs.values[0]);
+    --(rhs.values[1]);
+    --(rhs.values[2]);
+    --(rhs.values[3]);
+
+    return rhs;
 }
 
-inline VectorSimpleByValue operator--(VectorSimpleByValue lhs, int)
+inline VectorSimpleByValue operator--(VectorSimpleByValue& lhs, int)
 {
-   return --lhs;
+    auto copy = lhs;
+    --lhs;
+
+    return copy;
 }
 
 // ///////////////////
@@ -174,6 +178,7 @@ inline VectorSimpleByValue Dot(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
 
 inline VectorSimpleByValue Length(VectorSimpleByValue rhs)
 {
+    rhs *= rhs;
     float length = sqrt(rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3]);
     return VectorSimpleByValue
     {{{
@@ -186,6 +191,7 @@ inline VectorSimpleByValue Length(VectorSimpleByValue rhs)
 
 inline VectorSimpleByValue LengthSquared(VectorSimpleByValue rhs)
 {
+    rhs *= rhs;
     auto sum = rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3];
     return VectorSimpleByValue
     {{{
@@ -209,14 +215,12 @@ inline VectorSimpleByValue Mad(VectorSimpleByValue lhs, VectorSimpleByValue rhs,
 
 inline VectorSimpleByValue NormaliseFast(VectorSimpleByValue lhs)
 {
-    // RAM: TODO!
-    return lhs;
+    return lhs / Length(lhs);
 }
 
 inline VectorSimpleByValue NormaliseAccurate(VectorSimpleByValue lhs)
 {
-    // RAM: TODO!
-    return lhs;
+    return lhs / Length(lhs);
 }
 
 // ///////////////////
