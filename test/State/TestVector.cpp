@@ -126,6 +126,53 @@ TYPED_TEST(TestVector, NotEqual)
     }
 }
 
+TYPED_TEST(TestVector, Increment)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = TestFixture::groupA[i];
+        auto result2 = TestFixture::groupB[i];
+        result++;
+        ++result2;
+
+        //ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) + 1.0f) << " i: " << i;
+        //ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) + 1.0f);
+        //ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) + 1.0f);
+        //ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) + 1.0f);
+
+        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupB[i]) + 1.0f);
+        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupB[i]) + 1.0f);
+        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupB[i]) + 1.0f);
+        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupB[i]) + 1.0f);
+    }
+}
+
+
+TYPED_TEST(TestVector, Decrement)
+{
+    auto asize = TestFixture::groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto result = TestFixture::groupA[i];
+        auto result2 = TestFixture::groupB[i];
+        result--;
+        --result2;
+
+        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) - 1.0f) << " i: " << i;
+        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) - 1.0f);
+        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) - 1.0f);
+        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) - 1.0f);
+
+        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupB[i]) - 1.0f);
+        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupB[i]) - 1.0f);
+        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupB[i]) - 1.0f);
+        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupB[i]) - 1.0f);
+    }
+}
+
 TYPED_TEST(TestVector, Add)
 {
     auto asize = TestFixture::groupA.size();
