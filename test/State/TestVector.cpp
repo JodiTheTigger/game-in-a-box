@@ -447,6 +447,28 @@ TYPED_TEST(TestVector, FnNormaliseAccurate)
     }
 }
 
-// RAM: TODO: Benchmarking function.
+TYPED_TEST(TestVector, Benchmark)
+{
+    auto asize = TestFixture::groupA.size();
+
+    if (asize > 100)
+    {
+        asize = 100;
+    }
+
+    for (uint k = 0 ; k < 100; ++k)
+    {
+        for (uint i = 0 ; i < asize; ++i)
+        {
+            for (uint j = 0 ; j < asize; ++j)
+            {
+                // Normalise an angle, by speed, add some other velocities, add it to a position
+                // via a time step.
+                auto finalVel = Mad(NormaliseFast(TestFixture::groupA[i]), typename TestFixture::Vec{{{5,5,5,5}}}, TestFixture::groupB[j] + TestFixture::groupC[i]);
+                TestFixture::groupA[j] = TestFixture::groupA[j] + (finalVel /  typename TestFixture::Vec{{{60,60,60,60}}});
+            }
+        }
+    }
+}
 
 }}} // namespace
