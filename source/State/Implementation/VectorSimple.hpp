@@ -171,8 +171,9 @@ inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
     }}};
 }
 
-inline VectorSimple Length(const VectorSimple& rhs)
+inline VectorSimple Length(VectorSimple rhs)
 {
+    rhs *= rhs;
     float length = sqrt(rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3]);
     return VectorSimple
     {{{
@@ -183,8 +184,9 @@ inline VectorSimple Length(const VectorSimple& rhs)
     }}};
 }
 
-inline VectorSimple LengthSquared(const VectorSimple& rhs)
+inline VectorSimple LengthSquared(VectorSimple rhs)
 {
+    rhs *= rhs;
     auto sum = rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3];
     return VectorSimple
     {{{
@@ -208,14 +210,12 @@ inline VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const 
 
 inline VectorSimple NormaliseFast(VectorSimple lhs)
 {
-    // RAM: TODO!
-    return lhs;
+    return lhs / Length(lhs);
 }
 
 inline VectorSimple NormaliseAccurate(VectorSimple lhs)
 {
-    // RAM: TODO!
-    return lhs;
+    return lhs / Length(lhs);
 }
 
 // ///////////////////

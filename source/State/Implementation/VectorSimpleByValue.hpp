@@ -66,51 +66,7 @@ inline bool operator>=(VectorSimpleByValue lhs, VectorSimpleByValue rhs){return 
 // ///////////////////
 // Simple Maths
 // ///////////////////
-inline VectorSimpleByValue operator+=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
-{
-    return VectorSimpleByValue
-    {{{
-        lhs.values[0] + rhs.values[0],
-        lhs.values[1] + rhs.values[1],
-        lhs.values[2] + rhs.values[2],
-        lhs.values[3] + rhs.values[3]
-    }}};
-}
-
-inline VectorSimpleByValue operator-=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
-{
-    return VectorSimpleByValue
-    {{{
-        lhs.values[0] - rhs.values[0],
-        lhs.values[1] - rhs.values[1],
-        lhs.values[2] - rhs.values[2],
-        lhs.values[3] - rhs.values[3]
-    }}};
-}
-
-inline VectorSimpleByValue operator*=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
-{
-    return VectorSimpleByValue
-    {{{
-        lhs.values[0] * rhs.values[0],
-        lhs.values[1] * rhs.values[1],
-        lhs.values[2] * rhs.values[2],
-        lhs.values[3] * rhs.values[3]
-    }}};
-}
-
-inline VectorSimpleByValue operator/=(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
-{
-    return VectorSimpleByValue
-    {{{
-        lhs.values[0] / rhs.values[0],
-        lhs.values[1] / rhs.values[1],
-        lhs.values[2] / rhs.values[2],
-        lhs.values[3] / rhs.values[3]
-    }}};
-}
-
-inline VectorSimpleByValue operator-(VectorSimpleByValue lhs)
+inline constexpr VectorSimpleByValue operator-(const VectorSimpleByValue& lhs)
 {
     return VectorSimpleByValue
     {{{
@@ -121,10 +77,73 @@ inline VectorSimpleByValue operator-(VectorSimpleByValue lhs)
     }}};
 }
 
-inline VectorSimpleByValue operator+(VectorSimpleByValue lhs, VectorSimpleByValue rhs){ lhs += rhs;  return lhs; }
-inline VectorSimpleByValue operator-(VectorSimpleByValue lhs, VectorSimpleByValue rhs){ lhs -= rhs;  return lhs; }
-inline VectorSimpleByValue operator*(VectorSimpleByValue lhs, VectorSimpleByValue rhs){ lhs *= rhs;  return lhs; }
-inline VectorSimpleByValue operator/(VectorSimpleByValue lhs, VectorSimpleByValue rhs){ lhs /= rhs;  return lhs; }
+inline VectorSimpleByValue operator+(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
+{
+    return VectorSimpleByValue
+    {{{
+            lhs.values[0] + rhs.values[0],
+            lhs.values[1] + rhs.values[1],
+            lhs.values[2] + rhs.values[2],
+            lhs.values[3] + rhs.values[3]
+    }}};
+}
+
+inline VectorSimpleByValue operator-(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
+{
+    return VectorSimpleByValue
+    {{{
+            lhs.values[0] - rhs.values[0],
+            lhs.values[1] - rhs.values[1],
+            lhs.values[2] - rhs.values[2],
+            lhs.values[3] - rhs.values[3]
+    }}};
+}
+
+inline VectorSimpleByValue operator*(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
+{
+    return VectorSimpleByValue
+    {{{
+            lhs.values[0] * rhs.values[0],
+            lhs.values[1] * rhs.values[1],
+            lhs.values[2] * rhs.values[2],
+            lhs.values[3] * rhs.values[3]
+    }}};
+}
+
+inline VectorSimpleByValue operator/(VectorSimpleByValue lhs, VectorSimpleByValue rhs)
+{
+    return VectorSimpleByValue
+    {{{
+            lhs.values[0] / rhs.values[0],
+            lhs.values[1] / rhs.values[1],
+            lhs.values[2] / rhs.values[2],
+            lhs.values[3] / rhs.values[3]
+    }}};
+}
+
+inline VectorSimpleByValue& operator+=(VectorSimpleByValue& lhs, const VectorSimpleByValue& rhs)
+{
+    lhs = lhs + rhs;
+    return lhs;
+}
+
+inline VectorSimpleByValue& operator-=(VectorSimpleByValue& lhs, const VectorSimpleByValue& rhs)
+{
+    lhs = lhs - rhs;
+    return lhs;
+}
+
+inline VectorSimpleByValue& operator*=(VectorSimpleByValue& lhs, const VectorSimpleByValue& rhs)
+{
+    lhs = lhs * rhs;
+    return lhs;
+}
+
+inline VectorSimpleByValue& operator/=(VectorSimpleByValue& lhs, const VectorSimpleByValue& rhs)
+{
+    lhs = lhs / rhs;
+    return lhs;
+}
 
 // ///////////////////
 // Complicated Maths
