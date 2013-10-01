@@ -310,7 +310,6 @@ source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
 source/State/Implementation/Vector.hpp
 source/State/Implementation/VectorSimple.hpp
-source/State/Implementation/VectorSimpleByValue.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp

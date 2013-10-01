@@ -19,7 +19,6 @@
 */
 
 #include <Implementation/VectorSimple.hpp>
-#include <Implementation/VectorSimpleByValue.hpp>
 
 #include <gmock/gmock.h>
 
@@ -81,7 +80,7 @@ public:
     std::vector<T> groupC;
 };
 
-typedef ::testing::Types<VectorSimple, VectorSimpleByValue> TestVectorTypes;
+typedef ::testing::Types<VectorSimple> TestVectorTypes;
 TYPED_TEST_CASE(TestVector, TestVectorTypes);
 
 TYPED_TEST(TestVector, Empty)
