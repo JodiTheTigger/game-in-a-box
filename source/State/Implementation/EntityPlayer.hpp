@@ -42,7 +42,7 @@ enum class FlagsPlayerAction : uint32_t
 struct PlayerAction
 {
     FlagsPlayerAction action;
-    Vec3 angleLook;
+    Vector angleLook;
 };
 
 struct EntityPlayer
@@ -56,13 +56,13 @@ struct EntityPlayer
     // Copied from the network system.
     PlayerAction input;
 
-    Vec3 position;
-    Vec3 velocity;
+    Vector position;
+    Vector velocity;
 
     Ammo energyShoot;
 
     // jetting
-    Vec3 angleJet;
+    Vector angleJet;
 
     // Server side
     Tick lastFired;

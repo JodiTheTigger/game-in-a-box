@@ -36,9 +36,9 @@ DeltaStatePlayerClient::DeltaStatePlayerClient(Research settings)
     : myCoder({
         std::vector<DeltaMapItem>
         {
-            {MAKE_OFFSET(StatePlayerClient, orientation.x), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
-            {MAKE_OFFSET(StatePlayerClient, orientation.y), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
-            {MAKE_OFFSET(StatePlayerClient, orientation.z), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayerClient, orientation.values, float, 0), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayerClient, orientation.values, float, 1), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayerClient, orientation.values, float, 2), MapFloatRangeStrict{-Tau(), Tau(), 17_bits}},
             {MAKE_OFFSET(StatePlayerClient, flags), MapUnsigned{BitsForEnum<FlagsPlayer>::Result()}}
         },
         settings})
@@ -53,9 +53,7 @@ std::vector<uint8_t> DeltaStatePlayerClient::operator()(
     BitStream bits(sizeof(StatePlayerClient));
 
     if  (
-            (base.orientation.x == target.orientation.x) &&
-            (base.orientation.y == target.orientation.y) &&
-            (base.orientation.z == target.orientation.z) &&
+            (base.orientation == target.orientation) &&
             (base.flags == target.flags)
         )
     {

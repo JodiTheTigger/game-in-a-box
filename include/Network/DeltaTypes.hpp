@@ -101,6 +101,9 @@ struct Offset
 // ///////////////////
 #define MAKE_OFFSET(CLASS_TYPE, CLASS_MEMBER) Offset{{#CLASS_MEMBER}, {offsetof(CLASS_TYPE, CLASS_MEMBER)}}
 
+// RAM: TODO: Test that this is legit!
+#define MAKE_OFFSET_ARRAY(CLASS_TYPE, CLASS_MEMBER, ARRAY_TYPE, ARRAY_OFFSET) Offset{{#CLASS_MEMBER}, {offsetof(CLASS_TYPE, CLASS_MEMBER) + sizeof(ARRAY_TYPE) * ARRAY_OFFSET}}
+
 }} // namespace
 
 #endif // DELTATYPES_HPP

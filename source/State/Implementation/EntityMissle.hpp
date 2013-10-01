@@ -41,7 +41,7 @@ struct EntityMissle
     Tick startTick;
 
     // RAM: TODO: Make this its own type.
-    Vec3 startPosition;
+    Vector startPosition;
 
     Id owner;
 };

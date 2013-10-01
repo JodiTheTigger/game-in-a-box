@@ -36,17 +36,17 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
     : myCoderPlayer({
         std::vector<DeltaMapItem>
         {
-            {MAKE_OFFSET(StatePlayer, position.x), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
-            {MAKE_OFFSET(StatePlayer, position.y), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
-            {MAKE_OFFSET(StatePlayer, position.z), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, position.values, float , 0), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, position.values, float , 1), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, position.values, float , 2), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
 
-            {MAKE_OFFSET(StatePlayer, lookAndDo.orientation.x), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
-            {MAKE_OFFSET(StatePlayer, lookAndDo.orientation.y), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
-            {MAKE_OFFSET(StatePlayer, lookAndDo.orientation.z), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, lookAndDo.orientation.values, float , 0), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, lookAndDo.orientation.values, float , 1), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, lookAndDo.orientation.values, float , 2), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
 
-            {MAKE_OFFSET(StatePlayer, jetDirection.x), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
-            {MAKE_OFFSET(StatePlayer, jetDirection.y), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
-            {MAKE_OFFSET(StatePlayer, jetDirection.z), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, jetDirection.values, float , 0), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, jetDirection.values, float , 1), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StatePlayer, jetDirection.values, float , 2), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
 
             {MAKE_OFFSET(StatePlayer, health), MapUnsigned{10_bits}},
             {MAKE_OFFSET(StatePlayer, energy), MapUnsigned{10_bits}},
@@ -60,13 +60,13 @@ DeltaStateGameSnapshot::DeltaStateGameSnapshot(Research settings)
             // RAM: TODO: Find max bits.
             {MAKE_OFFSET(StateMissle, owner), MapUnsigned{32_bits}},
 
-            {MAKE_OFFSET(StateMissle, source.x), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
-            {MAKE_OFFSET(StateMissle, source.y), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
-            {MAKE_OFFSET(StateMissle, source.z), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
+            {MAKE_OFFSET_ARRAY(StateMissle, source.values, float , 0), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
+            {MAKE_OFFSET_ARRAY(StateMissle, source.values, float , 1), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
+            {MAKE_OFFSET_ARRAY(StateMissle, source.values, float , 2), MapFloatRangeStrict{-500.0f, 500.0f, 17_bits}},
 
-            {MAKE_OFFSET(StateMissle, orientation.x), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
-            {MAKE_OFFSET(StateMissle, orientation.y), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
-            {MAKE_OFFSET(StateMissle, orientation.z), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StateMissle, orientation.values, float , 0), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StateMissle, orientation.values, float , 1), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
+            {MAKE_OFFSET_ARRAY(StateMissle, orientation.values, float , 2), MapFloatRangeStrict{-Tau(), Tau(), 12_bits}},
 
             // RAM: TODO: Find max bits, wrapping counter?
             {MAKE_OFFSET(StateMissle, lastAction), MapUnsigned{32_bits}},

@@ -21,6 +21,8 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+#include "Vector.hpp"
+
 #include <cstdint>
 #include <array>
 #include <vector>
@@ -30,29 +32,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 // //////////////
 // Data Types
 // //////////////
-// NOTE: These are for seralisation only,
-// For general math/cpu programing use a proper data structure.
-struct Vec3
-{
-    float x;
-    float y;
-    float z;
-};
-
-struct Vec4
-{
-    float x;
-    float y;
-    float z;
-    float w;
-};
-
-inline bool operator==(const Vec3& lhs, const Vec3& rhs){return ((lhs.x==rhs.x) && (lhs.y==rhs.y) && (lhs.z==rhs.z));}
-inline bool operator!=(const Vec3& lhs, const Vec3& rhs){return !operator==(lhs,rhs);}
-
-inline bool operator==(const Vec4& lhs, const Vec4& rhs){return ((lhs.x==rhs.x) && (lhs.y==rhs.y) && (lhs.z==rhs.z) && (lhs.w==rhs.w));}
-inline bool operator!=(const Vec4& lhs, const Vec4& rhs){return !operator==(lhs,rhs);}
-
 using ServerTick = uint32_t;
 using ServerId = uint32_t;
 
@@ -77,7 +56,7 @@ enum class FlagsPlayer : uint32_t
 
 struct StatePlayerClient
 {
-    Vec3 orientation;
+    Vector orientation;
     FlagsPlayer flags;
 };
 
@@ -85,11 +64,11 @@ struct StatePlayerClient
 struct StatePlayer
 {
     ServerId            id;
-    Vec3                position;
+    Vector              position;
 
     StatePlayerClient   lookAndDo;
 
-    Vec3                jetDirection;
+    Vector              jetDirection;
     std::uint32_t       health;
 
     std::uint32_t       energy;
@@ -119,10 +98,10 @@ struct StateMissle
     ServerId owner;
 
     // Where it was fired from, or where it exploded
-    Vec3 source;
+    Vector source;
 
     // Initial velocity, up to game how to predict the path.
-    Vec3 orientation;
+    Vector orientation;
 
     // Time it was fired/exploded
     ServerTick lastAction;

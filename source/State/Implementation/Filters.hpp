@@ -42,9 +42,12 @@ inline constexpr bool FilterNotTimeNotNone(const Entity& toTest)
 
 inline bool constexpr FilterFiring(const Entity& toTest)
 {
-    return  FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Fire) &&
-            FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Fire) &&
-            (toTest.player.energyShoot >= AmmoUsedPerShot);
+//    RAM: TODO: Fix this
+//    return  FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Fire) &&
+//            FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Fire) &&
+//            (toTest.player.energyShoot >= AmmoUsedPerShot);
+        return  FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Fire) &&
+                FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Fire);
 }
 
 }}} // namespace
