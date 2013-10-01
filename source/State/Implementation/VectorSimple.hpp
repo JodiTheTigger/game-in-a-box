@@ -160,8 +160,12 @@ inline VectorSimple Sqrt(const VectorSimple& rhs)
 
 inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
 {
-    lhs *= rhs;
-    auto sum = lhs.values[0] + lhs.values[1] + lhs.values[2] + lhs.values[3];
+    auto sum =
+            (lhs.values[0] * rhs.values[0]) +
+            (lhs.values[1] * rhs.values[1]) +
+            (lhs.values[2] * rhs.values[2]) +
+            (lhs.values[3] * rhs.values[3]);
+
     return VectorSimple
     {{{
          sum,
@@ -173,8 +177,14 @@ inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
 
 inline VectorSimple Length(VectorSimple rhs)
 {
-    rhs *= rhs;
-    float length = sqrt(rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3]);
+    // return Sqrt(Dot(rhs, rhs));
+
+    float length = sqrt(
+            (rhs.values[0] * rhs.values[0]) +
+            (rhs.values[1] * rhs.values[1]) +
+            (rhs.values[2] * rhs.values[2]) +
+            (rhs.values[3] * rhs.values[3]));
+
     return VectorSimple
     {{{
          length,
@@ -186,15 +196,7 @@ inline VectorSimple Length(VectorSimple rhs)
 
 inline VectorSimple LengthSquared(VectorSimple rhs)
 {
-    rhs *= rhs;
-    auto sum = rhs.values[0] + rhs.values[1] + rhs.values[2] + rhs.values[3];
-    return VectorSimple
-    {{{
-         sum,
-         sum,
-         sum,
-         sum
-    }}};
+    return Dot(rhs, rhs);
 }
 
 inline VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const VectorSimple& add)
