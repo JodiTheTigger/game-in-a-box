@@ -21,6 +21,8 @@
 #ifndef VECTORSIMPLE_HPP
 #define VECTORSIMPLE_HPP
 
+#include "VectorLoad.hpp"
+
 #include <array>
 #include <cmath>
 
@@ -30,6 +32,64 @@ struct VectorSimple
 {
     std::array<float, 4> values;
 };
+
+// ///////////////////
+// Loads
+// ///////////////////
+template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y, float z, float w)
+{
+    return VectorSimple
+    {{{
+            x,
+            y,
+            z,
+            w,
+    }}};
+}
+
+template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y, float z)
+{
+    return VectorSimple
+    {{{
+            x,
+            y,
+            z,
+            0.0f,
+    }}};
+}
+
+template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y)
+{
+    return VectorSimple
+    {{{
+            x,
+            y,
+            0.0f,
+            0.0f,
+    }}};
+}
+
+template<> inline constexpr VectorSimple Load<VectorSimple>(float x)
+{
+    return VectorSimple
+    {{{
+            x,
+            0.0f,
+            0.0f,
+            0.0f,
+    }}};
+}
+
+template<> inline constexpr VectorSimple LoadReplicate<VectorSimple>(float x)
+{
+    return VectorSimple
+    {{{
+            x,
+            x,
+            x,
+            x,
+    }}};
+}
 
 // ///////////////////
 // Operators

@@ -68,7 +68,7 @@ check_cxx_compiler_flag(-Wno-non-virtual-dtor HAS_IGNORE_NONVIRTUAL_DTOR)
 check_cxx_compiler_flag(-Wno-unused-local-typedefs HAS_IGNORE_UNUSED_LOCAL_TYPEDEFS)
 check_cxx_compiler_flag(-Wno-mismatched-tags HAS_IGNORE_MISMATCHED_TAGS)
 
-# Only platforms with clangs libc++ will build with clang with these build flags.
+# Only platforms with clang's libc++ will build with clang with these build flags.
 # Currently, that's only OSX.
 check_cxx_source_compiles(CMAKE_REQUIRED_FLAGS="-std=c++11 -stdlib=libc++" "
 #include <cstdint>
@@ -309,6 +309,7 @@ source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
 source/State/Implementation/Vector.hpp
+source/State/Implementation/VectorLoad.hpp
 source/State/Implementation/VectorSimple.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp

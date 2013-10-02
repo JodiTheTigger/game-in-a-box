@@ -46,29 +46,25 @@ public:
 
         for (uint i = 0; i < ArraySize; ++i)
         {
-            groupA.push_back(
-            {{{
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-            }}});
+            groupA.push_back(Load<T>(
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine)));
 
-            groupB.push_back(
-            {{{
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-            }}});
 
-            groupC.push_back(
-            {{{
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-                 randomNegMilltoMill(randomEngine),
-            }}});
+            groupB.push_back(Load<T>(
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine)));
+
+
+            groupC.push_back(Load<T>(
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine),
+                                 randomNegMilltoMill(randomEngine)));
         }
     }
 
@@ -85,7 +81,7 @@ TYPED_TEST_CASE(TestVector, TestVectorTypes);
 
 TYPED_TEST(TestVector, Empty)
 {
-    typename TestFixture::Vec toTest = {{{0,0,0,0}}};
+    typename TestFixture::Vec toTest = LoadReplicate<typename TestFixture::Vec>(0);
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, X(toTest));
@@ -96,8 +92,8 @@ TYPED_TEST(TestVector, Empty)
 
 TYPED_TEST(TestVector, Equal)
 {
-    auto a = typename TestFixture::Vec{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
-    auto b = typename TestFixture::Vec{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
+    auto a = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f);
+    auto b = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f);
 
     EXPECT_EQ(a, b);
     EXPECT_FLOAT_EQ(X(a), X(b));
@@ -108,7 +104,7 @@ TYPED_TEST(TestVector, Equal)
 
 TYPED_TEST(TestVector, NotEqual)
 {
-    auto a = typename TestFixture::Vec{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
+    auto a = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f);
     auto b = std::vector<typename TestFixture::Vec>{};
 
     b.push_back({{{1.0f, 0.0f, 1.0f, 123456789.0f}}});
@@ -285,7 +281,7 @@ TYPED_TEST(TestVector, Mad)
 
 TYPED_TEST(TestVector, FnXYZW)
 {
-    auto toTest = typename TestFixture::Vec{{{-1.0f, 0.0f, 2.0f, 123456789.0f}}};
+    auto toTest = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 2.0f, 123456789.0f);
 
     EXPECT_FLOAT_EQ(X(toTest), -1.0f);
     EXPECT_FLOAT_EQ(Y(toTest), 0.0f);
@@ -463,8 +459,13 @@ TYPED_TEST(TestVector, Benchmark)
             {
                 // Normalise an angle, by speed, add some other velocities, add it to a position
                 // via a time step.
-                auto finalVel = Mad(NormaliseFast(TestFixture::groupA[i]), typename TestFixture::Vec{{{5,5,5,5}}}, TestFixture::groupB[j] + TestFixture::groupC[i]);
-                TestFixture::groupA[j] = TestFixture::groupA[j] + (finalVel /  typename TestFixture::Vec{{{60,60,60,60}}});
+                auto finalVel =
+                        Mad(
+                            NormaliseFast(TestFixture::groupA[i]),
+                            LoadReplicate<typename TestFixture::Vec>(5),
+                            TestFixture::groupB[j] + TestFixture::groupC[i]);
+
+                TestFixture::groupA[j] = TestFixture::groupA[j] + (finalVel /  Load<typename TestFixture::Vec>(60,60,60,60));
             }
         }
     }

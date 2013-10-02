@@ -83,11 +83,10 @@ void TestDeltaStatePlayerClient::TestN(std::function<StatePlayerClient()> baseGe
         {
             auto target = StatePlayerClient
             {
-                {
+                Load<Vector>(
                     angles(generator),
                     angles(generator),
-                    angles(generator)
-                },
+                    angles(generator)),
                 static_cast<FlagsPlayer>(flags(generator))
             };
 
@@ -123,11 +122,10 @@ TEST_F(TestDeltaStatePlayerClient, Random1000)
     {
         return StatePlayerClient
         {
-            {
+            Load<Vector>(
                 angles(generator),
                 angles(generator),
-                angles(generator)
-            },
+                angles(generator)),
             static_cast<FlagsPlayer>(flags(generator))
         };
     },
@@ -138,11 +136,7 @@ TEST_F(TestDeltaStatePlayerClient, Random1000FromZeroIdentity)
 {
     auto base = StatePlayerClient
     {
-        {
-            0.0,
-            0.0,
-            0.0,
-        },
+        VectorZero,
         FlagsPlayer::Default
     };
 
