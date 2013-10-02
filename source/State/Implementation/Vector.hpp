@@ -21,7 +21,8 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include "VectorSimple.hpp"
+#include "VectorAligned.hpp"
+#include "VectorFastGeneral.hpp"
 
 #include <type_traits>
 
@@ -32,7 +33,8 @@ namespace GameInABox { namespace State { namespace Implementation {
 // http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
 // http://www.boost.org/doc/libs/1_37_0/libs/numeric/ublas/doc/overview.htm
 
-using Vector = VectorSimple;
+using Vector = VectorAligned;
+using VectorFast = VectorFastGeneral;
 
 // ///////////////////
 // Constants

@@ -309,8 +309,9 @@ source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
 source/State/Implementation/Vector.hpp
+source/State/Implementation/VectorAligned.hpp
 source/State/Implementation/VectorLoad.hpp
-source/State/Implementation/VectorSimple.hpp
+source/State/Implementation/VectorFastGeneral.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp

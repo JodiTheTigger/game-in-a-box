@@ -21,6 +21,8 @@
 #ifndef VECTORLOAD_HPP
 #define VECTORLOAD_HPP
 
+#include "VectorAligned.hpp"
+
 namespace GameInABox { namespace State { namespace Implementation {
 
 // I need a way of differing functions by return type. This is what I came up with.
@@ -34,6 +36,7 @@ template<typename T> constexpr T Load(float x, float y, float z, float w);
 template<typename T> constexpr T Load(float x, float y, float z);
 template<typename T> constexpr T Load(float x, float y);
 template<typename T> constexpr T Load(float x);
+template<typename T> constexpr T Load(const VectorAligned& v);
 
 // Copies X into all the type's arrays.
 template<typename T> constexpr T LoadReplicate(float x);

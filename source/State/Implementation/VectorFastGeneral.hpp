@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef VECTORSIMPLE_HPP
-#define VECTORSIMPLE_HPP
+#ifndef VectorFastGeneral_HPP
+#define VectorFastGeneral_HPP
 
 #include "VectorLoad.hpp"
 
@@ -28,7 +28,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct VectorSimple
+struct alignas(16) VectorFastGeneral
 {
     std::array<float, 4> values;
 };
@@ -36,9 +36,9 @@ struct VectorSimple
 // ///////////////////
 // Loads
 // ///////////////////
-template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y, float z, float w)
+template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x, float y, float z, float w)
 {
-    return VectorSimple
+    return VectorFastGeneral
     {{{
             x,
             y,
@@ -47,9 +47,9 @@ template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y, fl
     }}};
 }
 
-template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y, float z)
+template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x, float y, float z)
 {
-    return VectorSimple
+    return VectorFastGeneral
     {{{
             x,
             y,
@@ -58,9 +58,9 @@ template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y, fl
     }}};
 }
 
-template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y)
+template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x, float y)
 {
-    return VectorSimple
+    return VectorFastGeneral
     {{{
             x,
             y,
@@ -69,9 +69,9 @@ template<> inline constexpr VectorSimple Load<VectorSimple>(float x, float y)
     }}};
 }
 
-template<> inline constexpr VectorSimple Load<VectorSimple>(float x)
+template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x)
 {
-    return VectorSimple
+    return VectorFastGeneral
     {{{
             x,
             0.0f,
@@ -80,14 +80,40 @@ template<> inline constexpr VectorSimple Load<VectorSimple>(float x)
     }}};
 }
 
-template<> inline constexpr VectorSimple LoadReplicate<VectorSimple>(float x)
+template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(const VectorAligned& v)
 {
-    return VectorSimple
+    return VectorFastGeneral
+    {{{
+            X(v),
+            Y(v),
+            Z(v),
+            W(v),
+    }}};
+}
+
+template<> inline constexpr VectorFastGeneral LoadReplicate<VectorFastGeneral>(float x)
+{
+    return VectorFastGeneral
     {{{
             x,
             x,
             x,
             x,
+    }}};
+}
+
+// ///////////////////
+// Save
+// ///////////////////
+
+VectorAligned Save(VectorFastGeneral v)
+{
+    return VectorAligned
+    {{{
+            v.values[0],
+            v.values[1],
+            v.values[2],
+            v.values[3],
     }}};
 }
 
@@ -97,10 +123,12 @@ template<> inline constexpr VectorSimple LoadReplicate<VectorSimple>(float x)
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
 
+// RAM: Debug
+
 // ///////////////////
 // Increment / Decrement
 // ///////////////////
-inline VectorSimple& operator++(VectorSimple& rhs)
+inline VectorFastGeneral& operator++(VectorFastGeneral& rhs)
 {
     ++(rhs.values[0]);
     ++(rhs.values[1]);
@@ -110,7 +138,7 @@ inline VectorSimple& operator++(VectorSimple& rhs)
     return rhs;
 }
 
-inline VectorSimple operator++(VectorSimple& lhs, int)
+inline VectorFastGeneral operator++(VectorFastGeneral& lhs, int)
 {
    auto copy = lhs;
    ++lhs;
@@ -118,7 +146,7 @@ inline VectorSimple operator++(VectorSimple& lhs, int)
    return copy;
 }
 
-inline VectorSimple& operator--(VectorSimple& rhs)
+inline VectorFastGeneral& operator--(VectorFastGeneral& rhs)
 {
     --(rhs.values[0]);
     --(rhs.values[1]);
@@ -128,7 +156,7 @@ inline VectorSimple& operator--(VectorSimple& rhs)
     return rhs;
 }
 
-inline VectorSimple operator--(VectorSimple& lhs, int)
+inline VectorFastGeneral operator--(VectorFastGeneral& lhs, int)
 {
     auto copy = lhs;
     --lhs;
@@ -140,17 +168,17 @@ inline VectorSimple operator--(VectorSimple& lhs, int)
 // Comparison Operators
 // ///////////////////
 
-inline bool operator==(const VectorSimple& lhs, const VectorSimple& rhs){return lhs.values==rhs.values;}
-inline bool operator!=(const VectorSimple& lhs, const VectorSimple& rhs){return  !operator==(lhs,rhs);}
-inline bool operator< (const VectorSimple& lhs, const VectorSimple& rhs){return lhs.values<rhs.values;}
-inline bool operator> (const VectorSimple& lhs, const VectorSimple& rhs){return   operator< (rhs,lhs);}
-inline bool operator<=(const VectorSimple& lhs, const VectorSimple& rhs){return  !operator> (lhs,rhs);}
-inline bool operator>=(const VectorSimple& lhs, const VectorSimple& rhs){return  !operator< (lhs,rhs);}
+inline bool operator==(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return lhs.values==rhs.values;}
+inline bool operator!=(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return  !operator==(lhs,rhs);}
+inline bool operator< (const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return lhs.values<rhs.values;}
+inline bool operator> (const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return   operator< (rhs,lhs);}
+inline bool operator<=(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return  !operator> (lhs,rhs);}
+inline bool operator>=(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return  !operator< (lhs,rhs);}
 
 // ///////////////////
 // Simple Maths
 // ///////////////////
-inline VectorSimple& operator+=(VectorSimple& lhs, const VectorSimple& rhs)
+inline VectorFastGeneral& operator+=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
 {
     lhs.values[0] += rhs.values[0];
     lhs.values[1] += rhs.values[1];
@@ -159,7 +187,7 @@ inline VectorSimple& operator+=(VectorSimple& lhs, const VectorSimple& rhs)
     return lhs;
 }
 
-inline VectorSimple& operator-=(VectorSimple& lhs, const VectorSimple& rhs)
+inline VectorFastGeneral& operator-=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
 {
     lhs.values[0] -= rhs.values[0];
     lhs.values[1] -= rhs.values[1];
@@ -168,7 +196,7 @@ inline VectorSimple& operator-=(VectorSimple& lhs, const VectorSimple& rhs)
     return lhs;
 }
 
-inline VectorSimple& operator*=(VectorSimple& lhs, const VectorSimple& rhs)
+inline VectorFastGeneral& operator*=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
 {
     lhs.values[0] *= rhs.values[0];
     lhs.values[1] *= rhs.values[1];
@@ -177,7 +205,7 @@ inline VectorSimple& operator*=(VectorSimple& lhs, const VectorSimple& rhs)
     return lhs;
 }
 
-inline VectorSimple& operator/=(VectorSimple& lhs, const VectorSimple& rhs)
+inline VectorFastGeneral& operator/=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
 {
     lhs.values[0] /= rhs.values[0];
     lhs.values[1] /= rhs.values[1];
@@ -186,11 +214,11 @@ inline VectorSimple& operator/=(VectorSimple& lhs, const VectorSimple& rhs)
     return lhs;
 }
 
-inline constexpr VectorSimple operator-(const VectorSimple& lhs)
+inline constexpr VectorFastGeneral operator-(const VectorFastGeneral& lhs)
 {
     // Ugh, clang!
     // Three braces: First for copy init, second for the struct, third for the array.
-    return VectorSimple
+    return VectorFastGeneral
     {{{
         -lhs.values[0],
         -lhs.values[1],
@@ -199,17 +227,17 @@ inline constexpr VectorSimple operator-(const VectorSimple& lhs)
     }}};
 }
 
-inline VectorSimple operator+(VectorSimple lhs, const VectorSimple& rhs){ lhs += rhs;  return lhs; }
-inline VectorSimple operator-(VectorSimple lhs, const VectorSimple& rhs){ lhs -= rhs;  return lhs; }
-inline VectorSimple operator*(VectorSimple lhs, const VectorSimple& rhs){ lhs *= rhs;  return lhs; }
-inline VectorSimple operator/(VectorSimple lhs, const VectorSimple& rhs){ lhs /= rhs;  return lhs; }
+inline VectorFastGeneral operator+(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs += rhs;  return lhs; }
+inline VectorFastGeneral operator-(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs -= rhs;  return lhs; }
+inline VectorFastGeneral operator*(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs *= rhs;  return lhs; }
+inline VectorFastGeneral operator/(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs /= rhs;  return lhs; }
 
 // ///////////////////
 // Complicated Maths
 // ///////////////////
-inline VectorSimple Sqrt(const VectorSimple& rhs)
+inline VectorFastGeneral Sqrt(const VectorFastGeneral& rhs)
 {
-    return VectorSimple
+    return VectorFastGeneral
     {{{
             std::sqrt(rhs.values[0]),
             std::sqrt(rhs.values[1]),
@@ -218,7 +246,7 @@ inline VectorSimple Sqrt(const VectorSimple& rhs)
     }}};
 }
 
-inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
+inline VectorFastGeneral Dot(VectorFastGeneral lhs, const VectorFastGeneral& rhs)
 {
     auto sum =
             (lhs.values[0] * rhs.values[0]) +
@@ -226,7 +254,7 @@ inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
             (lhs.values[2] * rhs.values[2]) +
             (lhs.values[3] * rhs.values[3]);
 
-    return VectorSimple
+    return VectorFastGeneral
     {{{
          sum,
          sum,
@@ -235,7 +263,7 @@ inline VectorSimple Dot(VectorSimple lhs, const VectorSimple& rhs)
     }}};
 }
 
-inline VectorSimple Length(VectorSimple rhs)
+inline VectorFastGeneral Length(VectorFastGeneral rhs)
 {
     // return Sqrt(Dot(rhs, rhs));
 
@@ -245,7 +273,7 @@ inline VectorSimple Length(VectorSimple rhs)
             (rhs.values[2] * rhs.values[2]) +
             (rhs.values[3] * rhs.values[3]));
 
-    return VectorSimple
+    return VectorFastGeneral
     {{{
          length,
          length,
@@ -254,14 +282,14 @@ inline VectorSimple Length(VectorSimple rhs)
     }}};
 }
 
-inline VectorSimple LengthSquared(VectorSimple rhs)
+inline VectorFastGeneral LengthSquared(VectorFastGeneral rhs)
 {
     return Dot(rhs, rhs);
 }
 
-inline VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const VectorSimple& add)
+inline VectorFastGeneral Mad(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs, const VectorFastGeneral& add)
 {
-    return VectorSimple
+    return VectorFastGeneral
     {{{
         fmaf(lhs.values[0], rhs.values[0], add.values[0]),
         fmaf(lhs.values[1], rhs.values[1], add.values[1]),
@@ -270,24 +298,16 @@ inline VectorSimple Mad(const VectorSimple& lhs, const VectorSimple& rhs, const 
     }}};
 }
 
-inline VectorSimple NormaliseFast(VectorSimple lhs)
+inline VectorFastGeneral NormaliseFast(VectorFastGeneral lhs)
 {
     return lhs / Length(lhs);
 }
 
-inline VectorSimple NormaliseAccurate(VectorSimple lhs)
+inline VectorFastGeneral NormaliseAccurate(VectorFastGeneral lhs)
 {
     return lhs / Length(lhs);
 }
-
-// ///////////////////
-// Access
-// ///////////////////
-inline constexpr float X(const VectorSimple& rhs){ return rhs.values[0]; }
-inline constexpr float Y(const VectorSimple& rhs){ return rhs.values[1]; }
-inline constexpr float Z(const VectorSimple& rhs){ return rhs.values[2]; }
-inline constexpr float W(const VectorSimple& rhs){ return rhs.values[3]; }
 
 }}} // namespace
 
-#endif // VECTORSIMPLE_HPP
+#endif // VectorFastGeneral_HPP
