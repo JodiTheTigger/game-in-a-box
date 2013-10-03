@@ -170,21 +170,27 @@ StateGameSnapshot TestDeltaStateGameSnapshot::GameStateRandom()
         player =
         {
             0,
-            Load<Vector>(
+            {{{
                 myAngles(myGenerator),
                 myAngles(myGenerator),
-                myAngles(myGenerator)),
+                myAngles(myGenerator),
+                0.0f
+            }}},
             {
-                Load<Vector>(
+                {{{
                     myAngles(myGenerator),
                     myAngles(myGenerator),
-                    myAngles(myGenerator)),
+                    myAngles(myGenerator),
+                    0.0f
+                }}},
                 static_cast<FlagsPlayer>(myFlagsPlayer(myGenerator))
             },            
-            Load<Vector>(
+            {{{
                 myAngles(myGenerator),
                 myAngles(myGenerator),
-                myAngles(myGenerator)),
+                myAngles(myGenerator),
+                0.0f
+            }}},
             myRandomUint32(myGenerator) % 1024,
             myRandomUint32(myGenerator) % 1024,
             0,
@@ -199,14 +205,18 @@ StateGameSnapshot TestDeltaStateGameSnapshot::GameStateRandom()
         {
             0,
             0,
-            Load<Vector>(
+            {{{
                 myAngles(myGenerator),
                 myAngles(myGenerator),
-                myAngles(myGenerator)),
-            Load<Vector>(
+                myAngles(myGenerator),
+                0.0f
+            }}},
+            {{{
                 myAngles(myGenerator),
                 myAngles(myGenerator),
-                myAngles(myGenerator)),
+                myAngles(myGenerator),
+                0.0f
+            }}},
             myRandomUint32(myGenerator),
             static_cast<FlagsMissle>(myFlagsMissle(myGenerator))
         };

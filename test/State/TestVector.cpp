@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Implementation/VectorSimple.hpp>
+#include <Implementation/Vector.hpp>
 
 #include <gmock/gmock.h>
 
@@ -28,12 +28,9 @@ using namespace std;
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-template <typename T>
 class TestVector : public ::testing::Test
 {
 public:
-    typedef T Vec;
-
     const static uint ArraySize = 100;
 
     TestVector()
@@ -46,42 +43,43 @@ public:
 
         for (uint i = 0; i < ArraySize; ++i)
         {
-            groupA.push_back(Load<T>(
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)));
+            groupA.push_back(
+            {{{
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine)
+            }}});
 
+            groupB.push_back(
+            {{{
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine)
+            }}});
 
-            groupB.push_back(Load<T>(
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)));
-
-
-            groupC.push_back(Load<T>(
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)));
+            groupC.push_back(
+            {{{
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine),
+                randomNegMilltoMill(randomEngine)
+            }}});
         }
     }
 
     std::default_random_engine randomEngine;
     std::uniform_real_distribution<float> randomNegMilltoMill;
 
-    std::vector<T> groupA;
-    std::vector<T> groupB;
-    std::vector<T> groupC;
+    std::vector<Vector> groupA;
+    std::vector<Vector> groupB;
+    std::vector<Vector> groupC;
 };
 
-typedef ::testing::Types<VectorSimple> TestVectorTypes;
-TYPED_TEST_CASE(TestVector, TestVectorTypes);
-
-TYPED_TEST(TestVector, Empty)
+TEST_F(TestVector, Empty)
 {
-    typename TestFixture::Vec toTest = LoadReplicate<typename TestFixture::Vec>(0);
+    Vector toTest = VectorZero;
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, X(toTest));
@@ -90,10 +88,10 @@ TYPED_TEST(TestVector, Empty)
     EXPECT_FLOAT_EQ(0.0f, W(toTest));
 }
 
-TYPED_TEST(TestVector, Equal)
+TEST_F(TestVector, Equal)
 {
-    auto a = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f);
-    auto b = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f);
+    auto a = Vector{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
+    auto b = Vector{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
 
     EXPECT_EQ(a, b);
     EXPECT_FLOAT_EQ(X(a), X(b));
@@ -102,10 +100,10 @@ TYPED_TEST(TestVector, Equal)
     EXPECT_FLOAT_EQ(W(a), W(b));
 }
 
-TYPED_TEST(TestVector, NotEqual)
+TEST_F(TestVector, NotEqual)
 {
-    auto a = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f);
-    auto b = std::vector<typename TestFixture::Vec>{};
+    auto a = Vector{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
+    auto b = std::vector<Vector>{};
 
     b.push_back({{{1.0f, 0.0f, 1.0f, 123456789.0f}}});
     b.push_back({{{0.0f, 0.0f, 1.0f, 123456789.0f}}});
@@ -121,354 +119,14 @@ TYPED_TEST(TestVector, NotEqual)
     }
 }
 
-TYPED_TEST(TestVector, Increment)
+TEST_F(TestVector, FnXYZW)
 {
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = TestFixture::groupA[i];
-        auto result2 = TestFixture::groupB[i];
-
-        result++;
-        ++result2;
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) + 1.0f) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) + 1.0f);
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupB[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupB[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupB[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupB[i]) + 1.0f);
-    }
-}
-
-
-TYPED_TEST(TestVector, Decrement)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = TestFixture::groupA[i];
-        auto result2 = TestFixture::groupB[i];
-        result--;
-        --result2;
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) - 1.0f) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) - 1.0f);
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupB[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupB[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupB[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupB[i]) - 1.0f);
-    }
-}
-
-TYPED_TEST(TestVector, Add)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = TestFixture::groupA[i] + TestFixture::groupB[i];
-        auto result2 = TestFixture::groupC[i];
-        result2 += TestFixture::groupA[i];
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) + X(TestFixture::groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) + Y(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) + Z(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) + W(TestFixture::groupB[i]));
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupC[i]) + X(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupC[i]) + Y(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupC[i]) + Z(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupC[i]) + W(TestFixture::groupA[i]));
-    }
-}
-
-TYPED_TEST(TestVector, Subtract)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = TestFixture::groupA[i] - TestFixture::groupB[i];
-        auto result2 = TestFixture::groupC[i];
-        result2 -= TestFixture::groupA[i];
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) - X(TestFixture::groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) - Y(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) - Z(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) - W(TestFixture::groupB[i]));
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupC[i]) - X(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupC[i]) - Y(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupC[i]) - Z(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupC[i]) - W(TestFixture::groupA[i]));
-    }
-}
-
-TYPED_TEST(TestVector, Multiply)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = TestFixture::groupA[i] * TestFixture::groupB[i];
-        auto result2 = TestFixture::groupC[i];
-        result2 *= TestFixture::groupA[i];
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) * X(TestFixture::groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) * Y(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) * Z(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) * W(TestFixture::groupB[i]));
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupC[i]) * X(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupC[i]) * Y(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupC[i]) * Z(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupC[i]) * W(TestFixture::groupA[i]));
-    }
-}
-
-TYPED_TEST(TestVector, Divide)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = TestFixture::groupA[i] / TestFixture::groupB[i];
-        auto result2 = TestFixture::groupC[i];
-        result2 /= TestFixture::groupA[i];
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) / X(TestFixture::groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) / Y(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) / Z(TestFixture::groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) / W(TestFixture::groupB[i]));
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupC[i]) / X(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupC[i]) / Y(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupC[i]) / Z(TestFixture::groupA[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupC[i]) / W(TestFixture::groupA[i]));
-    }
-}
-
-TYPED_TEST(TestVector, Mad)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = TestFixture::groupA[i] * TestFixture::groupB[i] + TestFixture::groupC[i] ;
-        auto result2 = TestFixture::groupC[i];
-        result2 += TestFixture::groupA[i] * TestFixture::groupB[i];
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) * X(TestFixture::groupB[i]) + X(TestFixture::groupC[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) * Y(TestFixture::groupB[i]) + Y(TestFixture::groupC[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) * Z(TestFixture::groupB[i]) + Z(TestFixture::groupC[i]));
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) * W(TestFixture::groupB[i]) + W(TestFixture::groupC[i]));
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupA[i]) * X(TestFixture::groupB[i]) + X(TestFixture::groupC[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupA[i]) * Y(TestFixture::groupB[i]) + Y(TestFixture::groupC[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupA[i]) * Z(TestFixture::groupB[i]) + Z(TestFixture::groupC[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(TestFixture::groupA[i]) * W(TestFixture::groupB[i]) + W(TestFixture::groupC[i]));
-    }
-}
-
-TYPED_TEST(TestVector, FnXYZW)
-{
-    auto toTest = Load<typename TestFixture::Vec>(-1.0f, 0.0f, 2.0f, 123456789.0f);
+    auto toTest = Vector{{{-1.0f, 0.0f, 2.0f, 123456789.0f}}};
 
     EXPECT_FLOAT_EQ(X(toTest), -1.0f);
     EXPECT_FLOAT_EQ(Y(toTest), 0.0f);
     EXPECT_FLOAT_EQ(Z(toTest), 2.0f);
     EXPECT_FLOAT_EQ(W(toTest), 123456789.0f);
-}
-
-TYPED_TEST(TestVector, FnMad)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = Mad(TestFixture::groupA[i], TestFixture::groupB[i], TestFixture::groupC[i]);
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) * X(TestFixture::groupB[i]) + X(TestFixture::groupC[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) * Y(TestFixture::groupB[i]) + Y(TestFixture::groupC[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) * Z(TestFixture::groupB[i]) + Z(TestFixture::groupC[i]));
-        ASSERT_FLOAT_EQ(W(result), W(TestFixture::groupA[i]) * W(TestFixture::groupB[i]) + W(TestFixture::groupC[i]));
-    }
-}
-
-TYPED_TEST(TestVector, FnSqrt)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        // Don't bother if anything is negative.
-        if  (
-                (X(TestFixture::groupA[i]) >= 0) &&
-                (Y(TestFixture::groupA[i]) >= 0) &&
-                (Z(TestFixture::groupA[i]) >= 0) &&
-                (W(TestFixture::groupA[i]) >= 0)
-             )
-        {
-            auto result = Sqrt(TestFixture::groupA[i]);
-
-            ASSERT_FLOAT_EQ(X(result), sqrt(X(TestFixture::groupA[i]))) << " i: " << i;
-            ASSERT_FLOAT_EQ(Y(result), sqrt(Y(TestFixture::groupA[i])));
-            ASSERT_FLOAT_EQ(Z(result), sqrt(Z(TestFixture::groupA[i])));
-            ASSERT_FLOAT_EQ(W(result), sqrt(W(TestFixture::groupA[i])));
-        }
-    }
-}
-
-TYPED_TEST(TestVector, FnDot)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = Dot(TestFixture::groupA[i], TestFixture::groupB[i]);
-        auto dot =
-                (X(TestFixture::groupA[i]) * X(TestFixture::groupB[i])) +
-                (Y(TestFixture::groupA[i]) * Y(TestFixture::groupB[i])) +
-                (Z(TestFixture::groupA[i]) * Z(TestFixture::groupB[i])) +
-                (W(TestFixture::groupA[i]) * W(TestFixture::groupB[i]));
-
-        ASSERT_FLOAT_EQ(X(result), dot) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), dot);
-        ASSERT_FLOAT_EQ(Z(result), dot);
-        ASSERT_FLOAT_EQ(W(result), dot);
-    }
-}
-
-TYPED_TEST(TestVector, FnLength)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = Length(TestFixture::groupA[i]);
-        auto l =
-                sqrt((X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
-                     (Y(TestFixture::groupA[i]) * Y(TestFixture::groupA[i])) +
-                     (Z(TestFixture::groupA[i]) * Z(TestFixture::groupA[i])) +
-                     (W(TestFixture::groupA[i]) * W(TestFixture::groupA[i])));
-
-        ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), l);
-        ASSERT_FLOAT_EQ(Z(result), l);
-        ASSERT_FLOAT_EQ(W(result), l);
-    }
-}
-
-TYPED_TEST(TestVector, FnLengthSquared)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = Length(TestFixture::groupA[i]);
-        auto l =
-                sqrt((X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
-                     (Y(TestFixture::groupA[i]) * Y(TestFixture::groupA[i])) +
-                     (Z(TestFixture::groupA[i]) * Z(TestFixture::groupA[i])) +
-                     (W(TestFixture::groupA[i]) * W(TestFixture::groupA[i])));
-
-
-
-        ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), l);
-        ASSERT_FLOAT_EQ(Z(result), l);
-        ASSERT_FLOAT_EQ(W(result), l);
-    }
-}
-
-TYPED_TEST(TestVector, FnNormaliseFast)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = NormaliseFast(TestFixture::groupA[i]);
-        auto l = sqrt(
-            (X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
-            (Y(TestFixture::groupA[i]) * Y(TestFixture::groupA[i])) +
-            (Z(TestFixture::groupA[i]) * Z(TestFixture::groupA[i])) +
-            (W(TestFixture::groupA[i]) * W(TestFixture::groupA[i])));
-
-        auto answer = typename TestFixture::Vec{{{
-                X(TestFixture::groupA[i]) / l,
-                Y(TestFixture::groupA[i]) / l,
-                Z(TestFixture::groupA[i]) / l,
-                W(TestFixture::groupA[i]) / l}}};
-
-        ASSERT_FLOAT_EQ(X(result), X(answer)) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(answer));
-        ASSERT_FLOAT_EQ(Z(result), Z(answer));
-        ASSERT_FLOAT_EQ(W(result), W(answer));
-    }
-}
-
-TYPED_TEST(TestVector, FnNormaliseAccurate)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto result = NormaliseAccurate(TestFixture::groupA[i]);
-        auto l = sqrt(
-            (X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
-            (Y(TestFixture::groupA[i]) * Y(TestFixture::groupA[i])) +
-            (Z(TestFixture::groupA[i]) * Z(TestFixture::groupA[i])) +
-            (W(TestFixture::groupA[i]) * W(TestFixture::groupA[i])));
-
-        auto answer = typename TestFixture::Vec{{{
-                X(TestFixture::groupA[i]) / l,
-                Y(TestFixture::groupA[i]) / l,
-                Z(TestFixture::groupA[i]) / l,
-                W(TestFixture::groupA[i]) / l}}};
-
-        ASSERT_FLOAT_EQ(X(result), X(answer)) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(answer));
-        ASSERT_FLOAT_EQ(Z(result), Z(answer));
-        ASSERT_FLOAT_EQ(W(result), W(answer));
-    }
-}
-
-TYPED_TEST(TestVector, Benchmark)
-{
-    auto asize = TestFixture::groupA.size();
-
-    if (asize > 100)
-    {
-        asize = 100;
-    }
-
-    for (uint k = 0 ; k < 100; ++k)
-    {
-        for (uint i = 0 ; i < asize; ++i)
-        {
-            for (uint j = 0 ; j < asize; ++j)
-            {
-                // Normalise an angle, by speed, add some other velocities, add it to a position
-                // via a time step.
-                auto finalVel =
-                        Mad(
-                            NormaliseFast(TestFixture::groupA[i]),
-                            LoadReplicate<typename TestFixture::Vec>(5),
-                            TestFixture::groupB[j] + TestFixture::groupC[i]);
-
-                TestFixture::groupA[j] = TestFixture::groupA[j] + (finalVel /  Load<typename TestFixture::Vec>(60,60,60,60));
-            }
-        }
-    }
 }
 
 }}} // namespace
