@@ -18,29 +18,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef VECTORLOAD_HPP
-#define VECTORLOAD_HPP
+#ifndef VECTORFAST_HPP
+#define VECTORFAST_HPP
 
-#include "Vector.hpp"
+#include "VectorFastGeneral.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// I need a way of differing functions by return type. This is what I came up with.
-// Use template specialisation. I get around the one defintion rule by using "inline"
-// for the specilisation itself.
-// NOTE: All of this is necessary because I can't just init a vector using:
-// auto pos = Vector{0.0, 0.0, 0.0, 0,0};
-// This is a problem when Vector isn't a struct{std::array<float, 4>} but actually a
-// using VectorSSE = __m128;
-template<typename T> constexpr T Load(float x, float y, float z, float w);
-template<typename T> constexpr T Load(float x, float y, float z);
-template<typename T> constexpr T Load(float x, float y);
-template<typename T> constexpr T Load(float x);
-template<typename T> constexpr T Load(const Vector& v);
-
-// Copies X into all the type's arrays.
-template<typename T> constexpr T LoadReplicate(float x);
+// Gee, why is getting a nice vector library so hard?
+// All the ones online are not POD compliant!
+// http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
+// http://www.boost.org/doc/libs/1_37_0/libs/numeric/ublas/doc/overview.htm
+using VectorFast = VectorFastGeneral;
 
 }}} // namespace
 
-#endif // VECTORLOAD_HPP
+#endif // VECTORFAST_HPP

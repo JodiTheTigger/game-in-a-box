@@ -309,8 +309,8 @@ source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
 source/State/Implementation/Vector.hpp
-source/State/Implementation/VectorAligned.hpp
 source/State/Implementation/VectorLoad.hpp
+source/State/Implementation/VectorFast.hpp
 source/State/Implementation/VectorFastGeneral.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
@@ -323,6 +323,7 @@ test/State/TestDeltaStatePlayerClient.cpp
 test/State/TestDeltaStateGameSnapshot.cpp
 test/State/TestEntity.cpp
 test/State/TestVector.cpp
+test/State/TestVectorFast.cpp
 )
 
 set(UNUSED

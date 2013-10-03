@@ -80,7 +80,7 @@ template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x)
     }}};
 }
 
-template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(const VectorAligned& v)
+template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(const Vector& v)
 {
     return VectorFastGeneral
     {{{
@@ -106,9 +106,9 @@ template<> inline constexpr VectorFastGeneral LoadReplicate<VectorFastGeneral>(f
 // Save
 // ///////////////////
 
-VectorAligned Save(VectorFastGeneral v)
+Vector Save(VectorFastGeneral v)
 {
-    return VectorAligned
+    return Vector
     {{{
             v.values[0],
             v.values[1],
