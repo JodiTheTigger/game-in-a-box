@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef VectorFastGeneral_HPP
-#define VectorFastGeneral_HPP
+#ifndef VECTORFASTGENERAL_HPP
+#define VECTORFASTGENERAL_HPP
 
-#include "VectorLoad.hpp"
+#include "Vector.hpp"
 
 #include <array>
 #include <cmath>
@@ -30,77 +30,36 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 struct alignas(16) VectorFastGeneral
 {
+    struct tagReplicate {};
+    struct tagAccurate {};
+
     std::array<float, 4> values;
+
+    constexpr VectorFastGeneral()
+        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
+    constexpr VectorFastGeneral(float x)
+        : values{{x, 0.0f, 0.0f, 0.0f}} {}
+    constexpr VectorFastGeneral(float x, float y)
+        : values{{x, y, 0.0f, 0.0f}} {}
+    constexpr VectorFastGeneral(float x, float y, float z)
+        : values{{x, y, z, 0.0f}} {}
+    constexpr VectorFastGeneral(float x, float y, float z, float w)
+        : values{{x, y, z, w}} {}
+
+    constexpr VectorFastGeneral(Vector vector)
+        : values(vector.values) {}
+    constexpr VectorFastGeneral(const std::array<float, 4>& array)
+        : values(array) {}
+    constexpr VectorFastGeneral(float x, tagReplicate)
+        : values{{x, x, x, x}} {}
+
+    VectorFastGeneral(const VectorFastGeneral&) = default;
+    VectorFastGeneral(VectorFastGeneral&&) = default;
+    VectorFastGeneral& operator=(const VectorFastGeneral&) & = default;
+    VectorFastGeneral& operator=(VectorFastGeneral&&) & = default;
+
+    constexpr Vector ToVector() const { return Vector{values}; }
 };
-
-// ///////////////////
-// Loads
-// ///////////////////
-template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x, float y, float z, float w)
-{
-    return VectorFastGeneral
-    {{{
-            x,
-            y,
-            z,
-            w,
-    }}};
-}
-
-template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x, float y, float z)
-{
-    return VectorFastGeneral
-    {{{
-            x,
-            y,
-            z,
-            0.0f,
-    }}};
-}
-
-template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x, float y)
-{
-    return VectorFastGeneral
-    {{{
-            x,
-            y,
-            0.0f,
-            0.0f,
-    }}};
-}
-
-template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(float x)
-{
-    return VectorFastGeneral
-    {{{
-            x,
-            0.0f,
-            0.0f,
-            0.0f,
-    }}};
-}
-
-template<> inline constexpr VectorFastGeneral Load<VectorFastGeneral>(const Vector& v)
-{
-    return VectorFastGeneral
-    {{{
-            X(v),
-            Y(v),
-            Z(v),
-            W(v),
-    }}};
-}
-
-template<> inline constexpr VectorFastGeneral LoadReplicate<VectorFastGeneral>(float x)
-{
-    return VectorFastGeneral
-    {{{
-            x,
-            x,
-            x,
-            x,
-    }}};
-}
 
 // ///////////////////
 // Save
@@ -122,8 +81,6 @@ Vector Save(VectorFastGeneral v)
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-
-// RAM: Debug
 
 // ///////////////////
 // Increment / Decrement
@@ -219,12 +176,12 @@ inline constexpr VectorFastGeneral operator-(const VectorFastGeneral& lhs)
     // Ugh, clang!
     // Three braces: First for copy init, second for the struct, third for the array.
     return VectorFastGeneral
-    {{{
+    {
         -lhs.values[0],
         -lhs.values[1],
         -lhs.values[2],
         -lhs.values[3]
-    }}};
+    };
 }
 
 inline VectorFastGeneral operator+(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs += rhs;  return lhs; }
@@ -238,12 +195,12 @@ inline VectorFastGeneral operator/(VectorFastGeneral lhs, const VectorFastGenera
 inline VectorFastGeneral Sqrt(const VectorFastGeneral& rhs)
 {
     return VectorFastGeneral
-    {{{
+    {
             std::sqrt(rhs.values[0]),
             std::sqrt(rhs.values[1]),
             std::sqrt(rhs.values[2]),
             std::sqrt(rhs.values[3])
-    }}};
+    };
 }
 
 inline VectorFastGeneral Dot(VectorFastGeneral lhs, const VectorFastGeneral& rhs)
@@ -255,12 +212,10 @@ inline VectorFastGeneral Dot(VectorFastGeneral lhs, const VectorFastGeneral& rhs
             (lhs.values[3] * rhs.values[3]);
 
     return VectorFastGeneral
-    {{{
+    {
          sum,
-         sum,
-         sum,
-         sum
-    }}};
+         VectorFastGeneral::tagReplicate{}
+    };
 }
 
 inline VectorFastGeneral Length(VectorFastGeneral rhs)
@@ -274,12 +229,10 @@ inline VectorFastGeneral Length(VectorFastGeneral rhs)
             (rhs.values[3] * rhs.values[3]));
 
     return VectorFastGeneral
-    {{{
+    {
          length,
-         length,
-         length,
-         length
-    }}};
+         VectorFastGeneral::tagReplicate{}
+    };
 }
 
 inline VectorFastGeneral LengthSquared(VectorFastGeneral rhs)
@@ -290,24 +243,24 @@ inline VectorFastGeneral LengthSquared(VectorFastGeneral rhs)
 inline VectorFastGeneral Mad(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs, const VectorFastGeneral& add)
 {
     return VectorFastGeneral
-    {{{
+    {
         fmaf(lhs.values[0], rhs.values[0], add.values[0]),
         fmaf(lhs.values[1], rhs.values[1], add.values[1]),
         fmaf(lhs.values[2], rhs.values[2], add.values[2]),
         fmaf(lhs.values[3], rhs.values[3], add.values[3])
-    }}};
+    };
 }
 
-inline VectorFastGeneral NormaliseFast(VectorFastGeneral lhs)
+inline VectorFastGeneral Normalise(VectorFastGeneral lhs)
 {
     return lhs / Length(lhs);
 }
 
-inline VectorFastGeneral NormaliseAccurate(VectorFastGeneral lhs)
+inline VectorFastGeneral Normalise(VectorFastGeneral lhs, VectorFastGeneral::tagAccurate)
 {
     return lhs / Length(lhs);
 }
 
 }}} // namespace
 
-#endif // VectorFastGeneral_HPP
+#endif // VECTORFASTGENERAL_HPP

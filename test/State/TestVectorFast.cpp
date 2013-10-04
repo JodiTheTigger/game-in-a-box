@@ -83,7 +83,7 @@ TYPED_TEST_CASE(TestVectorFast, TestVectorFastTypes);
 
 TYPED_TEST(TestVectorFast, Empty)
 {
-    auto toTest = Save(LoadReplicate<typename TestFixture::Vec>(0));
+    auto toTest = Save(typename TestFixture::Vec(0, typename TestFixture::Vec::tagReplicate{}));
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, X(toTest));
@@ -94,8 +94,8 @@ TYPED_TEST(TestVectorFast, Empty)
 
 TYPED_TEST(TestVectorFast, Equal)
 {
-    auto a = Save(Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f));
-    auto b = Save(Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f));
+    auto a = Save(typename TestFixture::Vec(-1.0f, 0.0f, 1.0f, 123456789.0f));
+    auto b = Save(typename TestFixture::Vec(-1.0f, 0.0f, 1.0f, 123456789.0f));
 
     EXPECT_EQ(a, b);
     EXPECT_FLOAT_EQ(X(a), X(b));
@@ -106,7 +106,7 @@ TYPED_TEST(TestVectorFast, Equal)
 
 TYPED_TEST(TestVectorFast, NotEqual)
 {
-    auto a = Save(Load<typename TestFixture::Vec>(-1.0f, 0.0f, 1.0f, 123456789.0f));
+    auto a = Save(typename TestFixture::Vec(-1.0f, 0.0f, 1.0f, 123456789.0f));
     auto b = std::vector<Vector>{};
 
     b.push_back({{{1.0f, 0.0f, 1.0f, 123456789.0f}}});
@@ -129,8 +129,8 @@ TYPED_TEST(TestVectorFast, Increment)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
 
         // RAM: TODO: Test saving the values when inc/dec them.
         a++;
@@ -158,8 +158,8 @@ TYPED_TEST(TestVectorFast, Decrement)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
 
         // RAM: TODO: Test saving the values when inc/dec them.
         a--;
@@ -186,9 +186,9 @@ TYPED_TEST(TestVectorFast, Add)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
-        auto c = Load<typename TestFixture::Vec>(TestFixture::groupC[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
+        auto c = typename TestFixture::Vec(TestFixture::groupC[i]);
 
         auto result = Save(a + b);
         c += a;
@@ -212,9 +212,9 @@ TYPED_TEST(TestVectorFast, Subtract)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
-        auto c = Load<typename TestFixture::Vec>(TestFixture::groupC[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
+        auto c = typename TestFixture::Vec(TestFixture::groupC[i]);
 
         auto result = Save(a - b);
         c -= a;
@@ -238,9 +238,9 @@ TYPED_TEST(TestVectorFast, Multiply)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
-        auto c = Load<typename TestFixture::Vec>(TestFixture::groupC[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
+        auto c = typename TestFixture::Vec(TestFixture::groupC[i]);
 
         auto result = Save(a * b);
         c *= a;
@@ -264,9 +264,9 @@ TYPED_TEST(TestVectorFast, Divide)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
-        auto c = Load<typename TestFixture::Vec>(TestFixture::groupC[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
+        auto c = typename TestFixture::Vec(TestFixture::groupC[i]);
 
         auto result = Save(a / b);
         c /= a;
@@ -290,9 +290,9 @@ TYPED_TEST(TestVectorFast, Mad)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
-        auto c = Load<typename TestFixture::Vec>(TestFixture::groupC[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
+        auto c = typename TestFixture::Vec(TestFixture::groupC[i]);
 
         auto result = Save((a*b) + c);
         auto d = c;
@@ -317,9 +317,9 @@ TYPED_TEST(TestVectorFast, FnMad)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
-        auto c = Load<typename TestFixture::Vec>(TestFixture::groupC[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
+        auto c = typename TestFixture::Vec(TestFixture::groupC[i]);
         auto result = Save(Mad(a, b, c));
 
         ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) * X(TestFixture::groupB[i]) + X(TestFixture::groupC[i])) << " i: " << i;
@@ -343,7 +343,7 @@ TYPED_TEST(TestVectorFast, FnSqrt)
                 (W(TestFixture::groupA[i]) >= 0)
              )
         {
-            auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
+            auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
             auto result = Save(Sqrt(a));
 
             ASSERT_FLOAT_EQ(X(result), sqrt(X(TestFixture::groupA[i]))) << " i: " << i;
@@ -360,8 +360,8 @@ TYPED_TEST(TestVectorFast, FnDot)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto b = Load<typename TestFixture::Vec>(TestFixture::groupB[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
         auto result = Save(Dot(a, b));
         auto dot =
                 (X(TestFixture::groupA[i]) * X(TestFixture::groupB[i])) +
@@ -382,7 +382,7 @@ TYPED_TEST(TestVectorFast, FnLength)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
         auto result = Save(Length(a));
         auto l =
                 sqrt((X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
@@ -403,7 +403,7 @@ TYPED_TEST(TestVectorFast, FnLengthSquared)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
         auto result = Save(Length(a));
         auto l =
                 sqrt((X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
@@ -426,8 +426,8 @@ TYPED_TEST(TestVectorFast, FnNormaliseFast)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto result = Save(NormaliseFast(a));
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto result = Save(Normalise(a));
         auto l = sqrt(
             (X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
             (Y(TestFixture::groupA[i]) * Y(TestFixture::groupA[i])) +
@@ -453,8 +453,8 @@ TYPED_TEST(TestVectorFast, FnNormaliseAccurate)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-        auto result = Save(NormaliseAccurate(a));
+        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
+        auto result = Save(Normalise(a, typename TestFixture::Vec::tagAccurate{}));
         auto l = sqrt(
             (X(TestFixture::groupA[i]) * X(TestFixture::groupA[i])) +
             (Y(TestFixture::groupA[i]) * Y(TestFixture::groupA[i])) +
@@ -476,6 +476,9 @@ TYPED_TEST(TestVectorFast, FnNormaliseAccurate)
 
 TYPED_TEST(TestVectorFast, Benchmark)
 {
+    using Vec4          = typename TestFixture::Vec;
+    using tagReplicate  = typename Vec4::tagReplicate;
+
     auto asize = TestFixture::groupA.size();
 
     if (asize > 50)
@@ -491,14 +494,15 @@ TYPED_TEST(TestVectorFast, Benchmark)
             {
                 // Normalise an angle, by speed, add some other velocities, add it to a position
                 // via a time step.
-                auto a = Load<typename TestFixture::Vec>(TestFixture::groupA[i]);
-                auto finalVel =
-                        Mad(
-                            NormaliseFast(a),
-                            LoadReplicate<typename TestFixture::Vec>(5),
-                            Load<typename TestFixture::Vec>(TestFixture::groupB[j]) + Load<typename TestFixture::Vec>(TestFixture::groupC[i]));
+                auto a = Vec4(TestFixture::groupA[i]);
+                auto b = Vec4(TestFixture::groupB[i]);
+                auto c = Vec4(TestFixture::groupC[i]);
+                auto finalVel = Mad(
+                            Normalise(a),
+                            Vec4(5, tagReplicate{}),
+                            b + c);
 
-                TestFixture::groupA[j] = Save(a + (finalVel /  Load<typename TestFixture::Vec>(60,60,60,60)));
+                TestFixture::groupA[j] = Save(a + (finalVel /  Vec4(60,60,60,60)));
             }
         }
     }
