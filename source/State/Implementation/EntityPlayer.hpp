@@ -57,7 +57,7 @@ struct EntityPlayer
     PlayerAction input;
 
     Position position;
-    Velocity vecolity;
+    Velocity velocity;
 
     Ammo energyShoot;
 

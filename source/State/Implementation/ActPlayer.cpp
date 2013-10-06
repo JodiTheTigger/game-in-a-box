@@ -20,8 +20,12 @@
 
 #include "ActPlayer.hpp"
 #include "Flags.hpp"
+#include "VectorFast.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
+
+// 0-100km in 6 seconds is 60m/s acceleration.
+constexpr VectorFast ImpulseJet() { return VectorFast(1.0f, VectorFast::tagReplicate{}); }
 
 // Apply things like thrust and movement by setting velocity.
 
@@ -43,7 +47,15 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
             result.player.jetting = result.player.input.look;
         }
 
-        // RAM: TODO: Add the actual thrust!
+        // Vector Maths bit.
+        auto velocity       = VectorFast{result.player.velocity.value};
+        auto orientation    = VectorFast{result.player.jetting.value};
+
+        // Don't assume ImpulseJet will *always* be 1.0. Otherwise this
+        // would be just an add instad.
+        auto newVelocity    = Mad(orientation, ImpulseJet(), velocity);
+
+        result.player.velocity.value = newVelocity.ToVector();
     }
     else
     {
