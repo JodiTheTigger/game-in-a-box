@@ -69,6 +69,20 @@ struct Orientation
     Vector value;
 };
 
+// RAM: TODO: Was I going to bother with boost::units?
+// m/s
+struct Velocity
+{
+    Vector value;
+};
+
+// RAM: TODO: Was I going to bother with boost::units?
+// m/ss
+struct Acceleration
+{
+    Vector value;
+};
+
 }}} // namespace
 
 #endif // ENTITYTYPES_HPP

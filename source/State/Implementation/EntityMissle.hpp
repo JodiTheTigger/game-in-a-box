@@ -29,21 +29,17 @@ namespace GameInABox { namespace State { namespace Implementation {
 enum class EntityStateMissle : uint32_t
 {
     Flying,
-    Exploding
+    Exploding,
+    Scoring
 };
 
 struct EntityMissle
 {
-    Tick time;
-
-    EntityStateMissle state;
-
-    Tick startTick;
-
-    // RAM: TODO: Make this its own type.
-    Vector startPosition;
-
-    Id owner;
+    Tick                time;
+    EntityStateMissle   state;
+    Tick                startTick;
+    Position            start;
+    Id                  owner;
 };
 
 }}} // namespace
