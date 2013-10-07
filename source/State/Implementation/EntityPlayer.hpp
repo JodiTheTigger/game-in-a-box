@@ -36,7 +36,10 @@ enum class FlagsPlayerAction : uint32_t
     Left    = (1 << 2),
     Right   = (1 << 3),
     Jet     = (1 << 4),
-    Fire    = (1 << 5)
+    Fire    = (1 << 5),
+
+    // Server side only.
+    Ground  = (1 << 6)
 };
 
 struct PlayerAction
@@ -63,6 +66,7 @@ struct EntityPlayer
 
     // jetting
     Orientation jetting;
+    Energy fuel;
 
     // Server side
     Tick lastFired;

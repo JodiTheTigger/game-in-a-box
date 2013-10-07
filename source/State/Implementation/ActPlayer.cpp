@@ -22,10 +22,37 @@
 #include "Flags.hpp"
 #include "VectorFast.hpp"
 
+//#include <Common/UnitOperators.hpp>
+
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Why doesn't includeing UnitOperators work?!
+// Comparison and Binary operators for struct based types
+// with a solo member called "value"
+template<class DATATYPE> inline bool operator==(const DATATYPE& lhs, const DATATYPE& rhs){return lhs.value==rhs.value;}
+template<class DATATYPE> inline bool operator!=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator==(lhs,rhs);}
+template<class DATATYPE> inline bool operator< (const DATATYPE& lhs, const DATATYPE& rhs){return lhs.value< rhs.value;}
+template<class DATATYPE> inline bool operator> (const DATATYPE& lhs, const DATATYPE& rhs){return  operator< (rhs,lhs);}
+template<class DATATYPE> inline bool operator<=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator> (lhs,rhs);}
+template<class DATATYPE> inline bool operator>=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator< (lhs,rhs);}
+
+// RAM: TODO: unit test this.
+template<class DATATYPE> inline DATATYPE& operator+=(DATATYPE& lhs, const DATATYPE& rhs){ lhs.value += rhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE& operator-=(DATATYPE& lhs, const DATATYPE& rhs){ lhs.value -= rhs.value;  return lhs; }
+
+template<class DATATYPE> inline DATATYPE operator+(DATATYPE lhs, const DATATYPE& rhs){ lhs.value += rhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs, const DATATYPE& rhs){ lhs.value -= rhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs)                     { lhs.value = -lhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator*(DATATYPE lhs, const DATATYPE& rhs){ lhs.value *= rhs.value;  return lhs; }
+template<class DATATYPE> inline DATATYPE operator/(DATATYPE lhs, const DATATYPE& rhs){ lhs.value /= rhs.value;  return lhs; }
+
+
+
 // 0-100km in 6 seconds is 60m/s acceleration.
-constexpr VectorFast ImpulseJet() { return VectorFast(1.0f, VectorFast::tagReplicate{}); }
+constexpr VectorFast JetImpulse() { return VectorFast(1.0f, VectorFast::tagReplicate{}); }
+constexpr Energy JetMaxEnergy() { return Energy{10000}; }
+constexpr Energy JetEnergyRechargePerTick() { return Energy{10000 / (10 * 60)}; }
+constexpr Energy JetEnergyBurnPerTick() { return Energy{10000 / (3 * 60)}; }
 
 // Apply things like thrust and movement by setting velocity.
 
@@ -38,6 +65,16 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
 {
     auto result = protagonist;
 
+    // Jet regen
+    // RAM: TODO: Should energy regen be here? or at player/time colide?
+    auto jetEnergy = result.player.fuel + JetEnergyRechargePerTick();
+
+    // RAM: TODO: Just use min()
+    if (jetEnergy > JetMaxEnergy())
+    {
+        jetEnergy = JetMaxEnergy();
+    }
+
     // Jet latches on the direction you were facing when you start jetting.
     if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Jet))
     {
@@ -47,25 +84,56 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
             result.player.jetting = result.player.input.look;
         }
 
-        // Vector Maths bit.
-        auto velocity       = VectorFast{result.player.velocity.value};
-        auto orientation    = VectorFast{result.player.jetting.value};
+        if (jetEnergy > JetEnergyBurnPerTick())
+        {
+            jetEnergy -= JetEnergyBurnPerTick();
 
-        // Don't assume ImpulseJet will *always* be 1.0. Otherwise this
-        // would be just an add instad.
-        auto newVelocity    = Mad(orientation, ImpulseJet(), velocity);
+            // Vector Maths bit.
+            auto velocity       = VectorFast{result.player.velocity.value};
+            auto orientation    = VectorFast{result.player.jetting.value};
 
-        result.player.velocity.value = newVelocity.ToVector();
+            // Don't assume ImpulseJet will *always* be 1.0. Otherwise this
+            // would be just an add instad.
+            auto newVelocity    = Mad(orientation, JetImpulse(), velocity);
+
+            result.player.velocity.value = newVelocity.ToVector();
+        }
     }
     else
     {
         result.player.allowedAction = FlagClear(result.player.allowedAction, FlagsPlayerAction::Jet);
     }
 
-    // RAM: TODO:
-    // Jet thrust
-    // Energy Regen
     // Movement
+    if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Ground))
+    {
+        auto movement = VectorFast{};
+
+        if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Foward))
+        {
+            movement += VectorFast(0,0,1);
+        }
+        if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Back))
+        {
+            movement += VectorFast(0,0,-1);
+        }
+        if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Left))
+        {
+            movement += VectorFast(-1,0,0);
+        }
+        if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Right))
+        {
+            movement += VectorFast(1,0,0);
+        }
+
+        // Rotate to facing
+        // Normaise
+        // Multiple by speed per tick
+        // save
+    }
+
+    // save values
+    result.player.fuel = jetEnergy;
 
     return result;
 }
