@@ -28,6 +28,7 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Unit test!
 struct alignas(16) FastMatrixGeneral
 {
     std::array<FastVectorGeneral, 4> values;
@@ -101,19 +102,33 @@ inline FastMatrixGeneral& operator-=(FastMatrixGeneral& lhs, const FastMatrixGen
 
 inline FastMatrixGeneral& operator*=(FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs)
 {
-    lhs.values[0] *= rhs.values[0];
-    lhs.values[1] *= rhs.values[1];
-    lhs.values[2] *= rhs.values[2];
-    lhs.values[3] *= rhs.values[3];
-    return lhs;
-}
+    auto& l         = lhs.values;
+    const auto& r   = rhs.values;
 
-inline FastMatrixGeneral& operator/=(FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs)
-{
-    lhs.values[0] /= rhs.values[0];
-    lhs.values[1] /= rhs.values[1];
-    lhs.values[2] /= rhs.values[2];
-    lhs.values[3] /= rhs.values[3];
+    auto result = FastMatrixGeneral
+    {
+            (l[0].values[0] * r[0].values[0]) + (l[0].values[1] * r[1].values[0]) + (l[0].values[2] * r[2].values[0]) + (l[0].values[3] * r[3].values[0]),
+            (l[0].values[0] * r[0].values[1]) + (l[0].values[1] * r[1].values[1]) + (l[0].values[2] * r[2].values[1]) + (l[0].values[3] * r[3].values[1]),
+            (l[0].values[0] * r[0].values[2]) + (l[0].values[1] * r[1].values[2]) + (l[0].values[2] * r[2].values[2]) + (l[0].values[3] * r[3].values[2]),
+            (l[0].values[0] * r[0].values[3]) + (l[0].values[1] * r[1].values[3]) + (l[0].values[2] * r[2].values[3]) + (l[0].values[3] * r[3].values[3]),
+
+            (l[1].values[0] * r[0].values[0]) + (l[1].values[1] * r[1].values[0]) + (l[1].values[2] * r[2].values[0]) + (l[1].values[3] * r[3].values[0]),
+            (l[1].values[0] * r[0].values[1]) + (l[1].values[1] * r[1].values[1]) + (l[1].values[2] * r[2].values[1]) + (l[1].values[3] * r[3].values[1]),
+            (l[1].values[0] * r[0].values[2]) + (l[1].values[1] * r[1].values[2]) + (l[1].values[2] * r[2].values[2]) + (l[1].values[3] * r[3].values[2]),
+            (l[1].values[0] * r[0].values[3]) + (l[1].values[1] * r[1].values[3]) + (l[1].values[2] * r[2].values[3]) + (l[1].values[3] * r[3].values[3]),
+
+            (l[2].values[0] * r[0].values[0]) + (l[2].values[1] * r[1].values[0]) + (l[2].values[2] * r[2].values[0]) + (l[2].values[3] * r[3].values[0]),
+            (l[2].values[0] * r[0].values[1]) + (l[2].values[1] * r[1].values[1]) + (l[2].values[2] * r[2].values[1]) + (l[2].values[3] * r[3].values[1]),
+            (l[2].values[0] * r[0].values[2]) + (l[2].values[1] * r[1].values[2]) + (l[2].values[2] * r[2].values[2]) + (l[2].values[3] * r[3].values[2]),
+            (l[2].values[0] * r[0].values[3]) + (l[2].values[1] * r[1].values[3]) + (l[2].values[2] * r[2].values[3]) + (l[2].values[3] * r[3].values[3]),
+
+            (l[3].values[0] * r[0].values[0]) + (l[3].values[1] * r[1].values[0]) + (l[3].values[2] * r[2].values[0]) + (l[3].values[3] * r[3].values[0]),
+            (l[3].values[0] * r[0].values[1]) + (l[3].values[1] * r[1].values[1]) + (l[3].values[2] * r[2].values[1]) + (l[3].values[3] * r[3].values[1]),
+            (l[3].values[0] * r[0].values[2]) + (l[3].values[1] * r[1].values[2]) + (l[3].values[2] * r[2].values[2]) + (l[3].values[3] * r[3].values[2]),
+            (l[3].values[0] * r[0].values[3]) + (l[3].values[1] * r[1].values[3]) + (l[3].values[2] * r[2].values[3]) + (l[3].values[3] * r[3].values[3])
+    };
+
+    lhs = result;
     return lhs;
 }
 
@@ -131,7 +146,11 @@ inline constexpr FastMatrixGeneral operator-(const FastMatrixGeneral& lhs)
 inline FastMatrixGeneral operator+(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs += rhs;  return lhs; }
 inline FastMatrixGeneral operator-(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs -= rhs;  return lhs; }
 inline FastMatrixGeneral operator*(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs *= rhs;  return lhs; }
-inline FastMatrixGeneral operator/(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs /= rhs;  return lhs; }
+
+// ///////////////////
+// Vector and Matrix maths.
+// ///////////////////
+// RAM: TODO!
 
 }}} // namespace
 
