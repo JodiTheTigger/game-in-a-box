@@ -25,7 +25,8 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-using FastMatrix = FastMatrixGeneral;
+using FastMatrix4x4 = FastMatrixGeneral;
+using FastMatrix3x3 = FastMatrixGeneral;
 
 }}} // namespace
 

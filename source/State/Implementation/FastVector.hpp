@@ -29,7 +29,8 @@ namespace GameInABox { namespace State { namespace Implementation {
 // All the ones online are not POD compliant!
 // http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
 // http://www.boost.org/doc/libs/1_37_0/libs/numeric/ublas/doc/overview.htm
-using FastVector = FastVectorGeneral;
+using FastVector4 = FastVectorGeneral;
+using FastVector3 = FastVectorGeneral;
 
 }}} // namespace
 
