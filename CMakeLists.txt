@@ -309,8 +309,10 @@ source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
 source/State/Implementation/Vector.hpp
-source/State/Implementation/VectorFast.hpp
-source/State/Implementation/VectorFastGeneral.hpp
+source/State/Implementation/FastVector.hpp
+source/State/Implementation/FastVectorGeneral.hpp
+source/State/Implementation/FastMatrix.hpp
+source/State/Implementation/FastMatrixGeneral.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp

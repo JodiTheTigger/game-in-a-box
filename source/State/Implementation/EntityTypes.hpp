@@ -83,6 +83,13 @@ struct Acceleration
     Vector value;
 };
 
+// RAM: TODO: Was I going to bother with boost::units?
+// Rads
+struct Yaw
+{
+    float value;
+};
+
 }}} // namespace
 
 #endif // ENTITYTYPES_HPP

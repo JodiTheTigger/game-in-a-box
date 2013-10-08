@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef VECTORFAST_HPP
-#define VECTORFAST_HPP
+#ifndef FASTVECTOR_HPP
+#define FASTVECTOR_HPP
 
-#include "VectorFastGeneral.hpp"
+#include "FastVectorGeneral.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -29,8 +29,8 @@ namespace GameInABox { namespace State { namespace Implementation {
 // All the ones online are not POD compliant!
 // http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
 // http://www.boost.org/doc/libs/1_37_0/libs/numeric/ublas/doc/overview.htm
-using VectorFast = VectorFastGeneral;
+using FastVector = FastVectorGeneral;
 
 }}} // namespace
 
-#endif // VECTORFAST_HPP
+#endif // FASTVECTOR_HPP

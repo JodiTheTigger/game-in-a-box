@@ -45,7 +45,15 @@ enum class FlagsPlayerAction : uint32_t
 struct PlayerAction
 {
     FlagsPlayerAction action;
+
+    // Rift support. Look != Face != WeaponFace
     Orientation look;
+
+    // Rotation around the YAxis
+    Yaw bodyFacing;
+
+    Orientation weaponPointing;
+    Position weaponOffset;
 };
 
 struct EntityPlayer

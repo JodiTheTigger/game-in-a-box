@@ -19,7 +19,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Implementation/VectorFastGeneral.hpp>
+#include <Implementation/FastVectorGeneral.hpp>
 #include <Implementation/Vector.hpp>
 
 #include <gmock/gmock.h>
@@ -78,7 +78,7 @@ public:
     std::vector<Vector> groupC;
 };
 
-typedef ::testing::Types<VectorFastGeneral> TestVectorFastTypes;
+typedef ::testing::Types<FastVectorGeneral> TestVectorFastTypes;
 TYPED_TEST_CASE(TestVectorFast, TestVectorFastTypes);
 
 TYPED_TEST(TestVectorFast, Empty)

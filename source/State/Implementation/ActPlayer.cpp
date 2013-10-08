@@ -20,14 +20,15 @@
 
 #include "ActPlayer.hpp"
 #include "Flags.hpp"
-#include "VectorFast.hpp"
+#include "FastVector.hpp"
 
+#include <cmath>
 //#include <Common/UnitOperators.hpp>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
 // RAM: TODO: Why doesn't including UnitOperators work?!
-// RAM: Due to ADL failure. VectorFast+ is found first, so
+// RAM: Due to ADL failure. FastVector+ is found first, so
 // RAM: namespace seaching stops, so it never finds the global
 // RAM: namespace. Copying the templates to here puts it into the
 // RAM: GameInABox::State::Implementation namespace (local) so they are found.
@@ -49,7 +50,7 @@ template<class DATATYPE> inline DATATYPE operator/(DATATYPE lhs, const DATATYPE&
 
 
 // 0-100km in 6 seconds is 60m/s acceleration.
-constexpr VectorFast JetImpulse() { return VectorFast(1.0f, VectorFast::tagReplicate{}); }
+constexpr FastVector JetImpulse() { return FastVector(1.0f, FastVector::tagReplicate{}); }
 constexpr Energy JetMaxEnergy() { return Energy{10000}; }
 constexpr Energy JetEnergyRechargePerTick() { return Energy{10000 / (10 * 60)}; }
 constexpr Energy JetEnergyBurnPerTick() { return Energy{10000 / (3 * 60)}; }
@@ -89,8 +90,8 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
             jetEnergy -= JetEnergyBurnPerTick();
 
             // Vector Maths bit.
-            auto velocity       = VectorFast{result.player.velocity.value};
-            auto orientation    = VectorFast{result.player.jetting.value};
+            auto velocity       = FastVector{result.player.velocity.value};
+            auto orientation    = FastVector{result.player.jetting.value};
 
             // Don't assume ImpulseJet will *always* be 1.0. Otherwise this
             // would be just an add instad.
@@ -107,26 +108,40 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
     // Movement
     if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Ground))
     {
-        auto movement = VectorFast{};
+        auto movement = FastVector(0.0, FastVector::tagReplicate{});
 
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Foward))
         {
-            movement += VectorFast(0,0,1);
+            movement += FastVector(0,0,1);
         }
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Back))
         {
-            movement += VectorFast(0,0,-1);
+            movement += FastVector(0,0,-1);
         }
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Left))
         {
-            movement += VectorFast(-1,0,0);
+            movement += FastVector(-1,0,0);
         }
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Right))
         {
-            movement += VectorFast(1,0,0);
+            movement += FastVector(1,0,0);
         }
 
+        movement = Normalise(movement);
+
         // Rotate to facing
+        // Take advantage that movement y is zero.
+        // Bah, do matrix maths manually.
+//        {
+//            float sinx = std::sin(result.player.input.bodyFacing.value);
+//            float cosx = std::cos(result.player.input.bodyFacing.value);
+//            auto r1 = FastVector(cosx, 0, sinx);
+//            auto r2 = FastVector(0, 1, 0);
+//            auto r3 = FastVector(-sinx, 0, cosx);
+
+//            auto result =
+//        }
+
         // Normaise
         // Multiple by speed per tick
         // save

@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef VECTORFASTGENERAL_HPP
-#define VECTORFASTGENERAL_HPP
+#ifndef FASTVECTORGENERAL_HPP
+#define FASTVECTORGENERAL_HPP
 
 #include "Vector.hpp"
 
@@ -28,35 +28,35 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct alignas(16) VectorFastGeneral
+struct alignas(16) FastVectorGeneral
 {
     struct tagReplicate {};
     struct tagAccurate {};
 
     std::array<float, 4> values;
 
-    constexpr VectorFastGeneral()
+    constexpr FastVectorGeneral()
         : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
-    constexpr VectorFastGeneral(float x)
+    constexpr FastVectorGeneral(float x)
         : values{{x, 0.0f, 0.0f, 0.0f}} {}
-    constexpr VectorFastGeneral(float x, float y)
+    constexpr FastVectorGeneral(float x, float y)
         : values{{x, y, 0.0f, 0.0f}} {}
-    constexpr VectorFastGeneral(float x, float y, float z)
+    constexpr FastVectorGeneral(float x, float y, float z)
         : values{{x, y, z, 0.0f}} {}
-    constexpr VectorFastGeneral(float x, float y, float z, float w)
+    constexpr FastVectorGeneral(float x, float y, float z, float w)
         : values{{x, y, z, w}} {}
 
-    constexpr VectorFastGeneral(Vector vector)
+    constexpr FastVectorGeneral(Vector vector)
         : values(vector.values) {}
-    constexpr VectorFastGeneral(const std::array<float, 4>& array)
+    constexpr FastVectorGeneral(const std::array<float, 4>& array)
         : values(array) {}
-    constexpr VectorFastGeneral(float x, tagReplicate)
+    constexpr FastVectorGeneral(float x, tagReplicate)
         : values{{x, x, x, x}} {}
 
-    VectorFastGeneral(const VectorFastGeneral&) = default;
-    VectorFastGeneral(VectorFastGeneral&&) = default;
-    VectorFastGeneral& operator=(const VectorFastGeneral&) & = default;
-    VectorFastGeneral& operator=(VectorFastGeneral&&) & = default;
+    FastVectorGeneral(const FastVectorGeneral&) = default;
+    FastVectorGeneral(FastVectorGeneral&&) = default;
+    FastVectorGeneral& operator=(const FastVectorGeneral&) & = default;
+    FastVectorGeneral& operator=(FastVectorGeneral&&) & = default;
 
     constexpr Vector ToVector() const { return Vector{values}; }
 };
@@ -65,7 +65,7 @@ struct alignas(16) VectorFastGeneral
 // Save
 // ///////////////////
 
-Vector Save(VectorFastGeneral v)
+Vector Save(FastVectorGeneral v)
 {
     return Vector
     {{{
@@ -85,7 +85,7 @@ Vector Save(VectorFastGeneral v)
 // ///////////////////
 // Increment / Decrement
 // ///////////////////
-inline VectorFastGeneral& operator++(VectorFastGeneral& rhs)
+inline FastVectorGeneral& operator++(FastVectorGeneral& rhs)
 {
     ++(rhs.values[0]);
     ++(rhs.values[1]);
@@ -95,7 +95,7 @@ inline VectorFastGeneral& operator++(VectorFastGeneral& rhs)
     return rhs;
 }
 
-inline VectorFastGeneral operator++(VectorFastGeneral& lhs, int)
+inline FastVectorGeneral operator++(FastVectorGeneral& lhs, int)
 {
    auto copy = lhs;
    ++lhs;
@@ -103,7 +103,7 @@ inline VectorFastGeneral operator++(VectorFastGeneral& lhs, int)
    return copy;
 }
 
-inline VectorFastGeneral& operator--(VectorFastGeneral& rhs)
+inline FastVectorGeneral& operator--(FastVectorGeneral& rhs)
 {
     --(rhs.values[0]);
     --(rhs.values[1]);
@@ -113,7 +113,7 @@ inline VectorFastGeneral& operator--(VectorFastGeneral& rhs)
     return rhs;
 }
 
-inline VectorFastGeneral operator--(VectorFastGeneral& lhs, int)
+inline FastVectorGeneral operator--(FastVectorGeneral& lhs, int)
 {
     auto copy = lhs;
     --lhs;
@@ -125,17 +125,17 @@ inline VectorFastGeneral operator--(VectorFastGeneral& lhs, int)
 // Comparison Operators
 // ///////////////////
 
-inline bool operator==(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return lhs.values==rhs.values;}
-inline bool operator!=(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return  !operator==(lhs,rhs);}
-inline bool operator< (const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return lhs.values<rhs.values;}
-inline bool operator> (const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return   operator< (rhs,lhs);}
-inline bool operator<=(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return  !operator> (lhs,rhs);}
-inline bool operator>=(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs){return  !operator< (lhs,rhs);}
+inline bool operator==(const FastVectorGeneral& lhs, const FastVectorGeneral& rhs){return lhs.values==rhs.values;}
+inline bool operator!=(const FastVectorGeneral& lhs, const FastVectorGeneral& rhs){return  !operator==(lhs,rhs);}
+inline bool operator< (const FastVectorGeneral& lhs, const FastVectorGeneral& rhs){return lhs.values<rhs.values;}
+inline bool operator> (const FastVectorGeneral& lhs, const FastVectorGeneral& rhs){return   operator< (rhs,lhs);}
+inline bool operator<=(const FastVectorGeneral& lhs, const FastVectorGeneral& rhs){return  !operator> (lhs,rhs);}
+inline bool operator>=(const FastVectorGeneral& lhs, const FastVectorGeneral& rhs){return  !operator< (lhs,rhs);}
 
 // ///////////////////
 // Simple Maths
 // ///////////////////
-inline VectorFastGeneral& operator+=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
+inline FastVectorGeneral& operator+=(FastVectorGeneral& lhs, const FastVectorGeneral& rhs)
 {
     lhs.values[0] += rhs.values[0];
     lhs.values[1] += rhs.values[1];
@@ -144,7 +144,7 @@ inline VectorFastGeneral& operator+=(VectorFastGeneral& lhs, const VectorFastGen
     return lhs;
 }
 
-inline VectorFastGeneral& operator-=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
+inline FastVectorGeneral& operator-=(FastVectorGeneral& lhs, const FastVectorGeneral& rhs)
 {
     lhs.values[0] -= rhs.values[0];
     lhs.values[1] -= rhs.values[1];
@@ -153,7 +153,7 @@ inline VectorFastGeneral& operator-=(VectorFastGeneral& lhs, const VectorFastGen
     return lhs;
 }
 
-inline VectorFastGeneral& operator*=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
+inline FastVectorGeneral& operator*=(FastVectorGeneral& lhs, const FastVectorGeneral& rhs)
 {
     lhs.values[0] *= rhs.values[0];
     lhs.values[1] *= rhs.values[1];
@@ -162,7 +162,7 @@ inline VectorFastGeneral& operator*=(VectorFastGeneral& lhs, const VectorFastGen
     return lhs;
 }
 
-inline VectorFastGeneral& operator/=(VectorFastGeneral& lhs, const VectorFastGeneral& rhs)
+inline FastVectorGeneral& operator/=(FastVectorGeneral& lhs, const FastVectorGeneral& rhs)
 {
     lhs.values[0] /= rhs.values[0];
     lhs.values[1] /= rhs.values[1];
@@ -171,11 +171,11 @@ inline VectorFastGeneral& operator/=(VectorFastGeneral& lhs, const VectorFastGen
     return lhs;
 }
 
-inline constexpr VectorFastGeneral operator-(const VectorFastGeneral& lhs)
+inline constexpr FastVectorGeneral operator-(const FastVectorGeneral& lhs)
 {
     // Ugh, clang!
     // Three braces: First for copy init, second for the struct, third for the array.
-    return VectorFastGeneral
+    return FastVectorGeneral
     {
         -lhs.values[0],
         -lhs.values[1],
@@ -184,17 +184,17 @@ inline constexpr VectorFastGeneral operator-(const VectorFastGeneral& lhs)
     };
 }
 
-inline VectorFastGeneral operator+(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs += rhs;  return lhs; }
-inline VectorFastGeneral operator-(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs -= rhs;  return lhs; }
-inline VectorFastGeneral operator*(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs *= rhs;  return lhs; }
-inline VectorFastGeneral operator/(VectorFastGeneral lhs, const VectorFastGeneral& rhs){ lhs /= rhs;  return lhs; }
+inline FastVectorGeneral operator+(FastVectorGeneral lhs, const FastVectorGeneral& rhs){ lhs += rhs;  return lhs; }
+inline FastVectorGeneral operator-(FastVectorGeneral lhs, const FastVectorGeneral& rhs){ lhs -= rhs;  return lhs; }
+inline FastVectorGeneral operator*(FastVectorGeneral lhs, const FastVectorGeneral& rhs){ lhs *= rhs;  return lhs; }
+inline FastVectorGeneral operator/(FastVectorGeneral lhs, const FastVectorGeneral& rhs){ lhs /= rhs;  return lhs; }
 
 // ///////////////////
 // Complicated Maths
 // ///////////////////
-inline VectorFastGeneral Sqrt(const VectorFastGeneral& rhs)
+inline FastVectorGeneral Sqrt(const FastVectorGeneral& rhs)
 {
-    return VectorFastGeneral
+    return FastVectorGeneral
     {
             std::sqrt(rhs.values[0]),
             std::sqrt(rhs.values[1]),
@@ -203,7 +203,7 @@ inline VectorFastGeneral Sqrt(const VectorFastGeneral& rhs)
     };
 }
 
-inline VectorFastGeneral Dot(VectorFastGeneral lhs, const VectorFastGeneral& rhs)
+inline FastVectorGeneral Dot(FastVectorGeneral lhs, const FastVectorGeneral& rhs)
 {
     auto sum =
             (lhs.values[0] * rhs.values[0]) +
@@ -211,14 +211,14 @@ inline VectorFastGeneral Dot(VectorFastGeneral lhs, const VectorFastGeneral& rhs
             (lhs.values[2] * rhs.values[2]) +
             (lhs.values[3] * rhs.values[3]);
 
-    return VectorFastGeneral
+    return FastVectorGeneral
     {
          sum,
-         VectorFastGeneral::tagReplicate{}
+         FastVectorGeneral::tagReplicate{}
     };
 }
 
-inline VectorFastGeneral Length(VectorFastGeneral rhs)
+inline FastVectorGeneral Length(FastVectorGeneral rhs)
 {
     // return Sqrt(Dot(rhs, rhs));
 
@@ -228,21 +228,21 @@ inline VectorFastGeneral Length(VectorFastGeneral rhs)
             (rhs.values[2] * rhs.values[2]) +
             (rhs.values[3] * rhs.values[3]));
 
-    return VectorFastGeneral
+    return FastVectorGeneral
     {
          length,
-         VectorFastGeneral::tagReplicate{}
+         FastVectorGeneral::tagReplicate{}
     };
 }
 
-inline VectorFastGeneral LengthSquared(VectorFastGeneral rhs)
+inline FastVectorGeneral LengthSquared(FastVectorGeneral rhs)
 {
     return Dot(rhs, rhs);
 }
 
-inline VectorFastGeneral Mad(const VectorFastGeneral& lhs, const VectorFastGeneral& rhs, const VectorFastGeneral& add)
+inline FastVectorGeneral Mad(const FastVectorGeneral& lhs, const FastVectorGeneral& rhs, const FastVectorGeneral& add)
 {
-    return VectorFastGeneral
+    return FastVectorGeneral
     {
         fmaf(lhs.values[0], rhs.values[0], add.values[0]),
         fmaf(lhs.values[1], rhs.values[1], add.values[1]),
@@ -251,16 +251,16 @@ inline VectorFastGeneral Mad(const VectorFastGeneral& lhs, const VectorFastGener
     };
 }
 
-inline VectorFastGeneral Normalise(VectorFastGeneral lhs)
+inline FastVectorGeneral Normalise(FastVectorGeneral lhs)
 {
     return lhs / Length(lhs);
 }
 
-inline VectorFastGeneral Normalise(VectorFastGeneral lhs, VectorFastGeneral::tagAccurate)
+inline FastVectorGeneral Normalise(FastVectorGeneral lhs, FastVectorGeneral::tagAccurate)
 {
     return lhs / Length(lhs);
 }
 
 }}} // namespace
 
-#endif // VECTORFASTGENERAL_HPP
+#endif // FASTVECTORGENERAL_HPP
