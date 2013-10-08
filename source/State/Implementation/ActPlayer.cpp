@@ -26,9 +26,11 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-// RAM: TODO: Why doesn't includeing UnitOperators work?!
-// Comparison and Binary operators for struct based types
-// with a solo member called "value"
+// RAM: TODO: Why doesn't including UnitOperators work?!
+// RAM: Due to ADL failure. VectorFast+ is found first, so
+// RAM: namespace seaching stops, so it never finds the global
+// RAM: namespace. Copying the templates to here puts it into the
+// RAM: GameInABox::State::Implementation namespace (local) so they are found.
 template<class DATATYPE> inline bool operator==(const DATATYPE& lhs, const DATATYPE& rhs){return lhs.value==rhs.value;}
 template<class DATATYPE> inline bool operator!=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator==(lhs,rhs);}
 template<class DATATYPE> inline bool operator< (const DATATYPE& lhs, const DATATYPE& rhs){return lhs.value< rhs.value;}
@@ -36,7 +38,6 @@ template<class DATATYPE> inline bool operator> (const DATATYPE& lhs, const DATAT
 template<class DATATYPE> inline bool operator<=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator> (lhs,rhs);}
 template<class DATATYPE> inline bool operator>=(const DATATYPE& lhs, const DATATYPE& rhs){return !operator< (lhs,rhs);}
 
-// RAM: TODO: unit test this.
 template<class DATATYPE> inline DATATYPE& operator+=(DATATYPE& lhs, const DATATYPE& rhs){ lhs.value += rhs.value;  return lhs; }
 template<class DATATYPE> inline DATATYPE& operator-=(DATATYPE& lhs, const DATATYPE& rhs){ lhs.value -= rhs.value;  return lhs; }
 
@@ -45,7 +46,6 @@ template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs, const DATATYPE&
 template<class DATATYPE> inline DATATYPE operator-(DATATYPE lhs)                     { lhs.value = -lhs.value;  return lhs; }
 template<class DATATYPE> inline DATATYPE operator*(DATATYPE lhs, const DATATYPE& rhs){ lhs.value *= rhs.value;  return lhs; }
 template<class DATATYPE> inline DATATYPE operator/(DATATYPE lhs, const DATATYPE& rhs){ lhs.value /= rhs.value;  return lhs; }
-
 
 
 // 0-100km in 6 seconds is 60m/s acceleration.
