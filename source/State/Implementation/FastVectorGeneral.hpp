@@ -173,8 +173,6 @@ inline FastVectorGeneral& operator/=(FastVectorGeneral& lhs, const FastVectorGen
 
 inline constexpr FastVectorGeneral operator-(const FastVectorGeneral& lhs)
 {
-    // Ugh, clang!
-    // Three braces: First for copy init, second for the struct, third for the array.
     return FastVectorGeneral
     {
         -lhs.values[0],
