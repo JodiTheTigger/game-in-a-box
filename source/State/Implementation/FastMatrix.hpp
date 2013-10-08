@@ -21,4 +21,12 @@
 #ifndef FASTMATRIX_HPP
 #define FASTMATRIX_HPP
 
+#include "FastMatrixGeneral.hpp"
+
+namespace GameInABox { namespace State { namespace Implementation {
+
+using FastMatrix = FastMatrixGeneral;
+
+}}} // namespace
+
 #endif // FASTMATRIX_HPP

@@ -21,4 +21,118 @@
 #ifndef FASTMATRIXGENERAL_HPP
 #define FASTMATRIXGENERAL_HPP
 
+#include "FastMatrixGeneral.hpp"
+#include "FastMatrixGeneral.hpp"
+
+#include <cmath>
+
+namespace GameInABox { namespace State { namespace Implementation {
+
+struct alignas(16) FastMatrixGeneral
+{
+    std::array<FastVectorGeneral, 4> values;
+
+    constexpr FastMatrixGeneral(std::array<FastVectorGeneral, 4> vectors)
+        : values(vectors) {}
+
+    constexpr FastMatrixGeneral(FastVectorGeneral x, FastVectorGeneral y, FastVectorGeneral z, FastVectorGeneral w)
+        : values{{x, y, z, w}} {}
+
+    // row major
+    constexpr FastMatrixGeneral(
+                float xx, float xy, float xz, float xw,
+                float yx, float yy, float yz, float yw,
+                float zx, float zy, float zz, float zw,
+                float wx, float wy, float wz, float ww)
+        : values{{
+              FastVectorGeneral(xx,xy,xz,xw),
+              FastVectorGeneral(yx,yy,yz,yw),
+              FastVectorGeneral(zx,zy,zz,zw),
+              FastVectorGeneral(wx,wy,wz,ww)}} {}
+
+    constexpr FastMatrixGeneral(
+                float xx, float xy, float xz,
+                float yx, float yy, float yz,
+                float zx, float zy, float zz)
+        : values{{
+              FastVectorGeneral(xx,xy,xz,0),
+              FastVectorGeneral(yx,yy,yz,0),
+              FastVectorGeneral(zx,zy,zz,0),
+              FastVectorGeneral(0,0,0,1.0f)}} {}
+};
+
+// ///////////////////
+// Operators
+// ///////////////////
+// Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
+// However all "inclass" operators changed to out of class.
+
+// ///////////////////
+// Comparison Operators
+// ///////////////////
+
+inline bool operator==(const FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs){return lhs.values==rhs.values;}
+inline bool operator!=(const FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs){return  !operator==(lhs,rhs);}
+inline bool operator< (const FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs){return lhs.values<rhs.values;}
+inline bool operator> (const FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs){return   operator< (rhs,lhs);}
+inline bool operator<=(const FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs){return  !operator> (lhs,rhs);}
+inline bool operator>=(const FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs){return  !operator< (lhs,rhs);}
+
+// ///////////////////
+// Simple Maths
+// ///////////////////
+inline FastMatrixGeneral& operator+=(FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs)
+{
+    lhs.values[0] += rhs.values[0];
+    lhs.values[1] += rhs.values[1];
+    lhs.values[2] += rhs.values[2];
+    lhs.values[3] += rhs.values[3];
+    return lhs;
+}
+
+inline FastMatrixGeneral& operator-=(FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs)
+{
+    lhs.values[0] -= rhs.values[0];
+    lhs.values[1] -= rhs.values[1];
+    lhs.values[2] -= rhs.values[2];
+    lhs.values[3] -= rhs.values[3];
+    return lhs;
+}
+
+inline FastMatrixGeneral& operator*=(FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs)
+{
+    lhs.values[0] *= rhs.values[0];
+    lhs.values[1] *= rhs.values[1];
+    lhs.values[2] *= rhs.values[2];
+    lhs.values[3] *= rhs.values[3];
+    return lhs;
+}
+
+inline FastMatrixGeneral& operator/=(FastMatrixGeneral& lhs, const FastMatrixGeneral& rhs)
+{
+    lhs.values[0] /= rhs.values[0];
+    lhs.values[1] /= rhs.values[1];
+    lhs.values[2] /= rhs.values[2];
+    lhs.values[3] /= rhs.values[3];
+    return lhs;
+}
+
+inline constexpr FastMatrixGeneral operator-(const FastMatrixGeneral& lhs)
+{
+    return FastMatrixGeneral
+    {
+        -lhs.values[0],
+        -lhs.values[1],
+        -lhs.values[2],
+        -lhs.values[3]
+    };
+}
+
+inline FastMatrixGeneral operator+(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs += rhs;  return lhs; }
+inline FastMatrixGeneral operator-(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs -= rhs;  return lhs; }
+inline FastMatrixGeneral operator*(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs *= rhs;  return lhs; }
+inline FastMatrixGeneral operator/(FastMatrixGeneral lhs, const FastMatrixGeneral& rhs){ lhs /= rhs;  return lhs; }
+
+}}} // namespace
+
 #endif // FASTMATRIXGENERAL_HPP
