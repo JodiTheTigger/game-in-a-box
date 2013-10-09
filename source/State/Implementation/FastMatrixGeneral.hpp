@@ -150,8 +150,27 @@ inline FastMatrixGeneral operator*(FastMatrixGeneral lhs, const FastMatrixGenera
 // ///////////////////
 // Vector and Matrix maths.
 // ///////////////////
-// RAM: TODO!
+inline FastVectorGeneral operator*(const FastMatrixGeneral& lhs, const FastVectorGeneral& rhs)
+{
+    return FastVectorGeneral
+    {
+            Dot(lhs.values[0], rhs),
+            Dot(lhs.values[1], rhs),
+            Dot(lhs.values[2], rhs),
+            Dot(lhs.values[3], rhs),
+    };
+}
 
+inline FastVectorGeneral operator*(const FastVectorGeneral& lhs, const FastMatrixGeneral& rhs)
+{
+    return FastVectorGeneral
+    {
+            rhs.values[0].values[0] * lhs.values[0] + rhs.values[1].values[0] * lhs.values[1] + rhs.values[2].values[0] * lhs.values[2] + rhs.values[3].values[0] * lhs.values[3],
+            rhs.values[0].values[1] * lhs.values[0] + rhs.values[1].values[1] * lhs.values[1] + rhs.values[2].values[1] * lhs.values[2] + rhs.values[3].values[1] * lhs.values[3],
+            rhs.values[0].values[2] * lhs.values[0] + rhs.values[1].values[2] * lhs.values[1] + rhs.values[2].values[2] * lhs.values[2] + rhs.values[3].values[2] * lhs.values[3],
+            rhs.values[0].values[3] * lhs.values[0] + rhs.values[1].values[3] * lhs.values[1] + rhs.values[2].values[3] * lhs.values[2] + rhs.values[3].values[3] * lhs.values[3],
+    };
+}
 }}} // namespace
 
 #endif // FASTMATRIXGENERAL_HPP
