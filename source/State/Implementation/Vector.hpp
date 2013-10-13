@@ -62,7 +62,7 @@ inline constexpr float W(const Vector& rhs){ return rhs.values[3]; }
 // Testing
 // ///////////////////
 static_assert(std::is_pod<Vector>::value, "Vector is not a plain old data structure (POD).");
-static_assert(alignof(Vector) == 16, "Vector is not aligned to a 16 bytes boundary.");
+static_assert(alignof(Vector) == 16, "Vector is not aligned to a 16 byte boundary.");
 
 }}} // namespace
 
