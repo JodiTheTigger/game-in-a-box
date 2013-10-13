@@ -313,6 +313,12 @@ source/State/Implementation/FastVector.hpp
 source/State/Implementation/FastVectorGeneral.hpp
 source/State/Implementation/FastMatrix.hpp
 source/State/Implementation/FastMatrixGeneral.hpp
+source/State/Implementation/Vector3cpp.hpp
+source/State/Implementation/Vector3neon.hpp
+source/State/Implementation/Vector3sse2.hpp
+source/State/Implementation/Matrix3x3cpp.hpp
+source/State/Implementation/Matrix3x3neon.hpp
+source/State/Implementation/Matrix3x3sse2.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
