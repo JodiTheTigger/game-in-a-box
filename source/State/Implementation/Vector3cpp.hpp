@@ -301,11 +301,10 @@ inline bool IsZeroFuzzy(const Vector3cpp& lhs)
 // http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
 // (Keep Results Into SIMD Registers)
 // That is, stop casting between SIMD and Float registers when it can all be kept in SIMD.
-//inline Vector3cpp DotF(const Vector3cpp& lhs, const Vector3cpp& rhs);
-//inline Vector3cpp LengthSquaredF(const Vector3cpp& lhs);
-//inline Vector3cpp LengthF(const Vector3cpp& lhs);
-//inline Vector3cpp DistanceF(const Vector3cpp& lhs, const Vector3cpp& rhs);
-//inline Vector3cpp DistanceSquaredF(const Vector3cpp& lhs, const Vector3cpp& rhs);
+//inline Vector3cpp LengthSquared(const Vector3cpp& lhs);
+//inline Vector3cpp Length(const Vector3cpp& lhs);
+//inline Vector3cpp Distance(const Vector3cpp& lhs, const Vector3cpp& rhs);
+//inline Vector3cpp DistanceSquared(const Vector3cpp& lhs, const Vector3cpp& rhs);
 //// This too?
 //inline Vector3cpp Angle(const Vector3cpp& lhs, const Vector3cpp& rhs);
 
