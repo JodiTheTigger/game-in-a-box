@@ -319,6 +319,9 @@ source/State/Implementation/Vector3sse2.hpp
 source/State/Implementation/Matrix3x3cpp.hpp
 source/State/Implementation/Matrix3x3neon.hpp
 source/State/Implementation/Matrix3x3sse2.hpp
+source/State/Implementation/QuaternionCpp.hpp
+source/State/Implementation/QuaternionSse2.hpp
+source/State/Implementation/QuaternionNeon.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
