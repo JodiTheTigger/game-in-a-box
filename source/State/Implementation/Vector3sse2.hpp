@@ -37,47 +37,44 @@ struct alignas(16) Vector3sse2
 {
     struct tagReplicate {};
 
-    std::array<float, 4> values;
-    //__m128 values;
+    __m128 value;
 
+    // RAM: TODO: need to watch initlising value to 0 before an assignment.
     constexpr Vector3sse2()
-        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
+        : value{_mm_setzero_ps()} {}
     constexpr Vector3sse2(float x)
-        : values{{x, 0.0f, 0.0f, 0.0f}} {}
+        : value{_mm_set_ss(x)} {}
     constexpr Vector3sse2(float x, float y)
-        : values{{x, y, 0.0f, 0.0f}} {}
+        : value{_mm_set_ps(x, y, 0.0f, 0.0f)} {}
     constexpr Vector3sse2(float x, float y, float z)
-        : values{{x, y, z, 0.0f}} {}
+        : value{_mm_set_ps(x, y, z, 0.0f)} {}
     constexpr Vector3sse2(float x, float y, float z, float w)
-        : values{{x, y, z, w}} {}
+        : value{_mm_set_ps(x, y, z, w)} {}
 
     constexpr Vector3sse2(Vector vector)
-        : values(vector.values) {}
+        : value(_mm_load_ps(vector.value.data())) {}
     constexpr Vector3sse2(const std::array<float, 4>& array)
-        : values(array) {}
+        : value(_mm_load_ps(array.data())) {}
     constexpr Vector3sse2(float x, tagReplicate)
-        : values{{x, x, x, x}} {}
+        : value{_mm_set_ps1(x)} {}
+
+    constexpr Vector3sse2(__m128 raw)
+        : value(raw) {}
 
     Vector3sse2(const Vector3sse2&) = default;
     Vector3sse2(Vector3sse2&&) = default;
     Vector3sse2& operator=(const Vector3sse2&) & = default;
     Vector3sse2& operator=(Vector3sse2&&) & = default;
 
-    constexpr Vector ToVector() const { return Vector{values}; }
-};
-
-
-// ///////////////////
-// Save
-// ///////////////////
-
-inline constexpr Vector Save(Vector3sse2 v)
-{
-    return Vector
+    constexpr Vector ToVector() const
     {
-            v.values,
-    };
-}
+        std::array<float, 4> result;
+
+        _mm_store_ps(result.data(), value);
+
+        return Vector{result};
+    }
+};
 
 // ///////////////////
 // Operators
@@ -90,9 +87,9 @@ inline constexpr Vector Save(Vector3sse2 v)
 // ///////////////////
 inline Vector3sse2& operator++(Vector3sse2& rhs)
 {
-    ++(rhs.values[0]);
-    ++(rhs.values[1]);
-    ++(rhs.values[2]);
+    auto one = _mm_set_ps1(1.0f);
+
+    rhs.value = _mm_add_ps(rhs.value, one);
 
     return rhs;
 }
@@ -107,9 +104,9 @@ inline Vector3sse2 operator++(Vector3sse2& lhs, int)
 
 inline Vector3sse2& operator--(Vector3sse2& rhs)
 {
-    --(rhs.values[0]);
-    --(rhs.values[1]);
-    --(rhs.values[2]);
+    auto one = _mm_set_ps1(-1.0f);
+
+    rhs.value = _mm_sub_ps(rhs.value, one);
 
     return rhs;
 }
@@ -127,11 +124,7 @@ inline Vector3sse2 operator--(Vector3sse2& lhs, int)
 // ///////////////////
 inline bool operator==(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    return  (
-                (lhs.values[0]==rhs.values[0]) &&
-                (lhs.values[1]==rhs.values[1]) &&
-                (lhs.values[2]==rhs.values[2])
-            );
+    return  lhs.value==rhs.value;
 }
 
 inline bool operator!=(const Vector3sse2& lhs, const Vector3sse2& rhs){return  !operator==(lhs,rhs);}
@@ -146,67 +139,52 @@ inline Vector3sse2 Absolute(const Vector3sse2& lhs);
 // ///////////////////
 inline Vector3sse2& operator+=(Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    lhs.values[0] += rhs.values[0];
-    lhs.values[1] += rhs.values[1];
-    lhs.values[2] += rhs.values[2];
+    lhs.value = _mm_add_ps(lhs.value, rhs.value);
     return lhs;
 }
 
 inline Vector3sse2& operator-=(Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    lhs.values[0] -= rhs.values[0];
-    lhs.values[1] -= rhs.values[1];
-    lhs.values[2] -= rhs.values[2];
+    lhs.value = _mm_sub_ps(lhs.value, rhs.value);
     return lhs;
 }
 
 inline Vector3sse2& operator*=(Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    lhs.values[0] *= rhs.values[0];
-    lhs.values[1] *= rhs.values[1];
-    lhs.values[2] *= rhs.values[2];
+    lhs.value = _mm_mul_ps(lhs.value, rhs.value);
     return lhs;
 }
 
 inline Vector3sse2& operator/=(Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    lhs.values[0] /= rhs.values[0];
-    lhs.values[1] /= rhs.values[1];
-    lhs.values[2] /= rhs.values[2];
+    lhs.value = _mm_div_ps(lhs.value, rhs.value);
     return lhs;
 }
 
 inline constexpr Vector3sse2 operator-(const Vector3sse2& lhs)
 {
-    return Vector3sse2
-    {
-        -lhs.values[0],
-        -lhs.values[1],
-        -lhs.values[2],
-        0.0f
-    };
+    auto negativeZero = _mm_set_ps1(-0.0);
+
+    return {_mm_xor_ps(lhs.value, negativeZero)};
 }
 
-inline Vector3sse2 operator+(Vector3sse2 lhs, const Vector3sse2& rhs){ lhs += rhs;  return lhs; }
-inline Vector3sse2 operator-(Vector3sse2 lhs, const Vector3sse2& rhs){ lhs -= rhs;  return lhs; }
-inline Vector3sse2 operator*(Vector3sse2 lhs, const Vector3sse2& rhs){ lhs *= rhs;  return lhs; }
-inline Vector3sse2 operator/(Vector3sse2 lhs, const Vector3sse2& rhs){ lhs /= rhs;  return lhs; }
+inline Vector3sse2 operator+(const Vector3sse2& lhs, const Vector3sse2& rhs){ return {_mm_add_ps(lhs.value, rhs.value)}; }
+inline Vector3sse2 operator-(const Vector3sse2& lhs, const Vector3sse2& rhs){ return {_mm_sub_ps(lhs.value, rhs.value)}; }
+inline Vector3sse2 operator*(const Vector3sse2& lhs, const Vector3sse2& rhs){ return {_mm_mul_ps(lhs.value, rhs.value)}; }
+inline Vector3sse2 operator/(const Vector3sse2& lhs, const Vector3sse2& rhs){ return {_mm_div_ps(lhs.value, rhs.value)}; }
 
 inline Vector3sse2& operator*=(Vector3sse2& lhs, float rhs)
-{
-    lhs.values[0] *= rhs;
-    lhs.values[1] *= rhs;
-    lhs.values[2] *= rhs;
-    return lhs;
+{    
+    return lhs *= {rhs, Vector3sse2::tagReplicate};
 }
 
 inline Vector3sse2& operator/=(Vector3sse2& lhs, float rhs)
 {
-    return lhs *= 1.0f / rhs;
+    return lhs /= {rhs, Vector3sse2::tagReplicate};
 }
 
-inline Vector3sse2 operator*(Vector3sse2 lhs, float rhs){ lhs *= rhs;  return lhs; }
-inline Vector3sse2 operator/(Vector3sse2 lhs, float rhs){ lhs /= rhs;  return lhs; }
+inline Vector3sse2 operator*(const Vector3sse2& lhs, float rhs){ return {_mm_mul_ps(lhs.value, _mm_set_ps1(rhs))}; }
+inline Vector3sse2 operator/(const Vector3sse2& lhs, float rhs){ return {_mm_div_ps(lhs.value, _mm_set_ps1(rhs))}; }
 
 // ///////////////////
 // Complicated Maths (single return)
@@ -214,11 +192,18 @@ inline Vector3sse2 operator/(Vector3sse2 lhs, float rhs){ lhs /= rhs;  return lh
 
 inline float DotF(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    return
-            (lhs.values[0] * rhs.values[0]) +
-            (lhs.values[1] * rhs.values[1]) +
-            (lhs.values[2] * rhs.values[2]) +
-            (lhs.values[3] * rhs.values[3]);
+    // http://www.gamedev.net/topic/617959-c-dot-product-vs-sse-dot-product/
+    //__m128 m = _mm_mul_ps(v1, v2);
+    //__m128 t = _mm_add_ps(m, _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1)));
+    //__m128 result = _mm_add_ps(t, _mm_shuffle_ps(t, t, _MM_SHUFFLE(1, 0, 3, 2)));
+
+    __m128 m = _mm_mul_ps(lhs.value, rhs.value);
+    __m128 s1 = _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1);
+    __m128 a1 = _mm_add_ps(m, s1);
+    __m128 s2 = _mm_shuffle_ps(a1, a1, _MM_SHUFFLE(1, 0, 3, 2));
+    __m128 result = _mm_add_ps(a1, s2);
+
+    // RAM: TODO: Save to a float and return the float.
 }
 
 inline float LengthSquaredF(const Vector3sse2& lhs)
@@ -253,23 +238,23 @@ inline float Angle(const Vector3sse2& lhs, const Vector3sse2& rhs)
 inline float TripleF(const Vector3sse2& lhs, const Vector3sse2& v1, const Vector3sse2& v2)
 {
     return
-        lhs.values[0] * (v1.values[1] * v2.values[2] - v1.values[2] * v2.values[1]) +
-        lhs.values[1] * (v1.values[2] * v2.values[0] - v1.values[0] * v2.values[2]) +
-        lhs.values[2] * (v1.values[0] * v2.values[1] - v1.values[1] * v2.values[0]);
+        lhs.value[0] * (v1.value[1] * v2.value[2] - v1.value[2] * v2.value[1]) +
+        lhs.value[1] * (v1.value[2] * v2.value[0] - v1.value[0] * v2.value[2]) +
+        lhs.value[2] * (v1.value[0] * v2.value[1] - v1.value[1] * v2.value[0]);
 }
 
 inline int AxisMax(const Vector3sse2& lhs)
 {
-    return lhs.values[0] < lhs.values[1] ?
-            (lhs.values[1] < lhs.values[2] ? 2 : 1) :
-            (lhs.values[0] < lhs.values[2] ? 2 : 0);
+    return lhs.value[0] < lhs.value[1] ?
+            (lhs.value[1] < lhs.value[2] ? 2 : 1) :
+            (lhs.value[0] < lhs.value[2] ? 2 : 0);
 }
 
 inline int AxisMin(const Vector3sse2& lhs)
 {
-    return lhs.values[0] < lhs.values[1] ?
-            (lhs.values[0] < lhs.values[2] ? 0 : 2) :
-            (lhs.values[1] < lhs.values[2] ? 1 : 2);
+    return lhs.value[0] < lhs.value[1] ?
+            (lhs.value[0] < lhs.value[2] ? 0 : 2) :
+            (lhs.value[1] < lhs.value[2] ? 1 : 2);
 }
 
 inline int AxisFar(const Vector3sse2& lhs)
@@ -284,9 +269,9 @@ inline int AxisNear(const Vector3sse2& lhs)
 
 inline bool IsZero(const Vector3sse2& lhs)
 {
-    return (lhs.values[0] == 0.0f) &&
-           (lhs.values[1] == 0.0f) &&
-           (lhs.values[2] == 0.0f);
+    return (lhs.value[0] == 0.0f) &&
+           (lhs.value[1] == 0.0f) &&
+           (lhs.value[2] == 0.0f);
 }
 
 inline bool IsZeroFuzzy(const Vector3sse2& lhs)
@@ -336,9 +321,9 @@ inline Vector3sse2 Absolute(const Vector3sse2& lhs)
 {
     return Vector3sse2
     {
-        std::fabs(lhs.values[0]),
-        std::fabs(lhs.values[1]),
-        std::fabs(lhs.values[2]),
+        std::fabs(lhs.value[0]),
+        std::fabs(lhs.value[1]),
+        std::fabs(lhs.value[2]),
         0.0f
     };
 }
@@ -348,9 +333,9 @@ inline Vector3sse2 NormaliseStable(Vector3sse2 lhs)
     auto absolute = Absolute(lhs);
     auto maxIndex = AxisMax(absolute);
 
-    if (absolute.values[maxIndex] > 0)
+    if (absolute.value[maxIndex] > 0)
     {
-        lhs /= absolute.values[maxIndex];
+        lhs /= absolute.value[maxIndex];
         return lhs / LengthF(lhs);
     }
 
@@ -371,9 +356,9 @@ inline Vector3sse2 Cross(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
     return Vector3sse2
     {
-        lhs.values[1] * rhs.values[2] - lhs.values[2] * rhs.values[1],
-        lhs.values[2] * rhs.values[0] - lhs.values[0] * rhs.values[2],
-        lhs.values[0] * rhs.values[1] - lhs.values[1] * rhs.values[0]
+        lhs.value[1] * rhs.value[2] - lhs.value[2] * rhs.value[1],
+        lhs.value[2] * rhs.value[0] - lhs.value[0] * rhs.value[2],
+        lhs.value[0] * rhs.value[1] - lhs.value[1] * rhs.value[0]
     };
 }
 
@@ -393,9 +378,9 @@ inline Vector3sse2 Lerp(const Vector3sse2& lhs, const Vector3sse2& rhs, float sc
 {
     return Vector3sse2
     {
-        lhs.values[0] + (rhs.values[0] - lhs.values[0]) * scale,
-        lhs.values[1] + (rhs.values[1] - lhs.values[1]) * scale,
-        lhs.values[2] + (rhs.values[2] - lhs.values[2]) * scale
+        lhs.value[0] + (rhs.value[0] - lhs.value[0]) * scale,
+        lhs.value[1] + (rhs.value[1] - lhs.value[1]) * scale,
+        lhs.value[2] + (rhs.value[2] - lhs.value[2]) * scale
     };
 }
 
@@ -403,9 +388,9 @@ inline Vector3sse2 Max(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
     return Vector3sse2
     {
-        lhs.values[0] > rhs.values[0] ? lhs.values[0] : rhs.values[0],
-        lhs.values[1] > rhs.values[1] ? lhs.values[1] : rhs.values[1],
-        lhs.values[2] > rhs.values[2] ? lhs.values[2] : rhs.values[2]
+        lhs.value[0] > rhs.value[0] ? lhs.value[0] : rhs.value[0],
+        lhs.value[1] > rhs.value[1] ? lhs.value[1] : rhs.value[1],
+        lhs.value[2] > rhs.value[2] ? lhs.value[2] : rhs.value[2]
     };
 }
 
@@ -413,9 +398,9 @@ inline Vector3sse2 Min(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
     return Vector3sse2
     {
-        lhs.values[0] < rhs.values[0] ? lhs.values[0] : rhs.values[0],
-        lhs.values[1] < rhs.values[1] ? lhs.values[1] : rhs.values[1],
-        lhs.values[2] < rhs.values[2] ? lhs.values[2] : rhs.values[2]
+        lhs.value[0] < rhs.value[0] ? lhs.value[0] : rhs.value[0],
+        lhs.value[1] < rhs.value[1] ? lhs.value[1] : rhs.value[1],
+        lhs.value[2] < rhs.value[2] ? lhs.value[2] : rhs.value[2]
     };
 }
 

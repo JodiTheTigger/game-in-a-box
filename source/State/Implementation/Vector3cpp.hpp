@@ -29,6 +29,10 @@
 
 // RAM: TODO: single inputs are called lhs, double, lhs and rhs. Validate.
 
+// RAM: TODO: Try to use idioms?
+// http://www.altdevblogaday.com/2011/12/24/beyond-intrinsics-to-code-idiom/
+// Copy code pattern from SSE2 version, compare assembler output, be surprised?
+
 namespace GameInABox { namespace State { namespace Implementation {
 
 struct alignas(16) Vector3cpp
@@ -63,19 +67,6 @@ struct alignas(16) Vector3cpp
 
     constexpr Vector ToVector() const { return Vector{values}; }
 };
-
-
-// ///////////////////
-// Save
-// ///////////////////
-
-inline constexpr Vector Save(Vector3cpp v)
-{
-    return Vector
-    {
-            v.values,
-    };
-}
 
 // ///////////////////
 // Operators

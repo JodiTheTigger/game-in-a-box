@@ -64,19 +64,6 @@ struct alignas(16) Vector3neon
     constexpr Vector ToVector() const { return Vector{values}; }
 };
 
-
-// ///////////////////
-// Save
-// ///////////////////
-
-inline constexpr Vector Save(Vector3neon v)
-{
-    return Vector
-    {
-            v.values,
-    };
-}
-
 // ///////////////////
 // Operators
 // ///////////////////
