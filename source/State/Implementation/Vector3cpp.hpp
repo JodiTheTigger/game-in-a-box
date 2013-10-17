@@ -291,54 +291,14 @@ inline bool IsZeroFuzzy(const Vector3cpp& lhs)
 // http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
 // (Keep Results Into SIMD Registers)
 // That is, stop casting between SIMD and Float registers when it can all be kept in SIMD.
-//inline Vector3cpp LengthSquared(const Vector3cpp& lhs);
-//inline Vector3cpp Length(const Vector3cpp& lhs);
-//inline Vector3cpp Distance(const Vector3cpp& lhs, const Vector3cpp& rhs);
-//inline Vector3cpp DistanceSquared(const Vector3cpp& lhs, const Vector3cpp& rhs);
-//// This too?
-//inline Vector3cpp Angle(const Vector3cpp& lhs, const Vector3cpp& rhs);
 
-inline Vector3cpp Dot(const Vector3cpp& lhs, const Vector3cpp& rhs)
-{
-    auto result = lhs * rhs;
-    auto shuffle1 = Vector3cpp
-    {
-            mult.values[1],
-            mult.values[0],
-            mult.values[3],
-            mult.values[2],
-    };
-
-    // x = x + y
-    // y = y + x
-    // z = z + w
-    // w = w + z
-    result += shuffle1;
-
-    auto shuffle2 = Vector3cpp
-    {
-           result.values[2],
-           result.values[3],
-           result.values[0],
-           result.values[1],
-    };
-
-    // x = x + y + (z + w)
-    // y = y + x + (w + z)
-    // z = z + w + (x + y)
-    // w = w + z + (y + x)
-    result += shuffle2;
-
-    return result;
-}
-
-inline Vector3cpp Dot3(const Vector3cpp &lhs, const Vector3cpp &v0, const Vector3cpp &v1, const Vector3cpp &v2)
+inline Vector3cpp Sqrt(const Vector3cpp& lhs)
 {
     return Vector3cpp
     {
-        DotF(lhs, v0),
-        DotF(lhs, v1),
-        DotF(lhs, v2)
+        std::sqrt(lhs.values[0]),
+        std::sqrt(lhs.values[1]),
+        std::sqrt(lhs.values[2])
     };
 }
 
@@ -351,6 +311,74 @@ inline Vector3cpp Absolute(const Vector3cpp& lhs)
         std::fabs(lhs.values[2]),
         0.0f
     };
+}
+
+inline Vector3cpp Dot(const Vector3cpp& lhs, const Vector3cpp& rhs)
+{
+    // RAM: TODO: Just use the Vector4 version.
+    // http://www.gamedev.net/topic/617959-c-dot-product-vs-sse-dot-product/
+    //__m128 m = _mm_mul_ps(v1, v2);
+    //__m128 t = _mm_add_ps(m, _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1)));
+    //__m128 result = _mm_add_ps(t, _mm_shuffle_ps(t, t, _MM_SHUFFLE(1, 0, 3, 2)));
+
+    auto multiply = lhs * rhs;
+    auto shuffle1 = Vector3cpp
+    {
+            multiply.values[1],
+            multiply.values[0],
+            multiply.values[3],
+            multiply.values[2],
+    };
+
+    // x = x + y
+    // y = y + x
+    // z = z + w
+    // w = w + z
+    auto first = multiply + shuffle1;
+
+    auto shuffle2 = Vector3cpp
+    {
+           first.values[2],
+           first.values[3],
+           first.values[0],
+           first.values[1],
+    };
+
+    // x = x + y + (z + w)
+    // y = y + x + (w + z)
+    // z = z + w + (x + y)
+    // w = w + z + (y + x)
+    return first + shuffle2;
+}
+
+inline Vector3cpp Dot3(const Vector3cpp &lhs, const Vector3cpp &v0, const Vector3cpp &v1, const Vector3cpp &v2)
+{
+    return Vector3cpp
+    {
+        Dot(lhs, v0).values[0],
+        Dot(lhs, v1).values[0],
+        Dot(lhs, v2).values[0]
+    };
+}
+
+inline Vector3cpp LengthSquared(const Vector3cpp& lhs)
+{
+    return Dot(lhs, lhs);
+}
+
+inline Vector3cpp Length(const Vector3cpp& lhs)
+{
+    return Sqrt(LengthSquared(lhs));
+}
+
+inline Vector3cpp Distance(const Vector3cpp& lhs, const Vector3cpp& rhs)
+{
+    return Length(lhs - rhs);
+}
+
+inline Vector3cpp DistanceSquared(const Vector3cpp& lhs, const Vector3cpp& rhs)
+{
+    return LengthSquared(lhs - rhs);
 }
 
 inline Vector3cpp NormaliseStable(Vector3cpp lhs)
