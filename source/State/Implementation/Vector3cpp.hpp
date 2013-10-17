@@ -301,14 +301,36 @@ inline bool IsZeroFuzzy(const Vector3cpp& lhs)
 
 inline Vector3cpp Dot(const Vector3cpp& lhs, const Vector3cpp& rhs)
 {
-    float dot = DotF(lhs, rhs);
-
-    return Vector3cpp
+    auto result = lhs * rhs;
+    auto shuffle1 = Vector3cpp
     {
-        dot,
-        dot,
-        dot
+            mult.values[1],
+            mult.values[0],
+            mult.values[3],
+            mult.values[2],
     };
+
+    // x = x + y
+    // y = y + x
+    // z = z + w
+    // w = w + z
+    result += shuffle1;
+
+    auto shuffle2 = Vector3cpp
+    {
+           result.values[2],
+           result.values[3],
+           result.values[0],
+           result.values[1],
+    };
+
+    // x = x + y + (z + w)
+    // y = y + x + (w + z)
+    // z = z + w + (x + y)
+    // w = w + z + (y + x)
+    result += shuffle2;
+
+    return result;
 }
 
 inline Vector3cpp Dot3(const Vector3cpp &lhs, const Vector3cpp &v0, const Vector3cpp &v1, const Vector3cpp &v2)
