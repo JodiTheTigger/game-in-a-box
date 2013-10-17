@@ -334,6 +334,7 @@ test/State/TestDeltaStateGameSnapshot.cpp
 test/State/TestEntity.cpp
 test/State/TestVector.cpp
 test/State/TestVectorFast.cpp
+test/State/TestVector3.cpp
 )
 
 set(UNUSED

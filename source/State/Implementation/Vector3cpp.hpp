@@ -38,7 +38,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 struct alignas(16) Vector3cpp
 {
     struct tagReplicate {};
-    struct tagAccurate {};
 
     std::array<float, 4> values;
 

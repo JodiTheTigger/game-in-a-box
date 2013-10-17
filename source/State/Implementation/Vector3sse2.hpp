@@ -235,9 +235,28 @@ inline float Angle(const Vector3sse2& lhs, const Vector3sse2& rhs)
     return std::acos(_mm_cvtss_f32(e.value));
 }
 
-// RAM: TODO: What does this do? Used to figure out the determinant of matrixes. Copied from btVector3
+// Used to figure out the determinant of matrixes. Copied from btVector3
 inline float TripleF(const Vector3sse2& lhs, const Vector3sse2& v1, const Vector3sse2& v2)
 {
+    // cross:
+    __m128 T = _mm_shuffle_ps(v1.value, v1.value, _MM_SHUFFLE(3, 0, 2, 1));	//	(Y Z X 0)
+    __m128 V = _mm_shuffle_ps(v2.value, v2.value, _MM_SHUFFLE(3, 0, 2, 1));	//	(Y Z X 0)
+
+    V = _mm_mul_ps(V, v1.value);
+    T = _mm_mul_ps(T, v2.value);
+    V = _mm_sub_ps(V, T);
+
+    V = _mm_shuffle_ps(V, V, _MM_SHUFFLE(3, 0, 2, 1));
+
+    // dot:
+    V = _mm_mul_ps(V, lhs.value);
+    __m128 z = _mm_movehl_ps(V, V);
+    __m128 y = _mm_shuffle_ps(V, V, 0x55);
+    V = _mm_add_ss(V, y);
+    V = _mm_add_ss(V, z);
+
+    return _mm_cvtss_f32(V);
+
     return
         lhs.value[0] * (v1.value[1] * v2.value[2] - v1.value[2] * v2.value[1]) +
         lhs.value[1] * (v1.value[2] * v2.value[0] - v1.value[0] * v2.value[2]) +
@@ -361,28 +380,41 @@ inline Vector3sse2 Normalise(Vector3sse2 lhs)
 
 inline Vector3sse2 Cross(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    return Vector3sse2
-    {
-        lhs.value[1] * rhs.value[2] - lhs.value[2] * rhs.value[1],
-        lhs.value[2] * rhs.value[0] - lhs.value[0] * rhs.value[2],
-        lhs.value[0] * rhs.value[1] - lhs.value[1] * rhs.value[0]
-    };
+    // Adapted from bullet3's btVector3
+    // B3_SHUFFLE(1, 2, 0, 3) == (Y Z X 0)
+    auto a = _mm_shuffle_ps(lhs.value, lhs.value, _MM_SHUFFLE(3, 0, 2, 1));
+    auto b = _mm_shuffle_ps(rhs.value, rhs.value, _MM_SHUFFLE(3, 0, 2, 1));
+    auto c = _mm_mul_ps(a, lhs.value);
+    auto d = _mm_mul_ps(b, rhs.value);
+    auto e = _mm_sub_ps(c, d);
+
+    return {_mm_shuffle_ps(e, e, _MM_SHUFFLE(3, 0, 2, 1))};
 }
 
 // RAM: TODO: Use rotation in radians.
 inline Vector3sse2 Rotate(Vector3sse2 lhs, const Vector3sse2& wAxis, float rotation)
 {
-    // Stole this from  bullet3's btVector3
+    // Stole this from bullet3's btVector3
 
-    auto o = wAxis * DotF(wAxis, lhs);
-    auto _x = lhs - o;
-    auto _y = Cross(wAxis, lhs);
+    auto o      = wAxis * Dot(wAxis, lhs);
+    auto xValue = lhs - o;
+    auto yValue = Cross(wAxis, lhs);
 
-    return (o + _x * cosf(rotation) + _y * sinf(rotation));
+    return (o + xValue * cosf(rotation) + yValue * sinf(rotation));
 }
 
 inline Vector3sse2 Lerp(const Vector3sse2& lhs, const Vector3sse2& rhs, float scale)
 {
+    /*
+    auto vt = Vector3sse2(scale);
+    __m128	vt = _mm_load_ss(&t);	//	(t 0 0 0)
+    vt = b3_pshufd_ps(vt, 0x80);	//	(rt rt rt 0.0)
+    __m128 vl = _mm_sub_ps(v.mVec128, mVec128);
+    vl = _mm_mul_ps(vl, vt);
+    vl = _mm_add_ps(vl, mVec128);
+
+    return b3MakeVector3(vl);*/
+
     return Vector3sse2
     {
         lhs.value[0] + (rhs.value[0] - lhs.value[0]) * scale,
