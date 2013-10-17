@@ -40,23 +40,23 @@ struct alignas(16) Vector3sse2
     __m128 value;
 
     // RAM: TODO: need to watch initlising value to 0 before an assignment.
-    constexpr Vector3sse2()
-        : value{_mm_setzero_ps()} {}
-    constexpr Vector3sse2(float x)
-        : value{_mm_set_ss(x)} {}
-    constexpr Vector3sse2(float x, float y)
-        : value{_mm_set_ps(x, y, 0.0f, 0.0f)} {}
-    constexpr Vector3sse2(float x, float y, float z)
-        : value{_mm_set_ps(x, y, z, 0.0f)} {}
-    constexpr Vector3sse2(float x, float y, float z, float w)
-        : value{_mm_set_ps(x, y, z, w)} {}
+    Vector3sse2()
+        : value(_mm_setzero_ps()) {}
+    Vector3sse2(float x)
+        : value(_mm_set_ss(x)) {}
+    Vector3sse2(float x, float y)
+        : value(_mm_set_ps(x, y, 0.0f, 0.0f)) {}
+    Vector3sse2(float x, float y, float z)
+        : value(_mm_set_ps(x, y, z, 0.0f)) {}
+    Vector3sse2(float x, float y, float z, float w)
+        : value(_mm_set_ps(x, y, z, w)) {}
 
-    constexpr Vector3sse2(Vector vector)
-        : value(_mm_load_ps(vector.value.data())) {}
-    constexpr Vector3sse2(const std::array<float, 4>& array)
+    Vector3sse2(Vector vector)
+        : value(_mm_load_ps(vector.values.data())) {}
+    Vector3sse2(const std::array<float, 4>& array)
         : value(_mm_load_ps(array.data())) {}
-    constexpr Vector3sse2(float x, tagReplicate)
-        : value{_mm_set_ps1(x)} {}
+    Vector3sse2(float x, tagReplicate)
+        : value(_mm_set_ps1(x)) {}
 
     constexpr Vector3sse2(__m128 raw)
         : value(raw) {}
@@ -66,7 +66,7 @@ struct alignas(16) Vector3sse2
     Vector3sse2& operator=(const Vector3sse2&) & = default;
     Vector3sse2& operator=(Vector3sse2&&) & = default;
 
-    constexpr Vector ToVector() const
+    Vector ToVector() const
     {
         std::array<float, 4> result;
 
@@ -124,7 +124,8 @@ inline Vector3sse2 operator--(Vector3sse2& lhs, int)
 // ///////////////////
 inline bool operator==(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    return  lhs.value==rhs.value;
+    auto compare = _mm_cmpeq_ps(lhs.value, rhs.value);
+    return (0xf == _mm_movemask_ps(compare));
 }
 
 inline bool operator!=(const Vector3sse2& lhs, const Vector3sse2& rhs){return  !operator==(lhs,rhs);}
@@ -133,6 +134,7 @@ inline bool operator!=(const Vector3sse2& lhs, const Vector3sse2& rhs){return  !
 // Prototypes
 // ///////////////////
 inline Vector3sse2 Absolute(const Vector3sse2& lhs);
+inline Vector3sse2 Dot(const Vector3sse2& lhs, const Vector3sse2& rhs);
 
 // ///////////////////
 // Simple Maths
@@ -161,7 +163,7 @@ inline Vector3sse2& operator/=(Vector3sse2& lhs, const Vector3sse2& rhs)
     return lhs;
 }
 
-inline constexpr Vector3sse2 operator-(const Vector3sse2& lhs)
+inline Vector3sse2 operator-(const Vector3sse2& lhs)
 {
     auto negativeZero = _mm_set_ps1(-0.0);
 
@@ -175,12 +177,12 @@ inline Vector3sse2 operator/(const Vector3sse2& lhs, const Vector3sse2& rhs){ re
 
 inline Vector3sse2& operator*=(Vector3sse2& lhs, float rhs)
 {    
-    return lhs *= {rhs, Vector3sse2::tagReplicate};
+    return lhs *= {rhs, Vector3sse2::tagReplicate()};
 }
 
 inline Vector3sse2& operator/=(Vector3sse2& lhs, float rhs)
 {
-    return lhs /= {rhs, Vector3sse2::tagReplicate};
+    return lhs /= {rhs, Vector3sse2::tagReplicate()};
 }
 
 inline Vector3sse2 operator*(const Vector3sse2& lhs, float rhs){ return {_mm_mul_ps(lhs.value, _mm_set_ps1(rhs))}; }
@@ -192,18 +194,7 @@ inline Vector3sse2 operator/(const Vector3sse2& lhs, float rhs){ return {_mm_div
 
 inline float DotF(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    // http://www.gamedev.net/topic/617959-c-dot-product-vs-sse-dot-product/
-    //__m128 m = _mm_mul_ps(v1, v2);
-    //__m128 t = _mm_add_ps(m, _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1)));
-    //__m128 result = _mm_add_ps(t, _mm_shuffle_ps(t, t, _MM_SHUFFLE(1, 0, 3, 2)));
-
-    __m128 m = _mm_mul_ps(lhs.value, rhs.value);
-    __m128 s1 = _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1);
-    __m128 a1 = _mm_add_ps(m, s1);
-    __m128 s2 = _mm_shuffle_ps(a1, a1, _MM_SHUFFLE(1, 0, 3, 2));
-    __m128 result = _mm_add_ps(a1, s2);
-
-    // RAM: TODO: Save to a float and return the float.
+    return _mm_cvtss_f32(Dot(lhs, rhs).value);
 }
 
 inline float LengthSquaredF(const Vector3sse2& lhs)
@@ -229,14 +220,43 @@ inline float DistanceSquaredF(const Vector3sse2& lhs, const Vector3sse2& rhs)
 // RAM: TODO: Use Radians type.
 inline float Angle(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    auto squaredLengths = LengthSquaredF(lhs) * LengthSquaredF(rhs);
+    //auto squaredLengths = LengthSquaredF(lhs) * LengthSquaredF(rhs);
+    //return acos(DotF(lhs, rhs) / squaredLengths);
 
-    return acos(DotF(lhs, rhs) / squaredLengths);
+    // Note: stay in vector land until we need a single value.
+    // Note: we could probably do this better if we didn't use dot
+    //       and instead reduced to basic mults and divs and sort from there.
+    auto a = Dot(lhs, lhs);
+    auto b = Dot(rhs, rhs);
+    auto c = Dot(lhs, rhs);
+    auto d = a * b;
+    auto e = c / d;
+
+    return std::acos(_mm_cvtss_f32(e.value));
 }
 
-// RAM: TODO: What does this do? Used to figure out the determinant of matrixes. Copied from btVector3
+// Used to figure out the determinant of matrixes. Copied from btVector3
 inline float TripleF(const Vector3sse2& lhs, const Vector3sse2& v1, const Vector3sse2& v2)
 {
+    // cross:
+    __m128 T = _mm_shuffle_ps(v1.value, v1.value, _MM_SHUFFLE(3, 0, 2, 1));	//	(Y Z X 0)
+    __m128 V = _mm_shuffle_ps(v2.value, v2.value, _MM_SHUFFLE(3, 0, 2, 1));	//	(Y Z X 0)
+
+    V = _mm_mul_ps(V, v1.value);
+    T = _mm_mul_ps(T, v2.value);
+    V = _mm_sub_ps(V, T);
+
+    V = _mm_shuffle_ps(V, V, _MM_SHUFFLE(3, 0, 2, 1));
+
+    // dot:
+    V = _mm_mul_ps(V, lhs.value);
+    __m128 z = _mm_movehl_ps(V, V);
+    __m128 y = _mm_shuffle_ps(V, V, 0x55);
+    V = _mm_add_ss(V, y);
+    V = _mm_add_ss(V, z);
+
+    return _mm_cvtss_f32(V);
+
     return
         lhs.value[0] * (v1.value[1] * v2.value[2] - v1.value[2] * v2.value[1]) +
         lhs.value[1] * (v1.value[2] * v2.value[0] - v1.value[0] * v2.value[2]) +
@@ -297,13 +317,19 @@ inline bool IsZeroFuzzy(const Vector3sse2& lhs)
 
 inline Vector3sse2 Dot(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    float dot = DotF(lhs, rhs);
+    // http://www.gamedev.net/topic/617959-c-dot-product-vs-sse-dot-product/
+    //__m128 m = _mm_mul_ps(v1, v2);
+    //__m128 t = _mm_add_ps(m, _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1)));
+    //__m128 result = _mm_add_ps(t, _mm_shuffle_ps(t, t, _MM_SHUFFLE(1, 0, 3, 2)));
+
+    __m128 m = _mm_mul_ps(lhs.value, rhs.value);
+    __m128 s1 = _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1));
+    __m128 a1 = _mm_add_ps(m, s1);
+    __m128 s2 = _mm_shuffle_ps(a1, a1, _MM_SHUFFLE(1, 0, 3, 2));
 
     return Vector3sse2
     {
-        dot,
-        dot,
-        dot
+        _mm_add_ps(a1, s2)
     };
 }
 
@@ -354,28 +380,41 @@ inline Vector3sse2 Normalise(Vector3sse2 lhs)
 
 inline Vector3sse2 Cross(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
-    return Vector3sse2
-    {
-        lhs.value[1] * rhs.value[2] - lhs.value[2] * rhs.value[1],
-        lhs.value[2] * rhs.value[0] - lhs.value[0] * rhs.value[2],
-        lhs.value[0] * rhs.value[1] - lhs.value[1] * rhs.value[0]
-    };
+    // Adapted from bullet3's btVector3
+    // B3_SHUFFLE(1, 2, 0, 3) == (Y Z X 0)
+    auto a = _mm_shuffle_ps(lhs.value, lhs.value, _MM_SHUFFLE(3, 0, 2, 1));
+    auto b = _mm_shuffle_ps(rhs.value, rhs.value, _MM_SHUFFLE(3, 0, 2, 1));
+    auto c = _mm_mul_ps(a, lhs.value);
+    auto d = _mm_mul_ps(b, rhs.value);
+    auto e = _mm_sub_ps(c, d);
+
+    return {_mm_shuffle_ps(e, e, _MM_SHUFFLE(3, 0, 2, 1))};
 }
 
 // RAM: TODO: Use rotation in radians.
 inline Vector3sse2 Rotate(Vector3sse2 lhs, const Vector3sse2& wAxis, float rotation)
 {
-    // Stole this from  bullet3's btVector3
+    // Stole this from bullet3's btVector3
 
-    auto o = wAxis * DotF(wAxis, lhs);
-    auto _x = lhs - o;
-    auto _y = Cross(wAxis, lhs);
+    auto o      = wAxis * Dot(wAxis, lhs);
+    auto xValue = lhs - o;
+    auto yValue = Cross(wAxis, lhs);
 
-    return (o + _x * cosf(rotation) + _y * sinf(rotation));
+    return (o + xValue * cosf(rotation) + yValue * sinf(rotation));
 }
 
 inline Vector3sse2 Lerp(const Vector3sse2& lhs, const Vector3sse2& rhs, float scale)
 {
+    /*
+    auto vt = Vector3sse2(scale);
+    __m128	vt = _mm_load_ss(&t);	//	(t 0 0 0)
+    vt = b3_pshufd_ps(vt, 0x80);	//	(rt rt rt 0.0)
+    __m128 vl = _mm_sub_ps(v.mVec128, mVec128);
+    vl = _mm_mul_ps(vl, vt);
+    vl = _mm_add_ps(vl, mVec128);
+
+    return b3MakeVector3(vl);*/
+
     return Vector3sse2
     {
         lhs.value[0] + (rhs.value[0] - lhs.value[0]) * scale,
