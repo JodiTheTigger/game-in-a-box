@@ -316,6 +316,7 @@ source/State/Implementation/FastMatrixGeneral.hpp
 source/State/Implementation/Vector3cpp.hpp
 source/State/Implementation/Vector3neon.hpp
 source/State/Implementation/Vector3sse2.hpp
+source/State/Implementation/Vector4.hpp
 source/State/Implementation/Matrix3x3cpp.hpp
 source/State/Implementation/Matrix3x3neon.hpp
 source/State/Implementation/Matrix3x3sse2.hpp
