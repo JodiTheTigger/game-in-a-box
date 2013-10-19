@@ -23,6 +23,16 @@
 
 #include "Vector.hpp"
 
+#ifndef __SSE2__
+
+namespace GameInABox { namespace State { namespace Implementation {
+
+using Vector3sse2 = Vector3cpp;
+
+}}}
+
+#else
+
 #include <emmintrin.h>
 
 #include <array>
@@ -444,5 +454,7 @@ inline Vector3sse2 Min(const Vector3sse2& lhs, const Vector3sse2& rhs)
 }
 
 }}} // namespace
+
+#endif // __SSE2__
 
 #endif // VECTOR3SSE2_HPP
