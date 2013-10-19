@@ -327,6 +327,7 @@ source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
 source/State/Implementation/GameNetworkClient.cpp
+source/State/Implementation/UnitsSI.hpp
 )
 
 set(STATE_TEST

@@ -22,13 +22,11 @@
 #define VECTOR4_HPP
 
 #include "Vector.hpp"
+#include "UnitsSI.hpp"
 
 #include <array>
 #include <cmath>
 #include <limits>
-
-// RAM: TODO: single inputs are called lhs, double, lhs and rhs. Validate.
-// RAM: TODO: Remove functions I just don't use, I can add them back later when I do.
 
 // RAM: TODO: Try to use idioms?
 // http://www.altdevblogaday.com/2011/12/24/beyond-intrinsics-to-code-idiom/
@@ -73,47 +71,6 @@ struct alignas(16) Vector4
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-
-// ///////////////////
-// Increment / Decrement
-// ///////////////////
-inline Vector4& operator++(Vector4& rhs)
-{
-    // Investigate, this, or + Vector4(1.0f, Vector4::tagReplicate())
-    ++(rhs.values[0]);
-    ++(rhs.values[1]);
-    ++(rhs.values[2]);
-    ++(rhs.values[3]);
-
-    return rhs;
-}
-
-inline Vector4 operator++(Vector4& lhs, int)
-{
-   auto copy = lhs;
-   ++lhs;
-
-   return copy;
-}
-
-inline Vector4& operator--(Vector4& rhs)
-{
-    // Investigate, this, or - Vector4(1.0f, Vector4::tagReplicate())
-    --(rhs.values[0]);
-    --(rhs.values[1]);
-    --(rhs.values[2]);
-    --(rhs.values[3]);
-
-    return rhs;
-}
-
-inline Vector4 operator--(Vector4& lhs, int)
-{
-    auto copy = lhs;
-    --lhs;
-
-    return copy;
-}
 
 // ///////////////////
 // Comparison Operators
@@ -208,61 +165,49 @@ inline Vector4& operator/=(Vector4& lhs, float rhs)
 inline Vector4 operator*(Vector4 lhs, float rhs){ lhs *= rhs;  return lhs; }
 inline Vector4 operator/(Vector4 lhs, float rhs){ lhs /= rhs;  return lhs; }
 
+
 // ///////////////////
-// Complicated Maths (single return)
+// Helper Functions
 // ///////////////////
 
-inline float DotF(const Vector4& lhs, const Vector4& rhs)
+inline unsigned AxisMax(const Vector4& lhs)
 {
-    return
-            (lhs.values[0] * rhs.values[0]) +
-            (lhs.values[1] * rhs.values[1]) +
-            (lhs.values[2] * rhs.values[2]) +
-            (lhs.values[3] * rhs.values[3]);
-}
+    unsigned result = 0;
 
-inline float LengthSquaredF(const Vector4& lhs)
-{
-    return DotF(lhs, lhs);
-}
+    if (lhs.values[1] > lhs.values[0])
+    {
+       result = 1;
+    }
+    if (lhs.values[2] > lhs.values[result])
+    {
+       result = 2;
+    }
+    if (lhs.values[3] > lhs.values[result])
+    {
+       result = 3;
+    }
 
-inline float LengthF(const Vector4& lhs)
-{
-    return sqrt(LengthSquaredF(lhs));
-}
-
-inline float DistanceF(const Vector4& lhs, const Vector4& rhs)
-{
-    return LengthF(lhs - rhs);
-}
-
-inline float DistanceSquaredF(const Vector4& lhs, const Vector4& rhs)
-{
-    return LengthSquaredF(lhs - rhs);
-}
-
-// RAM: TODO: Use Radians type.
-inline float AngleF(const Vector4& lhs, const Vector4& rhs)
-{
-    auto squaredLengths = LengthSquaredF(lhs) * LengthSquaredF(rhs);
-
-    return acos(DotF(lhs, rhs) / squaredLengths);
-}
-
-inline int AxisMax(const Vector4& lhs)
-{
-    // RAM: TODO!
-    return lhs.values[0] < lhs.values[1] ?
-            (lhs.values[1] < lhs.values[2] ? 2 : 1) :
-            (lhs.values[0] < lhs.values[2] ? 2 : 0);
+    return result;
 }
 
 inline int AxisMin(const Vector4& lhs)
 {
-    // RAM: TODO!
-    return lhs.values[0] < lhs.values[1] ?
-            (lhs.values[0] < lhs.values[2] ? 0 : 2) :
-            (lhs.values[1] < lhs.values[2] ? 1 : 2);
+    unsigned result = 0;
+
+    if (lhs.values[1] < lhs.values[0])
+    {
+       result = 1;
+    }
+    if (lhs.values[2] < lhs.values[result])
+    {
+       result = 2;
+    }
+    if (lhs.values[3] < lhs.values[result])
+    {
+       result = 3;
+    }
+
+    return result;
 }
 
 inline int AxisFar(const Vector4& lhs)
@@ -285,7 +230,8 @@ inline bool IsZero(const Vector4& lhs)
 
 inline bool IsZeroFuzzy(const Vector4& lhs)
 {
-    return LengthSquaredF(lhs) < std::numeric_limits<float>::epsilon();
+    // LengthSquaredF(lhs) < xxx
+    return (lhs * lhs).values[0] < std::numeric_limits<float>::epsilon();
 }
 
 // ///////////////////
@@ -398,17 +344,7 @@ inline Vector4 Normalise(Vector4 lhs)
     return lhs / Length(lhs);
 }
 
-inline Vector4 Cross(const Vector4& lhs, const Vector4& rhs)
-{
-    // RAM: TODO: Properly!
-    return Vector4
-    {
-        lhs.values[1] * rhs.values[2] - lhs.values[2] * rhs.values[1],
-        lhs.values[2] * rhs.values[0] - lhs.values[0] * rhs.values[2],
-        lhs.values[0] * rhs.values[1] - lhs.values[1] * rhs.values[0]
-    };
-}
-
+// Cross product doesn't exist for Vector4, only Vector3 and Vector7.
 
 inline Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
 {
@@ -441,6 +377,47 @@ inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
         lhs.values[2] < rhs.values[2] ? lhs.values[2] : rhs.values[2],
         lhs.values[3] < rhs.values[3] ? lhs.values[3] : rhs.values[3]
     };
+}
+
+// ///////////////////
+// Complicated Maths (single return)
+// ///////////////////
+
+// Avoid these as they convert from Vectors to floats which
+// apparently is a performance penalty, especially if you then
+// use the value in more vector calculations.
+
+inline float DotF(const Vector4& lhs, const Vector4& rhs)
+{
+    return (lhs * rhs).values[0];
+}
+
+inline float LengthSquaredF(const Vector4& lhs)
+{
+    return (lhs * lhs).values[0];
+}
+
+inline float LengthF(const Vector4& lhs)
+{
+    return std::sqrt((lhs * lhs).values[0]);
+}
+
+inline float DistanceF(const Vector4& lhs, const Vector4& rhs)
+{
+    return LengthF(lhs - rhs);
+}
+
+inline float DistanceSquaredF(const Vector4& lhs, const Vector4& rhs)
+{
+    return LengthSquaredF(lhs - rhs);
+}
+
+inline Radians AngleF(const Vector4& lhs, const Vector4& rhs)
+{
+    auto squaredLengths = lhs * lhs * rhs * rhs;
+    auto thingToACos = Dot(lhs, rhs) / squaredLengths;
+
+    return {std::acos(thingToACos.values[0])};
 }
 
 }}} // namespace
