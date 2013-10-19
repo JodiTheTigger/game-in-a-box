@@ -22,10 +22,11 @@
 #define VECTOR3CPP_HPP
 
 #include "Vector.hpp"
+#include "UnitsSI.hpp"
+#include "VectorCommon.hpp"
 
 #include <array>
 #include <cmath>
-#include <limits>
 
 // RAM: TODO: single inputs are called lhs, double, lhs and rhs. Validate.
 
@@ -49,8 +50,6 @@ struct alignas(16) Vector3cpp
         : values{{x, y, 0.0f, 0.0f}} {}
     constexpr Vector3cpp(float x, float y, float z)
         : values{{x, y, z, 0.0f}} {}
-    constexpr Vector3cpp(float x, float y, float z, float w)
-        : values{{x, y, z, w}} {}
 
     constexpr Vector3cpp(Vector vector)
         : values(vector.values) {}
@@ -68,51 +67,10 @@ struct alignas(16) Vector3cpp
 };
 
 // ///////////////////
-// Operators
+// Comparison Operators
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-
-// ///////////////////
-// Increment / Decrement
-// ///////////////////
-inline Vector3cpp& operator++(Vector3cpp& rhs)
-{
-    ++(rhs.values[0]);
-    ++(rhs.values[1]);
-    ++(rhs.values[2]);
-
-    return rhs;
-}
-
-inline Vector3cpp operator++(Vector3cpp& lhs, int)
-{
-   auto copy = lhs;
-   ++lhs;
-
-   return copy;
-}
-
-inline Vector3cpp& operator--(Vector3cpp& rhs)
-{
-    --(rhs.values[0]);
-    --(rhs.values[1]);
-    --(rhs.values[2]);
-
-    return rhs;
-}
-
-inline Vector3cpp operator--(Vector3cpp& lhs, int)
-{
-    auto copy = lhs;
-    --lhs;
-
-    return copy;
-}
-
-// ///////////////////
-// Comparison Operators
-// ///////////////////
 inline bool operator==(const Vector3cpp& lhs, const Vector3cpp& rhs)
 {
     return  (
@@ -170,8 +128,7 @@ inline constexpr Vector3cpp operator-(const Vector3cpp& lhs)
     {
         -lhs.values[0],
         -lhs.values[1],
-        -lhs.values[2],
-        0.0f
+        -lhs.values[2]
     };
 }
 
@@ -205,36 +162,7 @@ inline float DotF(const Vector3cpp& lhs, const Vector3cpp& rhs)
     return
             (lhs.values[0] * rhs.values[0]) +
             (lhs.values[1] * rhs.values[1]) +
-            (lhs.values[2] * rhs.values[2]) +
-            (lhs.values[3] * rhs.values[3]);
-}
-
-inline float LengthSquaredF(const Vector3cpp& lhs)
-{
-    return DotF(lhs, lhs);
-}
-
-inline float LengthF(const Vector3cpp& lhs)
-{
-    return sqrt(LengthSquaredF(lhs));
-}
-
-inline float DistanceF(const Vector3cpp& lhs, const Vector3cpp& rhs)
-{
-    return LengthF(lhs - rhs);
-}
-
-inline float DistanceSquaredF(const Vector3cpp& lhs, const Vector3cpp& rhs)
-{
-    return LengthSquaredF(lhs - rhs);
-}
-
-// RAM: TODO: Use Radians type.
-inline float Angle(const Vector3cpp& lhs, const Vector3cpp& rhs)
-{
-    auto squaredLengths = LengthSquaredF(lhs) * LengthSquaredF(rhs);
-
-    return acos(DotF(lhs, rhs) / squaredLengths);
+            (lhs.values[2] * rhs.values[2]);
 }
 
 // RAM: TODO: What does this do? Used to figure out the determinant of matrixes. Copied from btVector3
@@ -277,11 +205,6 @@ inline bool IsZero(const Vector3cpp& lhs)
            (lhs.values[2] == 0.0f);
 }
 
-inline bool IsZeroFuzzy(const Vector3cpp& lhs)
-{
-    return LengthSquaredF(lhs) < std::numeric_limits<float>::epsilon();
-}
-
 // ///////////////////
 // Complicated Maths (vector return)
 // ///////////////////
@@ -308,47 +231,21 @@ inline Vector3cpp Absolute(const Vector3cpp& lhs)
     {
         std::fabs(lhs.values[0]),
         std::fabs(lhs.values[1]),
-        std::fabs(lhs.values[2]),
-        0.0f
+        std::fabs(lhs.values[2])
     };
 }
 
 inline Vector3cpp Dot(const Vector3cpp& lhs, const Vector3cpp& rhs)
 {
-    // RAM: TODO: Just use the Vector4 version.
-    // http://www.gamedev.net/topic/617959-c-dot-product-vs-sse-dot-product/
-    //__m128 m = _mm_mul_ps(v1, v2);
-    //__m128 t = _mm_add_ps(m, _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1)));
-    //__m128 result = _mm_add_ps(t, _mm_shuffle_ps(t, t, _MM_SHUFFLE(1, 0, 3, 2)));
+    // If this compiler is too dumb to do a decent DOT4, then use the Vector4 version instead.
+    float dot = DotF(lhs, rhs);
 
-    auto multiply = lhs * rhs;
-    auto shuffle1 = Vector3cpp
+    return Vector3cpp
     {
-            multiply.values[1],
-            multiply.values[0],
-            multiply.values[3],
-            multiply.values[2],
+        dot,
+        dot,
+        dot
     };
-
-    // x = x + y
-    // y = y + x
-    // z = z + w
-    // w = w + z
-    auto first = multiply + shuffle1;
-
-    auto shuffle2 = Vector3cpp
-    {
-           first.values[2],
-           first.values[3],
-           first.values[0],
-           first.values[1],
-    };
-
-    // x = x + y + (z + w)
-    // y = y + x + (w + z)
-    // z = z + w + (x + y)
-    // w = w + z + (y + x)
-    return first + shuffle2;
 }
 
 inline Vector3cpp Dot3(const Vector3cpp &lhs, const Vector3cpp &v0, const Vector3cpp &v1, const Vector3cpp &v2)
@@ -359,50 +256,6 @@ inline Vector3cpp Dot3(const Vector3cpp &lhs, const Vector3cpp &v0, const Vector
         Dot(lhs, v1).values[0],
         Dot(lhs, v2).values[0]
     };
-}
-
-inline Vector3cpp LengthSquared(const Vector3cpp& lhs)
-{
-    return Dot(lhs, lhs);
-}
-
-inline Vector3cpp Length(const Vector3cpp& lhs)
-{
-    return Sqrt(LengthSquared(lhs));
-}
-
-inline Vector3cpp Distance(const Vector3cpp& lhs, const Vector3cpp& rhs)
-{
-    return Length(lhs - rhs);
-}
-
-inline Vector3cpp DistanceSquared(const Vector3cpp& lhs, const Vector3cpp& rhs)
-{
-    return LengthSquared(lhs - rhs);
-}
-
-inline Vector3cpp NormaliseStable(Vector3cpp lhs)
-{
-    auto absolute = Absolute(lhs);
-    auto maxIndex = AxisMax(absolute);
-
-    if (absolute.values[maxIndex] > 0)
-    {
-        lhs /= absolute.values[maxIndex];
-        return lhs / LengthF(lhs);
-    }
-
-    // Too small to actually normalise without becoming unstable.
-    // So just set x to 1. Same diff.
-    return Vector3cpp
-    {
-            1.0f
-    };
-}
-
-inline Vector3cpp Normalise(Vector3cpp lhs)
-{
-    return lhs / LengthF(lhs);
 }
 
 inline Vector3cpp Cross(const Vector3cpp& lhs, const Vector3cpp& rhs)
@@ -416,7 +269,7 @@ inline Vector3cpp Cross(const Vector3cpp& lhs, const Vector3cpp& rhs)
 }
 
 // RAM: TODO: Use rotation in radians.
-inline Vector3cpp Rotate(Vector3cpp lhs, const Vector3cpp& wAxis, float rotation)
+inline Vector3cpp Rotate(Vector3cpp lhs, const Vector3cpp& wAxis, Radians rotation)
 {
     // Stole this from  bullet3's btVector3
 
@@ -424,7 +277,7 @@ inline Vector3cpp Rotate(Vector3cpp lhs, const Vector3cpp& wAxis, float rotation
     auto _x = lhs - o;
     auto _y = Cross(wAxis, lhs);
 
-    return (o + _x * cosf(rotation) + _y * sinf(rotation));
+    return (o + _x * cosf(rotation.value) + _y * sinf(rotation.value));
 }
 
 inline Vector3cpp Lerp(const Vector3cpp& lhs, const Vector3cpp& rhs, float scale)

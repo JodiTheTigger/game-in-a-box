@@ -87,51 +87,10 @@ struct alignas(16) Vector3sse2
 };
 
 // ///////////////////
-// Operators
+// Comparison Operators
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-
-// ///////////////////
-// Increment / Decrement
-// ///////////////////
-inline Vector3sse2& operator++(Vector3sse2& rhs)
-{
-    auto one = _mm_set_ps1(1.0f);
-
-    rhs.value = _mm_add_ps(rhs.value, one);
-
-    return rhs;
-}
-
-inline Vector3sse2 operator++(Vector3sse2& lhs, int)
-{
-   auto copy = lhs;
-   ++lhs;
-
-   return copy;
-}
-
-inline Vector3sse2& operator--(Vector3sse2& rhs)
-{
-    auto one = _mm_set_ps1(-1.0f);
-
-    rhs.value = _mm_sub_ps(rhs.value, one);
-
-    return rhs;
-}
-
-inline Vector3sse2 operator--(Vector3sse2& lhs, int)
-{
-    auto copy = lhs;
-    --lhs;
-
-    return copy;
-}
-
-// ///////////////////
-// Comparison Operators
-// ///////////////////
 inline bool operator==(const Vector3sse2& lhs, const Vector3sse2& rhs)
 {
     auto compare = _mm_cmpeq_ps(lhs.value, rhs.value);
@@ -287,26 +246,11 @@ inline int AxisMin(const Vector3sse2& lhs)
             (lhs.value[1] < lhs.value[2] ? 1 : 2);
 }
 
-inline int AxisFar(const Vector3sse2& lhs)
-{
-    return AxisMax(Absolute(lhs));
-}
-
-inline int AxisNear(const Vector3sse2& lhs)
-{
-    return AxisMin(Absolute(lhs));
-}
-
 inline bool IsZero(const Vector3sse2& lhs)
 {
     return (lhs.value[0] == 0.0f) &&
            (lhs.value[1] == 0.0f) &&
            (lhs.value[2] == 0.0f);
-}
-
-inline bool IsZeroFuzzy(const Vector3sse2& lhs)
-{
-    return LengthSquaredF(lhs) < std::numeric_limits<float>::epsilon();
 }
 
 // ///////////////////
@@ -362,30 +306,6 @@ inline Vector3sse2 Absolute(const Vector3sse2& lhs)
         std::fabs(lhs.value[2]),
         0.0f
     };
-}
-
-inline Vector3sse2 NormaliseStable(Vector3sse2 lhs)
-{
-    auto absolute = Absolute(lhs);
-    auto maxIndex = AxisMax(absolute);
-
-    if (absolute.value[maxIndex] > 0)
-    {
-        lhs /= absolute.value[maxIndex];
-        return lhs / LengthF(lhs);
-    }
-
-    // Too small to actually normalise without becoming unstable.
-    // So just set x to 1. Same diff.
-    return Vector3sse2
-    {
-            1.0f
-    };
-}
-
-inline Vector3sse2 Normalise(Vector3sse2 lhs)
-{
-    return lhs / LengthF(lhs);
 }
 
 inline Vector3sse2 Cross(const Vector3sse2& lhs, const Vector3sse2& rhs)

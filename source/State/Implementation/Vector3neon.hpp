@@ -22,6 +22,8 @@
 #define VECTOR3NEON_HPP
 
 #include "Vector.hpp"
+#include "VectorCommon.hpp"
+#include "UnitsSI.hpp"
 
 #include <array>
 #include <cmath>
@@ -46,8 +48,6 @@ struct alignas(16) Vector3neon
         : values{{x, y, 0.0f, 0.0f}} {}
     constexpr Vector3neon(float x, float y, float z)
         : values{{x, y, z, 0.0f}} {}
-    constexpr Vector3neon(float x, float y, float z, float w)
-        : values{{x, y, z, w}} {}
 
     constexpr Vector3neon(Vector vector)
         : values(vector.values) {}
@@ -65,51 +65,10 @@ struct alignas(16) Vector3neon
 };
 
 // ///////////////////
-// Operators
+// Comparison Operators
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-
-// ///////////////////
-// Increment / Decrement
-// ///////////////////
-inline Vector3neon& operator++(Vector3neon& rhs)
-{
-    ++(rhs.values[0]);
-    ++(rhs.values[1]);
-    ++(rhs.values[2]);
-
-    return rhs;
-}
-
-inline Vector3neon operator++(Vector3neon& lhs, int)
-{
-   auto copy = lhs;
-   ++lhs;
-
-   return copy;
-}
-
-inline Vector3neon& operator--(Vector3neon& rhs)
-{
-    --(rhs.values[0]);
-    --(rhs.values[1]);
-    --(rhs.values[2]);
-
-    return rhs;
-}
-
-inline Vector3neon operator--(Vector3neon& lhs, int)
-{
-    auto copy = lhs;
-    --lhs;
-
-    return copy;
-}
-
-// ///////////////////
-// Comparison Operators
-// ///////////////////
 inline bool operator==(const Vector3neon& lhs, const Vector3neon& rhs)
 {
     return  (
@@ -168,7 +127,6 @@ inline constexpr Vector3neon operator-(const Vector3neon& lhs)
         -lhs.values[0],
         -lhs.values[1],
         -lhs.values[2],
-        0.0f
     };
 }
 
@@ -206,34 +164,6 @@ inline float DotF(const Vector3neon& lhs, const Vector3neon& rhs)
             (lhs.values[3] * rhs.values[3]);
 }
 
-inline float LengthSquaredF(const Vector3neon& lhs)
-{
-    return DotF(lhs, lhs);
-}
-
-inline float LengthF(const Vector3neon& lhs)
-{
-    return sqrt(LengthSquaredF(lhs));
-}
-
-inline float DistanceF(const Vector3neon& lhs, const Vector3neon& rhs)
-{
-    return LengthF(lhs - rhs);
-}
-
-inline float DistanceSquaredF(const Vector3neon& lhs, const Vector3neon& rhs)
-{
-    return LengthSquaredF(lhs - rhs);
-}
-
-// RAM: TODO: Use Radians type.
-inline float Angle(const Vector3neon& lhs, const Vector3neon& rhs)
-{
-    auto squaredLengths = LengthSquaredF(lhs) * LengthSquaredF(rhs);
-
-    return acos(DotF(lhs, rhs) / squaredLengths);
-}
-
 // RAM: TODO: What does this do? Used to figure out the determinant of matrixes. Copied from btVector3
 inline float TripleF(const Vector3neon& lhs, const Vector3neon& v1, const Vector3neon& v2)
 {
@@ -257,26 +187,11 @@ inline int AxisMin(const Vector3neon& lhs)
             (lhs.values[1] < lhs.values[2] ? 1 : 2);
 }
 
-inline int AxisFar(const Vector3neon& lhs)
-{
-    return AxisMax(Absolute(lhs));
-}
-
-inline int AxisNear(const Vector3neon& lhs)
-{
-    return AxisMin(Absolute(lhs));
-}
-
 inline bool IsZero(const Vector3neon& lhs)
 {
     return (lhs.values[0] == 0.0f) &&
            (lhs.values[1] == 0.0f) &&
            (lhs.values[2] == 0.0f);
-}
-
-inline bool IsZeroFuzzy(const Vector3neon& lhs)
-{
-    return LengthSquaredF(lhs) < std::numeric_limits<float>::epsilon();
 }
 
 // ///////////////////
@@ -317,39 +232,24 @@ inline Vector3neon Dot3(const Vector3neon &lhs, const Vector3neon &v0, const Vec
     };
 }
 
+inline Vector3neon Sqrt(const Vector3neon& lhs)
+{
+    return Vector3neon
+    {
+        std::sqrt(lhs.values[0]),
+        std::sqrt(lhs.values[1]),
+        std::sqrt(lhs.values[2])
+    };
+}
+
 inline Vector3neon Absolute(const Vector3neon& lhs)
 {
     return Vector3neon
     {
         std::fabs(lhs.values[0]),
         std::fabs(lhs.values[1]),
-        std::fabs(lhs.values[2]),
-        0.0f
+        std::fabs(lhs.values[2])
     };
-}
-
-inline Vector3neon NormaliseStable(Vector3neon lhs)
-{
-    auto absolute = Absolute(lhs);
-    auto maxIndex = AxisMax(absolute);
-
-    if (absolute.values[maxIndex] > 0)
-    {
-        lhs /= absolute.values[maxIndex];
-        return lhs / LengthF(lhs);
-    }
-
-    // Too small to actually normalise without becoming unstable.
-    // So just set x to 1. Same diff.
-    return Vector3neon
-    {
-            1.0f
-    };
-}
-
-inline Vector3neon Normalise(Vector3neon lhs)
-{
-    return lhs / LengthF(lhs);
 }
 
 inline Vector3neon Cross(const Vector3neon& lhs, const Vector3neon& rhs)
@@ -362,8 +262,7 @@ inline Vector3neon Cross(const Vector3neon& lhs, const Vector3neon& rhs)
     };
 }
 
-// RAM: TODO: Use rotation in radians.
-inline Vector3neon Rotate(Vector3neon lhs, const Vector3neon& wAxis, float rotation)
+inline Vector3neon Rotate(Vector3neon lhs, const Vector3neon& wAxis, Radians rotation)
 {
     // Stole this from  bullet3's btVector3
 
@@ -371,7 +270,7 @@ inline Vector3neon Rotate(Vector3neon lhs, const Vector3neon& wAxis, float rotat
     auto _x = lhs - o;
     auto _y = Cross(wAxis, lhs);
 
-    return (o + _x * cosf(rotation) + _y * sinf(rotation));
+    return (o + _x * cosf(rotation.value) + _y * sinf(rotation.value));
 }
 
 inline Vector3neon Lerp(const Vector3neon& lhs, const Vector3neon& rhs, float scale)

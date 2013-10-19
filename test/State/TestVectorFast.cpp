@@ -22,6 +22,10 @@
 #include <Implementation/FastVectorGeneral.hpp>
 #include <Implementation/Vector.hpp>
 
+// RAM: DEBUG
+#include <Implementation/Vector4.hpp>
+#include <Implementation/QuaternionCpp.hpp>
+
 #include <gmock/gmock.h>
 
 #include <vector>

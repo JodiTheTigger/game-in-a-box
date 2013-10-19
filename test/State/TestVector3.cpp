@@ -24,7 +24,7 @@
 // RAM: TODO: Testing which vector I can actually test.
 #include <Implementation/Vector3cpp.hpp>
 #include <Implementation/Vector3sse2.hpp>
-//#include <Implementation/Vector3neon.hpp>
+#include <Implementation/Vector3neon.hpp>
 
 #include <gmock/gmock.h>
 
@@ -79,7 +79,7 @@ public:
     std::vector<Vector> groupC;
 };
 
-typedef ::testing::Types<Vector3cpp, Vector3sse2> TestVector3Types;
+typedef ::testing::Types<Vector3cpp, Vector3sse2, Vector3neon> TestVector3Types;
 TYPED_TEST_CASE(TestVector3, TestVector3Types);
 
 TYPED_TEST(TestVector3, Empty)
@@ -118,59 +118,6 @@ TYPED_TEST(TestVector3, NotEqual)
     for (auto& toTest : b)
     {
         EXPECT_NE(toTest, a);
-    }
-}
-
-TYPED_TEST(TestVector3, Increment)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
-        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
-
-        // RAM: TODO: Test saving the values when inc/dec them.
-        a++;
-        ++b;
-
-        auto result = (a).ToVector();
-        auto result2 = (b).ToVector();
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) + 1.0f) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) + 1.0f);
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupB[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupB[i]) + 1.0f);
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupB[i]) + 1.0f);
-    }
-}
-
-
-TYPED_TEST(TestVector3, Decrement)
-{
-    auto asize = TestFixture::groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto a = typename TestFixture::Vec(TestFixture::groupA[i]);
-        auto b = typename TestFixture::Vec(TestFixture::groupB[i]);
-
-        // RAM: TODO: Test saving the values when inc/dec them.
-        a--;
-        --b;
-
-        auto result = (a).ToVector();
-        auto result2 = (b).ToVector();
-
-        ASSERT_FLOAT_EQ(X(result), X(TestFixture::groupA[i]) - 1.0f) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(TestFixture::groupA[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(Z(result), Z(TestFixture::groupA[i]) - 1.0f);
-
-        ASSERT_FLOAT_EQ(X(result2), X(TestFixture::groupB[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(Y(result2), Y(TestFixture::groupB[i]) - 1.0f);
-        ASSERT_FLOAT_EQ(Z(result2), Z(TestFixture::groupB[i]) - 1.0f);
     }
 }
 
@@ -427,7 +374,7 @@ TYPED_TEST(TestVector3, FnNormaliseAccurate)
     }
 }
 
-TYPED_TEST(TestVector3, Benchmark)
+TYPED_TEST(TestVector3, BadlyFormedBenchmark)
 {
     using Vec3          = typename TestFixture::Vec;
     using tagReplicate  = typename Vec3::tagReplicate;

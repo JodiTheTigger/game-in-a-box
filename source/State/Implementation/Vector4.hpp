@@ -23,10 +23,9 @@
 
 #include "Vector.hpp"
 #include "UnitsSI.hpp"
+#include "VectorCommon.hpp"
 
 #include <array>
-#include <cmath>
-#include <limits>
 
 // RAM: TODO: Try to use idioms?
 // http://www.altdevblogaday.com/2011/12/24/beyond-intrinsics-to-code-idiom/
@@ -165,7 +164,6 @@ inline Vector4& operator/=(Vector4& lhs, float rhs)
 inline Vector4 operator*(Vector4 lhs, float rhs){ lhs *= rhs;  return lhs; }
 inline Vector4 operator/(Vector4 lhs, float rhs){ lhs /= rhs;  return lhs; }
 
-
 // ///////////////////
 // Helper Functions
 // ///////////////////
@@ -210,28 +208,12 @@ inline int AxisMin(const Vector4& lhs)
     return result;
 }
 
-inline int AxisFar(const Vector4& lhs)
-{
-    return AxisMax(Absolute(lhs));
-}
-
-inline int AxisNear(const Vector4& lhs)
-{
-    return AxisMin(Absolute(lhs));
-}
-
 inline bool IsZero(const Vector4& lhs)
 {
     return  (lhs.values[0] == 0.0f) &&
             (lhs.values[1] == 0.0f) &&
             (lhs.values[2] == 0.0f) &&
             (lhs.values[3] == 0.0f);
-}
-
-inline bool IsZeroFuzzy(const Vector4& lhs)
-{
-    // LengthSquaredF(lhs) < xxx
-    return (lhs * lhs).values[0] < std::numeric_limits<float>::epsilon();
 }
 
 // ///////////////////
@@ -268,6 +250,8 @@ inline Vector4 Absolute(const Vector4& lhs)
 
 inline Vector4 Dot(const Vector4& lhs, const Vector4& rhs)
 {
+    // If this compiler is too dumb to do a decent DOT4, then do this instead:
+    /*
     // http://www.gamedev.net/topic/617959-c-dot-product-vs-sse-dot-product/
     //__m128 m = _mm_mul_ps(v1, v2);
     //__m128 t = _mm_add_ps(m, _mm_shuffle_ps(m, m, _MM_SHUFFLE(2, 3, 0, 1)));
@@ -301,47 +285,18 @@ inline Vector4 Dot(const Vector4& lhs, const Vector4& rhs)
     // z = z + w + (x + y)
     // w = w + z + (y + x)
     return first + shuffle2;
-}
+    */
 
-inline Vector4 LengthSquared(const Vector4& lhs)
-{
-    return Dot(lhs, lhs);
-}
+    // hope the compiler picks up on this pattern and recognises it as a Dot.
+    auto mult = lhs * rhs;
 
-inline Vector4 Length(const Vector4& lhs)
-{
-    return Sqrt(LengthSquared(lhs));
-}
-
-inline Vector4 Distance(const Vector4& lhs, const Vector4& rhs)
-{
-    return Length(lhs - rhs);
-}
-
-inline Vector4 DistanceSquared(const Vector4& lhs, const Vector4& rhs)
-{
-    return LengthSquared(lhs - rhs);
-}
-
-inline Vector4 NormaliseStable(Vector4 lhs)
-{
-    auto absolute = Absolute(lhs);
-    auto maxIndex = AxisMax(absolute);
-
-    if (absolute.values[maxIndex] > 0)
+    return Vector4
     {
-        lhs /= absolute.values[maxIndex];
-        return lhs / Length(lhs);
-    }
-
-    // Too small to actually normalise without becoming unstable.
-    // So just set the maxindex to 1. Same diff.
-    return Vector4{}.values[maxIndex] = 1.0f;
-}
-
-inline Vector4 Normalise(Vector4 lhs)
-{
-    return lhs / Length(lhs);
+        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
+        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
+        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
+        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
+    };
 }
 
 // Cross product doesn't exist for Vector4, only Vector3 and Vector7.
@@ -389,35 +344,11 @@ inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
 
 inline float DotF(const Vector4& lhs, const Vector4& rhs)
 {
-    return (lhs * rhs).values[0];
-}
-
-inline float LengthSquaredF(const Vector4& lhs)
-{
-    return (lhs * lhs).values[0];
-}
-
-inline float LengthF(const Vector4& lhs)
-{
-    return std::sqrt((lhs * lhs).values[0]);
-}
-
-inline float DistanceF(const Vector4& lhs, const Vector4& rhs)
-{
-    return LengthF(lhs - rhs);
-}
-
-inline float DistanceSquaredF(const Vector4& lhs, const Vector4& rhs)
-{
-    return LengthSquaredF(lhs - rhs);
-}
-
-inline Radians AngleF(const Vector4& lhs, const Vector4& rhs)
-{
-    auto squaredLengths = lhs * lhs * rhs * rhs;
-    auto thingToACos = Dot(lhs, rhs) / squaredLengths;
-
-    return {std::acos(thingToACos.values[0])};
+    return
+            (lhs.values[0] * rhs.values[0]) +
+            (lhs.values[1] * rhs.values[1]) +
+            (lhs.values[2] * rhs.values[2]) +
+            (lhs.values[3] * rhs.values[3]);
 }
 
 }}} // namespace
