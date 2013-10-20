@@ -299,12 +299,18 @@ inline Vector3sse2 Dot3(const Vector3sse2 &lhs, const Vector3sse2 &v0, const Vec
 
 inline Vector3sse2 Absolute(const Vector3sse2& lhs)
 {
+    // done by &ing off the sign bit.
     return Vector3sse2
     {
-        std::fabs(lhs.value[0]),
-        std::fabs(lhs.value[1]),
-        std::fabs(lhs.value[2]),
-        0.0f
+        _mm_and_ps(lhs.value, _mm_set_epi32(0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF));
+    };
+}
+
+inline Vector3cpp Sqrt(const Vector3cpp& lhs)
+{
+    return Vector3sse2
+    {
+        _mm_sqrt_ps(lhs.value);
     };
 }
 
