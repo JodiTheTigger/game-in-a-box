@@ -56,51 +56,10 @@ struct alignas(16) QuaternionCpp
 };                                         
 
 // ///////////////////
-// Operators
+// Comparison Operators
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-
-// ///////////////////
-// Increment / Decrement
-// ///////////////////
-inline QuaternionCpp& operator++(QuaternionCpp& rhs)
-{
- ++(rhs.values[0]);
- ++(rhs.values[1]);
- ++(rhs.values[2]);
-
- return rhs;
-}
-
-inline QuaternionCpp operator++(QuaternionCpp& lhs, int)
-{
-auto copy = lhs;
-++lhs;
-
-return copy;
-}
-
-inline QuaternionCpp& operator--(QuaternionCpp& rhs)
-{
- --(rhs.values[0]);
- --(rhs.values[1]);
- --(rhs.values[2]);
-
- return rhs;
-}
-
-inline QuaternionCpp operator--(QuaternionCpp& lhs, int)
-{
- auto copy = lhs;
- --lhs;
-
- return copy;
-}
-
-// ///////////////////
-// Comparison Operators
-// ///////////////////
 inline bool operator==(const QuaternionCpp& lhs, const QuaternionCpp& rhs)
 {
  return  (
@@ -122,67 +81,49 @@ inline QuaternionCpp Absolute(const QuaternionCpp& lhs);
 // ///////////////////
 inline QuaternionCpp& operator+=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
 {
- lhs.values[0] += rhs.values[0];
- lhs.values[1] += rhs.values[1];
- lhs.values[2] += rhs.values[2];
- return lhs;
+    lhs.values[0] += rhs.values[0];
+    lhs.values[1] += rhs.values[1];
+    lhs.values[2] += rhs.values[2];
+    lhs.values[3] += rhs.values[3];
+    return lhs;
 }
 
 inline QuaternionCpp& operator-=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
 {
- lhs.values[0] -= rhs.values[0];
- lhs.values[1] -= rhs.values[1];
- lhs.values[2] -= rhs.values[2];
- return lhs;
+    lhs.values[0] -= rhs.values[0];
+    lhs.values[1] -= rhs.values[1];
+    lhs.values[2] -= rhs.values[2];
+    lhs.values[3] -= rhs.values[3];
+    return lhs;
 }
 
 inline QuaternionCpp& operator*=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
 {
- lhs.values[0] *= rhs.values[0];
- lhs.values[1] *= rhs.values[1];
- lhs.values[2] *= rhs.values[2];
- return lhs;
-}
+    lhs = QuaternionCpp
+    {
+        (lhs.values[0] * rhs.values[0]) - (lhs.values[0] * rhs.values[1]) - (lhs.values[0] * rhs.values[2]) - (lhs.values[0] * rhs.values[3]),
+        (lhs.values[1] * rhs.values[1]) + (lhs.values[1] * rhs.values[0]) + (lhs.values[1] * rhs.values[3]) - (lhs.values[1] * rhs.values[2]),
+        (lhs.values[2] * rhs.values[2]) - (lhs.values[2] * rhs.values[3]) + (lhs.values[2] * rhs.values[0]) + (lhs.values[2] * rhs.values[1]),
+        (lhs.values[3] * rhs.values[3]) + (lhs.values[3] * rhs.values[2]) - (lhs.values[3] * rhs.values[1]) + (lhs.values[3] * rhs.values[0])
+    };
 
-inline QuaternionCpp& operator/=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
-{
- lhs.values[0] /= rhs.values[0];
- lhs.values[1] /= rhs.values[1];
- lhs.values[2] /= rhs.values[2];
- return lhs;
+    return lhs;
 }
 
 inline constexpr QuaternionCpp operator-(const QuaternionCpp& lhs)
 {
- return QuaternionCpp
- {
-     -lhs.values[0],
-     -lhs.values[1],
-     -lhs.values[2],
-     0.0f
- };
+    return QuaternionCpp
+    {
+        -lhs.values[0],
+        -lhs.values[1],
+        -lhs.values[2],
+        -lhs.values[3]
+    };
 }
 
 inline QuaternionCpp operator+(QuaternionCpp lhs, const QuaternionCpp& rhs){ lhs += rhs;  return lhs; }
 inline QuaternionCpp operator-(QuaternionCpp lhs, const QuaternionCpp& rhs){ lhs -= rhs;  return lhs; }
 inline QuaternionCpp operator*(QuaternionCpp lhs, const QuaternionCpp& rhs){ lhs *= rhs;  return lhs; }
-inline QuaternionCpp operator/(QuaternionCpp lhs, const QuaternionCpp& rhs){ lhs /= rhs;  return lhs; }
-
-inline QuaternionCpp& operator*=(QuaternionCpp& lhs, float rhs)
-{
- lhs.values[0] *= rhs;
- lhs.values[1] *= rhs;
- lhs.values[2] *= rhs;
- return lhs;
-}
-
-inline QuaternionCpp& operator/=(QuaternionCpp& lhs, float rhs)
-{
-    return lhs *= 1.0f / rhs;
-}
-
-inline QuaternionCpp operator*(QuaternionCpp lhs, float rhs){ lhs *= rhs;  return lhs; }
-inline QuaternionCpp operator/(QuaternionCpp lhs, float rhs){ lhs /= rhs;  return lhs; }
 
 // ///////////////////
 // Complicated Maths (vector return)
