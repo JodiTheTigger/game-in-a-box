@@ -296,7 +296,7 @@ inline Vector3sse2 Absolute(const Vector3sse2& lhs)
     };
 }
 
-inline Vector3cpp Sqrt(const Vector3cpp& lhs)
+inline Vector3sse2 Sqrt(const Vector3sse2& lhs)
 {
     return Vector3sse2
     {
