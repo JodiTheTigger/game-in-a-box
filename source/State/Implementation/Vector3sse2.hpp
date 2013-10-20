@@ -292,7 +292,7 @@ inline Vector3sse2 Absolute(const Vector3sse2& lhs)
     // done by &ing off the sign bit.
     return Vector3sse2
     {
-        _mm_and_ps(lhs.value, _mm_set_epi32(0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF));
+        _mm_and_ps(lhs.value, _mm_set_epi32(0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF))
     };
 }
 
@@ -300,7 +300,7 @@ inline Vector3cpp Sqrt(const Vector3cpp& lhs)
 {
     return Vector3sse2
     {
-        _mm_sqrt_ps(lhs.value);
+        _mm_sqrt_ps(lhs.value)
     };
 }
 
