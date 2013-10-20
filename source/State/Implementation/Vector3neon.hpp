@@ -222,16 +222,6 @@ inline Vector3neon Dot(const Vector3neon& lhs, const Vector3neon& rhs)
     };
 }
 
-inline Vector3neon Dot3(const Vector3neon &lhs, const Vector3neon &v0, const Vector3neon &v1, const Vector3neon &v2)
-{
-    return Vector3neon
-    {
-        DotF(lhs, v0),
-        DotF(lhs, v1),
-        DotF(lhs, v2)
-    };
-}
-
 inline Vector3neon Sqrt(const Vector3neon& lhs)
 {
     return Vector3neon

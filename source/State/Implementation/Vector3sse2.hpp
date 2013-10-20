@@ -287,16 +287,6 @@ inline Vector3sse2 Dot(const Vector3sse2& lhs, const Vector3sse2& rhs)
     };
 }
 
-inline Vector3sse2 Dot3(const Vector3sse2 &lhs, const Vector3sse2 &v0, const Vector3sse2 &v1, const Vector3sse2 &v2)
-{
-    return Vector3sse2
-    {
-        DotF(lhs, v0),
-        DotF(lhs, v1),
-        DotF(lhs, v2)
-    };
-}
-
 inline Vector3sse2 Absolute(const Vector3sse2& lhs)
 {
     // done by &ing off the sign bit.

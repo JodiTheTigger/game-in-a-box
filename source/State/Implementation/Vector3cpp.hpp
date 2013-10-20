@@ -248,16 +248,6 @@ inline Vector3cpp Dot(const Vector3cpp& lhs, const Vector3cpp& rhs)
     };
 }
 
-inline Vector3cpp Dot3(const Vector3cpp &lhs, const Vector3cpp &v0, const Vector3cpp &v1, const Vector3cpp &v2)
-{
-    return Vector3cpp
-    {
-        Dot(lhs, v0).values[0],
-        Dot(lhs, v1).values[0],
-        Dot(lhs, v2).values[0]
-    };
-}
-
 inline Vector3cpp Cross(const Vector3cpp& lhs, const Vector3cpp& rhs)
 {
     return Vector3cpp
