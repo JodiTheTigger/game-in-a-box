@@ -31,10 +31,17 @@ class TestQuaternion : public ::testing::Test
 {
 };
 
-TEST_F(TestQuaternion, TodoPlease)
+TEST_F(TestQuaternion, Empty)
 {
+    auto toTest = (Quaternion{}).ToVector();
 
+    // Shouldn't crash.
+    EXPECT_FLOAT_EQ(0.0f, X(toTest));
+    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
+    EXPECT_FLOAT_EQ(0.0f, Z(toTest));
+    EXPECT_FLOAT_EQ(1.0f, W(toTest));
 }
+
 
 }}} // namespace
 
