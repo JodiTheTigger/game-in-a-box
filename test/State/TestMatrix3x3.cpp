@@ -31,9 +31,13 @@ class TestMatrix3x3 : public ::testing::Test
 {
 };
 
-TEST_F(TestMatrix3x3, NeedToTestSomething)
+TEST_F(TestMatrix3x3, CreateEmpty)
 {
+    Matrix3x3 toTest;
 
+    EXPECT_EQ(Vector3{}, toTest.values[0]);
+    EXPECT_EQ(Vector3{}, toTest.values[1]);
+    EXPECT_EQ(Vector3{}, toTest.values[2]);
 }
 
 }}} // namespace

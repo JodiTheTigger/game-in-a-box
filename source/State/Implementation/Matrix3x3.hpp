@@ -30,6 +30,9 @@ struct alignas(16) Matrix3x3
 {
     std::array<Vector3, 3> values;
 
+    constexpr Matrix3x3()
+        : values{{Vector3{}, Vector3{}, Vector3{}}} {}
+
     constexpr Matrix3x3(Vector3 x, Vector3 y, Vector3 z)
         : values{{x, y, z}} {}
 
