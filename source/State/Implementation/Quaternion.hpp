@@ -18,39 +18,44 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef QUATERNIONCPP_HPP
-#define QUATERNIONCPP_HPP
+#ifndef QUATERNION_HPP
+#define QUATERNION_HPP
 
 #include "Vector.hpp"
-#include "Vector3cpp.hpp"
+#include "Vector3.hpp"
 #include "Vector4.hpp"
+#include "UnitsSI.hpp"
 
 #include <array>
 #include <cmath>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct alignas(16) QuaternionCpp
+struct alignas(16) Quaternion
 {
     std::array<float, 4> values;
 
-    constexpr QuaternionCpp()
+    constexpr Quaternion()
         : values{{0.0f, 0.0f, 0.0f, 1.0f}} {}
-    constexpr QuaternionCpp(float x, float y, float z, float w)
+    constexpr Quaternion(float x, float y, float z, float w)
         : values{{x, y, z, w}} {}
 
-    constexpr QuaternionCpp(Vector vector)
+    constexpr Quaternion(Vector vector)
         : values(vector.values) {}
-    constexpr QuaternionCpp(const std::array<float, 4>& array)
+    constexpr Quaternion(const std::array<float, 4>& array)
         : values(array) {}
 
-    // RAM: TODO: Angle in radians.
-    QuaternionCpp(const Vector3cpp& axis, float angle);
+    Quaternion(const Vector3& axis, Radians angle)
+       : values(Normalise(Vector4{(Quaternion(
+                               axis.values[0] * sin(angle.value / 2),
+                               axis.values[1] * sin(angle.value / 2),
+                               axis.values[2] * sin(angle.value / 2),
+                               cos(angle.value / 2))).values}).values) {}
 
-    QuaternionCpp(const QuaternionCpp&) = default;
-    QuaternionCpp(QuaternionCpp&&) = default;
-    QuaternionCpp& operator=(const QuaternionCpp&) & = default;
-    QuaternionCpp& operator=(QuaternionCpp&&) & = default;
+    Quaternion(const Quaternion&) = default;
+    Quaternion(Quaternion&&) = default;
+    Quaternion& operator=(const Quaternion&) & = default;
+    Quaternion& operator=(Quaternion&&) & = default;
 
     constexpr Vector ToVector() const { return Vector{values}; }
 };                                         
@@ -60,7 +65,7 @@ struct alignas(16) QuaternionCpp
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-inline bool operator==(const QuaternionCpp& lhs, const QuaternionCpp& rhs)
+inline bool operator==(const Quaternion& lhs, const Quaternion& rhs)
 {
  return  (
              (lhs.values[0]==rhs.values[0]) &&
@@ -69,17 +74,17 @@ inline bool operator==(const QuaternionCpp& lhs, const QuaternionCpp& rhs)
          );
 }
 
-inline bool operator!=(const QuaternionCpp& lhs, const QuaternionCpp& rhs){return  !operator==(lhs,rhs);}
+inline bool operator!=(const Quaternion& lhs, const Quaternion& rhs){return  !operator==(lhs,rhs);}
 
 // ///////////////////
 // Prototypes
 // ///////////////////
-inline QuaternionCpp Absolute(const QuaternionCpp& lhs);
+inline Quaternion Absolute(const Quaternion& lhs);
 
 // ///////////////////
 // Simple Maths
 // ///////////////////
-inline QuaternionCpp& operator+=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
+inline Quaternion& operator+=(Quaternion& lhs, const Quaternion& rhs)
 {
     lhs.values[0] += rhs.values[0];
     lhs.values[1] += rhs.values[1];
@@ -88,7 +93,7 @@ inline QuaternionCpp& operator+=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
     return lhs;
 }
 
-inline QuaternionCpp& operator-=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
+inline Quaternion& operator-=(Quaternion& lhs, const Quaternion& rhs)
 {
     lhs.values[0] -= rhs.values[0];
     lhs.values[1] -= rhs.values[1];
@@ -97,9 +102,9 @@ inline QuaternionCpp& operator-=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
     return lhs;
 }
 
-inline QuaternionCpp& operator*=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
+inline Quaternion& operator*=(Quaternion& lhs, const Quaternion& rhs)
 {
-    lhs = QuaternionCpp
+    lhs = Quaternion
     {
         (lhs.values[0] * rhs.values[0]) - (lhs.values[0] * rhs.values[1]) - (lhs.values[0] * rhs.values[2]) - (lhs.values[0] * rhs.values[3]),
         (lhs.values[1] * rhs.values[1]) + (lhs.values[1] * rhs.values[0]) + (lhs.values[1] * rhs.values[3]) - (lhs.values[1] * rhs.values[2]),
@@ -110,9 +115,9 @@ inline QuaternionCpp& operator*=(QuaternionCpp& lhs, const QuaternionCpp& rhs)
     return lhs;
 }
 
-inline constexpr QuaternionCpp operator-(const QuaternionCpp& lhs)
+inline constexpr Quaternion operator-(const Quaternion& lhs)
 {
-    return QuaternionCpp
+    return Quaternion
     {
         -lhs.values[0],
         -lhs.values[1],
@@ -121,32 +126,20 @@ inline constexpr QuaternionCpp operator-(const QuaternionCpp& lhs)
     };
 }
 
-inline QuaternionCpp operator+(QuaternionCpp lhs, const QuaternionCpp& rhs){ lhs += rhs;  return lhs; }
-inline QuaternionCpp operator-(QuaternionCpp lhs, const QuaternionCpp& rhs){ lhs -= rhs;  return lhs; }
-inline QuaternionCpp operator*(QuaternionCpp lhs, const QuaternionCpp& rhs){ lhs *= rhs;  return lhs; }
+inline Quaternion operator+(Quaternion lhs, const Quaternion& rhs){ lhs += rhs;  return lhs; }
+inline Quaternion operator-(Quaternion lhs, const Quaternion& rhs){ lhs -= rhs;  return lhs; }
+inline Quaternion operator*(Quaternion lhs, const Quaternion& rhs){ lhs *= rhs;  return lhs; }
 
 // ///////////////////
 // Complicated Maths (vector return)
 // ///////////////////
-inline QuaternionCpp Normalise(const QuaternionCpp& lhs)
+inline Quaternion Normalise(const Quaternion& lhs)
 {
     // Use Vector4's version.
-    return QuaternionCpp{Normalise(Vector4{lhs.values}).values};
+    return Quaternion{Normalise(Vector4{lhs.values}).values};
 }
-
-// ///////////////////
-// Constructors
-// ///////////////////
-
-QuaternionCpp::QuaternionCpp(const Vector3cpp& axis, float angle)
-   : values(Normalise(QuaternionCpp(
-                           axis.values[0] * sin(angle / 2),
-                           axis.values[1] * sin(angle / 2),
-                           axis.values[2] * sin(angle / 2),
-                           cos(angle / 2))).values) {}
-
 
 }}} // namespace
 
 
-#endif // QUATERNIONCPP_HPP
+#endif // QUATERNION_HPP

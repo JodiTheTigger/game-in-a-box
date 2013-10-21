@@ -20,10 +20,6 @@
 
 #include <Implementation/Entity.hpp>
 
-// RAM: TODO: just here to check it builds, move into its own test later.
-#include <Implementation/Interaction.hpp>
-#include <Implementation/Vector.hpp>
-
 #include <gmock/gmock.h>
 
 using namespace std;

@@ -20,7 +20,7 @@
 
 #include "ActPlayer.hpp"
 #include "Flags.hpp"
-#include "FastVector.hpp"
+#include "Vector3.hpp"
 
 #include <cmath>
 //#include <Common/UnitOperators.hpp>
@@ -50,7 +50,7 @@ template<class DATATYPE> inline DATATYPE operator/(DATATYPE lhs, const DATATYPE&
 
 
 // 0-100km in 6 seconds is 60m/s acceleration.
-constexpr FastVector3 JetImpulse() { return FastVector3(1.0f, FastVector3::tagReplicate{}); }
+constexpr Vector3 JetImpulse() { return Vector3(1.0f, Vector3::tagReplicate{}); }
 constexpr Energy JetMaxEnergy() { return Energy{10000}; }
 constexpr Energy JetEnergyRechargePerTick() { return Energy{10000 / (10 * 60)}; }
 constexpr Energy JetEnergyBurnPerTick() { return Energy{10000 / (3 * 60)}; }
@@ -90,12 +90,12 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
             jetEnergy -= JetEnergyBurnPerTick();
 
             // Vector Maths bit.
-            auto velocity       = FastVector3{result.player.velocity.value};
-            auto orientation    = FastVector3{result.player.jetting.value};
+            auto velocity       = Vector3{result.player.velocity.value};
+            auto orientation    = Vector3{result.player.jetting.value};
 
             // Don't assume ImpulseJet will *always* be 1.0. Otherwise this
             // would be just an add instad.
-            auto newVelocity    = Mad(orientation, JetImpulse(), velocity);
+            auto newVelocity    = orientation * JetImpulse() + velocity;
 
             result.player.velocity.value = newVelocity.ToVector();
         }
@@ -108,23 +108,23 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
     // Movement
     if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Ground))
     {
-        auto movement = FastVector3(0.0, FastVector3::tagReplicate{});
+        auto movement = Vector3(0.0, Vector3::tagReplicate{});
 
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Foward))
         {
-            movement += FastVector3(0,0,1);
+            movement += Vector3(0,0,1);
         }
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Back))
         {
-            movement += FastVector3(0,0,-1);
+            movement += Vector3(0,0,-1);
         }
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Left))
         {
-            movement += FastVector3(-1,0,0);
+            movement += Vector3(-1,0,0);
         }
         if (FlagIsSet(result.player.input.action, FlagsPlayerAction::Right))
         {
-            movement += FastVector3(1,0,0);
+            movement += Vector3(1,0,0);
         }
 
         movement = Normalise(movement);

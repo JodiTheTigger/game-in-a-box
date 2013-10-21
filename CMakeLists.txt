@@ -309,21 +309,11 @@ source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
 source/State/Implementation/Vector.hpp
-source/State/Implementation/FastVector.hpp
-source/State/Implementation/FastVectorGeneral.hpp
-source/State/Implementation/FastMatrix.hpp
-source/State/Implementation/FastMatrixGeneral.hpp
-source/State/Implementation/Vector3cpp.hpp
-source/State/Implementation/Vector3neon.hpp
-source/State/Implementation/Vector3sse2.hpp
+source/State/Implementation/Vector3.hpp
 source/State/Implementation/Vector4.hpp
 source/State/Implementation/VectorCommon.hpp
-source/State/Implementation/Matrix3x3cpp.hpp
-source/State/Implementation/Matrix3x3neon.hpp
-source/State/Implementation/Matrix3x3sse2.hpp
-source/State/Implementation/QuaternionCpp.hpp
-source/State/Implementation/QuaternionSse2.hpp
-source/State/Implementation/QuaternionNeon.hpp
+source/State/Implementation/Matrix3x3.hpp
+source/State/Implementation/Quaternion.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
@@ -336,8 +326,10 @@ test/State/TestDeltaStatePlayerClient.cpp
 test/State/TestDeltaStateGameSnapshot.cpp
 test/State/TestEntity.cpp
 test/State/TestVector.cpp
-test/State/TestVectorFast.cpp
 test/State/TestVector3.cpp
+test/State/TestVector4.cpp
+test/State/TestQuaternion.cpp
+test/State/TestMatrix3x3.cpp
 )
 
 set(UNUSED
