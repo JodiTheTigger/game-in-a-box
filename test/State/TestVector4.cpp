@@ -76,6 +76,17 @@ public:
 
 TEST_F(TestVector4, Empty)
 {
+    auto toTest = (Vector4{}).ToVector();
+
+    // Shouldn't crash.
+    EXPECT_FLOAT_EQ(0.0f, X(toTest));
+    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
+    EXPECT_FLOAT_EQ(0.0f, Z(toTest));
+    EXPECT_FLOAT_EQ(0.0f, W(toTest));
+}
+
+TEST_F(TestVector4, ZeroReplicate)
+{
     auto toTest = (Vector4(0, Vector4::tagReplicate{})).ToVector();
 
     // Shouldn't crash.
