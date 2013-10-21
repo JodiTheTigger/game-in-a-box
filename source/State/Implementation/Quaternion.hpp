@@ -128,7 +128,7 @@ inline Quaternion Normalise(const Quaternion& lhs)
 inline Quaternion NLerp(const Quaternion& lhs, const Quaternion& rhs, float scale)
 {
     // Use Vector4's version.
-    return Quaternion{Normalise(Lerp(Vector4{lhs.value}, Vector4{rhs.value}, scale)).values};
+    return Quaternion{Normalise(Lerp(Vector4{lhs.values}, Vector4{rhs.values}, scale)).values};
 }
 
 // commutative          : no
@@ -138,11 +138,13 @@ inline Quaternion NLerp(const Quaternion& lhs, const Quaternion& rhs, float scal
 inline Quaternion SLerp(const Quaternion& lhs, const Quaternion& rhs, float scale)
 {
     // Adapted from bullet3
-    auto magnitude = std::sqrt(LengthSquared(lhs) * LengthSquared(rhs));
+    auto vector4lhs = Vector4{lhs.values};
+    auto vector4rhs = Vector4{rhs.values};
+    auto magnitude  = std::sqrt(LengthSquaredF(vector4lhs) * LengthSquaredF(vector4rhs));
 
     // RAM: TODO: deal with quaternions that are too close. Ie magnitude !> 0
 
-    float product = DotF(Vector4{lhs.values}, Vector4{rhs.values}) / magnitude;
+    float product = DotF(vector4lhs, vector4rhs) / magnitude;
 
     if (std::fabs(product) < 1.0f)
     {
@@ -152,14 +154,14 @@ inline Quaternion SLerp(const Quaternion& lhs, const Quaternion& rhs, float scal
         auto theta  = std::acos(sign * product);
         auto s1     = std::sin(sign * scale * theta);
         auto d      = 1.0f / std::sin(theta);
-        auto s0     = std::sin((1.0f - t) * theta);
+        auto s0     = std::sin((1.0f - scale) * theta);
 
         return
         {
             (lhs.values[0] * s0 + rhs.values[0] * s1) * d,
             (lhs.values[1] * s0 + rhs.values[1] * s1) * d,
             (lhs.values[2] * s0 + rhs.values[2] * s1) * d,
-            (lhs.values[3] * s0 + rhs.values[3] * s1) * d)
+            (lhs.values[3] * s0 + rhs.values[3] * s1) * d
         };
     }
 
