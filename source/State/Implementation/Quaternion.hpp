@@ -31,6 +31,10 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// NOTE: Lerping isn't all just slerp.
+// http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
+// http://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
+
 struct alignas(16) Quaternion
 {
     std::array<float, 4> values;
@@ -51,6 +55,20 @@ struct alignas(16) Quaternion
                                axis.values[1] * sin(angle.value / 2),
                                axis.values[2] * sin(angle.value / 2),
                                cos(angle.value / 2))).values}).values) {}
+
+    // From and to are unit vectors.
+    // The Quaternion is the rotation between them.
+    Quaternion(const Vector3& from, const Vector3& to)
+        : values({0.0f, 0.0f, 0.0f, 1.0f})
+    {
+        // http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
+        // from and to are unit vectors.
+
+        auto w = Cross(from, to);
+        auto q = Vector4(1.0f + DotF(to, from), w.values[0], w.values[1], w.values[2]);
+
+        values = Normalise(q).values;
+    }
 
     Quaternion(const Quaternion&) = default;
     Quaternion(Quaternion&&) = default;
@@ -77,31 +95,8 @@ inline bool operator==(const Quaternion& lhs, const Quaternion& rhs)
 inline bool operator!=(const Quaternion& lhs, const Quaternion& rhs){return  !operator==(lhs,rhs);}
 
 // ///////////////////
-// Prototypes
-// ///////////////////
-inline Quaternion Absolute(const Quaternion& lhs);
-
-// ///////////////////
 // Simple Maths
 // ///////////////////
-inline Quaternion& operator+=(Quaternion& lhs, const Quaternion& rhs)
-{
-    lhs.values[0] += rhs.values[0];
-    lhs.values[1] += rhs.values[1];
-    lhs.values[2] += rhs.values[2];
-    lhs.values[3] += rhs.values[3];
-    return lhs;
-}
-
-inline Quaternion& operator-=(Quaternion& lhs, const Quaternion& rhs)
-{
-    lhs.values[0] -= rhs.values[0];
-    lhs.values[1] -= rhs.values[1];
-    lhs.values[2] -= rhs.values[2];
-    lhs.values[3] -= rhs.values[3];
-    return lhs;
-}
-
 inline Quaternion& operator*=(Quaternion& lhs, const Quaternion& rhs)
 {
     lhs = Quaternion
@@ -115,19 +110,6 @@ inline Quaternion& operator*=(Quaternion& lhs, const Quaternion& rhs)
     return lhs;
 }
 
-inline constexpr Quaternion operator-(const Quaternion& lhs)
-{
-    return Quaternion
-    {
-        -lhs.values[0],
-        -lhs.values[1],
-        -lhs.values[2],
-        -lhs.values[3]
-    };
-}
-
-inline Quaternion operator+(Quaternion lhs, const Quaternion& rhs){ lhs += rhs;  return lhs; }
-inline Quaternion operator-(Quaternion lhs, const Quaternion& rhs){ lhs -= rhs;  return lhs; }
 inline Quaternion operator*(Quaternion lhs, const Quaternion& rhs){ lhs *= rhs;  return lhs; }
 
 // ///////////////////
@@ -138,6 +120,52 @@ inline Quaternion Normalise(const Quaternion& lhs)
     // Use Vector4's version.
     return Quaternion{Normalise(Vector4{lhs.values}).values};
 }
+
+// commutative          : yes
+// constant velocity    : no
+// torque-minimal       : yes
+// Computation          : cheap
+inline Quaternion NLerp(const Quaternion& lhs, const Quaternion& rhs, float scale)
+{
+    // Use Vector4's version.
+    return Quaternion{Normalise(Lerp(Vector4{lhs.value}, Vector4{rhs.value}, scale)).values};
+}
+
+// commutative          : no
+// constant velocity    : yes
+// torque-minimal       : yes
+// Computation          : expensive (sin + acos)
+inline Quaternion SLerp(const Quaternion& lhs, const Quaternion& rhs, float scale)
+{
+    // Adapted from bullet3
+    auto magnitude = std::sqrt(LengthSquared(lhs) * LengthSquared(rhs));
+
+    // RAM: TODO: deal with quaternions that are too close. Ie magnitude !> 0
+
+    float product = DotF(Vector4{lhs.values}, Vector4{rhs.values}) / magnitude;
+
+    if (std::fabs(product) < 1.0f)
+    {
+        // Take care of long angle case see http://en.wikipedia.org/wiki/Slerp
+        auto sign = (product < 0) ? float(-1) : float(1);
+
+        auto theta  = std::acos(sign * product);
+        auto s1     = std::sin(sign * scale * theta);
+        auto d      = 1.0f / std::sin(theta);
+        auto s0     = std::sin((1.0f - t) * theta);
+
+        return
+        {
+            (lhs.values[0] * s0 + rhs.values[0] * s1) * d,
+            (lhs.values[1] * s0 + rhs.values[1] * s1) * d,
+            (lhs.values[2] * s0 + rhs.values[2] * s1) * d,
+            (lhs.values[3] * s0 + rhs.values[3] * s1) * d)
+        };
+    }
+
+    return lhs;
+}
+
 
 }}} // namespace
 
