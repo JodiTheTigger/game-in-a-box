@@ -292,7 +292,7 @@ inline Vector3sse2 Absolute(const Vector3sse2& lhs)
     // done by &ing off the sign bit.
     return Vector3sse2
     {
-        _mm_and_ps(lhs.value, _mm_set_epi32(0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF))
+        _mm_and_ps(lhs.value, _mm_castsi128_ps(_mm_set_epi32(0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF)))
     };
 }
 
@@ -302,6 +302,28 @@ inline Vector3sse2 Sqrt(const Vector3sse2& lhs)
     {
         _mm_sqrt_ps(lhs.value)
     };
+}
+
+inline Vector3sse2 NormaliseStable(Vector3sse2 lhs)
+{
+    auto absolute = Absolute(lhs);
+    auto maxIndex = AxisMax(absolute);
+
+    if (absolute.value[maxIndex] > 0)
+    {
+        lhs /= absolute.value[maxIndex];
+        return lhs / Length(lhs);
+    }
+
+    // Too small to actually normalise without becoming unstable.
+    // So just set the maxindex to 1. Same diff.
+    switch (maxIndex)
+    {
+        default:
+        case 0: return Vector3sse2{1.0f};
+        case 1: return Vector3sse2{0.0f, 1.0f};
+        case 2: return Vector3sse2{0.0f, 0.0f, 1.0f};
+    }
 }
 
 inline Vector3sse2 Cross(const Vector3sse2& lhs, const Vector3sse2& rhs)
