@@ -19,6 +19,7 @@
 */
 
 #include <Implementation/Quaternion.hpp>
+#include <Implementation/VectorCommon.hpp>
 
 #include <gmock/gmock.h>
 
@@ -42,6 +43,131 @@ TEST_F(TestQuaternion, Empty)
     EXPECT_FLOAT_EQ(1.0f, W(toTest));
 }
 
+TEST_F(TestQuaternion, FromFloats)
+{
+    auto toTest = (Quaternion{1.0f, 2.0f, 3.0f, 4.0f}).ToVector();
+
+    EXPECT_FLOAT_EQ(1.0f, X(toTest));
+    EXPECT_FLOAT_EQ(2.0f, Y(toTest));
+    EXPECT_FLOAT_EQ(3.0f, Z(toTest));
+    EXPECT_FLOAT_EQ(4.0f, W(toTest));
+}
+
+TEST_F(TestQuaternion, FromVector)
+{
+    auto toTest = (Quaternion{Vector{1.0f, 2.0f, 3.0f, 4.0f}}).ToVector();
+
+    EXPECT_FLOAT_EQ(1.0f, X(toTest));
+    EXPECT_FLOAT_EQ(2.0f, Y(toTest));
+    EXPECT_FLOAT_EQ(3.0f, Z(toTest));
+    EXPECT_FLOAT_EQ(4.0f, W(toTest));
+}
+
+TEST_F(TestQuaternion, FromArray)
+{
+    auto array = std::array<float,4> {1.0f, 2.0f, 3.0f, 4.0f};
+    auto toTest = (Quaternion{array}).ToVector();
+
+    EXPECT_FLOAT_EQ(1.0f, X(toTest));
+    EXPECT_FLOAT_EQ(2.0f, Y(toTest));
+    EXPECT_FLOAT_EQ(3.0f, Z(toTest));
+    EXPECT_FLOAT_EQ(4.0f, W(toTest));
+}
+
+TEST_F(TestQuaternion, AxisAndAngle)
+{
+    auto angle = Radians{2};
+    auto vector = Normalise(Vector3{1,2,3});
+    auto toTest = (Quaternion{vector, angle}).ToVector();
+
+    // do Quaternion maths here to verify
+    auto sin_a = std::sin( angle.value / 2.0f );
+    auto cos_a = std::cos( angle.value / 2.0f );
+
+    auto expected = Vector
+    {
+        X(vector.ToVector()) * sin_a,
+        Y(vector.ToVector()) * sin_a,
+        Z(vector.ToVector()) * sin_a,
+        cos_a
+    };
+
+    EXPECT_FLOAT_EQ(X(expected), X(toTest));
+    EXPECT_FLOAT_EQ(Y(expected), Y(toTest));
+    EXPECT_FLOAT_EQ(Z(expected), Z(toTest));
+    EXPECT_FLOAT_EQ(W(expected), W(toTest));
+}
+
+TEST_F(TestQuaternion, BetweenVectors)
+{
+    auto vector1 = Vector3{1.0f,0.0f,0.0f};
+    auto vector2 = Vector3{0.0f,1.0f,0.0f};
+    auto cross = Cross(vector1, vector2).ToVector();
+
+    auto toTest = (Quaternion{vector1, vector2}).ToVector();
+
+    // do Quaternion maths here to verify
+    // RAM: TODO: Unit conversions between rads and degrees.
+    auto sin_a = std::sin( (90.0f * static_cast<float>(180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164)) / 2.0f );
+    auto cos_a = std::cos( (90.0f * static_cast<float>(180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164)) / 2.0f );
+
+    auto expected = Vector
+    {
+        X(vector1.ToVector()) * sin_a,
+        Y(vector1.ToVector()) * sin_a,
+        Z(vector1.ToVector()) * sin_a,
+        cos_a
+    };
+
+    EXPECT_FLOAT_EQ(X(cross), X(toTest));
+    EXPECT_FLOAT_EQ(Y(cross), Y(toTest));
+    EXPECT_FLOAT_EQ(Z(cross), Z(toTest));
+    EXPECT_FLOAT_EQ(W(expected), W(toTest));
+}
+
+TEST_F(TestQuaternion, Equal)
+{
+    auto toTest1 = Quaternion{1.0f, 2.0f, 3.0f, 4.0f};
+    auto toTest2 = Quaternion{1.0f, 2.0f, 3.0f, 4.0f};
+
+    EXPECT_EQ(toTest1, toTest2);
+}
+
+TEST_F(TestQuaternion, NotEqual)
+{
+    auto toTest1 = Quaternion{1.0f, 2.0f, 3.0f, 4.0f};
+    auto toTest2 = Quaternion{1.0f, 2.0f, 2.0f, 4.0f};
+
+    EXPECT_NE(toTest1, toTest2);
+}
+
+TEST_F(TestQuaternion, Multiply)
+{
+    auto angle  = Radians{2.0f};
+    auto angleN = Radians{-2.0f};
+    auto vector = Normalise(Vector3{1,2,3});
+    auto original = Quaternion{vector, angle};
+    auto otherWay = Quaternion{vector, angleN};
+
+    auto toTest = (original * otherWay).ToVector();
+
+    // do Quaternion maths here to verify
+    auto a = original.ToVector();
+    auto b = otherWay.ToVector();
+
+    auto expected = Vector
+    {
+        (X(a) * X(b)) - (X(a) * Y(b)) - (X(a) * Z(b)) - (X(a) * W(b)),
+        (Y(a) * Y(b)) + (Y(a) * X(b)) + (Y(a) * W(b)) - (Y(a) * Z(b)),
+        (Z(a) * Z(b)) - (Z(a) * W(b)) + (Z(a) * X(b)) + (Z(a) * Y(b)),
+        (W(a) * W(b)) + (W(a) * Z(b)) - (W(a) * Y(b)) + (W(a) * X(b))
+    };
+
+    EXPECT_FLOAT_EQ(X(expected), X(toTest));
+    EXPECT_FLOAT_EQ(Y(expected), Y(toTest));
+    EXPECT_FLOAT_EQ(Z(expected), Z(toTest));
+    EXPECT_FLOAT_EQ(W(expected), W(toTest));
+}
 
 }}} // namespace
 
