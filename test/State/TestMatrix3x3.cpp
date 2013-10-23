@@ -254,6 +254,8 @@ TEST_F(TestMatrix3x3, Multiply)
     }
 }
 
+// RAM: TODO: Test: Negate, Vec3* *Vec3
+
 }}} // namespace
 
 
