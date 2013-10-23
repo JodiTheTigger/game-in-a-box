@@ -249,7 +249,7 @@ TEST_F(TestMatrix3x3, Multiply)
                 (vc.values[0] * vb.values[2]) + (vc.values[1] * vc.values[2]) + (vc.values[2] * va.values[2]),
         };
 
-        //ASSERT_EQ(result, c) << " i: " << i; // RAM: Failing at i ==2 - WHY?
+        ASSERT_EQ(result, c) << " i: " << i;
         ASSERT_EQ(expected, result);
     }
 }
