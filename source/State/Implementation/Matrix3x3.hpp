@@ -46,10 +46,7 @@ struct alignas(16) Matrix3x3
               Vector3(yx,yy,yz),
               Vector3(zx,zy,zz)) {}
 
-    constexpr explicit Matrix3x3(std::array<Vector3, 3> vectors)
-        : values(vectors) {}
-
-    // Optimising compiler should ignore hte initilistaion? otherwise
+    // Optimising compiler should ignore the initilistaion? otherwise
     // do all the calculations in the assignment and make it constexpr.
     explicit Matrix3x3(const Quaternion& rotation)
         : values()
