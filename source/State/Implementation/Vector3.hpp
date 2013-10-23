@@ -258,12 +258,11 @@ inline Vector3 Cross(const Vector3& lhs, const Vector3& rhs)
     };
 }
 
-// RAM: TODO: Use rotation in radians.
 inline Vector3 Rotate(Vector3 lhs, const Vector3& wAxis, Radians rotation)
 {
     // Stole this from  bullet3's btVector3
 
-    auto o = wAxis * DotF(wAxis, lhs);
+    auto o = wAxis * Dot(wAxis, lhs);
     auto _x = lhs - o;
     auto _y = Cross(wAxis, lhs);
 

@@ -55,7 +55,7 @@ TEST_F(TestQuaternion, FromFloats)
 
 TEST_F(TestQuaternion, FromVector)
 {
-    auto toTest = (Quaternion{Vector{1.0f, 2.0f, 3.0f, 4.0f}}).ToVector();
+    auto toTest = (Quaternion{Vector{{{1.0f, 2.0f, 3.0f, 4.0f}}}}).ToVector();
 
     EXPECT_FLOAT_EQ(1.0f, X(toTest));
     EXPECT_FLOAT_EQ(2.0f, Y(toTest));
@@ -65,7 +65,7 @@ TEST_F(TestQuaternion, FromVector)
 
 TEST_F(TestQuaternion, FromArray)
 {
-    auto array = std::array<float,4> {1.0f, 2.0f, 3.0f, 4.0f};
+    auto array = std::array<float,4> {{1.0f, 2.0f, 3.0f, 4.0f}};
     auto toTest = (Quaternion{array}).ToVector();
 
     EXPECT_FLOAT_EQ(1.0f, X(toTest));
@@ -85,12 +85,12 @@ TEST_F(TestQuaternion, AxisAndAngle)
     auto cos_a = std::cos( angle.value / 2.0f );
 
     auto expected = Vector
-    {
+    {{{
         X(vector.ToVector()) * sin_a,
         Y(vector.ToVector()) * sin_a,
         Z(vector.ToVector()) * sin_a,
         cos_a
-    };
+    }}};
 
     EXPECT_FLOAT_EQ(X(expected), X(toTest));
     EXPECT_FLOAT_EQ(Y(expected), Y(toTest));
@@ -102,27 +102,17 @@ TEST_F(TestQuaternion, BetweenVectors)
 {
     auto vector1 = Vector3{1.0f,0.0f,0.0f};
     auto vector2 = Vector3{0.0f,1.0f,0.0f};
-    auto cross = Cross(vector1, vector2).ToVector();
 
     auto toTest = (Quaternion{vector1, vector2}).ToVector();
 
-    // do Quaternion maths here to verify
-    // RAM: TODO: Unit conversions between rads and degrees.
-    auto sin_a = std::sin( (90.0f * static_cast<float>(180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164)) / 2.0f );
-    auto cos_a = std::cos( (90.0f * static_cast<float>(180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164)) / 2.0f );
+    // Rotate about the z axis (0,0,1) by 90 degrees. Dunno why it normalises
+    // to (0,0,inverseRoot2,inverseRoot2) but it does.
+    auto inverseRoot2 = 1.0f / std::sqrt(2.0f);
 
-    auto expected = Vector
-    {
-        X(vector1.ToVector()) * sin_a,
-        Y(vector1.ToVector()) * sin_a,
-        Z(vector1.ToVector()) * sin_a,
-        cos_a
-    };
-
-    EXPECT_FLOAT_EQ(X(cross), X(toTest));
-    EXPECT_FLOAT_EQ(Y(cross), Y(toTest));
-    EXPECT_FLOAT_EQ(Z(cross), Z(toTest));
-    EXPECT_FLOAT_EQ(W(expected), W(toTest));
+    EXPECT_FLOAT_EQ(0.0f, X(toTest));
+    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
+    EXPECT_FLOAT_EQ(inverseRoot2, Z(toTest));
+    EXPECT_FLOAT_EQ(inverseRoot2, W(toTest));
 }
 
 TEST_F(TestQuaternion, Equal)
@@ -156,12 +146,12 @@ TEST_F(TestQuaternion, Multiply)
     auto b = otherWay.ToVector();
 
     auto expected = Vector
-    {
+    {{{
         (X(a) * X(b)) - (X(a) * Y(b)) - (X(a) * Z(b)) - (X(a) * W(b)),
         (Y(a) * Y(b)) + (Y(a) * X(b)) + (Y(a) * W(b)) - (Y(a) * Z(b)),
         (Z(a) * Z(b)) - (Z(a) * W(b)) + (Z(a) * X(b)) + (Z(a) * Y(b)),
         (W(a) * W(b)) + (W(a) * Z(b)) - (W(a) * Y(b)) + (W(a) * X(b))
-    };
+    }}};
 
     EXPECT_FLOAT_EQ(X(expected), X(toTest));
     EXPECT_FLOAT_EQ(Y(expected), Y(toTest));

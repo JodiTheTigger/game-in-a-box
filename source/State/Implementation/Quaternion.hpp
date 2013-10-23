@@ -35,6 +35,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 // http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
 // http://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
 
+// NOTE: Automatic normalisation is not done at the moment.
 struct alignas(16) Quaternion
 {
     std::array<float, 4> values;
@@ -59,7 +60,7 @@ struct alignas(16) Quaternion
     // From and to are unit vectors.
     // The Quaternion is the rotation between them.
     Quaternion(const Vector3& from, const Vector3& to)
-        : values({0.0f, 0.0f, 0.0f, 1.0f})
+        : values{{0.0f, 0.0f, 0.0f, 1.0f}}
     {
         // http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
         // from and to are unit vectors.
