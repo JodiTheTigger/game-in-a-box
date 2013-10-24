@@ -110,6 +110,23 @@ TEST_F(TestMatrix3x3, CreateFloats)
     EXPECT_EQ(c, toTest.values[2]);
 }
 
+TEST_F(TestMatrix3x3, Negate)
+{
+    Matrix3x3 a
+    {
+        groupA[0],
+        groupB[0],
+        groupC[0]
+    };
+
+    auto toTest = -a;
+
+    EXPECT_EQ(groupA[0], -toTest.values[0]);
+    EXPECT_EQ(groupB[0], -toTest.values[1]);
+    EXPECT_EQ(groupC[0], -toTest.values[2]);
+}
+
+
 TEST_F(TestMatrix3x3, CreateQuaternionIdentity)
 {
     auto x = Vector3{1.0f};
@@ -249,12 +266,70 @@ TEST_F(TestMatrix3x3, Multiply)
                 (vc.values[0] * vb.values[2]) + (vc.values[1] * vc.values[2]) + (vc.values[2] * va.values[2]),
         };
 
-        ASSERT_EQ(result, c) << " i: " << i;
-        ASSERT_EQ(expected, result);
+        ASSERT_EQ(expected, result) << " i: " << i;
+        EXPECT_EQ(result, c);
     }
 }
 
-// RAM: TODO: Test: Negate, Vec3* *Vec3
+TEST_F(TestMatrix3x3, MultiplyMatrixVector)
+{
+    auto asize = groupA.size();
+
+    for (uint i = 0 ; i < asize; ++i)
+    {
+        auto va = Vector3(groupA[i]);
+        auto vb = Vector3(groupB[i]);
+        auto vc = Vector3(groupC[i]);
+
+        auto a = Matrix3x3
+        {
+            va,
+            vb,
+            va
+        };
+
+        auto result = a * vc;
+
+        auto expected = Vector3
+        {
+            (va.values[0] * vc.values[0]) + (va.values[1] * vc.values[1]) + (va.values[2] * vc.values[2]),
+            (vb.values[0] * vc.values[0]) + (vb.values[1] * vc.values[1]) + (vb.values[2] * vc.values[2]),
+            (va.values[0] * vc.values[0]) + (va.values[1] * vc.values[1]) + (va.values[2] * vc.values[2]),
+        };
+
+        ASSERT_EQ(expected, result) << " i: " << i;
+    }
+}
+
+TEST_F(TestMatrix3x3, MultiplyVectorMatrix)
+{
+   auto asize = groupA.size();
+
+   for (uint i = 0 ; i < asize; ++i)
+   {
+       auto va = Vector3(groupA[i]);
+       auto vb = Vector3(groupB[i]);
+       auto vc = Vector3(groupC[i]);
+
+       auto a = Matrix3x3
+       {
+           va,
+           vb,
+           va
+       };
+
+       auto result = vc * a;
+
+       auto expected = Vector3
+       {
+           (va.values[0] * vc.values[0]) + (vb.values[0] * vc.values[1]) + (va.values[0] * vc.values[2]),
+           (va.values[1] * vc.values[0]) + (vb.values[1] * vc.values[1]) + (va.values[1] * vc.values[2]),
+           (va.values[2] * vc.values[0]) + (vb.values[2] * vc.values[1]) + (va.values[2] * vc.values[2]),
+       };
+
+       ASSERT_EQ(expected, result) << " i: " << i;
+   }
+}
 
 }}} // namespace
 
