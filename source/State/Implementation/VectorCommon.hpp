@@ -79,9 +79,8 @@ inline VECTOR DistanceSquared(const VECTOR& lhs, const VECTOR& rhs)
 }
 
 template <typename VECTOR>
-inline VECTOR NormaliseStable(VECTOR)
+inline VECTOR NormaliseStable(VECTOR lhs)
 {
-    /* RAM: TODO! FIX!
     auto absolute = Absolute(lhs);
     auto maxIndex = AxisMax(absolute);
 
@@ -94,8 +93,6 @@ inline VECTOR NormaliseStable(VECTOR)
     // Too small to actually normalise without becoming unstable.
     // So just set the maxindex to 1. Same diff.
     return VECTOR{}.values[maxIndex] = 1.0f;
-    */
-    return VECTOR{1.0f};
 }
 
 template <typename VECTOR>

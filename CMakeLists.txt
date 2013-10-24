@@ -308,7 +308,7 @@ source/State/Implementation/ActPlayer.hpp
 source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
-source/State/Implementation/VectorPod.hpp
+source/State/Implementation/Vector.hpp
 source/State/Implementation/Vector3.hpp
 source/State/Implementation/Vector4.hpp
 source/State/Implementation/VectorCommon.hpp

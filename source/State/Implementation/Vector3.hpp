@@ -21,109 +21,62 @@
 #ifndef VECTOR3_HPP
 #define VECTOR3_HPP
 
-#include "VectorPod.hpp"
+#include "Vector.hpp"
 #include "UnitsSI.hpp"
 #include "VectorCommon.hpp"
 
 #include <array>
 #include <cmath>
 
-// Idioms create good enough vector code with modern compilers (gcc 4.8+, clang 3.3+)
+// RAM: TODO: single inputs are called lhs, double, lhs and rhs. Validate.
+
+// RAM: TODO: Try to use idioms?
 // http://www.altdevblogaday.com/2011/12/24/beyond-intrinsics-to-code-idiom/
+// Copy code pattern from SSE2 version, compare assembler output, be surprised?
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-class alignas(16) Vector3
+struct alignas(16) Vector3
 {
-public:
     struct tagReplicate {};
 
-    constexpr Vector3()
-        : myValues{{0.0f, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x)
-        : myValues{{x, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x, float y)
-        : myValues{{x, y, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x, float y, float z)
-        : myValues{{x, y, z, 0.0f}} {}
+    std::array<float, 4> values;
 
-    constexpr Vector3(VectorPod vector)
-        : myValues(vector.values) {}
+    constexpr Vector3()
+        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
+    constexpr Vector3(float x)
+        : values{{x, 0.0f, 0.0f, 0.0f}} {}
+    constexpr Vector3(float x, float y)
+        : values{{x, y, 0.0f, 0.0f}} {}
+    constexpr Vector3(float x, float y, float z)
+        : values{{x, y, z, 0.0f}} {}
+
+    constexpr Vector3(Vector vector)
+        : values(vector.values) {}
     constexpr Vector3(const std::array<float, 4>& array)
-        : myValues(array) {}
+        : values(array) {}
     constexpr Vector3(float x, tagReplicate)
-        : myValues{{x, x, x, x}} {}
+        : values{{x, x, x, x}} {}
 
     Vector3(const Vector3&) = default;
     Vector3(Vector3&&) = default;
     Vector3& operator=(const Vector3&) & = default;
     Vector3& operator=(Vector3&&) & = default;
 
-    constexpr float X() const { return myValues[0]; }
-    constexpr float Y() const { return myValues[1]; }
-    constexpr float Z() const { return myValues[2]; }
-
-    Vector3& operator+=(const Vector3& rhs)
-    {
-        myValues[0] += rhs.myValues[0];
-        myValues[1] += rhs.myValues[1];
-        myValues[2] += rhs.myValues[2];
-        return *this;
-    }
-
-    Vector3& operator-=(const Vector3& rhs)
-    {
-        myValues[0] -= rhs.myValues[0];
-        myValues[1] -= rhs.myValues[1];
-        myValues[2] -= rhs.myValues[2];
-        return *this;
-    }
-
-    Vector3& operator*=(const Vector3& rhs)
-    {
-        myValues[0] *= rhs.myValues[0];
-        myValues[1] *= rhs.myValues[1];
-        myValues[2] *= rhs.myValues[2];
-        return *this;
-    }
-
-    Vector3& operator*=(float rhs)
-    {
-        myValues[0] *= rhs;
-        myValues[1] *= rhs;
-        myValues[2] *= rhs;
-        return *this;
-    }
-
-    Vector3& operator/=(const Vector3& rhs)
-    {
-        myValues[0] /= rhs.myValues[0];
-        myValues[1] /= rhs.myValues[1];
-        myValues[2] /= rhs.myValues[2];
-        return *this;
-    }
-
-    Vector3& operator/=(float rhs)
-    {
-        return (*this *= (1.0f / rhs));
-    }
-
-    constexpr VectorPod ToVectorPod() const { return VectorPod{myValues}; }
-
-private:
-    std::array<float, 4> myValues;
+    constexpr Vector ToVector() const { return Vector{values}; }
 };
 
 // ///////////////////
 // Comparison Operators
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
+// However all "inclass" operators changed to out of class.
 inline bool operator==(const Vector3& lhs, const Vector3& rhs)
 {
     return  (
-                (lhs.X()==rhs.X()) &&
-                (lhs.Y()==rhs.Y()) &&
-                (lhs.Z()==rhs.Z())
+                (lhs.values[0]==rhs.values[0]) &&
+                (lhs.values[1]==rhs.values[1]) &&
+                (lhs.values[2]==rhs.values[2])
             );
 }
 
@@ -137,13 +90,45 @@ inline Vector3 Absolute(const Vector3& lhs);
 // ///////////////////
 // Simple Maths
 // ///////////////////
+inline Vector3& operator+=(Vector3& lhs, const Vector3& rhs)
+{
+    lhs.values[0] += rhs.values[0];
+    lhs.values[1] += rhs.values[1];
+    lhs.values[2] += rhs.values[2];
+    return lhs;
+}
+
+inline Vector3& operator-=(Vector3& lhs, const Vector3& rhs)
+{
+    lhs.values[0] -= rhs.values[0];
+    lhs.values[1] -= rhs.values[1];
+    lhs.values[2] -= rhs.values[2];
+    return lhs;
+}
+
+inline Vector3& operator*=(Vector3& lhs, const Vector3& rhs)
+{
+    lhs.values[0] *= rhs.values[0];
+    lhs.values[1] *= rhs.values[1];
+    lhs.values[2] *= rhs.values[2];
+    return lhs;
+}
+
+inline Vector3& operator/=(Vector3& lhs, const Vector3& rhs)
+{
+    lhs.values[0] /= rhs.values[0];
+    lhs.values[1] /= rhs.values[1];
+    lhs.values[2] /= rhs.values[2];
+    return lhs;
+}
+
 inline constexpr Vector3 operator-(const Vector3& lhs)
 {
     return Vector3
     {
-        -lhs.X(),
-        -lhs.Y(),
-        -lhs.Z()
+        -lhs.values[0],
+        -lhs.values[1],
+        -lhs.values[2]
     };
 }
 
@@ -151,6 +136,19 @@ inline Vector3 operator+(Vector3 lhs, const Vector3& rhs){ lhs += rhs;  return l
 inline Vector3 operator-(Vector3 lhs, const Vector3& rhs){ lhs -= rhs;  return lhs; }
 inline Vector3 operator*(Vector3 lhs, const Vector3& rhs){ lhs *= rhs;  return lhs; }
 inline Vector3 operator/(Vector3 lhs, const Vector3& rhs){ lhs /= rhs;  return lhs; }
+
+inline Vector3& operator*=(Vector3& lhs, float rhs)
+{
+    lhs.values[0] *= rhs;
+    lhs.values[1] *= rhs;
+    lhs.values[2] *= rhs;
+    return lhs;
+}
+
+inline Vector3& operator/=(Vector3& lhs, float rhs)
+{
+    return lhs *= 1.0f / rhs;
+}
 
 inline Vector3 operator*(Vector3 lhs, float rhs){ lhs *= rhs;  return lhs; }
 inline Vector3 operator/(Vector3 lhs, float rhs){ lhs /= rhs;  return lhs; }
@@ -162,32 +160,32 @@ inline Vector3 operator/(Vector3 lhs, float rhs){ lhs /= rhs;  return lhs; }
 inline float DotF(const Vector3& lhs, const Vector3& rhs)
 {
     return
-            (lhs.X() * rhs.X()) +
-            (lhs.Y() * rhs.Y()) +
-            (lhs.Z() * rhs.Z());
+            (lhs.values[0] * rhs.values[0]) +
+            (lhs.values[1] * rhs.values[1]) +
+            (lhs.values[2] * rhs.values[2]);
 }
 
 // RAM: TODO: What does this do? Used to figure out the determinant of matrixes. Copied from btVector3
 inline float TripleF(const Vector3& lhs, const Vector3& v1, const Vector3& v2)
 {
     return
-        lhs.X() * (v1.Y() * v2.Z() - v1.Z() * v2.Y()) +
-        lhs.Y() * (v1.Z() * v2.X() - v1.X() * v2.Z()) +
-        lhs.Z() * (v1.X() * v2.Y() - v1.Y() * v2.X());
+        lhs.values[0] * (v1.values[1] * v2.values[2] - v1.values[2] * v2.values[1]) +
+        lhs.values[1] * (v1.values[2] * v2.values[0] - v1.values[0] * v2.values[2]) +
+        lhs.values[2] * (v1.values[0] * v2.values[1] - v1.values[1] * v2.values[0]);
 }
 
 inline int AxisMax(const Vector3& lhs)
 {
-    return lhs.X() < lhs.Y() ?
-            (lhs.Y() < lhs.Z() ? 2 : 1) :
-            (lhs.X() < lhs.Z() ? 2 : 0);
+    return lhs.values[0] < lhs.values[1] ?
+            (lhs.values[1] < lhs.values[2] ? 2 : 1) :
+            (lhs.values[0] < lhs.values[2] ? 2 : 0);
 }
 
 inline int AxisMin(const Vector3& lhs)
 {
-    return lhs.X() < lhs.Y() ?
-            (lhs.X() < lhs.Z() ? 0 : 2) :
-            (lhs.Y() < lhs.Z() ? 1 : 2);
+    return lhs.values[0] < lhs.values[1] ?
+            (lhs.values[0] < lhs.values[2] ? 0 : 2) :
+            (lhs.values[1] < lhs.values[2] ? 1 : 2);
 }
 
 inline int AxisFar(const Vector3& lhs)
@@ -202,9 +200,9 @@ inline int AxisNear(const Vector3& lhs)
 
 inline bool IsZero(const Vector3& lhs)
 {
-    return (lhs.X() == 0.0f) &&
-           (lhs.Y() == 0.0f) &&
-           (lhs.Z() == 0.0f);
+    return (lhs.values[0] == 0.0f) &&
+           (lhs.values[1] == 0.0f) &&
+           (lhs.values[2] == 0.0f);
 }
 
 // ///////////////////
@@ -221,9 +219,9 @@ inline Vector3 Sqrt(const Vector3& lhs)
 {
     return Vector3
     {
-        std::sqrt(lhs.X()),
-        std::sqrt(lhs.Y()),
-        std::sqrt(lhs.Z())
+        std::sqrt(lhs.values[0]),
+        std::sqrt(lhs.values[1]),
+        std::sqrt(lhs.values[2])
     };
 }
 
@@ -231,9 +229,9 @@ inline Vector3 Absolute(const Vector3& lhs)
 {
     return Vector3
     {
-        std::fabs(lhs.X()),
-        std::fabs(lhs.Y()),
-        std::fabs(lhs.Z())
+        std::fabs(lhs.values[0]),
+        std::fabs(lhs.values[1]),
+        std::fabs(lhs.values[2])
     };
 }
 
@@ -254,9 +252,9 @@ inline Vector3 Cross(const Vector3& lhs, const Vector3& rhs)
 {
     return Vector3
     {
-        lhs.Y() * rhs.Z() - lhs.Z() * rhs.Y(),
-        lhs.Z() * rhs.X() - lhs.X() * rhs.Z(),
-        lhs.X() * rhs.Y() - lhs.Y() * rhs.X()
+        lhs.values[1] * rhs.values[2] - lhs.values[2] * rhs.values[1],
+        lhs.values[2] * rhs.values[0] - lhs.values[0] * rhs.values[2],
+        lhs.values[0] * rhs.values[1] - lhs.values[1] * rhs.values[0]
     };
 }
 
@@ -275,9 +273,9 @@ inline Vector3 Lerp(const Vector3& lhs, const Vector3& rhs, float scale)
 {
     return Vector3
     {
-        lhs.X() + (rhs.X() - lhs.X()) * scale,
-        lhs.Y() + (rhs.Y() - lhs.Y()) * scale,
-        lhs.Z() + (rhs.Z() - lhs.Z()) * scale
+        lhs.values[0] + (rhs.values[0] - lhs.values[0]) * scale,
+        lhs.values[1] + (rhs.values[1] - lhs.values[1]) * scale,
+        lhs.values[2] + (rhs.values[2] - lhs.values[2]) * scale
     };
 }
 
@@ -285,9 +283,9 @@ inline Vector3 Max(const Vector3& lhs, const Vector3& rhs)
 {
     return Vector3
     {
-        lhs.X() > rhs.X() ? lhs.X() : rhs.X(),
-        lhs.Y() > rhs.Y() ? lhs.Y() : rhs.Y(),
-        lhs.Z() > rhs.Z() ? lhs.Z() : rhs.Z()
+        lhs.values[0] > rhs.values[0] ? lhs.values[0] : rhs.values[0],
+        lhs.values[1] > rhs.values[1] ? lhs.values[1] : rhs.values[1],
+        lhs.values[2] > rhs.values[2] ? lhs.values[2] : rhs.values[2]
     };
 }
 
@@ -295,9 +293,9 @@ inline Vector3 Min(const Vector3& lhs, const Vector3& rhs)
 {
     return Vector3
     {
-        lhs.X() < rhs.X() ? lhs.X() : rhs.X(),
-        lhs.Y() < rhs.Y() ? lhs.Y() : rhs.Y(),
-        lhs.Z() < rhs.Z() ? lhs.Z() : rhs.Z()
+        lhs.values[0] < rhs.values[0] ? lhs.values[0] : rhs.values[0],
+        lhs.values[1] < rhs.values[1] ? lhs.values[1] : rhs.values[1],
+        lhs.values[2] < rhs.values[2] ? lhs.values[2] : rhs.values[2]
     };
 }
 

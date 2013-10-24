@@ -97,7 +97,7 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
             // would be just an add instad.
             auto newVelocity    = orientation * JetImpulse() + velocity;
 
-            result.player.velocity.value = newVelocity.ToVectorPod();
+            result.player.velocity.value = newVelocity.ToVector();
         }
     }
     else
