@@ -21,7 +21,7 @@
 #ifndef VECTOR4_HPP
 #define VECTOR4_HPP
 
-#include "Vector.hpp"
+#include "VectorPod.hpp"
 #include "UnitsSI.hpp"
 #include "VectorCommon.hpp"
 
@@ -33,36 +33,43 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct alignas(16) Vector4
+class alignas(16) Vector4
 {
+public:
     struct tagReplicate {};
 
-    std::array<float, 4> values;
-
     constexpr Vector4()
-        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
+        : myValues{{0.0f, 0.0f, 0.0f, 0.0f}} {}
     constexpr Vector4(float x)
-        : values{{x, 0.0f, 0.0f, 0.0f}} {}
+        : myValues{{x, 0.0f, 0.0f, 0.0f}} {}
     constexpr Vector4(float x, float y)
-        : values{{x, y, 0.0f, 0.0f}} {}
+        : myValues{{x, y, 0.0f, 0.0f}} {}
     constexpr Vector4(float x, float y, float z)
-        : values{{x, y, z, 0.0f}} {}
+        : myValues{{x, y, z, 0.0f}} {}
     constexpr Vector4(float x, float y, float z, float w)
-        : values{{x, y, z, w}} {}
+        : myValues{{x, y, z, w}} {}
 
-    constexpr Vector4(Vector vector)
-        : values(vector.values) {}
+    constexpr Vector4(VectorPod vector)
+        : myValues(vector.values) {}
     constexpr Vector4(const std::array<float, 4>& array)
-        : values(array) {}
+        : myValues(array) {}
     constexpr Vector4(float x, tagReplicate)
-        : values{{x, x, x, x}} {}
+        : myValues{{x, x, x, x}} {}
 
     Vector4(const Vector4&) = default;
     Vector4(Vector4&&) = default;
     Vector4& operator=(const Vector4&) & = default;
     Vector4& operator=(Vector4&&) & = default;
 
-    constexpr Vector ToVector() const { return Vector{values}; }
+    constexpr float X() const { return myValues[0]; }
+    constexpr float Y() const { return myValues[1]; }
+    constexpr float Z() const { return myValues[2]; }
+    constexpr float W() const { return myValues[3]; }
+
+    constexpr VectorPod ToVectorPod() const { return VectorPod{myValues}; }
+
+private:
+    std::array<float, 4> myValues;
 };
 
 // ///////////////////
@@ -78,10 +85,10 @@ inline bool operator==(const Vector4& lhs, const Vector4& rhs)
 {
     // Investiage, exact equals, or epislon compare?
     return  (
-                (lhs.values[0]==rhs.values[0]) &&
-                (lhs.values[1]==rhs.values[1]) &&
-                (lhs.values[2]==rhs.values[2]) &&
-                (lhs.values[3]==rhs.values[3])
+                (lhs.X()==rhs.X()) &&
+                (lhs.Y()==rhs.Y()) &&
+                (lhs.Z()==rhs.Z()) &&
+                (lhs.W()==rhs.W())
             );
 }
 
@@ -97,37 +104,37 @@ inline Vector4 Absolute(const Vector4& lhs);
 // ///////////////////
 inline Vector4& operator+=(Vector4& lhs, const Vector4& rhs)
 {
-    lhs.values[0] += rhs.values[0];
-    lhs.values[1] += rhs.values[1];
-    lhs.values[2] += rhs.values[2];
-    lhs.values[3] += rhs.values[3];
+    lhs.X() += rhs.X();
+    lhs.Y() += rhs.Y();
+    lhs.Z() += rhs.Z();
+    lhs.W() += rhs.W();
     return lhs;
 }
 
 inline Vector4& operator-=(Vector4& lhs, const Vector4& rhs)
 {
-    lhs.values[0] -= rhs.values[0];
-    lhs.values[1] -= rhs.values[1];
-    lhs.values[2] -= rhs.values[2];
-    lhs.values[3] -= rhs.values[3];
+    lhs.X() -= rhs.X();
+    lhs.Y() -= rhs.Y();
+    lhs.Z() -= rhs.Z();
+    lhs.W() -= rhs.W();
     return lhs;
 }
 
 inline Vector4& operator*=(Vector4& lhs, const Vector4& rhs)
 {
-    lhs.values[0] *= rhs.values[0];
-    lhs.values[1] *= rhs.values[1];
-    lhs.values[2] *= rhs.values[2];
-    lhs.values[3] *= rhs.values[3];
+    lhs.X() *= rhs.X();
+    lhs.Y() *= rhs.Y();
+    lhs.Z() *= rhs.Z();
+    lhs.W() *= rhs.W();
     return lhs;
 }
 
 inline Vector4& operator/=(Vector4& lhs, const Vector4& rhs)
 {
-    lhs.values[0] /= rhs.values[0];
-    lhs.values[1] /= rhs.values[1];
-    lhs.values[2] /= rhs.values[2];
-    lhs.values[3] /= rhs.values[3];
+    lhs.X() /= rhs.X();
+    lhs.Y() /= rhs.Y();
+    lhs.Z() /= rhs.Z();
+    lhs.W() /= rhs.W();
     return lhs;
 }
 
@@ -135,10 +142,10 @@ inline constexpr Vector4 operator-(const Vector4& lhs)
 {
     return Vector4
     {
-        -lhs.values[0],
-        -lhs.values[1],
-        -lhs.values[2],
-        -lhs.values[3],
+        -lhs.X(),
+        -lhs.Y(),
+        -lhs.Z(),
+        -lhs.W(),
     };
 }
 
@@ -149,10 +156,10 @@ inline Vector4 operator/(Vector4 lhs, const Vector4& rhs){ lhs /= rhs;  return l
 
 inline Vector4& operator*=(Vector4& lhs, float rhs)
 {
-    lhs.values[0] *= rhs;
-    lhs.values[1] *= rhs;
-    lhs.values[2] *= rhs;
-    lhs.values[3] *= rhs;
+    lhs.X() *= rhs;
+    lhs.Y() *= rhs;
+    lhs.Z() *= rhs;
+    lhs.W() *= rhs;
     return lhs;
 }
 
@@ -172,15 +179,15 @@ inline unsigned AxisMax(const Vector4& lhs)
 {
     unsigned result = 0;
 
-    if (lhs.values[1] > lhs.values[0])
+    if (lhs.Y() > lhs.X())
     {
        result = 1;
     }
-    if (lhs.values[2] > lhs.values[result])
+    if (lhs.Z() > lhs.values[result])
     {
        result = 2;
     }
-    if (lhs.values[3] > lhs.values[result])
+    if (lhs.W() > lhs.values[result])
     {
        result = 3;
     }
@@ -192,15 +199,15 @@ inline int AxisMin(const Vector4& lhs)
 {
     unsigned result = 0;
 
-    if (lhs.values[1] < lhs.values[0])
+    if (lhs.Y() < lhs.X())
     {
        result = 1;
     }
-    if (lhs.values[2] < lhs.values[result])
+    if (lhs.Z() < lhs.values[result])
     {
        result = 2;
     }
-    if (lhs.values[3] < lhs.values[result])
+    if (lhs.W() < lhs.values[result])
     {
        result = 3;
     }
@@ -210,10 +217,10 @@ inline int AxisMin(const Vector4& lhs)
 
 inline bool IsZero(const Vector4& lhs)
 {
-    return  (lhs.values[0] == 0.0f) &&
-            (lhs.values[1] == 0.0f) &&
-            (lhs.values[2] == 0.0f) &&
-            (lhs.values[3] == 0.0f);
+    return  (lhs.X() == 0.0f) &&
+            (lhs.Y() == 0.0f) &&
+            (lhs.Z() == 0.0f) &&
+            (lhs.W() == 0.0f);
 }
 
 // ///////////////////
@@ -230,10 +237,10 @@ inline Vector4 Sqrt(const Vector4& lhs)
 {
     return Vector4
     {
-        std::sqrt(lhs.values[0]),
-        std::sqrt(lhs.values[1]),
-        std::sqrt(lhs.values[2]),
-        std::sqrt(lhs.values[3])
+        std::sqrt(lhs.X()),
+        std::sqrt(lhs.Y()),
+        std::sqrt(lhs.Z()),
+        std::sqrt(lhs.W())
     };
 }
 
@@ -241,10 +248,10 @@ inline Vector4 Absolute(const Vector4& lhs)
 {
     return Vector4
     {
-        std::fabs(lhs.values[0]),
-        std::fabs(lhs.values[1]),
-        std::fabs(lhs.values[2]),
-        std::fabs(lhs.values[3])
+        std::fabs(lhs.X()),
+        std::fabs(lhs.Y()),
+        std::fabs(lhs.Z()),
+        std::fabs(lhs.W())
     };
 }
 
@@ -260,10 +267,10 @@ inline Vector4 Dot(const Vector4& lhs, const Vector4& rhs)
     auto multiply = lhs * rhs;
     auto shuffle1 = Vector4
     {
-            multiply.values[1],
-            multiply.values[0],
-            multiply.values[3],
-            multiply.values[2],
+            multiply.Y(),
+            multiply.X(),
+            multiply.W(),
+            multiply.Z(),
     };
 
     // x = x + y
@@ -274,10 +281,10 @@ inline Vector4 Dot(const Vector4& lhs, const Vector4& rhs)
 
     auto shuffle2 = Vector4
     {
-           first.values[2],
-           first.values[3],
-           first.values[0],
-           first.values[1],
+           first.Z(),
+           first.W(),
+           first.X(),
+           first.Y(),
     };
 
     // x = x + y + (z + w)
@@ -292,10 +299,10 @@ inline Vector4 Dot(const Vector4& lhs, const Vector4& rhs)
 
     return Vector4
     {
-        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
-        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
-        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
-        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
+        mult.X() + mult.Y() + mult.Z() + mult.W(),
+        mult.X() + mult.Y() + mult.Z() + mult.W(),
+        mult.X() + mult.Y() + mult.Z() + mult.W(),
+        mult.X() + mult.Y() + mult.Z() + mult.W(),
     };
 }
 
@@ -305,10 +312,10 @@ inline Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
 {
     return Vector4
     {
-        lhs.values[0] + (rhs.values[0] - lhs.values[0]) * scale,
-        lhs.values[1] + (rhs.values[1] - lhs.values[1]) * scale,
-        lhs.values[2] + (rhs.values[2] - lhs.values[2]) * scale,
-        lhs.values[3] + (rhs.values[3] - lhs.values[3]) * scale
+        lhs.X() + (rhs.X() - lhs.X()) * scale,
+        lhs.Y() + (rhs.Y() - lhs.Y()) * scale,
+        lhs.Z() + (rhs.Z() - lhs.Z()) * scale,
+        lhs.W() + (rhs.W() - lhs.W()) * scale
     };
 }
 
@@ -316,10 +323,10 @@ inline Vector4 Max(const Vector4& lhs, const Vector4& rhs)
 {
     return Vector4
     {
-        lhs.values[0] > rhs.values[0] ? lhs.values[0] : rhs.values[0],
-        lhs.values[1] > rhs.values[1] ? lhs.values[1] : rhs.values[1],
-        lhs.values[2] > rhs.values[2] ? lhs.values[2] : rhs.values[2],
-        lhs.values[3] > rhs.values[3] ? lhs.values[3] : rhs.values[3]
+        lhs.X() > rhs.X() ? lhs.X() : rhs.X(),
+        lhs.Y() > rhs.Y() ? lhs.Y() : rhs.Y(),
+        lhs.Z() > rhs.Z() ? lhs.Z() : rhs.Z(),
+        lhs.W() > rhs.W() ? lhs.W() : rhs.W()
     };
 }
 
@@ -327,10 +334,10 @@ inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
 {
     return Vector4
     {
-        lhs.values[0] < rhs.values[0] ? lhs.values[0] : rhs.values[0],
-        lhs.values[1] < rhs.values[1] ? lhs.values[1] : rhs.values[1],
-        lhs.values[2] < rhs.values[2] ? lhs.values[2] : rhs.values[2],
-        lhs.values[3] < rhs.values[3] ? lhs.values[3] : rhs.values[3]
+        lhs.X() < rhs.X() ? lhs.X() : rhs.X(),
+        lhs.Y() < rhs.Y() ? lhs.Y() : rhs.Y(),
+        lhs.Z() < rhs.Z() ? lhs.Z() : rhs.Z(),
+        lhs.W() < rhs.W() ? lhs.W() : rhs.W()
     };
 }
 
@@ -345,10 +352,10 @@ inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
 inline float DotF(const Vector4& lhs, const Vector4& rhs)
 {
     return
-            (lhs.values[0] * rhs.values[0]) +
-            (lhs.values[1] * rhs.values[1]) +
-            (lhs.values[2] * rhs.values[2]) +
-            (lhs.values[3] * rhs.values[3]);
+            (lhs.X() * rhs.X()) +
+            (lhs.Y() * rhs.Y()) +
+            (lhs.Z() * rhs.Z()) +
+            (lhs.W() * rhs.W());
 }
 
 }}} // namespace

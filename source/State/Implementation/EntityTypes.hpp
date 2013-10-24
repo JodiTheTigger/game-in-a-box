@@ -21,7 +21,7 @@
 #ifndef ENTITYTYPES_HPP
 #define ENTITYTYPES_HPP
 
-#include "Vector.hpp"
+#include "VectorPod.hpp"
 
 #include <cstdint>
 
@@ -59,28 +59,28 @@ struct Ammo
 // Meters
 struct Position
 {
-    Vector value;
+    VectorPod value;
 };
 
 // RAM: TODO: Was I going to bother with boost::units?
 // Rads
 struct Orientation
 {
-    Vector value;
+    VectorPod value;
 };
 
 // RAM: TODO: Was I going to bother with boost::units?
 // m/s
 struct Velocity
 {
-    Vector value;
+    VectorPod value;
 };
 
 // RAM: TODO: Was I going to bother with boost::units?
 // m/ss
 struct Acceleration
 {
-    Vector value;
+    VectorPod value;
 };
 
 // RAM: TODO: Was I going to bother with boost::units?

@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Implementation/Vector.hpp>
+#include <Implementation/VectorPod.hpp>
 #include <Implementation/Vector4.hpp>
 
 #include <gmock/gmock.h>
@@ -69,14 +69,14 @@ public:
     std::default_random_engine randomEngine;
     std::uniform_real_distribution<float> randomNegMilltoMill;
 
-    std::vector<Vector> groupA;
-    std::vector<Vector> groupB;
-    std::vector<Vector> groupC;
+    std::vector<VectorPod> groupA;
+    std::vector<VectorPod> groupB;
+    std::vector<VectorPod> groupC;
 };
 
 TEST_F(TestVector4, Empty)
 {
-    auto toTest = (Vector4{}).ToVector();
+    auto toTest = (Vector4{}).ToVectorPod();
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, X(toTest));
@@ -87,7 +87,7 @@ TEST_F(TestVector4, Empty)
 
 TEST_F(TestVector4, ZeroReplicate)
 {
-    auto toTest = (Vector4(0, Vector4::tagReplicate{})).ToVector();
+    auto toTest = (Vector4(0, Vector4::tagReplicate{})).ToVectorPod();
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, X(toTest));
@@ -98,8 +98,8 @@ TEST_F(TestVector4, ZeroReplicate)
 
 TEST_F(TestVector4, Equal)
 {
-    auto a = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();
-    auto b = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();
+    auto a = (Vector4(-1.0f, 0.0f, 1.0f)).ToVectorPod();
+    auto b = (Vector4(-1.0f, 0.0f, 1.0f)).ToVectorPod();
 
     EXPECT_EQ(a, b);
     EXPECT_FLOAT_EQ(X(a), X(b));
@@ -110,7 +110,7 @@ TEST_F(TestVector4, Equal)
 
 TEST_F(TestVector4, NotEqual)
 {
-    auto a = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();
+    auto a = (Vector4(-1.0f, 0.0f, 1.0f)).ToVectorPod();
     auto b = std::vector<Vector>{};
 
     b.push_back({{{1.0f, 0.0f, 1.0f}}});
@@ -135,9 +135,9 @@ TEST_F(TestVector4, Add)
         auto b = Vector4(groupB[i]);
         auto c = Vector4(groupC[i]);
 
-        auto result = (a + b).ToVector();
+        auto result = (a + b).ToVectorPod();
         c += a;
-        auto result2 = (c).ToVector();
+        auto result2 = (c).ToVectorPod();
 
         ASSERT_FLOAT_EQ(X(result), X(groupA[i]) + X(groupB[i])) << " i: " << i;
         ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) + Y(groupB[i]));
@@ -161,9 +161,9 @@ TEST_F(TestVector4, Subtract)
         auto b = Vector4(groupB[i]);
         auto c = Vector4(groupC[i]);
 
-        auto result = (a - b).ToVector();
+        auto result = (a - b).ToVectorPod();
         c -= a;
-        auto result2 = (c).ToVector();
+        auto result2 = (c).ToVectorPod();
 
         ASSERT_FLOAT_EQ(X(result), X(groupA[i]) - X(groupB[i])) << " i: " << i;
         ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) - Y(groupB[i]));
@@ -187,9 +187,9 @@ TEST_F(TestVector4, Multiply)
         auto b = Vector4(groupB[i]);
         auto c = Vector4(groupC[i]);
 
-        auto result = (a * b).ToVector();
+        auto result = (a * b).ToVectorPod();
         c *= a;
-        auto result2 = (c).ToVector();
+        auto result2 = (c).ToVectorPod();
 
         ASSERT_FLOAT_EQ(X(result), X(groupA[i]) * X(groupB[i])) << " i: " << i;
         ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) * Y(groupB[i]));
@@ -213,9 +213,9 @@ TEST_F(TestVector4, Divide)
         auto b = Vector4(groupB[i]);
         auto c = Vector4(groupC[i]);
 
-        auto result = (a / b).ToVector();
+        auto result = (a / b).ToVectorPod();
         c /= a;
-        auto result2 = (c).ToVector();
+        auto result2 = (c).ToVectorPod();
 
         ASSERT_FLOAT_EQ(X(result), X(groupA[i]) / X(groupB[i])) << " i: " << i;
         ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) / Y(groupB[i]));
@@ -239,10 +239,10 @@ TEST_F(TestVector4, Mad)
         auto b = Vector4(groupB[i]);
         auto c = Vector4(groupC[i]);
 
-        auto result = ((a*b) + c).ToVector();
+        auto result = ((a*b) + c).ToVectorPod();
         auto d = c;
         d += a * b;
-        auto result2 = (d).ToVector();
+        auto result2 = (d).ToVectorPod();
 
         ASSERT_FLOAT_EQ(X(result), X(groupA[i]) * X(groupB[i]) + X(groupC[i])) << " i: " << i;
         ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) * Y(groupB[i]) + Y(groupC[i]));
@@ -271,7 +271,7 @@ TEST_F(TestVector4, FnSqrt)
              )
         {
             auto a = Vector4(groupA[i]);
-            auto result = (Sqrt(a)).ToVector();
+            auto result = (Sqrt(a)).ToVectorPod();
 
             ASSERT_FLOAT_EQ(X(result), sqrt(X(groupA[i]))) << " i: " << i;
             ASSERT_FLOAT_EQ(Y(result), sqrt(Y(groupA[i])));
@@ -289,7 +289,7 @@ TEST_F(TestVector4, FnDot)
     {
         auto a = Vector4(groupA[i]);
         auto b = Vector4(groupB[i]);
-        auto result = (Dot(a, b)).ToVector();
+        auto result = (Dot(a, b)).ToVectorPod();
         auto dot =
                 (X(groupA[i]) * X(groupB[i])) +
                 (Y(groupA[i]) * Y(groupB[i])) +
@@ -310,7 +310,7 @@ TEST_F(TestVector4, FnLength)
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector4(groupA[i]);
-        auto result = (Length(a)).ToVector();
+        auto result = (Length(a)).ToVectorPod();
         auto l =
                 sqrt((X(groupA[i]) * X(groupA[i])) +
                      (Y(groupA[i]) * Y(groupA[i])) +
@@ -331,7 +331,7 @@ TEST_F(TestVector4, FnLengthSquared)
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector4(groupA[i]);
-        auto result = (Length(a)).ToVector();
+        auto result = (Length(a)).ToVectorPod();
         auto l =
                 sqrt((X(groupA[i]) * X(groupA[i])) +
                      (Y(groupA[i]) * Y(groupA[i])) +
@@ -354,7 +354,7 @@ TEST_F(TestVector4, FnNormaliseFast)
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector4(groupA[i]);
-        auto result = (Normalise(a)).ToVector();
+        auto result = (Normalise(a)).ToVectorPod();
         auto l = sqrt(
             (X(groupA[i]) * X(groupA[i])) +
             (Y(groupA[i]) * Y(groupA[i])) +
@@ -381,7 +381,7 @@ TEST_F(TestVector4, FnNormaliseAccurate)
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector4(groupA[i]);
-        auto result = (NormaliseStable(a)).ToVector();
+        auto result = (NormaliseStable(a)).ToVectorPod();
         auto l = sqrt(
             (X(groupA[i]) * X(groupA[i])) +
             (Y(groupA[i]) * Y(groupA[i])) +

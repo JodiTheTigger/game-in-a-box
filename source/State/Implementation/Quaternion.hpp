@@ -21,7 +21,7 @@
 #ifndef QUATERNION_HPP
 #define QUATERNION_HPP
 
-#include "Vector.hpp"
+#include "VectorPod.hpp"
 #include "Vector3.hpp"
 #include "Vector4.hpp"
 #include "UnitsSI.hpp"
@@ -36,16 +36,16 @@ namespace GameInABox { namespace State { namespace Implementation {
 // http://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
 
 // NOTE: Automatic normalisation is not done at the moment.
-struct alignas(16) Quaternion
+class alignas(16) Quaternion
 {
-    std::array<float, 4> values;
+public:
 
     constexpr Quaternion()
         : values{{0.0f, 0.0f, 0.0f, 1.0f}} {}
     constexpr Quaternion(float x, float y, float z, float w)
         : values{{x, y, z, w}} {}
 
-    constexpr Quaternion(Vector vector)
+    constexpr Quaternion(VectorPod vector)
         : values(vector.values) {}
     constexpr Quaternion(const std::array<float, 4>& array)
         : values(array) {}
@@ -76,7 +76,10 @@ struct alignas(16) Quaternion
     Quaternion& operator=(const Quaternion&) & = default;
     Quaternion& operator=(Quaternion&&) & = default;
 
-    constexpr Vector ToVector() const { return Vector{values}; }
+    constexpr VectorPod ToVectorPod() const { return VectorPod{values}; }
+
+private:
+    std::array<float, 4> myValues;
 };                                         
 
 // ///////////////////

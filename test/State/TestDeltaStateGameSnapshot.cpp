@@ -118,19 +118,19 @@ void TestDeltaStateGameSnapshot::TestN(
                 auto& playerTarget = target.players[i];
                 auto& playerDecoded = decoded.players[i];
 
-                ASSERT_NEAR(X(playerDecoded.position), X(playerTarget.position), floatTolerance) << " i: " << i;
-                ASSERT_NEAR(Y(playerDecoded.position), Y(playerTarget.position), floatTolerance);
-                ASSERT_NEAR(Z(playerDecoded.position), Z(playerTarget.position), floatTolerance);
+                ASSERT_NEAR(playerDecoded.position.values[0], playerTarget.position.values[0], floatTolerance) << " i: " << i;
+                ASSERT_NEAR(playerDecoded.position.values[2], playerTarget.position.values[1], floatTolerance);
+                ASSERT_NEAR(playerDecoded.position.values[1], playerTarget.position.values[2], floatTolerance);
 
                 ASSERT_EQ(playerDecoded.lookAndDo.flags, playerTarget.lookAndDo.flags);
 
-                ASSERT_NEAR(X(playerDecoded.lookAndDo.orientation), X(playerTarget.lookAndDo.orientation), floatTolerance) << " i: " << i;
-                ASSERT_NEAR(Y(playerDecoded.lookAndDo.orientation), Y(playerTarget.lookAndDo.orientation), floatTolerance);
-                ASSERT_NEAR(Z(playerDecoded.lookAndDo.orientation), Z(playerTarget.lookAndDo.orientation), floatTolerance);
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.values[0], playerTarget.lookAndDo.orientation.values[0], floatTolerance) << " i: " << i;
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.values[1], playerTarget.lookAndDo.orientation.values[1], floatTolerance);
+                ASSERT_NEAR(playerDecoded.lookAndDo.orientation.values[2], playerTarget.lookAndDo.orientation.values[2], floatTolerance);
 
-                ASSERT_NEAR(X(playerDecoded.jetDirection), X(playerTarget.jetDirection), floatTolerance) << " i: " << i;
-                ASSERT_NEAR(Y(playerDecoded.jetDirection), Y(playerTarget.jetDirection), floatTolerance);
-                ASSERT_NEAR(Z(playerDecoded.jetDirection), Z(playerTarget.jetDirection), floatTolerance);
+                ASSERT_NEAR(playerDecoded.jetDirection.values[0], playerTarget.jetDirection.values[0], floatTolerance) << " i: " << i;
+                ASSERT_NEAR(playerDecoded.jetDirection.values[1], playerTarget.jetDirection.values[1], floatTolerance);
+                ASSERT_NEAR(playerDecoded.jetDirection.values[2], playerTarget.jetDirection.values[2], floatTolerance);
 
                 ASSERT_EQ(playerDecoded.health, playerTarget.health);
                 ASSERT_EQ(playerDecoded.energy, playerTarget.energy);
@@ -141,13 +141,13 @@ void TestDeltaStateGameSnapshot::TestN(
                 auto& missleTarget = target.missles[i];
                 auto& missleDecoded = decoded.missles[i];
 
-                ASSERT_NEAR(X(missleDecoded.source), X(missleTarget.source), floatTolerance);
-                ASSERT_NEAR(Y(missleDecoded.source), Y(missleTarget.source), floatTolerance);
-                ASSERT_NEAR(Z(missleDecoded.source), Z(missleTarget.source), floatTolerance);
+                ASSERT_NEAR(missleDecoded.source.values[0], missleTarget.source.values[0], floatTolerance);
+                ASSERT_NEAR(missleDecoded.source.values[1], missleTarget.source.values[1], floatTolerance);
+                ASSERT_NEAR(missleDecoded.source.values[2], missleTarget.source.values[2], floatTolerance);
 
-                ASSERT_NEAR(X(missleDecoded.orientation), X(missleTarget.orientation), floatTolerance);
-                ASSERT_NEAR(Y(missleDecoded.orientation), Y(missleTarget.orientation), floatTolerance);
-                ASSERT_NEAR(Z(missleDecoded.orientation), Z(missleTarget.orientation), floatTolerance);
+                ASSERT_NEAR(missleDecoded.orientation.values[0], missleTarget.orientation.values[0], floatTolerance);
+                ASSERT_NEAR(missleDecoded.orientation.values[1], missleTarget.orientation.values[1], floatTolerance);
+                ASSERT_NEAR(missleDecoded.orientation.values[2], missleTarget.orientation.values[2], floatTolerance);
 
                 ASSERT_EQ(missleDecoded.lastAction, missleTarget.lastAction);
                 ASSERT_EQ(missleDecoded.flags, missleTarget.flags);
@@ -238,12 +238,14 @@ StateGameSnapshot TestDeltaStateGameSnapshot::GameStateRandom()
 
 StateGameSnapshot GameStateZero()
 {
+    auto vectorZero = VectorPod{{{0.0f, 0.0f, 0.0f, 0.0f}}};
+
     auto basePlayer = StatePlayer
     {
         0,
-        VectorZero,
-        {VectorZero, FlagsPlayer::Default},
-        VectorZero,
+        vectorZero,
+        {vectorZero, FlagsPlayer::Default},
+        vectorZero,
         0,
         0,
         0,
@@ -255,8 +257,8 @@ StateGameSnapshot GameStateZero()
     {
         0,
         0,
-        VectorZero,
-        VectorZero,
+        vectorZero,
+        vectorZero,
         0,
         FlagsMissle::Default
     };

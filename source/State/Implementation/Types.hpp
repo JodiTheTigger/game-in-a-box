@@ -21,7 +21,7 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-#include "Vector.hpp"
+#include "VectorPod.hpp"
 
 #include <cstdint>
 #include <array>
@@ -56,7 +56,7 @@ enum class FlagsPlayer : uint32_t
 
 struct StatePlayerClient
 {
-    Vector orientation;
+    VectorPod   orientation;
     FlagsPlayer flags;
 };
 
@@ -64,11 +64,11 @@ struct StatePlayerClient
 struct StatePlayer
 {
     ServerId            id;
-    Vector              position;
+    VectorPod           position;
 
     StatePlayerClient   lookAndDo;
 
-    Vector              jetDirection;
+    VectorPod           jetDirection;
     std::uint32_t       health;
 
     std::uint32_t       energy;
@@ -98,10 +98,10 @@ struct StateMissle
     ServerId owner;
 
     // Where it was fired from, or where it exploded
-    Vector source;
+    VectorPod source;
 
     // Initial velocity, up to game how to predict the path.
-    Vector orientation;
+    VectorPod orientation;
 
     // Time it was fired/exploded
     ServerTick lastAction;
