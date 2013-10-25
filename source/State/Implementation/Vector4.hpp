@@ -27,9 +27,8 @@
 
 #include <array>
 
-// RAM: TODO: Try to use idioms?
+// Use idioms to generate vectorised code on modern compilers (gcc 4.8+, clang 3.3+).
 // http://www.altdevblogaday.com/2011/12/24/beyond-intrinsics-to-code-idiom/
-// Copy code pattern from SSE2 version, compare assembler output, be surprised?
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -167,47 +166,6 @@ inline Vector4 operator/(Vector4 lhs, float rhs){ lhs /= rhs;  return lhs; }
 // ///////////////////
 // Helper Functions
 // ///////////////////
-
-inline unsigned AxisMax(const Vector4& lhs)
-{
-    unsigned result = 0;
-
-    if (lhs.values[1] > lhs.values[0])
-    {
-       result = 1;
-    }
-    if (lhs.values[2] > lhs.values[result])
-    {
-       result = 2;
-    }
-    if (lhs.values[3] > lhs.values[result])
-    {
-       result = 3;
-    }
-
-    return result;
-}
-
-inline int AxisMin(const Vector4& lhs)
-{
-    unsigned result = 0;
-
-    if (lhs.values[1] < lhs.values[0])
-    {
-       result = 1;
-    }
-    if (lhs.values[2] < lhs.values[result])
-    {
-       result = 2;
-    }
-    if (lhs.values[3] < lhs.values[result])
-    {
-       result = 3;
-    }
-
-    return result;
-}
-
 inline bool IsZero(const Vector4& lhs)
 {
     return  (lhs.values[0] == 0.0f) &&
@@ -219,13 +177,6 @@ inline bool IsZero(const Vector4& lhs)
 // ///////////////////
 // Complicated Maths (vector return)
 // ///////////////////
-
-// RAM: TODO: vector versions of all of the above.
-// Need all the single return functions to support vector return too.
-// http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
-// (Keep Results Into SIMD Registers)
-// That is, stop casting between SIMD and Float registers when it can all be kept in SIMD.
-
 inline Vector4 Sqrt(const Vector4& lhs)
 {
     return Vector4

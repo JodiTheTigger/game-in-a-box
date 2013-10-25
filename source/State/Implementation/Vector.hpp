@@ -32,31 +32,10 @@ struct alignas(16) Vector
 };
 
 // ///////////////////
-// Constants
-// ///////////////////
-constexpr Vector VectorZero{{{0.0f, 0.0f, 0.0f, 0.0f}}};
-constexpr Vector VectorOne{{{1.0f, 1.0f, 1.0f, 1.0f}}};
-constexpr Vector VectorNegativeOne{{{-1.0f, -1.0f, -1.0f, -1.0f}}};
-constexpr Vector VectorOneZeroW{{{1.0f, 1.0f, 1.0f, 0.0f}}};
-constexpr Vector VectorZeroWOne{{{0.0f, 0.0f, 0.0f, 1.0f}}};
-
-// ///////////////////
 // Comparison Operators
 // ///////////////////
 inline bool operator==(const Vector& lhs, const Vector& rhs){return lhs.values==rhs.values;}
 inline bool operator!=(const Vector& lhs, const Vector& rhs){return  !operator==(lhs,rhs);}
-inline bool operator< (const Vector& lhs, const Vector& rhs){return lhs.values<rhs.values;}
-inline bool operator> (const Vector& lhs, const Vector& rhs){return   operator< (rhs,lhs);}
-inline bool operator<=(const Vector& lhs, const Vector& rhs){return  !operator> (lhs,rhs);}
-inline bool operator>=(const Vector& lhs, const Vector& rhs){return  !operator< (lhs,rhs);}
-
-// ///////////////////
-// Access
-// ///////////////////
-inline constexpr float X(const Vector& rhs){ return rhs.values[0]; }
-inline constexpr float Y(const Vector& rhs){ return rhs.values[1]; }
-inline constexpr float Z(const Vector& rhs){ return rhs.values[2]; }
-inline constexpr float W(const Vector& rhs){ return rhs.values[3]; }
 
 // ///////////////////
 // Testing

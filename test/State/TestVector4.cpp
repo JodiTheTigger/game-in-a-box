@@ -79,10 +79,10 @@ TEST_F(TestVector4, Empty)
     auto toTest = (Vector4{}).ToVector();
 
     // Shouldn't crash.
-    EXPECT_FLOAT_EQ(0.0f, X(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Z(toTest));
-    EXPECT_FLOAT_EQ(0.0f, W(toTest));
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[2]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[3]);
 }
 
 TEST_F(TestVector4, ZeroReplicate)
@@ -90,10 +90,10 @@ TEST_F(TestVector4, ZeroReplicate)
     auto toTest = (Vector4(0, Vector4::tagReplicate{})).ToVector();
 
     // Shouldn't crash.
-    EXPECT_FLOAT_EQ(0.0f, X(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Z(toTest));
-    EXPECT_FLOAT_EQ(0.0f, W(toTest));
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[2]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[3]);
 }
 
 TEST_F(TestVector4, Equal)
@@ -102,10 +102,10 @@ TEST_F(TestVector4, Equal)
     auto b = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();
 
     EXPECT_EQ(a, b);
-    EXPECT_FLOAT_EQ(X(a), X(b));
-    EXPECT_FLOAT_EQ(Y(a), Y(b));
-    EXPECT_FLOAT_EQ(Z(a), Z(b));
-    EXPECT_FLOAT_EQ(W(a), W(b));
+    EXPECT_FLOAT_EQ(a.values[0], b.values[0]);
+    EXPECT_FLOAT_EQ(a.values[1], b.values[1]);
+    EXPECT_FLOAT_EQ(a.values[2], b.values[2]);
+    EXPECT_FLOAT_EQ(a.values[3], b.values[3]);
 }
 
 TEST_F(TestVector4, NotEqual)
@@ -139,15 +139,15 @@ TEST_F(TestVector4, Add)
         c += a;
         auto result2 = (c).ToVector();
 
-        ASSERT_FLOAT_EQ(X(result), X(groupA[i]) + X(groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) + Y(groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(groupA[i]) + Z(groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(groupA[i]) + W(groupB[i]));
+        ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] + groupB[i].values[0]) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] + groupB[i].values[1]);
+        ASSERT_FLOAT_EQ(result.values[2], groupA[i].values[2] + groupB[i].values[2]);
+        ASSERT_FLOAT_EQ(result.values[3], groupA[i].values[3] + groupB[i].values[3]);
 
-        ASSERT_FLOAT_EQ(X(result2), X(groupC[i]) + X(groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(groupC[i]) + Y(groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(groupC[i]) + Z(groupA[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(groupC[i]) + W(groupA[i]));
+        ASSERT_FLOAT_EQ(result2.values[0], groupC[i].values[0] + groupA[i].values[0]);
+        ASSERT_FLOAT_EQ(result2.values[1], groupC[i].values[1] + groupA[i].values[1]);
+        ASSERT_FLOAT_EQ(result2.values[2], groupC[i].values[2] + groupA[i].values[2]);
+        ASSERT_FLOAT_EQ(result2.values[3], groupC[i].values[3] + groupA[i].values[3]);
     }
 }
 
@@ -165,15 +165,15 @@ TEST_F(TestVector4, Subtract)
         c -= a;
         auto result2 = (c).ToVector();
 
-        ASSERT_FLOAT_EQ(X(result), X(groupA[i]) - X(groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) - Y(groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(groupA[i]) - Z(groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(groupA[i]) - W(groupB[i]));
+        ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] - groupB[i].values[0]) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] - groupB[i].values[1]);
+        ASSERT_FLOAT_EQ(result.values[2], groupA[i].values[2] - groupB[i].values[2]);
+        ASSERT_FLOAT_EQ(result.values[3], groupA[i].values[3] - groupB[i].values[3]);
 
-        ASSERT_FLOAT_EQ(X(result2), X(groupC[i]) - X(groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(groupC[i]) - Y(groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(groupA[i]) - Z(groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(groupA[i]) - W(groupB[i]));
+        ASSERT_FLOAT_EQ(result2.values[0], groupC[i].values[0] - groupA[i].values[0]);
+        ASSERT_FLOAT_EQ(result2.values[1], groupC[i].values[1] - groupA[i].values[1]);
+        ASSERT_FLOAT_EQ(result.values[2], groupA[i].values[2] - groupB[i].values[2]);
+        ASSERT_FLOAT_EQ(result.values[3], groupA[i].values[3] - groupB[i].values[3]);
     }
 }
 
@@ -191,15 +191,15 @@ TEST_F(TestVector4, Multiply)
         c *= a;
         auto result2 = (c).ToVector();
 
-        ASSERT_FLOAT_EQ(X(result), X(groupA[i]) * X(groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) * Y(groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(groupA[i]) * Z(groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(groupA[i]) * W(groupB[i]));
+        ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] * groupB[i].values[0]) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] * groupB[i].values[1]);
+        ASSERT_FLOAT_EQ(result.values[2], groupA[i].values[2] * groupB[i].values[2]);
+        ASSERT_FLOAT_EQ(result.values[3], groupA[i].values[3] * groupB[i].values[3]);
 
-        ASSERT_FLOAT_EQ(X(result2), X(groupC[i]) * X(groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(groupC[i]) * Y(groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(groupC[i]) * Z(groupA[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(groupC[i]) * W(groupA[i]));
+        ASSERT_FLOAT_EQ(result2.values[0], groupC[i].values[0] * groupA[i].values[0]);
+        ASSERT_FLOAT_EQ(result2.values[1], groupC[i].values[1] * groupA[i].values[1]);
+        ASSERT_FLOAT_EQ(result2.values[2], groupC[i].values[2] * groupA[i].values[2]);
+        ASSERT_FLOAT_EQ(result2.values[3], groupC[i].values[3] * groupA[i].values[3]);
     }
 }
 
@@ -217,15 +217,15 @@ TEST_F(TestVector4, Divide)
         c /= a;
         auto result2 = (c).ToVector();
 
-        ASSERT_FLOAT_EQ(X(result), X(groupA[i]) / X(groupB[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) / Y(groupB[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(groupA[i]) / Z(groupB[i]));
-        ASSERT_FLOAT_EQ(W(result), W(groupA[i]) / W(groupB[i]));
+        ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] / groupB[i].values[0]) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] / groupB[i].values[1]);
+        ASSERT_FLOAT_EQ(result.values[2], groupA[i].values[2] / groupB[i].values[2]);
+        ASSERT_FLOAT_EQ(result.values[3], groupA[i].values[3] / groupB[i].values[3]);
 
-        ASSERT_FLOAT_EQ(X(result2), X(groupC[i]) / X(groupA[i]));
-        ASSERT_FLOAT_EQ(Y(result2), Y(groupC[i]) / Y(groupA[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(groupC[i]) / Z(groupA[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(groupC[i]) / W(groupA[i]));
+        ASSERT_FLOAT_EQ(result2.values[0], groupC[i].values[0] / groupA[i].values[0]);
+        ASSERT_FLOAT_EQ(result2.values[1], groupC[i].values[1] / groupA[i].values[1]);
+        ASSERT_FLOAT_EQ(result2.values[2], groupC[i].values[2] / groupA[i].values[2]);
+        ASSERT_FLOAT_EQ(result2.values[3], groupC[i].values[3] / groupA[i].values[3]);
     }
 }
 
@@ -244,15 +244,15 @@ TEST_F(TestVector4, Mad)
         d += a * b;
         auto result2 = (d).ToVector();
 
-        ASSERT_FLOAT_EQ(X(result), X(groupA[i]) * X(groupB[i]) + X(groupC[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(groupA[i]) * Y(groupB[i]) + Y(groupC[i]));
-        ASSERT_FLOAT_EQ(Z(result), Z(groupA[i]) * Z(groupB[i]) + Z(groupC[i]));
-        ASSERT_FLOAT_EQ(W(result), W(groupA[i]) * W(groupB[i]) + W(groupC[i]));
+        ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] * groupB[i].values[0] + groupC[i].values[0]) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] * groupB[i].values[1] + groupC[i].values[1]);
+        ASSERT_FLOAT_EQ(result.values[2], groupA[i].values[2] * groupB[i].values[2] + groupC[i].values[2]);
+        ASSERT_FLOAT_EQ(result.values[3], groupA[i].values[3] * groupB[i].values[3] + groupC[i].values[3]);
 
-        ASSERT_FLOAT_EQ(X(result2), X(groupA[i]) * X(groupB[i]) + X(groupC[i])) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result2), Y(groupA[i]) * Y(groupB[i]) + Y(groupC[i]));
-        ASSERT_FLOAT_EQ(Z(result2), Z(groupA[i]) * Z(groupB[i]) + Z(groupC[i]));
-        ASSERT_FLOAT_EQ(W(result2), W(groupA[i]) * W(groupB[i]) + W(groupC[i]));
+        ASSERT_FLOAT_EQ(result2.values[0], groupA[i].values[0] * groupB[i].values[0] + groupC[i].values[0]) << " i: " << i;
+        ASSERT_FLOAT_EQ(result2.values[1], groupA[i].values[1] * groupB[i].values[1] + groupC[i].values[1]);
+        ASSERT_FLOAT_EQ(result2.values[2], groupA[i].values[2] * groupB[i].values[2] + groupC[i].values[2]);
+        ASSERT_FLOAT_EQ(result2.values[3], groupA[i].values[3] * groupB[i].values[3] + groupC[i].values[3]);
     }
 }
 
@@ -264,19 +264,19 @@ TEST_F(TestVector4, FnSqrt)
     {
         // Don't bother if anything is negative.
         if  (
-                (X(groupA[i]) >= 0) &&
-                (Y(groupA[i]) >= 0) &&
-                (Z(groupA[i]) >= 0) &&
-                (W(groupA[i]) >= 0)
+                (groupA[i].values[0] >= 0) &&
+                (groupA[i].values[1] >= 0) &&
+                (groupA[i].values[2] >= 0) &&
+                (groupA[i].values[3] >= 0)
              )
         {
             auto a = Vector4(groupA[i]);
             auto result = (Sqrt(a)).ToVector();
 
-            ASSERT_FLOAT_EQ(X(result), sqrt(X(groupA[i]))) << " i: " << i;
-            ASSERT_FLOAT_EQ(Y(result), sqrt(Y(groupA[i])));
-            ASSERT_FLOAT_EQ(Z(result), sqrt(Z(groupA[i])));
-            ASSERT_FLOAT_EQ(W(result), sqrt(W(groupA[i])));
+            ASSERT_FLOAT_EQ(result.values[0], sqrt(groupA[i].values[0])) << " i: " << i;
+            ASSERT_FLOAT_EQ(result.values[1], sqrt(groupA[i].values[1]));
+            ASSERT_FLOAT_EQ(result.values[2], sqrt(groupA[i].values[2]));
+            ASSERT_FLOAT_EQ(result.values[3], sqrt(groupA[i].values[3]));
         }
     }
 }
@@ -291,15 +291,15 @@ TEST_F(TestVector4, FnDot)
         auto b = Vector4(groupB[i]);
         auto result = (Dot(a, b)).ToVector();
         auto dot =
-                (X(groupA[i]) * X(groupB[i])) +
-                (Y(groupA[i]) * Y(groupB[i])) +
-                (Z(groupA[i]) * Z(groupB[i])) +
-                (W(groupA[i]) * W(groupB[i]));
+                (groupA[i].values[0] * groupB[i].values[0]) +
+                (groupA[i].values[1] * groupB[i].values[1]) +
+                (groupA[i].values[2] * groupB[i].values[2]) +
+                (groupA[i].values[3] * groupB[i].values[3]);
 
-        ASSERT_FLOAT_EQ(X(result), dot) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), dot);
-        ASSERT_FLOAT_EQ(Z(result), dot);
-        ASSERT_FLOAT_EQ(W(result), dot);
+        ASSERT_FLOAT_EQ(result.values[0], dot) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], dot);
+        ASSERT_FLOAT_EQ(result.values[2], dot);
+        ASSERT_FLOAT_EQ(result.values[3], dot);
     }
 }
 
@@ -312,15 +312,15 @@ TEST_F(TestVector4, FnLength)
         auto a = Vector4(groupA[i]);
         auto result = (Length(a)).ToVector();
         auto l =
-                sqrt((X(groupA[i]) * X(groupA[i])) +
-                     (Y(groupA[i]) * Y(groupA[i])) +
-                     (Z(groupA[i]) * Z(groupA[i])) +
-                     (W(groupA[i]) * W(groupA[i])));
+                sqrt((groupA[i].values[0] * groupA[i].values[0]) +
+                     (groupA[i].values[1] * groupA[i].values[1]) +
+                     (groupA[i].values[2] * groupA[i].values[2]) +
+                     (groupA[i].values[3] * groupA[i].values[3]));
 
-        ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), l);
-        ASSERT_FLOAT_EQ(Z(result), l);
-        ASSERT_FLOAT_EQ(W(result), l);
+        ASSERT_FLOAT_EQ(result.values[0], l) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], l);
+        ASSERT_FLOAT_EQ(result.values[2], l);
+        ASSERT_FLOAT_EQ(result.values[3], l);
     }
 }
 
@@ -333,21 +333,21 @@ TEST_F(TestVector4, FnLengthSquared)
         auto a = Vector4(groupA[i]);
         auto result = (Length(a)).ToVector();
         auto l =
-                sqrt((X(groupA[i]) * X(groupA[i])) +
-                     (Y(groupA[i]) * Y(groupA[i])) +
-                     (Z(groupA[i]) * Z(groupA[i])) +
-                     (W(groupA[i]) * W(groupA[i])));
+                sqrt((groupA[i].values[0] * groupA[i].values[0]) +
+                     (groupA[i].values[1] * groupA[i].values[1]) +
+                     (groupA[i].values[2] * groupA[i].values[2]) +
+                     (groupA[i].values[3] * groupA[i].values[3]));
 
 
 
-        ASSERT_FLOAT_EQ(X(result), l) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), l);
-        ASSERT_FLOAT_EQ(Z(result), l);
-        ASSERT_FLOAT_EQ(W(result), l);
+        ASSERT_FLOAT_EQ(result.values[0], l) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], l);
+        ASSERT_FLOAT_EQ(result.values[2], l);
+        ASSERT_FLOAT_EQ(result.values[3], l);
     }
 }
 
-TEST_F(TestVector4, FnNormaliseFast)
+TEST_F(TestVector4, FnNormalise)
 {
     auto asize = groupA.size();
 
@@ -356,48 +356,21 @@ TEST_F(TestVector4, FnNormaliseFast)
         auto a = Vector4(groupA[i]);
         auto result = (Normalise(a)).ToVector();
         auto l = sqrt(
-            (X(groupA[i]) * X(groupA[i])) +
-            (Y(groupA[i]) * Y(groupA[i])) +
-            (Z(groupA[i]) * Z(groupA[i])) +
-            (W(groupA[i]) * W(groupA[i])));
+            (groupA[i].values[0] * groupA[i].values[0]) +
+            (groupA[i].values[1] * groupA[i].values[1]) +
+            (groupA[i].values[2] * groupA[i].values[2]) +
+            (groupA[i].values[3] * groupA[i].values[3]));
 
         auto answer = Vector{{{
-                X(groupA[i]) / l,
-                Y(groupA[i]) / l,
-                Z(groupA[i]) / l,
-                W(groupA[i]) / l}}};
+                groupA[i].values[0] / l,
+                groupA[i].values[1] / l,
+                groupA[i].values[2] / l,
+                groupA[i].values[3] / l}}};
 
-        ASSERT_FLOAT_EQ(X(result), X(answer)) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(answer));
-        ASSERT_FLOAT_EQ(Z(result), Z(answer));
-        ASSERT_FLOAT_EQ(W(result), W(answer));
-    }
-}
-
-TEST_F(TestVector4, FnNormaliseAccurate)
-{
-    auto asize = groupA.size();
-
-    for (uint i = 0 ; i < asize; ++i)
-    {
-        auto a = Vector4(groupA[i]);
-        auto result = (NormaliseStable(a)).ToVector();
-        auto l = sqrt(
-            (X(groupA[i]) * X(groupA[i])) +
-            (Y(groupA[i]) * Y(groupA[i])) +
-            (Z(groupA[i]) * Z(groupA[i])) +
-            (W(groupA[i]) * W(groupA[i])));
-
-        auto answer = Vector{{{
-                X(groupA[i]) / l,
-                Y(groupA[i]) / l,
-                Z(groupA[i]) / l,
-                W(groupA[i]) / l}}};
-
-        ASSERT_FLOAT_EQ(X(result), X(answer)) << " i: " << i;
-        ASSERT_FLOAT_EQ(Y(result), Y(answer));
-        ASSERT_FLOAT_EQ(Z(result), Z(answer));
-        ASSERT_FLOAT_EQ(W(result), W(answer));
+        ASSERT_FLOAT_EQ(result.values[0], answer.values[0]) << " i: " << i;
+        ASSERT_FLOAT_EQ(result.values[1], answer.values[1]);
+        ASSERT_FLOAT_EQ(result.values[2], answer.values[2]);
+        ASSERT_FLOAT_EQ(result.values[3], answer.values[3]);
     }
 }
 

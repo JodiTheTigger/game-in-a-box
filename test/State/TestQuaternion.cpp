@@ -37,30 +37,30 @@ TEST_F(TestQuaternion, Empty)
     auto toTest = (Quaternion{}).ToVector();
 
     // Shouldn't crash.
-    EXPECT_FLOAT_EQ(0.0f, X(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Z(toTest));
-    EXPECT_FLOAT_EQ(1.0f, W(toTest));
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[2]);
+    EXPECT_FLOAT_EQ(1.0f, toTest.values[3]);
 }
 
 TEST_F(TestQuaternion, FromFloats)
 {
     auto toTest = (Quaternion{1.0f, 2.0f, 3.0f, 4.0f}).ToVector();
 
-    EXPECT_FLOAT_EQ(1.0f, X(toTest));
-    EXPECT_FLOAT_EQ(2.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(3.0f, Z(toTest));
-    EXPECT_FLOAT_EQ(4.0f, W(toTest));
+    EXPECT_FLOAT_EQ(1.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(2.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(3.0f, toTest.values[2]);
+    EXPECT_FLOAT_EQ(4.0f, toTest.values[3]);
 }
 
 TEST_F(TestQuaternion, FromVector)
 {
     auto toTest = (Quaternion{Vector{{{1.0f, 2.0f, 3.0f, 4.0f}}}}).ToVector();
 
-    EXPECT_FLOAT_EQ(1.0f, X(toTest));
-    EXPECT_FLOAT_EQ(2.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(3.0f, Z(toTest));
-    EXPECT_FLOAT_EQ(4.0f, W(toTest));
+    EXPECT_FLOAT_EQ(1.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(2.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(3.0f, toTest.values[2]);
+    EXPECT_FLOAT_EQ(4.0f, toTest.values[3]);
 }
 
 TEST_F(TestQuaternion, FromArray)
@@ -68,10 +68,10 @@ TEST_F(TestQuaternion, FromArray)
     auto array = std::array<float,4> {{1.0f, 2.0f, 3.0f, 4.0f}};
     auto toTest = (Quaternion{array}).ToVector();
 
-    EXPECT_FLOAT_EQ(1.0f, X(toTest));
-    EXPECT_FLOAT_EQ(2.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(3.0f, Z(toTest));
-    EXPECT_FLOAT_EQ(4.0f, W(toTest));
+    EXPECT_FLOAT_EQ(1.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(2.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(3.0f, toTest.values[2]);
+    EXPECT_FLOAT_EQ(4.0f, toTest.values[3]);
 }
 
 TEST_F(TestQuaternion, AxisAndAngle)
@@ -86,16 +86,16 @@ TEST_F(TestQuaternion, AxisAndAngle)
 
     auto expected = Vector
     {{{
-        X(vector.ToVector()) * sin_a,
-        Y(vector.ToVector()) * sin_a,
-        Z(vector.ToVector()) * sin_a,
+        vector.ToVector().values[0] * sin_a,
+        vector.ToVector().values[1] * sin_a,
+        vector.ToVector().values[2] * sin_a,
         cos_a
     }}};
 
-    EXPECT_FLOAT_EQ(X(expected), X(toTest));
-    EXPECT_FLOAT_EQ(Y(expected), Y(toTest));
-    EXPECT_FLOAT_EQ(Z(expected), Z(toTest));
-    EXPECT_FLOAT_EQ(W(expected), W(toTest));
+    EXPECT_FLOAT_EQ(expected.values[0], toTest.values[0]);
+    EXPECT_FLOAT_EQ(expected.values[1], toTest.values[1]);
+    EXPECT_FLOAT_EQ(expected.values[2], toTest.values[2]);
+    EXPECT_FLOAT_EQ(expected.values[3], toTest.values[3]);
 }
 
 TEST_F(TestQuaternion, BetweenVectors)
@@ -109,10 +109,10 @@ TEST_F(TestQuaternion, BetweenVectors)
     // to (0,0,inverseRoot2,inverseRoot2) but it does.
     auto inverseRoot2 = 1.0f / std::sqrt(2.0f);
 
-    EXPECT_FLOAT_EQ(0.0f, X(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(inverseRoot2, Z(toTest));
-    EXPECT_FLOAT_EQ(inverseRoot2, W(toTest));
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(inverseRoot2, toTest.values[2]);
+    EXPECT_FLOAT_EQ(inverseRoot2, toTest.values[3]);
 }
 
 TEST_F(TestQuaternion, Equal)
@@ -147,16 +147,16 @@ TEST_F(TestQuaternion, Multiply)
 
     auto expected = Vector
     {{{
-        (X(a) * X(b)) - (X(a) * Y(b)) - (X(a) * Z(b)) - (X(a) * W(b)),
-        (Y(a) * Y(b)) + (Y(a) * X(b)) + (Y(a) * W(b)) - (Y(a) * Z(b)),
-        (Z(a) * Z(b)) - (Z(a) * W(b)) + (Z(a) * X(b)) + (Z(a) * Y(b)),
-        (W(a) * W(b)) + (W(a) * Z(b)) - (W(a) * Y(b)) + (W(a) * X(b))
+        (a.values[0] * b.values[0]) - (a.values[0] * b.values[1]) - (a.values[0] * b.values[2]) - (a.values[0] * b.values[3]),
+        (a.values[1] * b.values[1]) + (a.values[1] * b.values[0]) + (a.values[1] * b.values[3]) - (a.values[1] * b.values[2]),
+        (a.values[2] * b.values[2]) - (a.values[2] * b.values[3]) + (a.values[2] * b.values[0]) + (a.values[2] * b.values[1]),
+        (a.values[3] * b.values[3]) + (a.values[3] * b.values[2]) - (a.values[3] * b.values[1]) + (a.values[3] * b.values[0])
     }}};
 
-    EXPECT_FLOAT_EQ(X(expected), X(toTest));
-    EXPECT_FLOAT_EQ(Y(expected), Y(toTest));
-    EXPECT_FLOAT_EQ(Z(expected), Z(toTest));
-    EXPECT_FLOAT_EQ(W(expected), W(toTest));
+    EXPECT_FLOAT_EQ(expected.values[0], toTest.values[0]);
+    EXPECT_FLOAT_EQ(expected.values[1], toTest.values[1]);
+    EXPECT_FLOAT_EQ(expected.values[2], toTest.values[2]);
+    EXPECT_FLOAT_EQ(expected.values[3], toTest.values[3]);
 }
 
 }}} // namespace

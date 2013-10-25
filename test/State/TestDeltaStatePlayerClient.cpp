@@ -102,9 +102,9 @@ void TestDeltaStatePlayerClient::TestN(std::function<StatePlayerClient()> baseGe
             // One bit worth is what the error is allowed to be.
             // One bit has a delta range of the inverse m value.
             // But since we don't know that info, lets just assume 3dp
-            ASSERT_NEAR(X(decoded.orientation), X(target.orientation), 0.001);
-            ASSERT_NEAR(Y(decoded.orientation), Y(target.orientation), 0.001);
-            ASSERT_NEAR(Z(decoded.orientation), Z(target.orientation), 0.001);
+            ASSERT_NEAR(decoded.orientation.values[0], target.orientation.values[0], 0.001);
+            ASSERT_NEAR(decoded.orientation.values[1], target.orientation.values[1], 0.001);
+            ASSERT_NEAR(decoded.orientation.values[2], target.orientation.values[2], 0.001);
         }
     }
 }
@@ -140,7 +140,7 @@ TEST_F(TestDeltaStatePlayerClient, Random1000FromZeroIdentity)
 {
     auto base = StatePlayerClient
     {
-        VectorZero,
+        {{{0.0f}}},
         FlagsPlayer::Default
     };
 

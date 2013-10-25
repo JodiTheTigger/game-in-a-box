@@ -79,13 +79,13 @@ public:
 
 TEST_F(TestVector, Empty)
 {
-    Vector toTest = VectorZero;
+    auto toTest = Vector{{{0.0f}}};
 
     // Shouldn't crash.
-    EXPECT_FLOAT_EQ(0.0f, X(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Y(toTest));
-    EXPECT_FLOAT_EQ(0.0f, Z(toTest));
-    EXPECT_FLOAT_EQ(0.0f, W(toTest));
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[1]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[2]);
+    EXPECT_FLOAT_EQ(0.0f, toTest.values[3]);
 }
 
 TEST_F(TestVector, Equal)
@@ -94,10 +94,10 @@ TEST_F(TestVector, Equal)
     auto b = Vector{{{-1.0f, 0.0f, 1.0f, 123456789.0f}}};
 
     EXPECT_EQ(a, b);
-    EXPECT_FLOAT_EQ(X(a), X(b));
-    EXPECT_FLOAT_EQ(Y(a), Y(b));
-    EXPECT_FLOAT_EQ(Z(a), Z(b));
-    EXPECT_FLOAT_EQ(W(a), W(b));
+    EXPECT_FLOAT_EQ(a.values[0], b.values[0]);
+    EXPECT_FLOAT_EQ(a.values[1], b.values[1]);
+    EXPECT_FLOAT_EQ(a.values[2], b.values[2]);
+    EXPECT_FLOAT_EQ(a.values[3], b.values[3]);
 }
 
 TEST_F(TestVector, NotEqual)
@@ -123,10 +123,10 @@ TEST_F(TestVector, FnXYZW)
 {
     auto toTest = Vector{{{-1.0f, 0.0f, 2.0f, 123456789.0f}}};
 
-    EXPECT_FLOAT_EQ(X(toTest), -1.0f);
-    EXPECT_FLOAT_EQ(Y(toTest), 0.0f);
-    EXPECT_FLOAT_EQ(Z(toTest), 2.0f);
-    EXPECT_FLOAT_EQ(W(toTest), 123456789.0f);
+    EXPECT_FLOAT_EQ(toTest.values[0], -1.0f);
+    EXPECT_FLOAT_EQ(toTest.values[1], 0.0f);
+    EXPECT_FLOAT_EQ(toTest.values[2], 2.0f);
+    EXPECT_FLOAT_EQ(toTest.values[3], 123456789.0f);
 }
 
 }}} // namespace

@@ -28,11 +28,8 @@
 #include <array>
 #include <cmath>
 
-// RAM: TODO: single inputs are called lhs, double, lhs and rhs. Validate.
-
-// RAM: TODO: Try to use idioms?
+// Use idioms to generate vectorised code on modern compilers (gcc 4.8+, clang 3.3+).
 // http://www.altdevblogaday.com/2011/12/24/beyond-intrinsics-to-code-idiom/
-// Copy code pattern from SSE2 version, compare assembler output, be surprised?
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -163,39 +160,6 @@ inline float DotF(const Vector3& lhs, const Vector3& rhs)
             (lhs.values[0] * rhs.values[0]) +
             (lhs.values[1] * rhs.values[1]) +
             (lhs.values[2] * rhs.values[2]);
-}
-
-// RAM: TODO: What does this do? Used to figure out the determinant of matrixes. Copied from btVector3
-inline float TripleF(const Vector3& lhs, const Vector3& v1, const Vector3& v2)
-{
-    return
-        lhs.values[0] * (v1.values[1] * v2.values[2] - v1.values[2] * v2.values[1]) +
-        lhs.values[1] * (v1.values[2] * v2.values[0] - v1.values[0] * v2.values[2]) +
-        lhs.values[2] * (v1.values[0] * v2.values[1] - v1.values[1] * v2.values[0]);
-}
-
-inline int AxisMax(const Vector3& lhs)
-{
-    return lhs.values[0] < lhs.values[1] ?
-            (lhs.values[1] < lhs.values[2] ? 2 : 1) :
-            (lhs.values[0] < lhs.values[2] ? 2 : 0);
-}
-
-inline int AxisMin(const Vector3& lhs)
-{
-    return lhs.values[0] < lhs.values[1] ?
-            (lhs.values[0] < lhs.values[2] ? 0 : 2) :
-            (lhs.values[1] < lhs.values[2] ? 1 : 2);
-}
-
-inline int AxisFar(const Vector3& lhs)
-{
-    return AxisMax(Absolute(lhs));
-}
-
-inline int AxisNear(const Vector3& lhs)
-{
-    return AxisMin(Absolute(lhs));
 }
 
 inline bool IsZero(const Vector3& lhs)
