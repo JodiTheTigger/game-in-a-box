@@ -62,103 +62,178 @@ bool CollidePlayer(const Entity& protagonist, const Entity& antagonist)
     return (&protagonist == &antagonist);
 }
 
+struct PlayerKnobs
+{
+    Vector3 gravity;
+};
+
+Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
+{
+    auto velocity = currentVelocity * knobs.gravity;
+
+    return velocity;
+    /*
+
+        // Constants used:
+        // TickPeriod()     : In seconds
+        // JetEnergyMax()   : In Jodis (Not an SI unit).
+        // Gravity()        : In m/s
+        // Drag()           : Unitless.
+        // JetVelocity()    : In m/s
+        // JetSpend()       : In Jodis/s
+        // AirControl()     : Unitless
+        // MaxSpeedGround() : m/s
+        // MaxSpeedAir()    : m/s
+        // MaxSpeedGame()   : m/s
+
+        // Movement calulcations assuming the following:
+        // Friction is constant and is represented by Drag()
+        // Air resistence doesn't exist and is replaced by then MaxSpeed...() family.
+        // Jetting isn't done using any meaningful SI calculations.
+
+
+
+        // Jet regen
+        // RAM: TODO: Should energy regen be here? or at player/time colide?
+        // RAM: All values should be either per second, or impulse values.
+        // Name all defaults ImpuseXXX
+        // Then
+        // Have a constexpr function called Tick();
+        // OR
+        // Just start using boost units.
+        auto jetEnergy = result.player.fuel + JetEnergyRechargePerTick();
+
+        jetEnergy = Min(jetEnergy, JetMaxEnergy());
+
+        // Max velocity:
+        // There are two max velocities:
+        // Game max: nothing to go faster than this (game breaks)
+        // Player max: player can't manually go faster than this
+
+        // Pseudo code:
+        // external influences
+        auto velocity = currentVelocity;
+        velocity += gravity;
+        velocity += impulseFromExternalEvents;
+        velocity *= oneMinusDrag;
+
+        // Character input movement.
+        auto intent = Vector3{};
+        auto left = Vector3{-look.Y(), look.X(), look.Z()};
+
+        if (Forward())
+        {
+            intent += look;
+        }
+        if (Back())
+        {
+            intent -= look;
+        }
+        if (Left())
+        {
+            intent += left;
+        }
+        if (Right())
+        {
+            intent -= left;
+        }
+
+        // Jetting
+        // RAM: TODO: Use lambda to set value once.
+        auto jetVelocity = Vector3{};
+        if (Jetting() && jetEnery > jetSpend)
+        {
+            jetEnergy -= jetSpend;
+
+            if (OnGround())
+            {
+                jetVelocity = Vector3{0.0f, 0.0f, 1.0f} * JetVelocity;
+            }
+            else
+            {
+                jetVelocity = intent * JetVelocity;
+            }
+        }
+
+        // XY movement.
+        // Assumes jumping or jetting doesn't exist.
+        if (!IsZero(intent))
+        {
+            intent = Normalise(intent);
+
+            if (OnGround())
+            {
+                inAirModifier = 1.0f;
+            }
+            else
+            {
+                inAirModifier = AirControl();
+            }
+
+            auto xy = Vector3{intent.X(), intent.Y()};
+
+            auto delta = xy * moveValue * inAirModifier * TickPeriod();
+            auto velocityNew = velocity + delta;
+            auto speedNew = LengthF(velocityNew);
+            auto speed = LengthF(Vector3{velocity.X(), velocity.Y()});
+
+            // only if we are increasing our velocity AND we are faster than allowed
+            // do we cap the velocity.
+            if (speedNew > speed)
+            {
+                if (speedNew > MaxSpeed)
+                {
+                    auto cap = std::max(speed, MaxSpeed);
+
+                    velocityNew = Normalise(velocitNew) * cap;
+                }
+            }
+        }
+
+        // Jet Movement.
+        if (!IsZero(jetVelocity))
+        {
+            auto delta = jetVelocivty * TickPeriod();
+
+            auto velocityNewJet = velocityNew + delta;
+            auto speedNew = LengthF(velocityNewJet);
+            auto speed = LengthF(velocity);
+
+            if (OnGround())
+            {
+                maxSpeed = MaxSpeed;
+            }
+            else
+            {
+                maxSpeed = MaxSpeedJet;
+            }
+
+            // only if we are increasing our velocity AND we are faster than allowed
+            // do we cap the velocity.
+            if (speedNew > speed)
+            {
+                if (speedNew > maxSpeed)
+                {
+                    auto cap = std::max(speed, maxSpeed);
+
+                    velocityNewJet = Normalise(velocitNewJet) * cap;
+                }
+            }
+        }
+
+        velocity = velocitNewJet;
+
+        auto speed = LengthF(velocity);
+        if (speed > MaxSpeedGame())
+        {
+            velocity = Normalise(velocit) * MaxSpeedGame();
+        }
+    */
+}
+
 Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
 {
     auto result = protagonist;
-/*
-    // Jet regen
-    // RAM: TODO: Should energy regen be here? or at player/time colide?
-    // RAM: All values should be either per second, or impulse values.
-    auto jetEnergy = result.player.fuel + JetEnergyRechargePerTick();
-
-    jetEnergy = Min(jetEnergy, JetMaxEnergy());
-
-    // Jet Movement:
-    // On ground: Inherit horizonal movement + up.
-    // In air: up
-    // In air with direction key pressed: Look direction.
-
-    // Max velocity:
-    // There are two max velocities:
-    // Game max: nothing to go faster than this (game breaks)
-    // Player max: player can't manually go faster than this
-
-    // Pseudo code:
-    // external influences
-    auto velocity = currentVelocity;
-    velocity += gravity;
-    velocity += impulseFromExternalEvents;
-    velocity *= oneMinusDrag;
-
-    // Character input movement.
-    auto intent = Vector3{};
-    auto left = Vector3{-look.Y(), look.X(), look.Z()};
-
-    if (Forward())
-    {
-        intent += look;
-    }
-    if (Back())
-    {
-        intent -= look;
-    }
-    if (Left())
-    {
-        intent += left;
-    }
-    if (Right())
-    {
-        intent -= left;
-    }
-
-    // Jetting
-    // RAM: TODO: Use lambda to set value once.
-    auto jetVelocity = Vector3{};
-    if (Jetting() && jetEnery > jetSpend)
-    {
-        jetEnergy -= jetSpend;
-
-        if (OnGround())
-        {
-            jetVelocity = Vector3{0.0f, 0.0f, 1.0f} * JetImpulse;
-        }
-        else
-        {
-            jetVelocity = intent * JetImpulse;
-        }
-    }
-
-    // XY movement.
-    if (!IsZero(intent))
-    {
-        intent = Normalise(intent);
-
-        auto xy = Vector3{intent.X(), intent.Y()};
-
-        auto delta = xy * moveValue * inAirModifier * timeStep;
-        auto velocityNew = velocity + delta;
-        auto speedNew = LengthF(velocityNew);
-        auto speed = LengthF(Vector3{velocity.X(), velocity.Y()});
-
-        // only if we are increasing our velocity AND we are faster than allowed
-        // do we cap the velocity.
-        if (speedNew > speed)
-        {
-            if (speedNew > MaxSpeed)
-            {
-                auto cap = std::max(speed, MaxSpeed);
-
-                velocityNew = Normalise(velocitNew) * cap;
-            }
-        }
-    }
-
-    if (!IsZero(jetVelocity))
-    {
-
-    }
-*/
-
 
     /* To be removed, but kept here for reference until I figure out how to do stuff.
     // Jet latches on the direction you were facing when you start jetting.
