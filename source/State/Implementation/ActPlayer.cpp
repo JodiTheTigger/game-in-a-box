@@ -64,171 +64,146 @@ bool CollidePlayer(const Entity& protagonist, const Entity& antagonist)
 
 struct PlayerKnobs
 {
-    Vector3 gravity;
+    Vector3 gravity; // m/s2
+    Vector3 externalForce; // m/s2
+    Vector3 jetForce; // m/s2
+    Vector3 moveForce; // m/s2
+
+    Vector3 look;
+
+    float tick; // seconds
+    float drag; // unitless
+    float airControl; // unitless
+    float maxSpeed; // m/s
+    float maxSpeedInAir; // m/s
+    float maxSpeedGame; // m/s
+
+    bool forward;
+    bool back;
+    bool left;
+    bool right;
+    bool jet;
+
+    bool onTheGround;
 };
 
 Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
 {
-    auto velocity = currentVelocity * knobs.gravity;
+    auto velocity = currentVelocity;
+    velocity += knobs.gravity * knobs.tick;
+    velocity += knobs.externalForce * knobs.tick;
+    velocity *= knobs.drag;
 
-    return velocity;
-    /*
+    // Look
+    auto intent = Vector3{};
+    auto left = Vector3
+    {
+            -knobs.look.Y(),
+            knobs.look.X(),
+            knobs.look.Z()
+    };
 
-        // Constants used:
-        // TickPeriod()     : In seconds
-        // JetEnergyMax()   : In Jodis (Not an SI unit).
-        // Gravity()        : In m/s
-        // Drag()           : Unitless.
-        // JetVelocity()    : In m/s
-        // JetSpend()       : In Jodis/s
-        // AirControl()     : Unitless
-        // MaxSpeedGround() : m/s
-        // MaxSpeedAir()    : m/s
-        // MaxSpeedGame()   : m/s
+    if (knobs.forward)
+    {
+        intent += knobs.look;
+    }
+    if (knobs.back)
+    {
+        intent -= knobs.look;
+    }
+    if (knobs.left)
+    {
+        intent += left;
+    }
+    if (knobs.right)
+    {
+        intent -= left;
+    }
 
-        // Movement calulcations assuming the following:
-        // Friction is constant and is represented by Drag()
-        // Air resistence doesn't exist and is replaced by then MaxSpeed...() family.
-        // Jetting isn't done using any meaningful SI calculations.
-
-
-
-        // Jet regen
-        // RAM: TODO: Should energy regen be here? or at player/time colide?
-        // RAM: All values should be either per second, or impulse values.
-        // Name all defaults ImpuseXXX
-        // Then
-        // Have a constexpr function called Tick();
-        // OR
-        // Just start using boost units.
-        auto jetEnergy = result.player.fuel + JetEnergyRechargePerTick();
-
-        jetEnergy = Min(jetEnergy, JetMaxEnergy());
-
-        // Max velocity:
-        // There are two max velocities:
-        // Game max: nothing to go faster than this (game breaks)
-        // Player max: player can't manually go faster than this
-
-        // Pseudo code:
-        // external influences
-        auto velocity = currentVelocity;
-        velocity += gravity;
-        velocity += impulseFromExternalEvents;
-        velocity *= oneMinusDrag;
-
-        // Character input movement.
-        auto intent = Vector3{};
-        auto left = Vector3{-look.Y(), look.X(), look.Z()};
-
-        if (Forward())
+    // Jet
+    // Only know I can jet, I don't manage the "Can I Jet" state here.
+    auto jetForce = Vector3{};
+    if (knobs.jet)
+    {
+        if (knobs.onTheGround)
         {
-            intent += look;
+            jetForce = Vector3{0.0f, 0.0f, 1.0f} * knobs.jetForce;
         }
-        if (Back())
+        else
         {
-            intent -= look;
+            jetForce = intent * knobs.jetForce;
         }
-        if (Left())
-        {
-            intent += left;
-        }
-        if (Right())
-        {
-            intent -= left;
-        }
+    }
 
-        // Jetting
-        // RAM: TODO: Use lambda to set value once.
-        auto jetVelocity = Vector3{};
-        if (Jetting() && jetEnery > jetSpend)
-        {
-            jetEnergy -= jetSpend;
+    auto velocityNew = Vector3{};
+    if (!IsZero(intent))
+    {
+        // Movement
+        float control = knobs.onTheGround ? 1.0f : knobs.airControl;
+        auto xyz = Normalise(intent);
+        auto xy = Vector3{xyz.X(), xyz.Y()};
 
-            if (OnGround())
-            {
-                jetVelocity = Vector3{0.0f, 0.0f, 1.0f} * JetVelocity;
-            }
-            else
-            {
-                jetVelocity = intent * JetVelocity;
-            }
-        }
+        // what's our new velocity delta?
+        auto delta = xy * knobs.moveForce * knobs.tick * control;
 
-        // XY movement.
-        // Assumes jumping or jetting doesn't exist.
-        if (!IsZero(intent))
-        {
-            intent = Normalise(intent);
+        velocityNew = velocity + delta;
 
-            if (OnGround())
-            {
-                inAirModifier = 1.0f;
-            }
-            else
-            {
-                inAirModifier = AirControl();
-            }
-
-            auto xy = Vector3{intent.X(), intent.Y()};
-
-            auto delta = xy * moveValue * inAirModifier * TickPeriod();
-            auto velocityNew = velocity + delta;
-            auto speedNew = LengthF(velocityNew);
-            auto speed = LengthF(Vector3{velocity.X(), velocity.Y()});
-
-            // only if we are increasing our velocity AND we are faster than allowed
-            // do we cap the velocity.
-            if (speedNew > speed)
-            {
-                if (speedNew > MaxSpeed)
-                {
-                    auto cap = std::max(speed, MaxSpeed);
-
-                    velocityNew = Normalise(velocitNew) * cap;
-                }
-            }
-        }
-
-        // Jet Movement.
-        if (!IsZero(jetVelocity))
-        {
-            auto delta = jetVelocivty * TickPeriod();
-
-            auto velocityNewJet = velocityNew + delta;
-            auto speedNew = LengthF(velocityNewJet);
-            auto speed = LengthF(velocity);
-
-            if (OnGround())
-            {
-                maxSpeed = MaxSpeed;
-            }
-            else
-            {
-                maxSpeed = MaxSpeedJet;
-            }
-
-            // only if we are increasing our velocity AND we are faster than allowed
-            // do we cap the velocity.
-            if (speedNew > speed)
-            {
-                if (speedNew > maxSpeed)
-                {
-                    auto cap = std::max(speed, maxSpeed);
-
-                    velocityNewJet = Normalise(velocitNewJet) * cap;
-                }
-            }
-        }
-
-        velocity = velocitNewJet;
-
+        auto speedNew = LengthF(velocityNew);
         auto speed = LengthF(velocity);
-        if (speed > MaxSpeedGame())
+
+        // Only allow an increase of velocity if it's below our max speed
+        if (speedNew > speed)
         {
-            velocity = Normalise(velocit) * MaxSpeedGame();
+            if (speedNew > knobs.maxSpeed)
+            {
+                auto cap = std::max(speed, knobs.maxSpeed);
+
+                velocityNew = Normalise(velocityNew) * cap;
+            }
         }
-    */
+    }
+
+    // Jet Movement.
+    if (!IsZero(jetForce))
+    {
+        auto delta = jetForce * knobs.tick;
+
+        velocityNew = velocityNew + delta;
+
+        auto speedNew = LengthF(velocityNew);
+        auto speed = LengthF(velocity);
+
+        float maxSpeed = 0.0f;
+        if (knobs.onTheGround)
+        {
+            maxSpeed = knobs.maxSpeed;
+        }
+        else
+        {
+            maxSpeed = knobs.maxSpeedInAir;
+        }
+
+        // only if we are increasing our velocity AND we are faster than allowed
+        // do we cap the velocity.
+        if (speedNew > speed)
+        {
+            if (speedNew > maxSpeed)
+            {
+                auto cap = std::max(speed, maxSpeed);
+
+                velocityNew = Normalise(velocityNew) * cap;
+            }
+        }
+    }
+
+    // cap to max game speed
+    auto speed = LengthF(velocityNew);
+    if (speed > knobs.maxSpeedGame)
+    {
+        velocityNew = Normalise(velocityNew) * knobs.maxSpeedGame;
+    }
+
+    return velocityNew;
 }
 
 Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
