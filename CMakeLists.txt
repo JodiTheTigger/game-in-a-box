@@ -319,6 +319,7 @@ source/State/Implementation/Game.cpp
 source/State/Implementation/GameNetworkClient.hpp
 source/State/Implementation/GameNetworkClient.cpp
 source/State/Implementation/UnitsSI.hpp
+source/State/Implementation/UnitsVector.hpp
 )
 
 set(STATE_TEST
