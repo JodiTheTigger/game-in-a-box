@@ -62,6 +62,11 @@ struct alignas(16) Vector4
     Vector4& operator=(Vector4&&) & = default;
 
     constexpr Vector ToVector() const { return Vector{values}; }
+
+    float X() const { return values[0]; }
+    float Y() const { return values[1]; }
+    float Z() const { return values[2]; }
+    float W() const { return values[3]; }
 };
 
 // ///////////////////

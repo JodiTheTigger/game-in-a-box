@@ -96,6 +96,17 @@ TEST_F(TestVector4, ZeroReplicate)
     EXPECT_FLOAT_EQ(0.0f, toTest.values[3]);
 }
 
+TEST_F(TestVector4, XYZW)
+{
+    auto toTest = Vector4{groupA[0]};
+
+    // Shouldn't crash.
+    EXPECT_FLOAT_EQ(toTest.X(), groupA[0].values[0]);
+    EXPECT_FLOAT_EQ(toTest.Y(), groupA[0].values[1]);
+    EXPECT_FLOAT_EQ(toTest.Z(), groupA[0].values[2]);
+    EXPECT_FLOAT_EQ(toTest.W(), groupA[0].values[3]);
+}
+
 TEST_F(TestVector4, Equal)
 {
     auto a = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();

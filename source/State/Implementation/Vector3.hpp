@@ -61,6 +61,10 @@ struct alignas(16) Vector3
     Vector3& operator=(Vector3&&) & = default;
 
     constexpr Vector ToVector() const { return Vector{values}; }
+
+    float X() const { return values[0]; }
+    float Y() const { return values[1]; }
+    float Z() const { return values[2]; }
 };
 
 // ///////////////////
