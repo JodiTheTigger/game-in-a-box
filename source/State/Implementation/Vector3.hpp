@@ -35,8 +35,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 struct alignas(16) Vector3
 {
-    struct tagReplicate {};
-
     std::array<float, 4> values;
 
     constexpr Vector3()
@@ -52,8 +50,6 @@ struct alignas(16) Vector3
         : values(vector.values) {}
     constexpr Vector3(const std::array<float, 4>& array)
         : values(array) {}
-    constexpr Vector3(float x, tagReplicate)
-        : values{{x, x, x, x}} {}
 
     Vector3(const Vector3&) = default;
     Vector3(Vector3&&) = default;

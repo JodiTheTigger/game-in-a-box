@@ -27,7 +27,7 @@
 namespace GameInABox { namespace State { namespace Implementation {
 
 // 0-100km in 6 seconds is 60m/s acceleration.
-constexpr Vector3 JetImpulse() { return Vector3(1.0f, Vector3::tagReplicate{}); }
+constexpr Vector3 JetImpulse() { return Vector3{1.0f, 1.0f, 1.0f}; }
 constexpr Energy JetMaxEnergy() { return Energy{10000}; }
 constexpr Energy JetEnergyRechargePerTick() { return Energy{10000 / (10 * 60)}; }
 constexpr Energy JetEnergyBurnPerTick() { return Energy{10000 / (3 * 60)}; }

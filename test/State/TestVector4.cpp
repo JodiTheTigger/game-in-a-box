@@ -85,17 +85,6 @@ TEST_F(TestVector4, Empty)
     EXPECT_FLOAT_EQ(0.0f, toTest.values[3]);
 }
 
-TEST_F(TestVector4, ZeroReplicate)
-{
-    auto toTest = (Vector4(0, Vector4::tagReplicate{})).ToVector();
-
-    // Shouldn't crash.
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[1]);
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[2]);
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[3]);
-}
-
 TEST_F(TestVector4, XYZW)
 {
     auto toTest = Vector4{groupA[0]};
