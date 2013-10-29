@@ -66,7 +66,7 @@ struct alignas(16) Quaternion
         // from and to are unit vectors.
 
         auto w = Cross(from, to);
-        auto q = Vector4(w.values[0], w.values[1], w.values[2], 1.0f + DotF(to, from));
+        auto q = Vector4{w.values[0], w.values[1], w.values[2], 1.0f + DotF(to, from)};
 
         values = Normalise(q).values;
     }

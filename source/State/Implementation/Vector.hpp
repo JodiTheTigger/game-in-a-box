@@ -26,6 +26,9 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// RAM: TODO: Remove this class now we're C++14. Don't need it as
+// We can have vector3 and vector4 as POD types due to C++14's new
+// member initilisation.
 struct alignas(16) Vector
 {
     std::array<float, 4> values;

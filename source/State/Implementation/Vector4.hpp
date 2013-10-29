@@ -36,27 +36,7 @@ struct alignas(16) Vector4
 {
     std::array<float, 4> values;
 
-    constexpr Vector4()
-        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector4(float x)
-        : values{{x, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector4(float x, float y)
-        : values{{x, y, 0.0f, 0.0f}} {}
-    constexpr Vector4(float x, float y, float z)
-        : values{{x, y, z, 0.0f}} {}
-    constexpr Vector4(float x, float y, float z, float w)
-        : values{{x, y, z, w}} {}
-
-    constexpr Vector4(Vector vector)
-        : values(vector.values) {}
-    constexpr Vector4(const std::array<float, 4>& array)
-        : values(array) {}
-
-    Vector4(const Vector4&) = default;
-    Vector4(Vector4&&) = default;
-    Vector4& operator=(const Vector4&) & = default;
-    Vector4& operator=(Vector4&&) & = default;
-
+    // RAM: TODO: Remove.
     constexpr Vector ToVector() const { return Vector{values}; }
 
     float X() const { return values[0]; }
@@ -64,6 +44,12 @@ struct alignas(16) Vector4
     float Z() const { return values[2]; }
     float W() const { return values[3]; }
 };
+
+// ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Vector4>::value, "Vector4 is not a plain old data structure (POD).");
+static_assert(alignof(Vector4) == 16, "Vector4 is not aligned to a 16 byte boundary.");
 
 // ///////////////////
 // Operators
