@@ -42,31 +42,31 @@ public:
 
         for (uint i = 0; i < ArraySize; ++i)
         {
-            groupA.push_back({{{
+            groupA.push_back({
                                  randomNegMilltoMill(randomEngine),
                                  randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)}}});
+                                 randomNegMilltoMill(randomEngine)});
 
 
-            groupB.push_back({{{
+            groupB.push_back({
                                  randomNegMilltoMill(randomEngine),
                                  randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)}}});
+                                 randomNegMilltoMill(randomEngine)});
 
 
-            groupC.push_back({{{
+            groupC.push_back({
                                  randomNegMilltoMill(randomEngine),
                                  randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)}}});
+                                 randomNegMilltoMill(randomEngine)});
         }
     }
 
     std::default_random_engine randomEngine;
     std::uniform_real_distribution<float> randomNegMilltoMill;
 
-    std::vector<Vector> groupA;
-    std::vector<Vector> groupB;
-    std::vector<Vector> groupC;
+    std::vector<Vector3> groupA;
+    std::vector<Vector3> groupB;
+    std::vector<Vector3> groupC;
 };
 
 TEST_F(TestMatrix3x3, CreateEmpty)
@@ -87,9 +87,9 @@ TEST_F(TestMatrix3x3, CreateVector3)
         groupC[0].values
     };
 
-    EXPECT_EQ(groupA[0], toTest.values[0].ToVector());
-    EXPECT_EQ(groupB[0], toTest.values[1].ToVector());
-    EXPECT_EQ(groupC[0], toTest.values[2].ToVector());
+    EXPECT_EQ(groupA[0], toTest.values[0]);
+    EXPECT_EQ(groupB[0], toTest.values[1]);
+    EXPECT_EQ(groupC[0], toTest.values[2]);
 }
 
 TEST_F(TestMatrix3x3, CreateFloats)
@@ -105,9 +105,9 @@ TEST_F(TestMatrix3x3, CreateFloats)
         {c.values[0], c.values[1], c.values[2]},
     }}};
 
-    EXPECT_EQ(a, toTest.values[0].ToVector());
-    EXPECT_EQ(b, toTest.values[1].ToVector());
-    EXPECT_EQ(c, toTest.values[2].ToVector());
+    EXPECT_EQ(a, toTest.values[0]);
+    EXPECT_EQ(b, toTest.values[1]);
+    EXPECT_EQ(c, toTest.values[2]);
 }
 
 TEST_F(TestMatrix3x3, Negate)
@@ -121,9 +121,9 @@ TEST_F(TestMatrix3x3, Negate)
 
     auto toTest = -a;
 
-    EXPECT_EQ(groupA[0], (-toTest.values[0]).ToVector());
-    EXPECT_EQ(groupB[0], (-toTest.values[1]).ToVector());
-    EXPECT_EQ(groupC[0], (-toTest.values[2]).ToVector());
+    EXPECT_EQ(groupA[0], (-toTest.values[0]));
+    EXPECT_EQ(groupB[0], (-toTest.values[1]));
+    EXPECT_EQ(groupC[0], (-toTest.values[2]));
 }
 
 

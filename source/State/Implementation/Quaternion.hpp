@@ -21,7 +21,6 @@
 #ifndef QUATERNION_HPP
 #define QUATERNION_HPP
 
-#include "Vector.hpp"
 #include "Vector3.hpp"
 #include "Vector4.hpp"
 #include "UnitsSI.hpp"
@@ -39,9 +38,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 struct alignas(16) Quaternion
 {
     std::array<float, 4> values;
-
-    // RAM: To Remove.
-    constexpr Vector ToVector() const { return Vector{values}; }
 };
 
 // ///////////////////

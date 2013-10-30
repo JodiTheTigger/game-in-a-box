@@ -19,6 +19,7 @@
 */
 
 #include <Implementation/Quaternion.hpp>
+#include <Implementation/Vector4.hpp>
 #include <Implementation/VectorCommon.hpp>
 
 #include <gmock/gmock.h>
@@ -34,7 +35,7 @@ class TestQuaternion : public ::testing::Test
 
 TEST_F(TestQuaternion, Empty)
 {
-    auto toTest = (ToQuaternion()).ToVector();
+    auto toTest = ToQuaternion();
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
@@ -45,17 +46,7 @@ TEST_F(TestQuaternion, Empty)
 
 TEST_F(TestQuaternion, FromFloats)
 {
-    auto toTest = (Quaternion{1.0f, 2.0f, 3.0f, 4.0f}).ToVector();
-
-    EXPECT_FLOAT_EQ(1.0f, toTest.values[0]);
-    EXPECT_FLOAT_EQ(2.0f, toTest.values[1]);
-    EXPECT_FLOAT_EQ(3.0f, toTest.values[2]);
-    EXPECT_FLOAT_EQ(4.0f, toTest.values[3]);
-}
-
-TEST_F(TestQuaternion, FromVector)
-{
-    auto toTest = (Quaternion{Vector{{{1.0f, 2.0f, 3.0f, 4.0f}}}.values}).ToVector();
+    auto toTest = Quaternion{1.0f, 2.0f, 3.0f, 4.0f};
 
     EXPECT_FLOAT_EQ(1.0f, toTest.values[0]);
     EXPECT_FLOAT_EQ(2.0f, toTest.values[1]);
@@ -66,7 +57,7 @@ TEST_F(TestQuaternion, FromVector)
 TEST_F(TestQuaternion, FromArray)
 {
     auto array = std::array<float,4> {{1.0f, 2.0f, 3.0f, 4.0f}};
-    auto toTest = (Quaternion{array}).ToVector();
+    auto toTest = Quaternion{array};
 
     EXPECT_FLOAT_EQ(1.0f, toTest.values[0]);
     EXPECT_FLOAT_EQ(2.0f, toTest.values[1]);
@@ -78,19 +69,19 @@ TEST_F(TestQuaternion, AxisAndAngle)
 {
     auto angle = Radians{2};
     auto vector = Normalise(Vector3{1,2,3});
-    auto toTest = ToQuaternion(vector, angle).ToVector();
+    auto toTest = ToQuaternion(vector, angle);
 
     // do Quaternion maths here to verify
     auto sin_a = std::sin( angle.value / 2.0f );
     auto cos_a = std::cos( angle.value / 2.0f );
 
-    auto expected = Vector
-    {{{
-        vector.ToVector().values[0] * sin_a,
-        vector.ToVector().values[1] * sin_a,
-        vector.ToVector().values[2] * sin_a,
+    auto expected = Vector4
+    {
+        vector.values[0] * sin_a,
+        vector.values[1] * sin_a,
+        vector.values[2] * sin_a,
         cos_a
-    }}};
+    };
 
     EXPECT_FLOAT_EQ(expected.values[0], toTest.values[0]);
     EXPECT_FLOAT_EQ(expected.values[1], toTest.values[1]);
@@ -103,7 +94,7 @@ TEST_F(TestQuaternion, BetweenVectors)
     auto vector1 = Vector3{1.0f,0.0f,0.0f};
     auto vector2 = Vector3{0.0f,1.0f,0.0f};
 
-    auto toTest = (ToQuaternion(vector1, vector2)).ToVector();
+    auto toTest = ToQuaternion(vector1, vector2);
 
     // Rotate about the z axis (0,0,1) by 90 degrees. Dunno why it normalises
     // to (0,0,inverseRoot2,inverseRoot2) but it does.
@@ -141,13 +132,13 @@ TEST_F(TestQuaternion, Multiply)
     auto original = ToQuaternion(vector, angle);
     auto otherWay = ToQuaternion(vector, angleN);
 
-    auto toTest = (original * otherWay).ToVector();
+    auto toTest = original * otherWay;
 
     // do Quaternion maths here to verify
-    auto a = original.ToVector();
-    auto b = otherWay.ToVector();
+    auto a = original;
+    auto b = otherWay;
 
-    auto expected = Vector
+    auto expected = Vector4
     {{{
         (a.values[0] * b.values[0]) - (a.values[0] * b.values[1]) - (a.values[0] * b.values[2]) - (a.values[0] * b.values[3]),
         (a.values[1] * b.values[1]) + (a.values[1] * b.values[0]) + (a.values[1] * b.values[3]) - (a.values[1] * b.values[2]),

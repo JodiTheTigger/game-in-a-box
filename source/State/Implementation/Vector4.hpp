@@ -21,7 +21,6 @@
 #ifndef VECTOR4_HPP
 #define VECTOR4_HPP
 
-#include "Vector.hpp"
 #include "UnitsSI.hpp"
 #include "VectorCommon.hpp"
 
@@ -35,9 +34,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 struct alignas(16) Vector4
 {
     std::array<float, 4> values;
-
-    // RAM: TODO: Remove.
-    constexpr Vector ToVector() const { return Vector{values}; }
 
     float X() const { return values[0]; }
     float Y() const { return values[1]; }
