@@ -31,11 +31,21 @@ namespace GameInABox { namespace State { namespace Implementation {
 // is actually 4 along, not 3 (for alignment/speed reasons)
 // so you'll need to remember to use a padding 0.0f, or use:
 // {Vector3{}, Vector3{}, Vector{}}
+// Or just use ToMatrix3x3(float, float, float,...).
 struct alignas(16) Matrix3x3
 {
     std::array<Vector3, 3> values;
 };
 
+// ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Matrix3x3>::value, "Matrix3x3 is not a plain old data structure (POD).");
+static_assert(alignof(Matrix3x3) == 16, "Matrix3x3 is not aligned to a 16 byte boundary.");
+
+// ///////////////////
+// Conversions
+// ///////////////////
 constexpr inline Matrix3x3 ToMatrix3x3(
         float xx, float xy, float xz,
         float yx, float yy, float yz,
@@ -83,12 +93,6 @@ inline Matrix3x3 ToMatrix3x3(const Quaternion& rotation)
         }
     }}};
 }
-
-// ///////////////////
-// Testing
-// ///////////////////
-static_assert(std::is_pod<Matrix3x3>::value, "Matrix3x3 is not a plain old data structure (POD).");
-static_assert(alignof(Matrix3x3) == 16, "Matrix3x3 is not aligned to a 16 byte boundary.");
 
 // ///////////////////
 // Operators

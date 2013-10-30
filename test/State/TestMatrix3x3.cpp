@@ -133,7 +133,7 @@ TEST_F(TestMatrix3x3, CreateQuaternionIdentity)
     auto y = Vector3{0.0f, 1.0f};
     auto z = Vector3{0.0f, 0.0f, 1.0f};
 
-    auto toTest = ToMatrix3x3(Quaternion{});
+    auto toTest = ToMatrix3x3(ToQuaternion());
 
     EXPECT_EQ(x, toTest.values[0]);
     EXPECT_EQ(y, toTest.values[1]);

@@ -40,53 +40,61 @@ struct alignas(16) Quaternion
 {
     std::array<float, 4> values;
 
-    constexpr Quaternion()
-        : values{{0.0f, 0.0f, 0.0f, 1.0f}} {}
-    constexpr Quaternion(float x, float y, float z, float w)
-        : values{{x, y, z, w}} {}
-
-    constexpr Quaternion(Vector vector)
-        : values(vector.values) {}
-    constexpr Quaternion(const std::array<float, 4>& array)
-        : values(array) {}
-
-    Quaternion(const Vector3& axis, Radians angle)
-       : values(Normalise(Vector4{(Quaternion(
-                               axis.values[0] * sin(angle.value / 2),
-                               axis.values[1] * sin(angle.value / 2),
-                               axis.values[2] * sin(angle.value / 2),
-                               cos(angle.value / 2))).values}).values) {}
-
-    // From and to are unit vectors.
-    // The Quaternion is the rotation between them.
-    Quaternion(const Vector3& from, const Vector3& to)
-        : values{{0.0f, 0.0f, 0.0f, 1.0f}}
-    {
-        // http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-        // from and to are unit vectors.
-
-        auto w = Cross(from, to);
-        auto q = Vector4{w.values[0], w.values[1], w.values[2], 1.0f + DotF(to, from)};
-
-        values = Normalise(q).values;
-    }
-
-    Quaternion(const Quaternion&) = default;
-    Quaternion(Quaternion&&) = default;
-    Quaternion& operator=(const Quaternion&) & = default;
-    Quaternion& operator=(Quaternion&&) & = default;
-
+    // RAM: To Remove.
     constexpr Vector ToVector() const { return Vector{values}; }
-};                                         
+};
+
+// ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Quaternion>::value, "Quaternion is not a plain old data structure (POD).");
+static_assert(alignof(Quaternion) == 16, "Quaternion is not aligned to a 16 byte boundary.");
+
+// ///////////////////
+// Conversions
+// ///////////////////
+inline constexpr Quaternion ToQuaternion()
+{
+    return {0.0f, 0.0f, 0.0f, 1.0f};
+}
+
+inline Quaternion ToQuaternion(const Vector3& axis, Radians angle)
+{
+    // found my first GCC bug.
+    // float version of cos/sin arn't called resulting in doubles
+    // resulting in narrowing errors. Hack is the cast to double.
+    // RAM: TODO: Post bug report, find way of using float version.
+    return
+    {
+        Normalise(Vector4
+        {
+            static_cast<float>(axis.values[0] * sin(angle.value / 2.0f)),
+            static_cast<float>(axis.values[1] * sin(angle.value / 2.0f)),
+            static_cast<float>(axis.values[2] * sin(angle.value / 2.0f)),
+            static_cast<float>(cos(angle.value / 2.0f))
+        }).values
+    };
+};
+
+// From and to are unit vectors.
+// The Quaternion is the rotation between them.
+inline Quaternion ToQuaternion(const Vector3& from, const Vector3& to)
+{
+    // http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
+    // from and to are unit vectors.
+
+    auto w = Cross(from, to);
+    auto q = Vector4{w.values[0], w.values[1], w.values[2], 1.0f + DotF(to, from)};
+
+    return {Normalise(q).values};
+}
 
 // ///////////////////
 // Comparison Operators
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-
-                                         // RAM: TODO: Test this, especially the last value is the same.
-inline bool operator==(const Quaternion& lhs, const Quaternion& rhs)
+inline constexpr bool operator==(const Quaternion& lhs, const Quaternion& rhs)
 {
  return  (
              (lhs.values[0]==rhs.values[0]) &&
@@ -96,7 +104,7 @@ inline bool operator==(const Quaternion& lhs, const Quaternion& rhs)
          );
 }
 
-inline bool operator!=(const Quaternion& lhs, const Quaternion& rhs){return  !operator==(lhs,rhs);}
+inline constexpr bool operator!=(const Quaternion& lhs, const Quaternion& rhs){return  !operator==(lhs,rhs);}
 
 // ///////////////////
 // Simple Maths
@@ -172,8 +180,6 @@ inline Quaternion SLerp(const Quaternion& lhs, const Quaternion& rhs, float scal
     return lhs;
 }
 
-
 }}} // namespace
-
 
 #endif // QUATERNION_HPP
