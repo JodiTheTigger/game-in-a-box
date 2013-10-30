@@ -60,7 +60,7 @@ static_assert(alignof(Vector4) == 16, "Vector4 is not aligned to a 16 byte bound
 // ///////////////////
 // Comparison Operators
 // ///////////////////
-inline bool operator==(const Vector4& lhs, const Vector4& rhs)
+inline constexpr bool operator==(const Vector4& lhs, const Vector4& rhs)
 {
     // Investiage, exact equals, or epislon compare?
     return  (
@@ -71,12 +71,23 @@ inline bool operator==(const Vector4& lhs, const Vector4& rhs)
             );
 }
 
-inline bool operator!=(const Vector4& lhs, const Vector4& rhs){return  !operator==(lhs,rhs);}
+inline constexpr bool operator!=(const Vector4& lhs, const Vector4& rhs){return  !operator==(lhs,rhs);}
 
 // ///////////////////
 // Prototypes
 // ///////////////////
-inline Vector4 Absolute(const Vector4& lhs);
+inline constexpr Vector4 Absolute(const Vector4& lhs);
+
+// ///////////////////
+// Helper Functions
+// ///////////////////
+inline constexpr bool IsZero(const Vector4& lhs)
+{
+    return  (lhs.values[0] == 0.0f) &&
+            (lhs.values[1] == 0.0f) &&
+            (lhs.values[2] == 0.0f) &&
+            (lhs.values[3] == 0.0f);
+}
 
 // ///////////////////
 // Simple Maths
@@ -151,20 +162,9 @@ inline Vector4 operator*(Vector4 lhs, float rhs){ lhs *= rhs;  return lhs; }
 inline Vector4 operator/(Vector4 lhs, float rhs){ lhs /= rhs;  return lhs; }
 
 // ///////////////////
-// Helper Functions
-// ///////////////////
-inline bool IsZero(const Vector4& lhs)
-{
-    return  (lhs.values[0] == 0.0f) &&
-            (lhs.values[1] == 0.0f) &&
-            (lhs.values[2] == 0.0f) &&
-            (lhs.values[3] == 0.0f);
-}
-
-// ///////////////////
 // Complicated Maths (vector return)
 // ///////////////////
-inline Vector4 Sqrt(const Vector4& lhs)
+inline constexpr Vector4 Sqrt(const Vector4& lhs)
 {
     return Vector4
     {
@@ -175,7 +175,7 @@ inline Vector4 Sqrt(const Vector4& lhs)
     };
 }
 
-inline Vector4 Absolute(const Vector4& lhs)
+inline constexpr Vector4 Absolute(const Vector4& lhs)
 {
     return Vector4
     {
@@ -239,7 +239,7 @@ inline Vector4 Dot(const Vector4& lhs, const Vector4& rhs)
 
 // Cross product doesn't exist for Vector4, only Vector3 and Vector7.
 
-inline Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
+inline constexpr Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
 {
     return Vector4
     {
@@ -250,7 +250,7 @@ inline Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
     };
 }
 
-inline Vector4 Max(const Vector4& lhs, const Vector4& rhs)
+inline constexpr Vector4 Max(const Vector4& lhs, const Vector4& rhs)
 {
     return Vector4
     {
@@ -261,7 +261,7 @@ inline Vector4 Max(const Vector4& lhs, const Vector4& rhs)
     };
 }
 
-inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
+inline constexpr Vector4 Min(const Vector4& lhs, const Vector4& rhs)
 {
     return Vector4
     {
@@ -275,12 +275,11 @@ inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
 // ///////////////////
 // Complicated Maths (single return)
 // ///////////////////
-
 // Avoid these as they convert from Vectors to floats which
 // apparently is a performance penalty, especially if you then
 // use the value in more vector calculations.
-
-inline float DotF(const Vector4& lhs, const Vector4& rhs)
+// http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
+inline constexpr float DotF(const Vector4& lhs, const Vector4& rhs)
 {
     return
             (lhs.values[0] * rhs.values[0]) +
