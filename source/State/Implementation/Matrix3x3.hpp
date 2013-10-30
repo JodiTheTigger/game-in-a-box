@@ -36,10 +36,21 @@ struct alignas(16) Matrix3x3
     std::array<Vector3, 3> values;
 };
 
-// Optimising compiler should ignore the initilistaion? otherwise
-// do all the calculations in the assignment and make it constexpr.
+constexpr inline Matrix3x3 ToMatrix3x3(
+        float xx, float xy, float xz,
+        float yx, float yy, float yz,
+        float zx, float zy, float zz)
+{
+    return Matrix3x3
+    {{{
+        {xx, xy, xz},
+        {yx, yy, yz},
+        {zx, zy, zz}
+    }}};
+}
+
 // RAM: Is there a cleaner way of doing unit conversions?
-Matrix3x3 ToMatrix3x3(const Quaternion& rotation)
+inline Matrix3x3 ToMatrix3x3(const Quaternion& rotation)
 {
     auto xx      = rotation.values[0] * rotation.values[0];
     auto xy      = rotation.values[0] * rotation.values[1];
