@@ -84,12 +84,15 @@ struct alignas(16) Quaternion
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
+
+                                         // RAM: TODO: Test this, especially the last value is the same.
 inline bool operator==(const Quaternion& lhs, const Quaternion& rhs)
 {
  return  (
              (lhs.values[0]==rhs.values[0]) &&
              (lhs.values[1]==rhs.values[1]) &&
-             (lhs.values[2]==rhs.values[2])
+             (lhs.values[2]==rhs.values[2]) &&
+             (lhs.values[3]==rhs.values[3])
          );
 }
 

@@ -110,14 +110,15 @@ TEST_F(TestVector4, Equal)
 
 TEST_F(TestVector4, NotEqual)
 {
-    auto a = (Vector4{-1.0f, 0.0f, 1.0f}).ToVector();
+    auto a = (Vector4{-1.0f, 0.0f, 1.0f, 99999.0f}).ToVector();
     auto b = std::vector<Vector>{};
 
-    b.push_back({1.0f, 0.0f, 1.0f});
-    b.push_back({0.0f, 0.0f, 1.0f});
-    b.push_back({-1.0f, 1.0f, 1.0f});
-    b.push_back({-1.0f, 0.0f, -1.0f});
-    b.push_back({0.0f, 0.0f, 0.0f});
+    b.push_back({1.0f, 0.0f, 1.0f, 99999.0f});
+    b.push_back({0.0f, 0.0f, 1.0f, 99999.0f});
+    b.push_back({-1.0f, 1.0f, 1.0f, 99999.0f});
+    b.push_back({-1.0f, 0.0f, -1.0f, 99999.0f});
+    b.push_back({0.0f, 0.0f, 0.0f, 99999.0f});
+    b.push_back({-1.0f, 0.0f, 1.0f, 99998.0f});
 
     for (auto& toTest : b)
     {

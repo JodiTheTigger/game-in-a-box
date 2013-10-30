@@ -74,7 +74,7 @@ public:
 
 TEST_F(TestVector3, Empty)
 {
-    auto toTest = (Vector3{}).ToVector();
+    auto toTest = (Vector3{0.0f}).ToVector();
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
@@ -85,7 +85,7 @@ TEST_F(TestVector3, Empty)
 
 TEST_F(TestVector3, XYZ)
 {
-    auto toTest = Vector3{groupA[0]};
+    auto toTest = Vector3{groupA[0].values};
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(toTest.X(), groupA[0].values[0]);
@@ -95,8 +95,8 @@ TEST_F(TestVector3, XYZ)
 
 TEST_F(TestVector3, Equal)
 {
-    auto a = (Vector3(-1.0f, 0.0f, 1.0f)).ToVector();
-    auto b = (Vector3(-1.0f, 0.0f, 1.0f)).ToVector();
+    auto a = (Vector3{-1.0f, 0.0f, 1.0f}).ToVector();
+    auto b = (Vector3{-1.0f, 0.0f, 1.0f}).ToVector();
 
     EXPECT_EQ(a, b);
     EXPECT_FLOAT_EQ(a.values[0], b.values[0]);
@@ -106,7 +106,7 @@ TEST_F(TestVector3, Equal)
 
 TEST_F(TestVector3, NotEqual)
 {
-    auto a = (Vector3(-1.0f, 0.0f, 1.0f)).ToVector();
+    auto a = (Vector3{-1.0f, 0.0f, 1.0f}).ToVector();
     auto b = std::vector<Vector>{};
 
     b.push_back({{{1.0f, 0.0f, 1.0f}}});
@@ -127,9 +127,9 @@ TEST_F(TestVector3, Add)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
-        auto b = Vector3(groupB[i]);
-        auto c = Vector3(groupC[i]);
+        auto a = Vector3{groupA[i].values};
+        auto b = Vector3{groupB[i].values};
+        auto c = Vector3{groupC[i].values};
 
         auto result = (a + b).ToVector();
         c += a;
@@ -151,9 +151,9 @@ TEST_F(TestVector3, Subtract)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
-        auto b = Vector3(groupB[i]);
-        auto c = Vector3(groupC[i]);
+        auto a = Vector3{groupA[i].values};
+        auto b = Vector3{groupB[i].values};
+        auto c = Vector3{groupC[i].values};
 
         auto result = (a - b).ToVector();
         c -= a;
@@ -175,9 +175,9 @@ TEST_F(TestVector3, Multiply)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
-        auto b = Vector3(groupB[i]);
-        auto c = Vector3(groupC[i]);
+        auto a = Vector3{groupA[i].values};
+        auto b = Vector3{groupB[i].values};
+        auto c = Vector3{groupC[i].values};
 
         auto result = (a * b).ToVector();
         c *= a;
@@ -199,9 +199,9 @@ TEST_F(TestVector3, Divide)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
-        auto b = Vector3(groupB[i]);
-        auto c = Vector3(groupC[i]);
+        auto a = Vector3{groupA[i].values};
+        auto b = Vector3{groupB[i].values};
+        auto c = Vector3{groupC[i].values};
 
         auto result = (a / b).ToVector();
         c /= a;
@@ -223,9 +223,9 @@ TEST_F(TestVector3, Mad)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
-        auto b = Vector3(groupB[i]);
-        auto c = Vector3(groupC[i]);
+        auto a = Vector3{groupA[i].values};
+        auto b = Vector3{groupB[i].values};
+        auto c = Vector3{groupC[i].values};
 
         auto result = ((a*b) + c).ToVector();
         auto d = c;
@@ -255,7 +255,7 @@ TEST_F(TestVector3, FnSqrt)
                 (groupA[i].values[2] >= 0)
              )
         {
-            auto a = Vector3(groupA[i]);
+            auto a = Vector3{groupA[i].values};
             auto result = (Sqrt(a)).ToVector();
 
             ASSERT_FLOAT_EQ(result.values[0], sqrt(groupA[i].values[0])) << " i: " << i;
@@ -271,8 +271,8 @@ TEST_F(TestVector3, FnDot)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
-        auto b = Vector3(groupB[i]);
+        auto a = Vector3{groupA[i].values};
+        auto b = Vector3{groupB[i].values};
         auto result = (Dot(a, b)).ToVector();
         auto dot =
                 (groupA[i].values[0] * groupB[i].values[0]) +
@@ -291,7 +291,7 @@ TEST_F(TestVector3, FnLength)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
+        auto a = Vector3{groupA[i].values};
         auto result = (Length(a)).ToVector();
         auto l =
                 sqrt((groupA[i].values[0] * groupA[i].values[0]) +
@@ -310,7 +310,7 @@ TEST_F(TestVector3, FnLengthSquared)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
+        auto a = Vector3{groupA[i].values};
         auto result = (Length(a)).ToVector();
         auto l =
                 sqrt((groupA[i].values[0] * groupA[i].values[0]) +
@@ -331,7 +331,7 @@ TEST_F(TestVector3, FnNormalise)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector3(groupA[i]);
+        auto a = Vector3{groupA[i].values};
         auto result = (Normalise(a)).ToVector();
         auto l = sqrt(
             (groupA[i].values[0] * groupA[i].values[0]) +

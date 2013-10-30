@@ -37,31 +37,20 @@ struct alignas(16) Vector3
 {
     std::array<float, 4> values;
 
-    constexpr Vector3()
-        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x)
-        : values{{x, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x, float y)
-        : values{{x, y, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x, float y, float z)
-        : values{{x, y, z, 0.0f}} {}
-
-    constexpr Vector3(Vector vector)
-        : values(vector.values) {}
-    constexpr Vector3(const std::array<float, 4>& array)
-        : values(array) {}
-
-    Vector3(const Vector3&) = default;
-    Vector3(Vector3&&) = default;
-    Vector3& operator=(const Vector3&) & = default;
-    Vector3& operator=(Vector3&&) & = default;
-
+    // RAM: TODO: Remove
     constexpr Vector ToVector() const { return Vector{values}; }
 
     float X() const { return values[0]; }
     float Y() const { return values[1]; }
     float Z() const { return values[2]; }
 };
+
+// ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Vector3>::value, "Vector3 is not a plain old data structure (POD).");
+static_assert(alignof(Vector3) == 16, "Vector3 is not aligned to a 16 byte boundary.");
+
 
 // ///////////////////
 // Comparison Operators

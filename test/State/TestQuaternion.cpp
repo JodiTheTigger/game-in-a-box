@@ -127,8 +127,10 @@ TEST_F(TestQuaternion, NotEqual)
 {
     auto toTest1 = Quaternion{1.0f, 2.0f, 3.0f, 4.0f};
     auto toTest2 = Quaternion{1.0f, 2.0f, 2.0f, 4.0f};
+    auto toTest3 = Quaternion{1.0f, 2.0f, 3.0f, 4.1f};
 
     EXPECT_NE(toTest1, toTest2);
+    EXPECT_NE(toTest1, toTest3);
 }
 
 TEST_F(TestQuaternion, Multiply)
