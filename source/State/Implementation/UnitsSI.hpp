@@ -21,24 +21,42 @@
 #ifndef UNITSSI_HPP
 #define UNITSSI_HPP
 
+#include <boost/units/systems/si.hpp>
+#include <boost/units/systems/angle/degrees.hpp>
+
+// NOTE: Boost units don't have constexpr constructors, so the
+// constexpr compiletime calculation optimsation is lost. However
+// for now I'm willing to pay that price for unit correct calculations.
+// StoppingBugs > PrematureOptimsation.
+
 namespace GameInABox { namespace State { namespace Implementation {
 
 // /////////////////////
 // Unit Structs
 // /////////////////////
-struct Radians
-{
-    float value;
-};
+using Radians = boost::units::quantity<boost::units::si::plane_angle, float>;
 
 // /////////////////////
 // User defined literals for units.
 // /////////////////////
-Radians constexpr operator"" _radians(long double value)
+Radians inline operator"" _radians(long double value)
 {
-    return {static_cast<float>(value)};
+    return {static_cast<float>(value) * boost::units::si::radians};
 }
-
+Radians inline operator"" _radian(long double value)
+{
+    return {static_cast<float>(value) * boost::units::si::radians};
+}
+/* RAM: TODO: Add if ever needed. Remove once gamestate is finished, and these are never referenced.
+Radians inline operator"" _degrees(long double value)
+{
+    return {static_cast<Radians>(static_cast<float>(value) * boost::units::degree::degrees)};
+}
+Radians inline operator"" _degree(long double value)
+{
+    return {static_cast<Radians>(static_cast<float>(value) * boost::units::degree::degrees)};
+}
+*/
 }}} // namespace
 
 #endif // UNITSSI_HPP

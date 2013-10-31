@@ -64,10 +64,10 @@ inline Quaternion ToQuaternion(const Vector3& axis, Radians angle)
     {
         Normalise(Vector4
         {
-            static_cast<float>(axis.values[0] * sin(angle.value / 2.0f)),
-            static_cast<float>(axis.values[1] * sin(angle.value / 2.0f)),
-            static_cast<float>(axis.values[2] * sin(angle.value / 2.0f)),
-            static_cast<float>(cos(angle.value / 2.0f))
+            static_cast<float>(axis.values[0] * sin(angle.value() / 2.0f)),
+            static_cast<float>(axis.values[1] * sin(angle.value() / 2.0f)),
+            static_cast<float>(axis.values[2] * sin(angle.value() / 2.0f)),
+            static_cast<float>(cos(angle.value() / 2.0f))
         }).values
     };
 };

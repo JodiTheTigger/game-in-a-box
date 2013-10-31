@@ -198,7 +198,7 @@ inline Vector3 Rotate(Vector3 lhs, const Vector3& wAxis, Radians rotation)
     auto _x = lhs - o;
     auto _y = Cross(wAxis, lhs);
 
-    return (o + _x * cosf(rotation.value) + _y * sinf(rotation.value));
+    return (o + _x * cosf(rotation.value()) + _y * sinf(rotation.value()));
 }
 
 inline constexpr Vector3 Lerp(const Vector3& lhs, const Vector3& rhs, float scale)

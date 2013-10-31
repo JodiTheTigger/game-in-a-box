@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
+#include <Implementation/UnitsSI.hpp>
 #include <Implementation/Quaternion.hpp>
 #include <Implementation/Vector4.hpp>
 #include <Implementation/VectorCommon.hpp>
@@ -67,13 +68,13 @@ TEST_F(TestQuaternion, FromArray)
 
 TEST_F(TestQuaternion, AxisAndAngle)
 {
-    auto angle = Radians{2};
+    auto angle = 2.0_radians;
     auto vector = Normalise(Vector3{1,2,3});
     auto toTest = ToQuaternion(vector, angle);
 
     // do Quaternion maths here to verify
-    auto sin_a = std::sin( angle.value / 2.0f );
-    auto cos_a = std::cos( angle.value / 2.0f );
+    auto sin_a = std::sin( angle.value() / 2.0f );
+    auto cos_a = std::cos( angle.value() / 2.0f );
 
     auto expected = Vector4
     {
@@ -126,8 +127,8 @@ TEST_F(TestQuaternion, NotEqual)
 
 TEST_F(TestQuaternion, Multiply)
 {
-    auto angle  = Radians{2.0f};
-    auto angleN = Radians{-2.0f};
+    auto angle  = 2.0_radians;
+    auto angleN = -2.0_radians;
     auto vector = Normalise(Vector3{1,2,3});
     auto original = ToQuaternion(vector, angle);
     auto otherWay = ToQuaternion(vector, angleN);
