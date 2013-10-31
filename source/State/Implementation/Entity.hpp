@@ -60,7 +60,7 @@ struct Entity
 };
 
 // Error checking.
-static_assert(std::is_pod<Entity>::value, "Entity is not a plain old data sructure (POD).");
+static_assert(std::is_pod<Entity>::value, "Entity is not a plain old data structure (POD).");
 
 }}} // namespace
 
