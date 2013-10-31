@@ -42,49 +42,49 @@ public:
 
         for (uint i = 0; i < ArraySize; ++i)
         {
-            groupA.push_back({{{
+            groupA.push_back({
                                  randomNegMilltoMill(randomEngine),
                                  randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)}}});
+                                 randomNegMilltoMill(randomEngine)});
 
 
-            groupB.push_back({{{
+            groupB.push_back({
                                  randomNegMilltoMill(randomEngine),
                                  randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)}}});
+                                 randomNegMilltoMill(randomEngine)});
 
 
-            groupC.push_back({{{
+            groupC.push_back({
                                  randomNegMilltoMill(randomEngine),
                                  randomNegMilltoMill(randomEngine),
-                                 randomNegMilltoMill(randomEngine)}}});
+                                 randomNegMilltoMill(randomEngine)});
         }
     }
 
     std::default_random_engine randomEngine;
     std::uniform_real_distribution<float> randomNegMilltoMill;
 
-    std::vector<Vector> groupA;
-    std::vector<Vector> groupB;
-    std::vector<Vector> groupC;
+    std::vector<Vector3> groupA;
+    std::vector<Vector3> groupB;
+    std::vector<Vector3> groupC;
 };
 
 TEST_F(TestMatrix3x3, CreateEmpty)
 {
-    Matrix3x3 toTest;
+    Matrix3x3 toTest{0.0f};
 
-    EXPECT_EQ(Vector3{}, toTest.values[0]);
-    EXPECT_EQ(Vector3{}, toTest.values[1]);
-    EXPECT_EQ(Vector3{}, toTest.values[2]);
+    EXPECT_EQ(Vector3{0.0f}, toTest.values[0]);
+    EXPECT_EQ(Vector3{0.0f}, toTest.values[1]);
+    EXPECT_EQ(Vector3{0.0f}, toTest.values[2]);
 }
 
 TEST_F(TestMatrix3x3, CreateVector3)
 {
     Matrix3x3 toTest
     {
-        groupA[0],
-        groupB[0],
-        groupC[0]
+        groupA[0].values,
+        groupB[0].values,
+        groupC[0].values
     };
 
     EXPECT_EQ(groupA[0], toTest.values[0]);
@@ -99,11 +99,11 @@ TEST_F(TestMatrix3x3, CreateFloats)
     auto c = groupC[0];
 
     Matrix3x3 toTest
-    {
-        a.values[0], a.values[1], a.values[2],
-        b.values[0], b.values[1], b.values[2],
-        c.values[0], c.values[1], c.values[2],
-    };
+    {{{
+        {a.values[0], a.values[1], a.values[2]},
+        {b.values[0], b.values[1], b.values[2]},
+        {c.values[0], c.values[1], c.values[2]},
+    }}};
 
     EXPECT_EQ(a, toTest.values[0]);
     EXPECT_EQ(b, toTest.values[1]);
@@ -114,16 +114,16 @@ TEST_F(TestMatrix3x3, Negate)
 {
     Matrix3x3 a
     {
-        groupA[0],
-        groupB[0],
-        groupC[0]
+        groupA[0].values,
+        groupB[0].values,
+        groupC[0].values
     };
 
     auto toTest = -a;
 
-    EXPECT_EQ(groupA[0], -toTest.values[0]);
-    EXPECT_EQ(groupB[0], -toTest.values[1]);
-    EXPECT_EQ(groupC[0], -toTest.values[2]);
+    EXPECT_EQ(groupA[0], (-toTest.values[0]));
+    EXPECT_EQ(groupB[0], (-toTest.values[1]));
+    EXPECT_EQ(groupC[0], (-toTest.values[2]));
 }
 
 
@@ -133,10 +133,7 @@ TEST_F(TestMatrix3x3, CreateQuaternionIdentity)
     auto y = Vector3{0.0f, 1.0f};
     auto z = Vector3{0.0f, 0.0f, 1.0f};
 
-    Matrix3x3 toTest
-    {
-        Quaternion{}
-    };
+    auto toTest = ToMatrix3x3(ToQuaternion());
 
     EXPECT_EQ(x, toTest.values[0]);
     EXPECT_EQ(y, toTest.values[1]);
@@ -149,9 +146,9 @@ TEST_F(TestMatrix3x3, Add)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto va = Vector3(groupA[i]);
-        auto vb = Vector3(groupB[i]);
-        auto vc = Vector3(groupC[i]);
+        auto va = Vector3{groupA[i].values};
+        auto vb = Vector3{groupB[i].values};
+        auto vc = Vector3{groupC[i].values};
 
         auto a = Matrix3x3
         {
@@ -189,9 +186,9 @@ TEST_F(TestMatrix3x3, Subtract)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto va = Vector3(groupA[i]);
-        auto vb = Vector3(groupB[i]);
-        auto vc = Vector3(groupC[i]);
+        auto va = Vector3{groupA[i].values};
+        auto vb = Vector3{groupB[i].values};
+        auto vc = Vector3{groupC[i].values};
 
         auto a = Matrix3x3
         {
@@ -229,9 +226,9 @@ TEST_F(TestMatrix3x3, Multiply)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto va = Vector3(groupA[i]);
-        auto vb = Vector3(groupB[i]);
-        auto vc = Vector3(groupC[i]);
+        auto va = Vector3{groupA[i].values};
+        auto vb = Vector3{groupB[i].values};
+        auto vc = Vector3{groupC[i].values};
 
         auto a = Matrix3x3
         {
@@ -277,9 +274,9 @@ TEST_F(TestMatrix3x3, MultiplyMatrixVector)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto va = Vector3(groupA[i]);
-        auto vb = Vector3(groupB[i]);
-        auto vc = Vector3(groupC[i]);
+        auto va = Vector3{groupA[i].values};
+        auto vb = Vector3{groupB[i].values};
+        auto vc = Vector3{groupC[i].values};
 
         auto a = Matrix3x3
         {
@@ -307,9 +304,9 @@ TEST_F(TestMatrix3x3, MultiplyVectorMatrix)
 
    for (uint i = 0 ; i < asize; ++i)
    {
-       auto va = Vector3(groupA[i]);
-       auto vb = Vector3(groupB[i]);
-       auto vc = Vector3(groupC[i]);
+       auto va = Vector3{groupA[i].values};
+       auto vb = Vector3{groupB[i].values};
+       auto vc = Vector3{groupC[i].values};
 
        auto a = Matrix3x3
        {

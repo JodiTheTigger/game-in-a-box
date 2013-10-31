@@ -21,7 +21,6 @@
 #ifndef VECTOR4_HPP
 #define VECTOR4_HPP
 
-#include "Vector.hpp"
 #include "UnitsSI.hpp"
 #include "VectorCommon.hpp"
 
@@ -34,40 +33,19 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 struct alignas(16) Vector4
 {
-    struct tagReplicate {};
-
     std::array<float, 4> values;
-
-    constexpr Vector4()
-        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector4(float x)
-        : values{{x, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector4(float x, float y)
-        : values{{x, y, 0.0f, 0.0f}} {}
-    constexpr Vector4(float x, float y, float z)
-        : values{{x, y, z, 0.0f}} {}
-    constexpr Vector4(float x, float y, float z, float w)
-        : values{{x, y, z, w}} {}
-
-    constexpr Vector4(Vector vector)
-        : values(vector.values) {}
-    constexpr Vector4(const std::array<float, 4>& array)
-        : values(array) {}
-    constexpr Vector4(float x, tagReplicate)
-        : values{{x, x, x, x}} {}
-
-    Vector4(const Vector4&) = default;
-    Vector4(Vector4&&) = default;
-    Vector4& operator=(const Vector4&) & = default;
-    Vector4& operator=(Vector4&&) & = default;
-
-    constexpr Vector ToVector() const { return Vector{values}; }
 
     float X() const { return values[0]; }
     float Y() const { return values[1]; }
     float Z() const { return values[2]; }
     float W() const { return values[3]; }
 };
+
+// ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Vector4>::value, "Vector4 is not a plain old data structure (POD).");
+static_assert(alignof(Vector4) == 16, "Vector4 is not aligned to a 16 byte boundary.");
 
 // ///////////////////
 // Operators
@@ -78,7 +56,7 @@ struct alignas(16) Vector4
 // ///////////////////
 // Comparison Operators
 // ///////////////////
-inline bool operator==(const Vector4& lhs, const Vector4& rhs)
+inline constexpr bool operator==(const Vector4& lhs, const Vector4& rhs)
 {
     // Investiage, exact equals, or epislon compare?
     return  (
@@ -89,12 +67,23 @@ inline bool operator==(const Vector4& lhs, const Vector4& rhs)
             );
 }
 
-inline bool operator!=(const Vector4& lhs, const Vector4& rhs){return  !operator==(lhs,rhs);}
+inline constexpr bool operator!=(const Vector4& lhs, const Vector4& rhs){return  !operator==(lhs,rhs);}
 
 // ///////////////////
 // Prototypes
 // ///////////////////
-inline Vector4 Absolute(const Vector4& lhs);
+inline constexpr Vector4 Absolute(const Vector4& lhs);
+
+// ///////////////////
+// Helper Functions
+// ///////////////////
+inline constexpr bool IsZero(const Vector4& lhs)
+{
+    return  (lhs.values[0] == 0.0f) &&
+            (lhs.values[1] == 0.0f) &&
+            (lhs.values[2] == 0.0f) &&
+            (lhs.values[3] == 0.0f);
+}
 
 // ///////////////////
 // Simple Maths
@@ -169,20 +158,9 @@ inline Vector4 operator*(Vector4 lhs, float rhs){ lhs *= rhs;  return lhs; }
 inline Vector4 operator/(Vector4 lhs, float rhs){ lhs /= rhs;  return lhs; }
 
 // ///////////////////
-// Helper Functions
-// ///////////////////
-inline bool IsZero(const Vector4& lhs)
-{
-    return  (lhs.values[0] == 0.0f) &&
-            (lhs.values[1] == 0.0f) &&
-            (lhs.values[2] == 0.0f) &&
-            (lhs.values[3] == 0.0f);
-}
-
-// ///////////////////
 // Complicated Maths (vector return)
 // ///////////////////
-inline Vector4 Sqrt(const Vector4& lhs)
+inline constexpr Vector4 Sqrt(const Vector4& lhs)
 {
     return Vector4
     {
@@ -193,7 +171,7 @@ inline Vector4 Sqrt(const Vector4& lhs)
     };
 }
 
-inline Vector4 Absolute(const Vector4& lhs)
+inline constexpr Vector4 Absolute(const Vector4& lhs)
 {
     return Vector4
     {
@@ -257,7 +235,7 @@ inline Vector4 Dot(const Vector4& lhs, const Vector4& rhs)
 
 // Cross product doesn't exist for Vector4, only Vector3 and Vector7.
 
-inline Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
+inline constexpr Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
 {
     return Vector4
     {
@@ -268,7 +246,7 @@ inline Vector4 Lerp(const Vector4& lhs, const Vector4& rhs, float scale)
     };
 }
 
-inline Vector4 Max(const Vector4& lhs, const Vector4& rhs)
+inline constexpr Vector4 Max(const Vector4& lhs, const Vector4& rhs)
 {
     return Vector4
     {
@@ -279,7 +257,7 @@ inline Vector4 Max(const Vector4& lhs, const Vector4& rhs)
     };
 }
 
-inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
+inline constexpr Vector4 Min(const Vector4& lhs, const Vector4& rhs)
 {
     return Vector4
     {
@@ -293,12 +271,11 @@ inline Vector4 Min(const Vector4& lhs, const Vector4& rhs)
 // ///////////////////
 // Complicated Maths (single return)
 // ///////////////////
-
 // Avoid these as they convert from Vectors to floats which
 // apparently is a performance penalty, especially if you then
 // use the value in more vector calculations.
-
-inline float DotF(const Vector4& lhs, const Vector4& rhs)
+// http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
+inline constexpr float DotF(const Vector4& lhs, const Vector4& rhs)
 {
     return
             (lhs.values[0] * rhs.values[0]) +

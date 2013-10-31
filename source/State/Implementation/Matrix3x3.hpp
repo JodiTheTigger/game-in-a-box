@@ -26,65 +26,73 @@
 
 namespace GameInABox { namespace State { namespace Implementation {
 
+// Gotya if using brace initilisation.
+// {x,y,z,a,b,c,d,e,f} will fail as each row
+// is actually 4 along, not 3 (for alignment/speed reasons)
+// so you'll need to remember to use a padding 0.0f, or use:
+// {Vector3{}, Vector3{}, Vector{}}
+// Or just use ToMatrix3x3(float, float, float,...).
 struct alignas(16) Matrix3x3
 {
     std::array<Vector3, 3> values;
+};
 
-    constexpr Matrix3x3()
-        : values{{Vector3{}, Vector3{}, Vector3{}}} {}
+// ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Matrix3x3>::value, "Matrix3x3 is not a plain old data structure (POD).");
+static_assert(alignof(Matrix3x3) == 16, "Matrix3x3 is not aligned to a 16 byte boundary.");
 
-    constexpr Matrix3x3(Vector3 x, Vector3 y, Vector3 z)
-        : values{{x, y, z}} {}
+// ///////////////////
+// Conversions
+// ///////////////////
+constexpr inline Matrix3x3 ToMatrix3x3(
+        float xx, float xy, float xz,
+        float yx, float yy, float yz,
+        float zx, float zy, float zz)
+{
+    return Matrix3x3
+    {{{
+        {xx, xy, xz},
+        {yx, yy, yz},
+        {zx, zy, zz}
+    }}};
+}
 
-    // row major
-    constexpr Matrix3x3(
-                float xx, float xy, float xz,
-                float yx, float yy, float yz,
-                float zx, float zy, float zz)
-        : Matrix3x3(
-              Vector3(xx,xy,xz),
-              Vector3(yx,yy,yz),
-              Vector3(zx,zy,zz)) {}
+// RAM: Is there a cleaner way of doing unit conversions?
+inline Matrix3x3 ToMatrix3x3(const Quaternion& rotation)
+{
+    auto xx      = rotation.values[0] * rotation.values[0];
+    auto xy      = rotation.values[0] * rotation.values[1];
+    auto xz      = rotation.values[0] * rotation.values[2];
+    auto xw      = rotation.values[0] * rotation.values[3];
 
-    // Optimising compiler should ignore the initilistaion? otherwise
-    // do all the calculations in the assignment and make it constexpr.
-    explicit Matrix3x3(const Quaternion& rotation)
-        : values()
-    {
-        auto xx      = rotation.values[0] * rotation.values[0];
-        auto xy      = rotation.values[0] * rotation.values[1];
-        auto xz      = rotation.values[0] * rotation.values[2];
-        auto xw      = rotation.values[0] * rotation.values[3];
+    auto yy      = rotation.values[1] * rotation.values[1];
+    auto yz      = rotation.values[1] * rotation.values[2];
+    auto yw      = rotation.values[1] * rotation.values[3];
 
-        auto yy      = rotation.values[1] * rotation.values[1];
-        auto yz      = rotation.values[1] * rotation.values[2];
-        auto yw      = rotation.values[1] * rotation.values[3];
+    auto zz      = rotation.values[2] * rotation.values[2];
+    auto zw      = rotation.values[2] * rotation.values[3];
 
-        auto zz      = rotation.values[2] * rotation.values[2];
-        auto zw      = rotation.values[2] * rotation.values[3];
-
-        values[0] = Vector3
+    return Matrix3x3
+    {{{
         {
             1.0f - 2.0f * ( yy + zz ),
                    2.0f * ( xy - zw ),
                    2.0f * ( xz + yw )
-        };
-
-        values[1] = Vector3
+        },
         {
                     2.0f * ( xy + zw ),
              1.0f - 2.0f * ( xx + zz ),
                     2.0f * ( yz - xw )
-        };
-
-        values[2] = Vector3
+        },
         {
                     2.0f * ( xz - yw ),
                     2.0f * ( yz + xw ),
              1.0f - 2.0f * ( xx + yy )
-        };
-    }
-};
+        }
+    }}};
+}
 
 // ///////////////////
 // Operators

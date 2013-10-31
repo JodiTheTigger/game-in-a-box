@@ -18,7 +18,8 @@
  
 language: cpp
 compiler:
-  - clang
+# Don't support clang for C++1y on ubuntu 12.04 yet :-(
+#  - clang
   - gcc
 
 install:

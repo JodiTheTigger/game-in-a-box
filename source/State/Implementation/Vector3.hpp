@@ -21,7 +21,6 @@
 #ifndef VECTOR3_HPP
 #define VECTOR3_HPP
 
-#include "Vector.hpp"
 #include "UnitsSI.hpp"
 #include "VectorCommon.hpp"
 
@@ -35,32 +34,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 struct alignas(16) Vector3
 {
-    struct tagReplicate {};
-
     std::array<float, 4> values;
-
-    constexpr Vector3()
-        : values{{0.0f, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x)
-        : values{{x, 0.0f, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x, float y)
-        : values{{x, y, 0.0f, 0.0f}} {}
-    constexpr Vector3(float x, float y, float z)
-        : values{{x, y, z, 0.0f}} {}
-
-    constexpr Vector3(Vector vector)
-        : values(vector.values) {}
-    constexpr Vector3(const std::array<float, 4>& array)
-        : values(array) {}
-    constexpr Vector3(float x, tagReplicate)
-        : values{{x, x, x, x}} {}
-
-    Vector3(const Vector3&) = default;
-    Vector3(Vector3&&) = default;
-    Vector3& operator=(const Vector3&) & = default;
-    Vector3& operator=(Vector3&&) & = default;
-
-    constexpr Vector ToVector() const { return Vector{values}; }
 
     float X() const { return values[0]; }
     float Y() const { return values[1]; }
@@ -68,11 +42,17 @@ struct alignas(16) Vector3
 };
 
 // ///////////////////
+// Testing
+// ///////////////////
+static_assert(std::is_pod<Vector3>::value, "Vector3 is not a plain old data structure (POD).");
+static_assert(alignof(Vector3) == 16, "Vector3 is not aligned to a 16 byte boundary.");
+
+// ///////////////////
 // Comparison Operators
 // ///////////////////
 // Taken from http://stackoverflow.com/questions/4421706/operator-overloading/4421719
 // However all "inclass" operators changed to out of class.
-inline bool operator==(const Vector3& lhs, const Vector3& rhs)
+inline constexpr bool operator==(const Vector3& lhs, const Vector3& rhs)
 {
     return  (
                 (lhs.values[0]==rhs.values[0]) &&
@@ -81,12 +61,22 @@ inline bool operator==(const Vector3& lhs, const Vector3& rhs)
             );
 }
 
-inline bool operator!=(const Vector3& lhs, const Vector3& rhs){return  !operator==(lhs,rhs);}
+inline constexpr bool operator!=(const Vector3& lhs, const Vector3& rhs){return  !operator==(lhs,rhs);}
 
 // ///////////////////
 // Prototypes
 // ///////////////////
-inline Vector3 Absolute(const Vector3& lhs);
+inline constexpr Vector3 Absolute(const Vector3& lhs);
+
+// ///////////////////
+// Helper Functions
+// ///////////////////
+inline constexpr bool IsZero(const Vector3& lhs)
+{
+    return  (lhs.values[0] == 0.0f) &&
+            (lhs.values[1] == 0.0f) &&
+            (lhs.values[2] == 0.0f);
+}
 
 // ///////////////////
 // Simple Maths
@@ -155,35 +145,9 @@ inline Vector3 operator*(Vector3 lhs, float rhs){ lhs *= rhs;  return lhs; }
 inline Vector3 operator/(Vector3 lhs, float rhs){ lhs /= rhs;  return lhs; }
 
 // ///////////////////
-// Complicated Maths (single return)
-// ///////////////////
-
-inline float DotF(const Vector3& lhs, const Vector3& rhs)
-{
-    return
-            (lhs.values[0] * rhs.values[0]) +
-            (lhs.values[1] * rhs.values[1]) +
-            (lhs.values[2] * rhs.values[2]);
-}
-
-inline bool IsZero(const Vector3& lhs)
-{
-    return (lhs.values[0] == 0.0f) &&
-           (lhs.values[1] == 0.0f) &&
-           (lhs.values[2] == 0.0f);
-}
-
-// ///////////////////
 // Complicated Maths (vector return)
 // ///////////////////
-
-// RAM: TODO: vector versions of all of the above.
-// Need all the single return functions to support vector return too.
-// http://www.gamasutra.com/view/feature/132636/designing_fast_crossplatform_simd_.php?print=1
-// (Keep Results Into SIMD Registers)
-// That is, stop casting between SIMD and Float registers when it can all be kept in SIMD.
-
-inline Vector3 Sqrt(const Vector3& lhs)
+inline constexpr Vector3 Sqrt(const Vector3& lhs)
 {
     return Vector3
     {
@@ -193,7 +157,7 @@ inline Vector3 Sqrt(const Vector3& lhs)
     };
 }
 
-inline Vector3 Absolute(const Vector3& lhs)
+inline constexpr Vector3 Absolute(const Vector3& lhs)
 {
     return Vector3
     {
@@ -206,17 +170,17 @@ inline Vector3 Absolute(const Vector3& lhs)
 inline Vector3 Dot(const Vector3& lhs, const Vector3& rhs)
 {
     // If this compiler is too dumb to do a decent DOT4, then use the Vector4 version instead.
-    float dot = DotF(lhs, rhs);
+    auto mult = lhs * rhs;
 
     return Vector3
     {
-        dot,
-        dot,
-        dot
+        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
+        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
+        mult.values[0] + mult.values[1] + mult.values[2] + mult.values[3],
     };
 }
 
-inline Vector3 Cross(const Vector3& lhs, const Vector3& rhs)
+inline constexpr Vector3 Cross(const Vector3& lhs, const Vector3& rhs)
 {
     return Vector3
     {
@@ -237,7 +201,7 @@ inline Vector3 Rotate(Vector3 lhs, const Vector3& wAxis, Radians rotation)
     return (o + _x * cosf(rotation.value) + _y * sinf(rotation.value));
 }
 
-inline Vector3 Lerp(const Vector3& lhs, const Vector3& rhs, float scale)
+inline constexpr Vector3 Lerp(const Vector3& lhs, const Vector3& rhs, float scale)
 {
     return Vector3
     {
@@ -247,7 +211,7 @@ inline Vector3 Lerp(const Vector3& lhs, const Vector3& rhs, float scale)
     };
 }
 
-inline Vector3 Max(const Vector3& lhs, const Vector3& rhs)
+inline constexpr Vector3 Max(const Vector3& lhs, const Vector3& rhs)
 {
     return Vector3
     {
@@ -257,7 +221,7 @@ inline Vector3 Max(const Vector3& lhs, const Vector3& rhs)
     };
 }
 
-inline Vector3 Min(const Vector3& lhs, const Vector3& rhs)
+inline constexpr Vector3 Min(const Vector3& lhs, const Vector3& rhs)
 {
     return Vector3
     {
@@ -265,6 +229,17 @@ inline Vector3 Min(const Vector3& lhs, const Vector3& rhs)
         lhs.values[1] < rhs.values[1] ? lhs.values[1] : rhs.values[1],
         lhs.values[2] < rhs.values[2] ? lhs.values[2] : rhs.values[2]
     };
+}
+
+// ///////////////////
+// Complicated Maths (single return)
+// ///////////////////
+inline constexpr float DotF(const Vector3& lhs, const Vector3& rhs)
+{
+    return
+         (lhs.values[0] * rhs.values[0]) +
+         (lhs.values[1] * rhs.values[1]) +
+         (lhs.values[2] * rhs.values[2]);
 }
 
 }}} // namespace

@@ -54,8 +54,8 @@ project(game-in-a-box C CXX)
 #endif()
 
 # Check compiler options
-check_cxx_compiler_flag("-std=c++11" HAS_CPP11)
-check_cxx_compiler_flag("-std=c++0x" HAS_CPP0X)
+check_cxx_compiler_flag("-std=c++14" HAS_CPP14)
+check_cxx_compiler_flag("-std=c++1y" HAS_CPP1Y)
 check_cxx_compiler_flag("-fno-rtti" CAN_DISABLE_RTTI)
 check_cxx_compiler_flag("-fstrict-aliasing" CAN_DISABLE_ALIASING)
 check_cxx_compiler_flag(-Weffc++ HAS_WEFFICENTCPLUSPLUS)
@@ -70,51 +70,29 @@ check_cxx_compiler_flag(-Wno-mismatched-tags HAS_IGNORE_MISMATCHED_TAGS)
 
 # Only platforms with clang's libc++ will build with clang with these build flags.
 # Currently, that's only OSX.
-check_cxx_source_compiles(CMAKE_REQUIRED_FLAGS="-std=c++11 -stdlib=libc++" "
+check_cxx_source_compiles(CMAKE_REQUIRED_FLAGS="-std=c++14 -stdlib=libc++" "
 #include <cstdint>
 int main(int, int)
 {
     return 0;
 }
 "
-, HAS_CPP11_AND_LIB)
-
-# OK, so MSVC12 is needed for c++11 but doesn't support it without the
-# November 2012 CTP as the platform tool-set.
-# CMAKE doesn't support specifying the tool-set yet, so the user has to
-# Manually do it!
-# http://blogs.msdn.com/b/vcblog/archive/2012/11/02/visual-c-c-11-and-the-future-of-c.aspx
-# Manually do it!
-# ARGH! MSVC12 is actually MSVC11!
-if (MSVC11)
-	# We require cmake "-T" option to support C++11 platform in VS2012
-	# This was added in CMAKE 2.8.11. This has to be set by the user, not us.
-	cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
-	
-	if(NOT CMAKE_GENERATOR_TOOLSET MATCHES "v120_CTP_Nov2012")
-		message(FATAL_ERROR "MSVC needs C++11 features, please run cmake with the command parameter '-T v120_CTP_Nov2012' or configure the cache entry CMAKE_GENERATOR_TOOLSET to 'v120_CTP_Nov2012'.")
-	endif()	
-	
-	set(HAS_MSCPP true)
-	
-	# gtest and gmock need 10 deep VARIADIC template functions.
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_VARIADIC_MAX=10")
-endif()
+, HAS_CPP14_AND_LIB)
 
 # apply compiler options
 if (CAN_DISABLE_RTTI)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -DBOOST_NO_RTTI -DBOOST_NO_TYPEID -DGTEST_HAS_RTTI=0")
 endif()
 
-if (HAS_CPP11_AND_LIB)
+if (HAS_CPP14_AND_LIB)
     message("Using HAS_CPP11_AND_LIB.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
-elseif (HAS_CPP11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(HAS_CPP0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-elseif(NOT MSVC11)
-    message(FATAL_ERROR "Compiler requires C++11 functionality.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++")
+elseif(HAS_CPP14)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+elseif(HAS_CPP1Y)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+elseif(NOT HAS_CPP11)
+    message(FATAL_ERROR "Compiler requires C++14 (C++1Y) functionality.")
 endif()
 
 # prefer W4 over WALL for MSVC at least.
@@ -308,7 +286,6 @@ source/State/Implementation/ActPlayer.hpp
 source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
-source/State/Implementation/Vector.hpp
 source/State/Implementation/Vector3.hpp
 source/State/Implementation/Vector4.hpp
 source/State/Implementation/VectorCommon.hpp
@@ -326,7 +303,6 @@ set(STATE_TEST
 test/State/TestDeltaStatePlayerClient.cpp
 test/State/TestDeltaStateGameSnapshot.cpp
 test/State/TestEntity.cpp
-test/State/TestVector.cpp
 test/State/TestVector3.cpp
 test/State/TestVector4.cpp
 test/State/TestQuaternion.cpp

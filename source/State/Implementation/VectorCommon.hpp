@@ -33,18 +33,6 @@ namespace GameInABox { namespace State { namespace Implementation {
 // ///////////////////
 
 template <typename VECTOR>
-inline int AxisFar(const VECTOR& lhs)
-{
-    return AxisMax(Absolute(lhs));
-}
-
-template <typename VECTOR>
-inline int AxisNear(const VECTOR& lhs)
-{
-    return AxisMin(Absolute(lhs));
-}
-
-template <typename VECTOR>
 inline bool IsZeroFuzzy(const VECTOR& lhs)
 {
     return LengthSquaredF(lhs) < std::numeric_limits<float>::epsilon();

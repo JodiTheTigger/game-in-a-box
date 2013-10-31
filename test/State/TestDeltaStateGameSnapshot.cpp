@@ -238,7 +238,7 @@ StateGameSnapshot TestDeltaStateGameSnapshot::GameStateRandom()
 
 StateGameSnapshot GameStateZero()
 {
-    auto vectorZero = Vector{{{0.0f}}};
+    auto vectorZero = Vector3{0.0f};
 
     auto basePlayer = StatePlayer
     {

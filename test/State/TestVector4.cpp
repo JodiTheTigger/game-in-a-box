@@ -18,7 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#include <Implementation/Vector.hpp>
 #include <Implementation/Vector4.hpp>
 
 #include <gmock/gmock.h>
@@ -69,25 +68,14 @@ public:
     std::default_random_engine randomEngine;
     std::uniform_real_distribution<float> randomNegMilltoMill;
 
-    std::vector<Vector> groupA;
-    std::vector<Vector> groupB;
-    std::vector<Vector> groupC;
+    std::vector<Vector4> groupA;
+    std::vector<Vector4> groupB;
+    std::vector<Vector4> groupC;
 };
 
 TEST_F(TestVector4, Empty)
 {
-    auto toTest = (Vector4{}).ToVector();
-
-    // Shouldn't crash.
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[1]);
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[2]);
-    EXPECT_FLOAT_EQ(0.0f, toTest.values[3]);
-}
-
-TEST_F(TestVector4, ZeroReplicate)
-{
-    auto toTest = (Vector4(0, Vector4::tagReplicate{})).ToVector();
+    auto toTest = Vector4{0.0f};
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(0.0f, toTest.values[0]);
@@ -98,7 +86,7 @@ TEST_F(TestVector4, ZeroReplicate)
 
 TEST_F(TestVector4, XYZW)
 {
-    auto toTest = Vector4{groupA[0]};
+    auto toTest = groupA[0];
 
     // Shouldn't crash.
     EXPECT_FLOAT_EQ(toTest.X(), groupA[0].values[0]);
@@ -109,8 +97,8 @@ TEST_F(TestVector4, XYZW)
 
 TEST_F(TestVector4, Equal)
 {
-    auto a = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();
-    auto b = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();
+    auto a = Vector4{-1.0f, 0.0f, 1.0f, 9999.0f};
+    auto b = Vector4{-1.0f, 0.0f, 1.0f, 9999.0f};
 
     EXPECT_EQ(a, b);
     EXPECT_FLOAT_EQ(a.values[0], b.values[0]);
@@ -121,14 +109,15 @@ TEST_F(TestVector4, Equal)
 
 TEST_F(TestVector4, NotEqual)
 {
-    auto a = (Vector4(-1.0f, 0.0f, 1.0f)).ToVector();
-    auto b = std::vector<Vector>{};
+    auto a = Vector4{-1.0f, 0.0f, 1.0f, 99999.0f};
+    auto b = std::vector<Vector4>{};
 
-    b.push_back({{{1.0f, 0.0f, 1.0f}}});
-    b.push_back({{{0.0f, 0.0f, 1.0f}}});
-    b.push_back({{{-1.0f, 1.0f, 1.0f}}});
-    b.push_back({{{-1.0f, 0.0f, -1.0f}}});
-    b.push_back({{{0.0f, 0.0f, 0.0f}}});
+    b.push_back({1.0f, 0.0f, 1.0f, 99999.0f});
+    b.push_back({0.0f, 0.0f, 1.0f, 99999.0f});
+    b.push_back({-1.0f, 1.0f, 1.0f, 99999.0f});
+    b.push_back({-1.0f, 0.0f, -1.0f, 99999.0f});
+    b.push_back({0.0f, 0.0f, 0.0f, 99999.0f});
+    b.push_back({-1.0f, 0.0f, 1.0f, 99998.0f});
 
     for (auto& toTest : b)
     {
@@ -142,13 +131,13 @@ TEST_F(TestVector4, Add)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto b = Vector4(groupB[i]);
-        auto c = Vector4(groupC[i]);
+        auto a = Vector4{groupA[i].values};
+        auto b = Vector4{groupB[i].values};
+        auto c = Vector4{groupC[i].values};
 
-        auto result = (a + b).ToVector();
+        auto result = a + b;
         c += a;
-        auto result2 = (c).ToVector();
+        auto result2 = c;
 
         ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] + groupB[i].values[0]) << " i: " << i;
         ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] + groupB[i].values[1]);
@@ -168,13 +157,13 @@ TEST_F(TestVector4, Subtract)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto b = Vector4(groupB[i]);
-        auto c = Vector4(groupC[i]);
+        auto a = Vector4{groupA[i].values};
+        auto b = Vector4{groupB[i].values};
+        auto c = Vector4{groupC[i].values};
 
-        auto result = (a - b).ToVector();
+        auto result = a - b;
         c -= a;
-        auto result2 = (c).ToVector();
+        auto result2 = c;
 
         ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] - groupB[i].values[0]) << " i: " << i;
         ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] - groupB[i].values[1]);
@@ -194,13 +183,14 @@ TEST_F(TestVector4, Multiply)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto b = Vector4(groupB[i]);
-        auto c = Vector4(groupC[i]);
 
-        auto result = (a * b).ToVector();
+        auto a = Vector4{groupA[i].values};
+        auto b = Vector4{groupB[i].values};
+        auto c = Vector4{groupC[i].values};
+
+        auto result = a * b;
         c *= a;
-        auto result2 = (c).ToVector();
+        auto result2 = c;
 
         ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] * groupB[i].values[0]) << " i: " << i;
         ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] * groupB[i].values[1]);
@@ -220,13 +210,14 @@ TEST_F(TestVector4, Divide)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto b = Vector4(groupB[i]);
-        auto c = Vector4(groupC[i]);
 
-        auto result = (a / b).ToVector();
+        auto a = Vector4{groupA[i].values};
+        auto b = Vector4{groupB[i].values};
+        auto c = Vector4{groupC[i].values};
+
+        auto result = a / b;
         c /= a;
-        auto result2 = (c).ToVector();
+        auto result2 = c;
 
         ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] / groupB[i].values[0]) << " i: " << i;
         ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] / groupB[i].values[1]);
@@ -246,14 +237,15 @@ TEST_F(TestVector4, Mad)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto b = Vector4(groupB[i]);
-        auto c = Vector4(groupC[i]);
 
-        auto result = ((a*b) + c).ToVector();
+        auto a = Vector4{groupA[i].values};
+        auto b = Vector4{groupB[i].values};
+        auto c = Vector4{groupC[i].values};
+
+        auto result = (a*b) + c;
         auto d = c;
         d += a * b;
-        auto result2 = (d).ToVector();
+        auto result2 = d;
 
         ASSERT_FLOAT_EQ(result.values[0], groupA[i].values[0] * groupB[i].values[0] + groupC[i].values[0]) << " i: " << i;
         ASSERT_FLOAT_EQ(result.values[1], groupA[i].values[1] * groupB[i].values[1] + groupC[i].values[1]);
@@ -281,8 +273,8 @@ TEST_F(TestVector4, FnSqrt)
                 (groupA[i].values[3] >= 0)
              )
         {
-            auto a = Vector4(groupA[i]);
-            auto result = (Sqrt(a)).ToVector();
+            auto a = Vector4{groupA[i].values};
+            auto result = Sqrt(a);
 
             ASSERT_FLOAT_EQ(result.values[0], sqrt(groupA[i].values[0])) << " i: " << i;
             ASSERT_FLOAT_EQ(result.values[1], sqrt(groupA[i].values[1]));
@@ -298,9 +290,9 @@ TEST_F(TestVector4, FnDot)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto b = Vector4(groupB[i]);
-        auto result = (Dot(a, b)).ToVector();
+        auto a = Vector4{groupA[i].values};
+        auto b = Vector4{groupB[i].values};
+        auto result = Dot(a, b);
         auto dot =
                 (groupA[i].values[0] * groupB[i].values[0]) +
                 (groupA[i].values[1] * groupB[i].values[1]) +
@@ -320,8 +312,8 @@ TEST_F(TestVector4, FnLength)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto result = (Length(a)).ToVector();
+        auto a = Vector4{groupA[i].values};
+        auto result = Length(a);
         auto l =
                 sqrt((groupA[i].values[0] * groupA[i].values[0]) +
                      (groupA[i].values[1] * groupA[i].values[1]) +
@@ -341,8 +333,8 @@ TEST_F(TestVector4, FnLengthSquared)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto result = (Length(a)).ToVector();
+        auto a = Vector4{groupA[i].values};
+        auto result = Length(a);
         auto l =
                 sqrt((groupA[i].values[0] * groupA[i].values[0]) +
                      (groupA[i].values[1] * groupA[i].values[1]) +
@@ -364,19 +356,19 @@ TEST_F(TestVector4, FnNormalise)
 
     for (uint i = 0 ; i < asize; ++i)
     {
-        auto a = Vector4(groupA[i]);
-        auto result = (Normalise(a)).ToVector();
+        auto a = Vector4{groupA[i].values};
+        auto result = Normalise(a);
         auto l = sqrt(
             (groupA[i].values[0] * groupA[i].values[0]) +
             (groupA[i].values[1] * groupA[i].values[1]) +
             (groupA[i].values[2] * groupA[i].values[2]) +
             (groupA[i].values[3] * groupA[i].values[3]));
 
-        auto answer = Vector{{{
+        auto answer = Vector4{
                 groupA[i].values[0] / l,
                 groupA[i].values[1] / l,
                 groupA[i].values[2] / l,
-                groupA[i].values[3] / l}}};
+                groupA[i].values[3] / l};
 
         ASSERT_FLOAT_EQ(result.values[0], answer.values[0]) << " i: " << i;
         ASSERT_FLOAT_EQ(result.values[1], answer.values[1]);

@@ -27,7 +27,7 @@
 namespace GameInABox { namespace State { namespace Implementation {
 
 // 0-100km in 6 seconds is 60m/s acceleration.
-constexpr Vector3 JetImpulse() { return Vector3(1.0f, Vector3::tagReplicate{}); }
+constexpr Vector3 JetImpulse() { return Vector3{1.0f, 1.0f, 1.0f}; }
 constexpr Energy JetMaxEnergy() { return Energy{10000}; }
 constexpr Energy JetEnergyRechargePerTick() { return Energy{10000 / (10 * 60)}; }
 constexpr Energy JetEnergyBurnPerTick() { return Energy{10000 / (3 * 60)}; }
@@ -72,7 +72,7 @@ Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
     velocity *= knobs.drag;
 
     // Look
-    auto intent = Vector3{};
+    auto intent = Vector3{0.0f};
     auto left = Vector3
     {
             -knobs.look.Y(),
@@ -99,7 +99,7 @@ Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
 
     // Jet
     // Only know I can jet, I don't manage the "Can I Jet" state here.
-    auto jetForce = Vector3{};
+    auto jetForce = Vector3{0.0f};
     if (knobs.jet)
     {
         if (knobs.onTheGround)
@@ -112,7 +112,7 @@ Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
         }
     }
 
-    auto velocityNew = Vector3{};
+    auto velocityNew = Vector3{0.0f};
     if (!IsZero(intent))
     {
         // Movement
