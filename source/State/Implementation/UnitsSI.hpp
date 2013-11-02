@@ -41,4 +41,60 @@ Radians constexpr operator"" _radians(long double value)
 
 }}} // namespace
 
+namespace GameInABox { namespace State { namespace Implementation { namespace Units {
+
+template<int M, int K, int S>
+struct Unit
+{
+    // MKS = Meters, Kilograms, Seconds.
+    enum { m=M, kg=K, s=S };
+};
+
+template<typename UNIT, typename T=float>
+struct Quantity
+{
+    T value;
+};
+
+// ///////////////////
+// Simple Maths
+// ///////////////////
+
+template<typename UNIT, typename T>
+inline Quantity<UNIT, T>& operator+=(Quantity<UNIT, T>& lhs, const Quantity<UNIT, T>& rhs)
+{
+    lhs.value+=rhs.value;
+    return lhs;
+}
+
+template<typename UNIT, typename T>
+inline Quantity<UNIT, T>& operator-=(Quantity<UNIT, T>& lhs, const Quantity<UNIT, T>& rhs)
+{
+    lhs.value-=rhs.value;
+    return lhs;
+}
+
+template<int M1, int M2, int K1, int K2, int S1, int S2, typename T>
+inline Quantity<Unit<M1+M2, K1+K2, S1+S2>, T>& operator*=(Quantity<Unit<M1, K1, S1>, T>& lhs, const Quantity<Unit<M2, K2, S2>, T>& rhs)
+{
+    lhs.value*=rhs.value;
+    return lhs;
+}
+
+template<int M1, int M2, int K1, int K2, int S1, int S2, typename T>
+inline Quantity<Unit<M1-M2, K1-K2, S1-S2>, T>& operator/=(Quantity<Unit<M1, K1, S1>, T>& lhs, const Quantity<Unit<M2, K2, S2>, T>& rhs)
+{
+    lhs.value/=rhs.value;
+    return lhs;
+}
+
+template<typename UNIT, typename T>
+inline constexpr Quantity<UNIT, T> operator-(const Quantity<UNIT, T>& lhs)
+{
+    return Quantity<UNIT, T>{-lhs.value};
+}
+
+}}}} // namespace
+
+
 #endif // UNITSSI_HPP
