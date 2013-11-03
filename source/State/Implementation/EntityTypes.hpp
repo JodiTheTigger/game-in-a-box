@@ -21,19 +21,17 @@
 #ifndef ENTITYTYPES_HPP
 #define ENTITYTYPES_HPP
 
+#include "UnitsSI.hpp"
 #include "Vector3.hpp"
-
-#include <cstdint>
 
 // RAM: TODO: Move this to common.
 #include <Network/WrappingCounter.hpp>
 
+#include <cstdint>
+
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct Tick
-{
-    GameInABox::Network::WrappingCounter<std::uint_fast32_t, 32> value;
-};
+using Tick = Units::Quantity<Units::Second, GameInABox::Network::WrappingCounter<std::uint_fast32_t, 32>>;
 
 struct Id
 {
@@ -55,39 +53,15 @@ struct Ammo
     std::uint_fast32_t value;
 };
 
-// RAM: TODO: Was I going to bother with boost::units?
-// Meters
-struct Position
-{
-    Vector3 value;
-};
+using Position      = Units::Quantity<Units::Meters, Vector3>;
+using Orientation   = Units::Quantity<Units::Radians, Vector3>;
+using Velocity      = Units::Quantity<Units::MetersPerSecond, Vector3>;
+using Acceleration  = Units::Quantity<Units::MetersPerSecondSquared, Vector3>;
+using Angle         = Units::Quantity<Units::Radians, float>;
 
-// RAM: TODO: Was I going to bother with boost::units?
-// Rads
-struct Orientation
-{
-    Vector3 value;
-};
-
-// RAM: TODO: Was I going to bother with boost::units?
-// m/s
-struct Velocity
-{
-    Vector3 value;
-};
-
-// RAM: TODO: Was I going to bother with boost::units?
-// m/ss
-struct Acceleration
-{
-    Vector3 value;
-};
-
-// RAM: TODO: Was I going to bother with boost::units?
-// Rads
 struct Yaw
 {
-    float value;
+    Angle value;
 };
 
 }}} // namespace
