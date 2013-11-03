@@ -41,30 +41,30 @@ bool CollidePlayer(const Entity& protagonist, const Entity& antagonist)
 
 struct PlayerKnobs
 {
-    Vector3 gravity; // m/s2
-    Vector3 externalForce; // m/s2
-    Vector3 jetForce; // m/s2
-    Vector3 moveForce; // m/s2
+    Acceleration gravity;
+    Acceleration external;
+    Acceleration jet;
+    Acceleration move;
 
-    Vector3 look;
+    Orientation look;
 
-    float tick; // seconds
+    Tick tick;
     float drag; // unitless
     float airControl; // unitless
-    float maxSpeed; // m/s
-    float maxSpeedInAir; // m/s
-    float maxSpeedGame; // m/s
+    Speed maxSpeed;
+    Speed maxSpeedInAir;
+    Speed maxSpeedGame;
 
-    bool forward;
-    bool back;
-    bool left;
-    bool right;
-    bool jet;
+    bool isForward;
+    bool isBack;
+    bool isLeft;
+    bool isRight;
+    bool isJet;
 
     bool onTheGround;
 };
 
-Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
+Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
 {
     auto velocity = currentVelocity;
     velocity += knobs.gravity * knobs.tick;
@@ -72,53 +72,53 @@ Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
     velocity *= knobs.drag;
 
     // Look
-    auto intent = Vector3{0.0f};
-    auto left = Vector3
+    auto intent = Orientation{0.0f};
+    auto left = Orientation
     {
             -knobs.look.Y(),
             knobs.look.X(),
             knobs.look.Z()
     };
 
-    if (knobs.forward)
+    if (knobs.isForward)
     {
         intent += knobs.look;
     }
-    if (knobs.back)
+    if (knobs.isBack)
     {
         intent -= knobs.look;
     }
-    if (knobs.left)
+    if (knobs.isLeft)
     {
         intent += left;
     }
-    if (knobs.right)
+    if (knobs.isRight)
     {
         intent -= left;
     }
 
     // Jet
     // Only know I can jet, I don't manage the "Can I Jet" state here.
-    auto jetForce = Vector3{0.0f};
-    if (knobs.jet)
+    auto jet = Acceleration{0.0f};
+    if (knobs.isJet)
     {
         if (knobs.onTheGround)
         {
-            jetForce = Vector3{0.0f, 0.0f, 1.0f} * knobs.jetForce;
+            jet = Orientation{0.0f, 0.0f, 1.0f} * knobs.jet;
         }
         else
         {
-            jetForce = intent * knobs.jetForce;
+            jet = intent * knobs.jet;
         }
     }
 
-    auto velocityNew = Vector3{0.0f};
-    if (!IsZero(intent))
+    auto velocityNew = Velocity{0.0f};
+    if (!IsZero(intent.value))
     {
         // Movement
         float control = knobs.onTheGround ? 1.0f : knobs.airControl;
         auto xyz = Normalise(intent);
-        auto xy = Vector3{xyz.X(), xyz.Y()};
+        auto xy = Velocity{xyz.value.X(), xyz.value.Y()};
 
         // what's our new velocity delta?
         auto delta = xy * knobs.moveForce * knobs.tick * control;
@@ -141,7 +141,7 @@ Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
     }
 
     // Jet Movement.
-    if (!IsZero(jetForce))
+    if (!IsZero(jetForce.value))
     {
         auto delta = jetForce * knobs.tick;
 
@@ -168,13 +168,13 @@ Vector3 PlayerVelocity(Vector3 currentVelocity, PlayerKnobs knobs)
             {
                 auto cap = std::max(speed, maxSpeed);
 
-                velocityNew = Normalise(velocityNew) * cap;
+                velocityNew = Velocity{Normalise(velocityNew)} * cap;
             }
         }
     }
 
     // cap to max game speed
-    auto speed = LengthF(velocityNew);
+    auto speed = Speed{LengthF(velocityNew.value)};
     if (speed > knobs.maxSpeedGame)
     {
         velocityNew = Normalise(velocityNew) * knobs.maxSpeedGame;
