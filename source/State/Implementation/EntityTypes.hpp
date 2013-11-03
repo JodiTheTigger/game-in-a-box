@@ -57,6 +57,7 @@ using Position      = Units::Quantity<Units::Meters, Vector3>;
 using Orientation   = Units::Quantity<Units::Radians, Vector3>;
 using Velocity      = Units::Quantity<Units::MetersPerSecond, Vector3>;
 using Acceleration  = Units::Quantity<Units::MetersPerSecondSquared, Vector3>;
+using Speed         = Units::Quantity<Units::MetersPerSecond, float>;
 using Angle         = Units::Quantity<Units::Radians, float>;
 
 struct Yaw
