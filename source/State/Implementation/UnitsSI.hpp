@@ -128,11 +128,37 @@ inline constexpr bool operator>=(const Quantity<UNIT, T1>& lhs, const Quantity<U
 // ///////////////////
 // Basic SI Units
 // ///////////////////
+
+// Have a read of this if you want to make this more complicated.
+// http://www.csee.umbc.edu/portal/help/theory/units.shtml
+
+//Speed         = Length / Time
+//Acceleration	= Speed	 / Time
+//Force         = Mass	 * Acceleration
+//AngularSpeed	= Angle	 / Time
+//Length        = Angle	 * Length
+//Area          = Length * Length
+//Volume        = Area	 * Length
+//Density       = Mass	 / Volume
+//MassFlowRate	= Mass	 / Time
+//Frequency     = float	 / Time
+//Pressure      = Force	 / Area
+
 using Meter = Unit<1,0,0>;
-using Meters = Unit<1,0,0>;
+using Meters = Meter;
+
+using Kilogram = Unit<0,1,0>;
+using Kilograms = Kilogram;
+
+using Second = Unit<0,0,1>;
+using Seconds = Second;
 
 using MetersPerSecond = Unit<1,0,-1>;
 using MetersPerSecondSquared = Unit<1,0,-2>;
+
+// Unitless
+using Radian = Unit<0,0,0>;
+using Radians = Radian;
 
 }}}} // namespace
 
