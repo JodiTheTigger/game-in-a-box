@@ -117,7 +117,7 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
     {
         // Movement
         auto control = knobs.onTheGround ? Scalar{1.0f} : knobs.airControl;
-        auto xyz = Normalise(intent);
+        auto xyz = Orientation{Normalise(intent.value)};
         auto xy = Orientation{xyz.value.X(), xyz.value.Y()};
 
         // what's our new velocity delta?
@@ -135,22 +135,22 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
             {
                 auto cap = std::max(speed, knobs.maxSpeed);
 
-                velocityNew = Velocity{Normalise(velocityNew) * cap};
+                velocityNew = Multiplier{Normalise(velocityNew.value)} * cap;
             }
         }
     }
 
     // Jet Movement.
-    if (!IsZero(jetForce.value))
+    if (!IsZero(jet.value))
     {
-        auto delta = jetForce * knobs.tick;
+        auto delta = jet * knobs.tick;
 
         velocityNew = velocityNew + delta;
 
-        auto speedNew = LengthF(velocityNew);
-        auto speed = LengthF(velocity);
+        auto speedNew = Speed{LengthF(velocityNew.value)};
+        auto speed = Speed{LengthF(velocity.value)};
 
-        float maxSpeed = 0.0f;
+        Speed maxSpeed = {0.0f};
         if (knobs.onTheGround)
         {
             maxSpeed = knobs.maxSpeed;
@@ -168,7 +168,7 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
             {
                 auto cap = std::max(speed, maxSpeed);
 
-                velocityNew = Velocity{Normalise(velocityNew)} * cap;
+                velocityNew = Multiplier{Normalise(velocityNew.value)} * cap;
             }
         }
     }
@@ -177,7 +177,7 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
     auto speed = Speed{LengthF(velocityNew.value)};
     if (speed > knobs.maxSpeedGame)
     {
-        velocityNew = Normalise(velocityNew) * knobs.maxSpeedGame;
+        velocityNew = Multiplier{Normalise(velocityNew.value)} * knobs.maxSpeedGame;
     }
 
     return velocityNew;

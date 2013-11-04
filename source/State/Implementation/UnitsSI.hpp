@@ -93,6 +93,22 @@ using Radian = Unitless;
 using Radians = Radian;
 
 // ///////////////////
+// Comparison
+// ///////////////////
+template<typename UNIT, typename T1, typename T2>
+inline constexpr bool operator==(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return lhs.value==rhs.value;}
+template<typename UNIT, typename T1, typename T2>
+inline constexpr bool operator!=(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return !operator==(lhs,rhs);}
+template<typename UNIT, typename T1, typename T2>
+inline constexpr bool operator< (const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return lhs.value< rhs.value;}
+template<typename UNIT, typename T1, typename T2>
+inline constexpr bool operator> (const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return  operator< (rhs,lhs);}
+template<typename UNIT, typename T1, typename T2>
+inline constexpr bool operator<=(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return !operator> (lhs,rhs);}
+template<typename UNIT, typename T1, typename T2>
+inline constexpr bool operator>=(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return !operator< (lhs,rhs);}
+
+// ///////////////////
 // Simple Maths
 // ///////////////////
 template<typename UNIT, typename T1, typename T2>
@@ -113,14 +129,14 @@ template<typename UNIT, typename T1, typename T2>
 inline Quantity<UNIT, T1> operator*=(Quantity<UNIT, T1>& lhs, const Quantity<Unitless, T2>& rhs)
 {
     lhs.value*=rhs.value;
-    return {lhs};
+    return lhs;
 }
 
 template<typename UNIT, typename T1, typename T2>
 inline Quantity<UNIT, T1> operator/=(Quantity<UNIT, T1>& lhs, const Quantity<Unitless, T2>& rhs)
 {
     lhs.value/=rhs.value;
-    return {lhs};
+    return lhs;
 }
 
 template<typename UNIT, typename T>
@@ -144,22 +160,6 @@ inline Quantity<Unit<M1-M2, K1-K2, S1-S2>, T1> operator/(const Quantity<Unit<M1,
 {
     return {lhs.value / rhs.value};
 }
-
-// ///////////////////
-// Comparison
-// ///////////////////
-template<typename UNIT, typename T1, typename T2>
-inline constexpr bool operator==(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return lhs.value==rhs.value;}
-template<typename UNIT, typename T1, typename T2>
-inline constexpr bool operator!=(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return !operator==(lhs,rhs);}
-template<typename UNIT, typename T1, typename T2>
-inline constexpr bool operator< (const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return lhs.value< rhs.value;}
-template<typename UNIT, typename T1, typename T2>
-inline constexpr bool operator> (const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return  operator< (rhs,lhs);}
-template<typename UNIT, typename T1, typename T2>
-inline constexpr bool operator<=(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return !operator> (lhs,rhs);}
-template<typename UNIT, typename T1, typename T2>
-inline constexpr bool operator>=(const Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){return !operator< (lhs,rhs);}
 
 }}}} // namespace
 
