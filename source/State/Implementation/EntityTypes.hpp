@@ -59,6 +59,8 @@ using Velocity      = Units::Quantity<Units::MetersPerSecond, Vector3>;
 using Acceleration  = Units::Quantity<Units::MetersPerSecondSquared, Vector3>;
 using Speed         = Units::Quantity<Units::MetersPerSecond, float>;
 using Angle         = Units::Quantity<Units::Radians, float>;
+using Period        = Units::Quantity<Units::Seconds, float>;
+using Scalar        = Units::Quantity<Units::Unitless, float>;
 
 struct Yaw
 {

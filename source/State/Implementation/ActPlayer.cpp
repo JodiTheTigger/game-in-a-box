@@ -48,9 +48,9 @@ struct PlayerKnobs
 
     Orientation look;
 
-    Tick tick;
-    float drag; // unitless
-    float airControl; // unitless
+    Period tick;
+    Scalar drag;
+    Scalar airControl;
     Speed maxSpeed;
     Speed maxSpeedInAir;
     Speed maxSpeedGame;
@@ -68,16 +68,16 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
 {
     auto velocity = currentVelocity;
     velocity += knobs.gravity * knobs.tick;
-    velocity += knobs.externalForce * knobs.tick;
+    velocity += knobs.external * knobs.tick;
     velocity *= knobs.drag;
 
     // Look
     auto intent = Orientation{0.0f};
     auto left = Orientation
     {
-            -knobs.look.Y(),
-            knobs.look.X(),
-            knobs.look.Z()
+            -knobs.look.value.Y(),
+            knobs.look.value.X(),
+            knobs.look.value.Z()
     };
 
     if (knobs.isForward)
@@ -116,17 +116,17 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
     if (!IsZero(intent.value))
     {
         // Movement
-        float control = knobs.onTheGround ? 1.0f : knobs.airControl;
+        auto control = knobs.onTheGround ? Scalar{1.0f} : knobs.airControl;
         auto xyz = Normalise(intent);
-        auto xy = Velocity{xyz.value.X(), xyz.value.Y()};
+        auto xy = Orientation{xyz.value.X(), xyz.value.Y()};
 
         // what's our new velocity delta?
-        auto delta = xy * knobs.moveForce * knobs.tick * control;
+        auto delta = xy * knobs.move * knobs.tick * control;
 
         velocityNew = velocity + delta;
 
-        auto speedNew = LengthF(velocityNew);
-        auto speed = LengthF(velocity);
+        auto speedNew = Speed{LengthF(velocityNew.value)};
+        auto speed = Speed{LengthF(velocity.value)};
 
         // Only allow an increase of velocity if it's below our max speed
         if (speedNew > speed)
@@ -135,7 +135,7 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
             {
                 auto cap = std::max(speed, knobs.maxSpeed);
 
-                velocityNew = Normalise(velocityNew) * cap;
+                velocityNew = Velocity{Normalise(velocityNew) * cap};
             }
         }
     }
