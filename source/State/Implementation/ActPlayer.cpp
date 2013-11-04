@@ -117,16 +117,16 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
     {
         // Movement
         auto control = knobs.onTheGround ? Scalar{1.0f} : knobs.airControl;
-        auto xyz = Orientation{Normalise(intent.value)};
-        auto xy = Orientation{xyz.value.X(), xyz.value.Y()};
+        auto xyz = Normalise(intent);
+        auto xy = Multiplier{xyz.value.X(), xyz.value.Y()};
 
         // what's our new velocity delta?
         auto delta = xy * knobs.move * knobs.tick * control;
 
         velocityNew = velocity + delta;
 
-        auto speedNew = Speed{LengthF(velocityNew.value)};
-        auto speed = Speed{LengthF(velocity.value)};
+        auto speedNew = GetSpeed(velocityNew);
+        auto speed = GetSpeed(velocity);
 
         // Only allow an increase of velocity if it's below our max speed
         if (speedNew > speed)
@@ -135,7 +135,7 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
             {
                 auto cap = std::max(speed, knobs.maxSpeed);
 
-                velocityNew = Multiplier{Normalise(velocityNew.value)} * cap;
+                velocityNew = Normalise(velocityNew) * cap;
             }
         }
     }
@@ -147,8 +147,8 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
 
         velocityNew = velocityNew + delta;
 
-        auto speedNew = Speed{LengthF(velocityNew.value)};
-        auto speed = Speed{LengthF(velocity.value)};
+        auto speedNew = GetSpeed(velocityNew);
+        auto speed = GetSpeed(velocity);
 
         Speed maxSpeed = {0.0f};
         if (knobs.onTheGround)
@@ -168,16 +168,16 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
             {
                 auto cap = std::max(speed, maxSpeed);
 
-                velocityNew = Multiplier{Normalise(velocityNew.value)} * cap;
+                velocityNew = Normalise(velocityNew) * cap;
             }
         }
     }
 
     // cap to max game speed
-    auto speed = Speed{LengthF(velocityNew.value)};
+    auto speed = GetSpeed(velocityNew);
     if (speed > knobs.maxSpeedGame)
     {
-        velocityNew = Multiplier{Normalise(velocityNew.value)} * knobs.maxSpeedGame;
+        velocityNew = Normalise(velocityNew) * knobs.maxSpeedGame;
     }
 
     return velocityNew;

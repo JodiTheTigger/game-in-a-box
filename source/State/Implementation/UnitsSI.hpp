@@ -86,6 +86,9 @@ using Kilograms = Kilogram;
 using Second = Unit<0,0,1>;
 using Seconds = Second;
 
+using Newton = Unit<1,1,-2>;
+using Newtons = Newton;
+
 using MetersPerSecond = Unit<1,0,-1>;
 using MetersPerSecondSquared = Unit<1,0,-2>;
 

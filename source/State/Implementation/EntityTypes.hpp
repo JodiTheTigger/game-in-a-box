@@ -68,6 +68,20 @@ struct Yaw
     Angle value;
 };
 
+// ///////////////////
+// Helpers
+// ///////////////////
+template<typename UNIT>
+Multiplier Normalise(const Units::Quantity<UNIT, Vector3>& lhs)
+{
+    return Multiplier{Normalise(lhs.value)};
+}
+
+Speed GetSpeed(const Velocity& lhs)
+{
+    return Speed{LengthF(lhs.value)};
+}
+
 }}} // namespace
 
 #endif // ENTITYTYPES_HPP
