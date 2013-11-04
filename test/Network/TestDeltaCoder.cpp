@@ -20,7 +20,6 @@
 
 #include <Common/BitStream.hpp>
 #include <Common/BitStreamReadOnly.hpp>
-#include <Common/UnitOperators.hpp>
 
 #include <DeltaMapItem.hpp>
 #include <DeltaCoder.hpp>

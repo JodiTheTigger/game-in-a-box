@@ -21,7 +21,6 @@
 #include "DeltaMapItem.hpp"
 
 #include <Common/Logging.hpp>
-#include <Common/UnitOperators.hpp>
 
 namespace GameInABox { namespace Network {
 

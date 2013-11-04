@@ -23,7 +23,6 @@
 
 #include "Entity.hpp"
 #include "Flags.hpp"
-#include "UnitOperators.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 

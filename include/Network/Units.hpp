@@ -58,6 +58,43 @@ Bytes constexpr operator"" _byte(unsigned long long value)
     return {static_cast<signed>(value)};
 }
 
+// /////////////////////
+// Operators
+// /////////////////////
+// Bits
+inline constexpr bool operator==(const Bits& lhs, const Bits& rhs){return lhs.value==rhs.value;}
+inline constexpr bool operator!=(const Bits& lhs, const Bits& rhs){return !operator==(lhs,rhs);}
+inline constexpr bool operator< (const Bits& lhs, const Bits& rhs){return lhs.value< rhs.value;}
+inline constexpr bool operator> (const Bits& lhs, const Bits& rhs){return  operator< (rhs,lhs);}
+inline constexpr bool operator<=(const Bits& lhs, const Bits& rhs){return !operator> (lhs,rhs);}
+inline constexpr bool operator>=(const Bits& lhs, const Bits& rhs){return !operator< (lhs,rhs);}
+
+inline Bits& operator+=(Bits& lhs, const Bits& rhs){ lhs.value += rhs.value;  return lhs; }
+inline Bits& operator-=(Bits& lhs, const Bits& rhs){ lhs.value -= rhs.value;  return lhs; }
+
+inline Bits operator+(Bits lhs, const Bits& rhs){ lhs.value += rhs.value;  return lhs; }
+inline Bits operator-(Bits lhs, const Bits& rhs){ lhs.value -= rhs.value;  return lhs; }
+inline Bits operator-(Bits lhs)                 { lhs.value = -lhs.value;  return lhs; }
+inline Bits operator*(Bits lhs, const Bits& rhs){ lhs.value *= rhs.value;  return lhs; }
+inline Bits operator/(Bits lhs, const Bits& rhs){ lhs.value /= rhs.value;  return lhs; }
+
+// Bytes
+inline constexpr bool operator==(const Bytes& lhs, const Bytes& rhs){return lhs.value==rhs.value;}
+inline constexpr bool operator!=(const Bytes& lhs, const Bytes& rhs){return !operator==(lhs,rhs);}
+inline constexpr bool operator< (const Bytes& lhs, const Bytes& rhs){return lhs.value< rhs.value;}
+inline constexpr bool operator> (const Bytes& lhs, const Bytes& rhs){return  operator< (rhs,lhs);}
+inline constexpr bool operator<=(const Bytes& lhs, const Bytes& rhs){return !operator> (lhs,rhs);}
+inline constexpr bool operator>=(const Bytes& lhs, const Bytes& rhs){return !operator< (lhs,rhs);}
+
+inline Bytes& operator+=(Bytes& lhs, const Bytes& rhs){ lhs.value += rhs.value;  return lhs; }
+inline Bytes& operator-=(Bytes& lhs, const Bytes& rhs){ lhs.value -= rhs.value;  return lhs; }
+
+inline Bytes operator+(Bytes lhs, const Bytes& rhs){ lhs.value += rhs.value;  return lhs; }
+inline Bytes operator-(Bytes lhs, const Bytes& rhs){ lhs.value -= rhs.value;  return lhs; }
+inline Bytes operator-(Bytes lhs)                  { lhs.value = -lhs.value;  return lhs; }
+inline Bytes operator*(Bytes lhs, const Bytes& rhs){ lhs.value *= rhs.value;  return lhs; }
+inline Bytes operator/(Bytes lhs, const Bytes& rhs){ lhs.value /= rhs.value;  return lhs; }
+
 }} // namespace
 
 #endif // UNITS_HPP

@@ -21,7 +21,6 @@
 #include <Implementation/DeltaStateGameSnapshot.hpp>
 #include <Implementation/Types.hpp>
 
-#include <Common/UnitOperators.hpp>
 #include <Common/MathConstants.hpp>
 
 #include <gtest/gtest.h>

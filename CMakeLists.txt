@@ -167,7 +167,6 @@ include/Common/BitStreamReadOnly.hpp
 include/Common/BufferSerialisation.hpp
 include/Common/MakeUnique.hpp
 include/Common/Logging.hpp
-include/Common/UnitOperators.hpp
 include/Common/MathConstants.hpp
 include/Common/Flags.hpp
 )
