@@ -37,6 +37,19 @@ array<EntityType, EntityTypeCount> EntityTypes
     EntityType::Missle
 }};
 
+/* RAM: this is what it used to look like.
+// I Hate cut 'n' paste code as much as anyone, but I hate macros more by the look of it.
+array<Intersection, IntersectCount> GIntersects
+{{
+    // RAM: TODO: Keep None around till I know I don't need it, then remove it.
+    //IntersectFactory<EntityType::None>::Get(),
+    Factory<Intersection, EntityType::Time>::Get(),
+    Factory<Intersection, EntityType::Player>::Get(),
+    Factory<Intersection, EntityType::PlayerAction>::Get(),
+    Factory<Intersection, EntityType::Missle>::Get()
+}};
+*/
+
 vector<Colliding> Collide(const vector<Entity>& theWorld)
 {
     // Sort entites into arrays based on type.
