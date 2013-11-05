@@ -208,9 +208,9 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerVelocityKnobs knobs, Pla
     return velocityNew;
 }
 
-Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
+Entity ReactPlayer(Entity player, const Entity&, const std::vector<const Entity*>&)
 {
-    auto result = protagonist;
+    auto result = player;
 
     /* To be removed, but kept here for reference until I figure out how to do stuff.
     // Jet latches on the direction you were facing when you start jetting.
@@ -289,5 +289,77 @@ Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const En
 
     return result;
 }
+
+Entity ReactPlayerMove(Entity player, const Entity& constants, const std::vector<const Entity*>&)
+{
+    if
+    (
+        (player.type != EntityType::Player) &&
+        (constants.type != EntityType::Constants)
+    )
+    {
+        // Assert(player.type == EntityType::Player)
+        // Assert(constants.type == EntityType::Constants)
+
+        return player;
+    }
+
+
+    auto intent = Orientation{0.0f};
+    auto left = Orientation
+    {
+            -player.player.input.look.value.Z(),
+            player.player.input.look.value.Y(),
+            player.player.input.look.value.X()
+    };
+
+    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Foward))
+    {
+        intent += player.player.input.look;
+    }
+    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Back))
+    {
+        intent -= player.player.input.look;
+    }
+    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Left))
+    {
+        intent += left;
+    }
+    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Right))
+    {
+        intent -= left;
+    }
+
+    if (!IsZero(intent.value))
+    {
+        // Movement
+        auto control = FlagIsSet(player.player.allowedAction, FlagsPlayerAction::Ground)
+                ? Scalar{1.0f}
+                : constants.constants.airControl;
+
+        auto xyz = Normalise(intent);
+        auto xz = Vector{xyz.value.X(), 0.0f,  xyz.value.Z()};
+
+        // what's our new velocity delta?
+        auto delta = xz * constants.constants.impulseMove * constants.constants.tick * control;
+
+        player.player.velocity += delta;
+    }
+
+    return player;
+}
+
+Entity ReactPlayerJump(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
+{
+    // RAM: TODO:
+    return protagonist;
+}
+
+Entity ReactPlayerJet(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
+{
+    // RAM: TODO:
+    return protagonist;
+}
+
 
 }}} // namespace

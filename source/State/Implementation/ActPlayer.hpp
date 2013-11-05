@@ -28,7 +28,12 @@
 namespace GameInABox { namespace State { namespace Implementation {
 
 bool CollidePlayer(const Entity& protagonist, const Entity& antagonist);
-Entity ReactPlayer(Entity protagonist, const Entity&, const std::vector<const Entity*>& theWorld);
+Entity ReactPlayer(Entity player, const Entity&, const std::vector<const Entity*>& theWorld);
+
+// Movement
+Entity ReactPlayerMove(Entity player, const Entity& constants, const std::vector<const Entity*>&);
+Entity ReactPlayerJump(Entity player, const Entity& constants, const std::vector<const Entity*>&);
+Entity ReactPlayerJet(Entity player, const Entity& constants, const std::vector<const Entity*>&);
 
 template<>
 struct Factory<Interaction, EntityType::Time>
