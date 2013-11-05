@@ -89,6 +89,9 @@ using Seconds = Second;
 using Newton = Unit<1,1,-2>;
 using Newtons = Newton;
 
+using Joule = Unit<2,1,-2>;
+using Joules = Joule;
+
 using MetersPerSecond = Unit<1,0,-1>;
 using MetersPerSecondSquared = Unit<1,0,-2>;
 
