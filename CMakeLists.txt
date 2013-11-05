@@ -275,6 +275,7 @@ source/State/Implementation/Entity.hpp
 source/State/Implementation/EntityPlayer.hpp
 source/State/Implementation/EntityMissle.hpp
 source/State/Implementation/EntityTime.hpp
+source/State/Implementation/EntityConstants.hpp
 source/State/Implementation/EntityTypes.hpp
 source/State/Implementation/Interaction.hpp
 source/State/Implementation/Filters.hpp

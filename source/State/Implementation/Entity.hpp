@@ -25,6 +25,7 @@
 #include "EntityTime.hpp"
 #include "EntityPlayer.hpp"
 #include "EntityMissle.hpp"
+#include "EntityConstants.hpp"
 
 #include <type_traits>
 
@@ -37,8 +38,9 @@ enum class EntityType
     Player,
     PlayerAction,
     Missle,
+    Constants,
 
-    MaxValue = Missle
+    MaxValue = Constants
 };
 
 struct EntityNone
@@ -56,6 +58,7 @@ struct Entity
         EntityTime time;
         EntityPlayer player;
         EntityMissle missle;
+        EntityConstants constants;
     };
 };
 
