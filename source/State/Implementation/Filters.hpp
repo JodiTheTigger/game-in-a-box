@@ -33,6 +33,7 @@ static constexpr Ammo AmmoUsedPerShot{2500};
 inline constexpr bool FilterNone(const Entity& toTest) { return toTest.type == EntityType::None; }
 inline constexpr bool FilterTime(const Entity& toTest) { return toTest.type == EntityType::Time; }
 inline constexpr bool FilterPlayer(const Entity& toTest) { return toTest.type == EntityType::Player; }
+inline constexpr bool FilterConstants(const Entity& toTest) { return toTest.type == EntityType::Constants; }
 
 inline constexpr bool FilterNotTimeNotNone(const Entity& toTest)
 {
@@ -47,6 +48,46 @@ inline bool constexpr FilterFiring(const Entity& toTest)
 //            (toTest.player.energyShoot >= AmmoUsedPerShot);
         return  FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Fire) &&
                 FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Fire);
+}
+
+// ///////////////////
+// Movement Filters
+// ///////////////////
+
+inline constexpr bool FilterPlayerMove(const Entity& toTest)
+{
+    return
+    (
+        (toTest.type == EntityType::Player) &&
+        (
+            (FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Foward)) ||
+            (FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Back)) ||
+            (FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Left)) ||
+            (FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Right))
+        )
+    );
+}
+
+inline constexpr bool FilterPlayerJump(const Entity& toTest)
+{
+    return
+    (
+        (toTest.type == EntityType::Player) &&
+        (FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Jet)) &&
+        (FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Ground))
+    );
+}
+
+inline constexpr bool FilterPlayerJet(const Entity& toTest)
+{
+    return
+    (
+        (toTest.type == EntityType::Player) &&
+        (FlagIsSet(toTest.player.input.action, FlagsPlayerAction::Jet)) &&
+        (FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Jet)) &&
+        !(FlagIsSet(toTest.player.allowedAction, FlagsPlayerAction::Ground))
+
+    );
 }
 
 }}} // namespace
