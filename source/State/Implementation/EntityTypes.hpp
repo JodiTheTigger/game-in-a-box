@@ -43,25 +43,24 @@ struct Health
     std::uint_fast32_t value;
 };
 
-struct Energy
-{
-    std::uint_fast32_t value;
-};
-
 struct Ammo
 {
     std::uint_fast32_t value;
 };
 
-using Position      = Units::Quantity<Units::Meters, Vector3>;
-using Orientation   = Units::Quantity<Units::Radians, Vector3>;
-using Velocity      = Units::Quantity<Units::MetersPerSecond, Vector3>;
-using Acceleration  = Units::Quantity<Units::MetersPerSecondSquared, Vector3>;
-using Speed         = Units::Quantity<Units::MetersPerSecond, float>;
-using Angle         = Units::Quantity<Units::Radians, float>;
-using Period        = Units::Quantity<Units::Seconds, float>;
-using Scalar        = Units::Quantity<Units::Unitless, float>;
-using Multiplier    = Units::Quantity<Units::Unitless, Vector3>;
+using Vector                = Units::Quantity<Units::Unitless, Vector3>;
+using Position              = Units::Quantity<Units::Meters, Vector3>;
+using Orientation           = Units::Quantity<Units::Radians, Vector3>;
+using Velocity              = Units::Quantity<Units::MetersPerSecond, Vector3>;
+using AccelerationVector    = Units::Quantity<Units::MetersPerSecondSquared, Vector3>;
+
+using AccelerationScalar    = Units::Quantity<Units::MetersPerSecondSquared, float>;
+using Speed                 = Units::Quantity<Units::MetersPerSecond, float>;
+using Angle                 = Units::Quantity<Units::Radians, float>;
+using Period                = Units::Quantity<Units::Seconds, float>;
+using Energy                = Units::Quantity<Units::Joules, float>;
+using Mass                  = Units::Quantity<Units::Kilograms, float>;
+using Scalar                = Units::Quantity<Units::Unitless, float>;
 
 struct Yaw
 {
@@ -72,14 +71,47 @@ struct Yaw
 // Helpers
 // ///////////////////
 template<typename UNIT>
-Multiplier Normalise(const Units::Quantity<UNIT, Vector3>& lhs)
+Vector Normalise(const Units::Quantity<UNIT, Vector3>& lhs)
 {
-    return Multiplier{Normalise(lhs.value)};
+    return Vector{Normalise(lhs.value)};
 }
 
 Speed GetSpeed(const Velocity& lhs)
 {
     return Speed{LengthF(lhs.value)};
+}
+
+// /////////////////////
+// User defined literals for units.
+// /////////////////////
+Period constexpr operator"" _s(long double value)
+{
+    return {static_cast<float>(value)};
+}
+
+Scalar constexpr operator"" _scalar(long double value)
+{
+    return {static_cast<float>(value)};
+}
+
+Mass constexpr operator"" _kg(long double value)
+{
+    return {static_cast<float>(value)};
+}
+
+Energy constexpr operator"" _joules(long double value)
+{
+    return {static_cast<float>(value)};
+}
+
+Speed constexpr operator"" _m_s(long double value)
+{
+    return {static_cast<float>(value)};
+}
+
+AccelerationScalar constexpr operator"" _m_s2(long double value)
+{
+    return {static_cast<float>(value)};
 }
 
 }}} // namespace
