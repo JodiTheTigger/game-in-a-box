@@ -39,21 +39,12 @@ bool CollidePlayer(const Entity& protagonist, const Entity& antagonist)
     return (&protagonist == &antagonist);
 }
 
-struct PlayerKnobs
+struct PlayerVelocityKnobs
 {
-    Acceleration gravity;
-    Acceleration external;
-    Acceleration jet;
-    Acceleration move;
+    // gravity and external forces.
+    AccelerationVector external;
 
     Orientation look;
-
-    Period tick;
-    Scalar drag;
-    Scalar airControl;
-    Speed maxSpeed;
-    Speed maxSpeedInAir;
-    Speed maxSpeedGame;
 
     bool isForward;
     bool isBack;
@@ -64,20 +55,54 @@ struct PlayerKnobs
     bool onTheGround;
 };
 
-Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
+struct PlayerVelocityConstants
+{
+    AccelerationScalar jet;
+    AccelerationScalar move;
+
+    Period tick;
+
+    Scalar drag;
+    Scalar airControl;
+
+    Mass weight;
+
+    Speed maxSpeed;
+    Speed maxSpeedInAir;
+    Speed maxSpeedGame;
+};
+
+static constexpr PlayerVelocityConstants Defaults
+{
+    2.0_m_s2,
+    1.0_m_s2,
+    {1.0/64.0},
+    0.25_scalar,
+    0.05_scalar,
+
+    80.0_kg,
+
+    8.0_m_s,
+    30.0_m_s,
+    50.0_m_s
+};
+
+// assumes Y is up.
+// +/- Z is forward/backwards
+// +/- X is right/left.
+Velocity PlayerVelocity(Velocity currentVelocity, PlayerVelocityKnobs knobs, PlayerVelocityConstants constants)
 {
     auto velocity = currentVelocity;
-    velocity += knobs.gravity * knobs.tick;
-    velocity += knobs.external * knobs.tick;
-    velocity *= knobs.drag;
+    velocity += knobs.external * constants.tick;
+    velocity *= constants.drag;
 
     // Look
     auto intent = Orientation{0.0f};
     auto left = Orientation
     {
-            -knobs.look.value.Y(),
-            knobs.look.value.X(),
-            knobs.look.value.Z()
+            -knobs.look.value.Z(),
+            knobs.look.value.Y(),
+            knobs.look.value.X()
     };
 
     if (knobs.isForward)
@@ -99,16 +124,16 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
 
     // Jet
     // Only know I can jet, I don't manage the "Can I Jet" state here.
-    auto jet = Acceleration{0.0f};
+    auto jet = AccelerationVector{0.0f};
     if (knobs.isJet)
     {
         if (knobs.onTheGround)
         {
-            jet = Orientation{0.0f, 0.0f, 1.0f} * knobs.jet;
+            jet = Orientation{0.0f, 1.0f} * constants.jet;
         }
         else
         {
-            jet = intent * knobs.jet;
+            jet = intent * constants.jet;
         }
     }
 
@@ -116,12 +141,12 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
     if (!IsZero(intent.value))
     {
         // Movement
-        auto control = knobs.onTheGround ? Scalar{1.0f} : knobs.airControl;
+        auto control = knobs.onTheGround ? Scalar{1.0f} : constants.airControl;
         auto xyz = Normalise(intent);
-        auto xy = Multiplier{xyz.value.X(), xyz.value.Y()};
+        auto xy = Vector{xyz.value.X(), xyz.value.Y()};
 
         // what's our new velocity delta?
-        auto delta = xy * knobs.move * knobs.tick * control;
+        auto delta = xy * constants.move * constants.tick * control;
 
         velocityNew = velocity + delta;
 
@@ -131,9 +156,9 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
         // Only allow an increase of velocity if it's below our max speed
         if (speedNew > speed)
         {
-            if (speedNew > knobs.maxSpeed)
+            if (speedNew > constants.maxSpeed)
             {
-                auto cap = std::max(speed, knobs.maxSpeed);
+                auto cap = std::max(speed, constants.maxSpeed);
 
                 velocityNew = Normalise(velocityNew) * cap;
             }
@@ -143,7 +168,7 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
     // Jet Movement.
     if (!IsZero(jet.value))
     {
-        auto delta = jet * knobs.tick;
+        auto delta = jet * constants.tick;
 
         velocityNew = velocityNew + delta;
 
@@ -153,11 +178,11 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
         Speed maxSpeed = {0.0f};
         if (knobs.onTheGround)
         {
-            maxSpeed = knobs.maxSpeed;
+            maxSpeed = constants.maxSpeed;
         }
         else
         {
-            maxSpeed = knobs.maxSpeedInAir;
+            maxSpeed = constants.maxSpeedInAir;
         }
 
         // only if we are increasing our velocity AND we are faster than allowed
@@ -175,9 +200,9 @@ Velocity PlayerVelocity(Velocity currentVelocity, PlayerKnobs knobs)
 
     // cap to max game speed
     auto speed = GetSpeed(velocityNew);
-    if (speed > knobs.maxSpeedGame)
+    if (speed > constants.maxSpeedGame)
     {
-        velocityNew = Normalise(velocityNew) * knobs.maxSpeedGame;
+        velocityNew = Normalise(velocityNew) * constants.maxSpeedGame;
     }
 
     return velocityNew;
