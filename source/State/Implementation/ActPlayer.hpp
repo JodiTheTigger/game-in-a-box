@@ -31,12 +31,14 @@ bool CollidePlayer(const Entity& protagonist, const Entity& antagonist);
 Entity ReactPlayer(Entity player, const Entity&, const std::vector<const Entity*>& theWorld);
 
 // Movement
-Entity ReactPlayerMove(Entity player, const Entity& constants, const std::vector<const Entity*>&);
-Entity ReactPlayerJump(Entity player, const Entity& constants, const std::vector<const Entity*>&);
-Entity ReactPlayerJet(Entity player, const Entity& constants, const std::vector<const Entity*>&);
+Entity ReactPlayerMove(Entity target, const Entity& conflict, const std::vector<const Entity*>&);
+Entity ReactPlayerJump(Entity target, const Entity& conflict, const std::vector<const Entity*>&);
+Entity ReactPlayerJet(Entity target, const Entity& conflict, const std::vector<const Entity*>&);
+
+Entity ReducePlayerVelocityDeltas(Entity first, Entity second);
 
 template<>
-struct Factory<Interaction, EntityType::Time>
+struct Factory<Interaction, EntityType::Player>
 {
     static Interaction Get()
     {

@@ -290,42 +290,42 @@ Entity ReactPlayer(Entity player, const Entity&, const std::vector<const Entity*
     return result;
 }
 
-Entity ReactPlayerMove(Entity player, const Entity& constants, const std::vector<const Entity*>&)
+Entity ReactPlayerMove(Entity target, const Entity& conflict, const std::vector<const Entity*>&)
 {
     if
     (
-        (player.type != EntityType::Player) &&
-        (constants.type != EntityType::Constants)
+        (target.type != EntityType::Player) &&
+        (conflict.type != EntityType::Constants)
     )
     {
         // Assert(player.type == EntityType::Player)
         // Assert(constants.type == EntityType::Constants)
 
-        return player;
+        return target;
     }
 
 
     auto intent = Orientation{0.0f};
     auto left = Orientation
     {
-            -player.player.input.look.value.Z(),
-            player.player.input.look.value.Y(),
-            player.player.input.look.value.X()
+            -target.player.input.look.value.Z(),
+            target.player.input.look.value.Y(),
+            target.player.input.look.value.X()
     };
 
-    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Foward))
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Foward))
     {
-        intent += player.player.input.look;
+        intent += target.player.input.look;
     }
-    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Back))
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Back))
     {
-        intent -= player.player.input.look;
+        intent -= target.player.input.look;
     }
-    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Left))
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Left))
     {
         intent += left;
     }
-    if (FlagIsSet(player.player.input.action, FlagsPlayerAction::Right))
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Right))
     {
         intent -= left;
     }
@@ -333,33 +333,118 @@ Entity ReactPlayerMove(Entity player, const Entity& constants, const std::vector
     if (!IsZero(intent.value))
     {
         // Movement
-        auto control = FlagIsSet(player.player.allowedAction, FlagsPlayerAction::Ground)
+        auto control = FlagIsSet(target.player.allowedAction, FlagsPlayerAction::Ground)
                 ? Scalar{1.0f}
-                : constants.constants.airControl;
+                : conflict.constants.airControl;
 
         auto xyz = Normalise(intent);
         auto xz = Vector{xyz.value.X(), 0.0f,  xyz.value.Z()};
 
         // what's our new velocity delta?
-        auto delta = xz * constants.constants.impulseMove * constants.constants.tick * control;
+        auto delta = xz * conflict.constants.impulseMove * conflict.constants.tick * control;
 
-        player.player.velocity += delta;
+        target.player.delta = delta;
     }
 
-    return player;
+    return target;
 }
 
-Entity ReactPlayerJump(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
+Entity ReactPlayerJump(Entity target, const Entity& conflict, const std::vector<const Entity*>&)
 {
-    // RAM: TODO:
-    return protagonist;
+    if
+    (
+        (target.type != EntityType::Player) &&
+        (conflict.type != EntityType::Constants)
+    )
+    {
+        // Assert(player.type == EntityType::Player)
+        // Assert(constants.type == EntityType::Constants)
+
+        return target;
+    }
+
+    // due to the filter, we know we're on the ground, and we're jumping.
+    target.player.delta = Vector{0.0,1.0} * conflict.constants.impulseJump * conflict.constants.tick;
+
+    return target;
 }
 
-Entity ReactPlayerJet(Entity protagonist, const Entity&, const std::vector<const Entity*>&)
+Entity ReactPlayerJet(Entity target, const Entity& conflict, const std::vector<const Entity*>&)
 {
-    // RAM: TODO:
-    return protagonist;
+    if
+    (
+        (target.type != EntityType::Player) &&
+        (conflict.type != EntityType::Constants)
+    )
+    {
+        // Assert(player.type == EntityType::Player)
+        // Assert(constants.type == EntityType::Constants)
+
+        return target;
+    }
+
+
+    auto intent = Orientation{0.0f};
+    auto left = Orientation
+    {
+            -target.player.input.look.value.Z(),
+            target.player.input.look.value.Y(),
+            target.player.input.look.value.X()
+    };
+
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Foward))
+    {
+        intent += target.player.input.look;
+    }
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Back))
+    {
+        intent -= target.player.input.look;
+    }
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Left))
+    {
+        intent += left;
+    }
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Right))
+    {
+        intent -= left;
+    }
+
+    if (!IsZero(intent.value))
+    {
+        // Movement
+        auto xyz = Normalise(intent);
+        auto xz = Normalise(Vector{xyz.value.X(), 1.0f,  xyz.value.Z()});
+
+        // what's our new velocity delta?
+        auto delta = xz * conflict.constants.impulseJet * conflict.constants.tick;
+
+        target.player.delta = delta;
+    }
+
+    return target;
 }
 
+Entity ReducePlayerVelocityDeltas(Entity first, Entity second)
+{
+    if
+    (
+        (first.type != EntityType::Player) &&
+        (second.type != EntityType::Player)
+    )
+    {
+        // Assert(first.type == EntityType::Player)
+        // Assert(second.type == EntityType::Player)
+
+        return
+        {
+            EntityType::None,
+            EntityNone{}
+        };
+    }
+
+    auto result = first;
+    first.player.delta += second.player.delta;
+    return result;
+}
 
 }}} // namespace

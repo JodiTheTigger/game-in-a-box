@@ -69,6 +69,7 @@ struct EntityPlayer
 
     Position position;
     Velocity velocity;
+    Velocity delta;
 
     Ammo energyShoot;
 
