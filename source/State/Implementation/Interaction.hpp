@@ -39,12 +39,17 @@ struct Interaction
     using Collision = std::function<bool(const Entity&, const Entity&)>;
     using Reaction = std::function<Entity(Entity, const Entity&, const std::vector<const Entity*>&)>;
 
+    // Which items to test against
     Filter filterProtagonist;
     Filter filterAntogonist;
 
+    // Does a reaction happen?
     Collision collide;
 
+    // What happens to the protagonist?
     Reaction react;
+
+    // What happens to the antogonist?
     Reaction reactReverse;
 
     static inline Entity Copy(Entity copied, const Entity&, const std::vector<const Entity*>&) { return copied; }
