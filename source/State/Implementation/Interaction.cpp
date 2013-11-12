@@ -21,6 +21,7 @@
 #include "Interaction.hpp"
 
 #include <array>
+#include <algorithm>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
@@ -93,6 +94,50 @@ vector<Entity> React(const vector<Colliding>& /*collisions*/, const vector<Entit
 {
     // RAM: TODO: STUB!
     return theWorld;
+}
+
+// The actual gamestate programme for parallel processing:
+struct SequenceProcess
+{
+    using Reduce = std::function<Entity(Entity, Entity)>;
+
+    // all these can be done in parallel
+    vector<Interaction> processes;
+    Reduce shrinker;
+};
+
+vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> program)
+{
+    auto result = theWorld;
+
+    for (auto task : program)
+    {
+        // Get filter list
+        auto filterList = vector<Interaction::Filter>{};
+
+        for(const auto& filter : task.processes)
+        {
+            filterList.push_back(filter.filterProtagonist);
+            filterList.push_back(filter.filterAntogonist);
+        }
+
+        // Filter
+        // Gonna have to investigate doing all this stuff using pointers so I don't
+        // copy everything every which way (even with c++11 && semantics).
+        /*
+        auto filtered = vector<vector<Entity>>{};
+        for (auto f : filterList)
+        {
+            remove_copy_if
+            filtered.push_back(remove_if(begin(theWorld), end(theWorld), f));
+        }*/
+
+        // Collide
+
+        // React
+    }
+
+    return result;
 }
 
 }}} // namespace
