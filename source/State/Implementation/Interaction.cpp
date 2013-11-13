@@ -106,6 +106,12 @@ struct SequenceProcess
     Reduce shrinker;
 };
 
+struct SequenceProcessPreProcessed
+{
+    // All the filters, but only one of them
+    vector<Interaction::Filter> uniqueFilters;
+};
+
 vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> program)
 {
     auto result = theWorld;
@@ -138,6 +144,56 @@ vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> p
     }
 
     return result;
+
+    // More notes:
+    /*
+
+    - std::transform can take two arguments! does transform in lockstep though.
+    - use std::bind as well if you want
+    1) convert list of items to list of pointers (std::transform)
+    2) filter list of pointers to get filter lists (does filter do it for all, or first find only?)
+    3) for each item, matches a primary filter? If so, for each item matches the paired secondary filter? if so do collision?
+      - means I need a list of filters and their secondaries
+      - means I'm searching lists all the time, not good.
+
+      main question is, what do we split the CPUs by? to all maths on a subgroup of entities? cache is king, so we
+      want to prevent iterating of the world multiple times? But collision takes two ents, and even though the
+      first ent is iterated only once, the second is done multiple times. Maybe we just get working code working
+      then test for speed afterwards as premature optimsation is evil?
+
+      foreach (filter in uniquefilterlist)
+      {
+        filteredArray[count++] = filter(theWorld);
+      }
+
+      foreach (process in SequenceProcess)
+      {
+        foreach (first in filteredArray[process.filterFirst])
+        {
+          foreach (second in filteredArray[process.filterSecond])
+          {
+            if (process.test(first, second))
+            {
+              collisions.push_back(pair(first, second));
+            }
+          }
+        }
+      }
+
+      // order == pair(a, b) ? (a>b) : pair(a,b), pair(b,a)
+      order(collisions);
+      sort(collisions);
+
+
+      foreach (c in collisions)
+      {
+        newPair = collide(c);
+        newWorld[indexOf(newPair.a)] += newPair.a;
+        newWorld[indexOf(newPair.b)] += newPair.b;
+      }
+
+      -Maybe make this list a bit smarter, only items at index x can interact with items at index x+1 -> end?
+    */
 }
 
 }}} // namespace
