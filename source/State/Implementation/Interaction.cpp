@@ -193,6 +193,87 @@ vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> p
       }
 
       -Maybe make this list a bit smarter, only items at index x can interact with items at index x+1 -> end?
+
+
+      ------------------------
+
+      What do I need to actually do?
+
+      -gravity to all players
+      -move/jet/jump to all players
+      -jet to all missles
+      -is player on ground
+      -jet energy (can player jet)
+      -health (is player alive)
+      -collisions
+      -has game finished
+      -missle timer (can player fire missle)
+      -fire missles
+      -exploder missle
+      -transfer points from/to missle target
+      -kill player is player health < 0
+      -slow player speed if on ground (friction)
+      -slow player speed if in air (drag)
+      -cap speed if larger than max game speed
+      -player hitting ground on a fall
+
+
+
+      for (player : players)                        player.acceleration += gravity;
+      for (player : players(moving, on ground))     player.acceleration += look * playerMoveMs2;
+      for (player : players(moving, in air))        player.acceleration += look * playerMoveAirMs2;
+      for (player : players(jump, on ground))       player.acceleration += jumpImpulse;
+      for (player : players(jet, can jet))          player.acceleration += jetDirection * jetImpulse;
+
+      what I've been trying to do is to split all those tasks into something that can be done in parallel.
+      problem is, is that I lose locality and get cache misses.
+
+      finally, concerning collisions I need to update two entites at once in a collision function, so that's
+      two copies. But what if I only want to reference one and modify the other, that's a waste of a copy
+      (stupid functional programming).
+      What if multiple collisions reference the same entity, how do i modify it mutliple times if multithreading
+      the collsion handling? (how about reduce? vector or vectors is scattered in memory, need to keep all together)
+
+      Ok, so collisons are pairs of indexes (index1, index2). But wait, we need a collision type if we want
+      to generalise this away from purely physics collsions. ((index1, type), (index2, type)).
+      sort to keep index1-index2 distance < cache line size or some equilivant metric?
+
+      [](p1, p2)
+      {
+        d1 = abs(p1.i1 - p1.i2);
+        d2 = abs(p2.i1 - p2.i2);
+
+        // return the one with the biggest distance
+        if (d1 != d2)
+        {
+            if ((d1 > MAXDISTANCE) || (d2 > MAXDISTANCE))
+            {
+              return d1 > d2;
+            }
+        }
+
+        // otherwise sort by index1, index2
+        if (p1.i1 != p2.i1)
+        {
+          return p1.i1 > p2.i2;
+        }
+
+        return p1.i2 > p2.i2;
+      }
+
+      - another question, what's faster? pre sorting lists, or just testing conditions and only doing one pass?
+        as I assume memory reads are more expensive than comparisons, so minimising passes would be better.
+
+      - how about loop though entire world (in parallel), and for each item apply singles
+        (gravity, player input, state calculation). Then a second pass with the entire world which is all cache messy?
+
+      - how about I just do one big loop, trying to keep pure so I can parallel later. Worry about caching when I have
+        a working game loop?
+
+      - Should have googled this first: http://www.gamasutra.com/view/feature/130247/multithreaded_game_engine_.php?print=1
+
+      - Hmm, different types of dependencies: flow dependent, memory dependent.
+
     */
 }
 
