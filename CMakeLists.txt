@@ -286,6 +286,8 @@ source/State/Implementation/ActPlayer.hpp
 source/State/Implementation/ActPlayer.cpp
 source/State/Implementation/ActPlayerNone.hpp
 source/State/Implementation/ActPlayerNone.cpp
+source/State/Implementation/PlayerFunctions.hpp
+source/State/Implementation/PlayerFunctions.cpp
 source/State/Implementation/Vector3.hpp
 source/State/Implementation/Vector4.hpp
 source/State/Implementation/VectorCommon.hpp
