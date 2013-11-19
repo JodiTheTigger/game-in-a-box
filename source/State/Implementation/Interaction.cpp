@@ -274,6 +274,61 @@ vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> p
 
       - Hmm, different types of dependencies: flow dependent, memory dependent.
 
+      -----------
+
+      - So, how do I do the game loop? I haven't written working code yet!
+
+      - loop though all ents and do a think function. This is the same as colliding all ents with a time ent.
+        (but how does time update itself? It's special, updated out of scope). Hey, time could be a constant too.
+
+      - and firing a missle is the same as colliding a player with an empty when the player can and is firing
+        and in order to not have multiple players using the same empty, it's a map function with all the ents.
+        so I need to filter all empties and non-empties and do a map (maybe empty) = map(empty, non-empty).
+
+      - so again, im at this filter, collide, act loop. But so I can get started generalise later, after working code!
+        Iterate to perfection as opposed to perfecting first shot.
+
+
+        for (loop(world))
+        {
+            newWorld[loop] = Collide(oldWorld[loop], constants);
+        }
+
+        // filters.
+        for (loop(world))
+        {
+            if (oldWorld[loop].type == EntityNone)
+            {
+                nothings.push_back(loop)
+            }
+            else
+            {
+                somethings.push_back(loop)
+
+                if (WantsToCreate(oldWorld[loop]))
+                {
+                    creators.push_back[loop];
+                }
+            }
+        }
+
+        // SYNC!
+
+        // create things from nothing (missles, messages)
+        // map
+        for (loop(nothings, creators))
+        {
+            newWorld[nothings[loop]], newWorld[somethings[loop]] =
+                Create(newWorld[nothings[loop]], newWorld[creators[loop]]);
+        }
+
+        // SYNC!
+
+        for (loop(collisions))
+        {
+            // need to think about this, as can have multiple collisions with multiple things
+            // so that each collision resolution becomes dependent on the previous one (yuck).
+        }
     */
 }
 
