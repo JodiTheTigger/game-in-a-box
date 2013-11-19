@@ -28,6 +28,7 @@ namespace GameInABox { namespace State { namespace Implementation {
 Orientation Intent(const EntityPlayer& player);
 AccelerationVector PlayerMovement(const EntityPlayer& player, const EntityConstants& constants);
 FlagsPlayerAction PlayerPermissions(const EntityPlayer& player);
+AccelerationVector ResolveCollision(const EntityPlayer& target, const EntityPlayer& other, const Position& contactPoint);
 
 }}} // namespace
 

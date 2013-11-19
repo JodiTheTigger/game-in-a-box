@@ -67,17 +67,6 @@ AccelerationVector PlayerMovement(const EntityPlayer& player, const EntityConsta
                 Normalise(Vector{intent.value.X(), 0.0f,  intent.value.Z()}) :
                 Vector{0.0f};
 
-//    auto xz = [&intent]()
-//    {
-//        if (!IsZero(intent))
-//        {
-//            // moving on ground.
-//            return Normalise(Vector{intent.value.X(), 0.0f,  intent.value.Z()});
-//        }
-
-//        return Vector{0.0f};
-//    }();
-
     Scalar control = onGround ?
                     constants.airControl :
                     Scalar{1.0f};
@@ -112,6 +101,14 @@ FlagsPlayerAction PlayerPermissions(const EntityPlayer&)
 {
     // RAM: TODO!
     return {};
+}
+
+
+AccelerationVector ResolveCollision(const EntityPlayer&, const EntityPlayer&, const Position&)
+{
+    // RAM: TODO!
+    // RAM: Hard!
+    return {0.0f};
 }
 
 }}} // namespace
