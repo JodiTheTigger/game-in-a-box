@@ -294,22 +294,12 @@ vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> p
             newWorld[loop] = Collide(oldWorld[loop], constants);
         }
 
-        // filters.
+        // filters (can generalise this, as I was doing before)
         for (loop(world))
         {
-            if (oldWorld[loop].type == EntityNone)
-            {
-                nothings.push_back(loop)
-            }
-            else
-            {
-                somethings.push_back(loop)
-
-                if (WantsToCreate(oldWorld[loop]))
-                {
-                    creators.push_back[loop];
-                }
-            }
+            if (nothing) nothings.push_back(loop);
+            if (willcreate) creators.push_back(loop);
+            if (cancollide) colliders.push_back(loop);
         }
 
         // SYNC!
@@ -324,11 +314,61 @@ vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> p
 
         // SYNC!
 
+        // seperate collisions so that only one entity is touched at most one time.
+        // sort the collision pairs so for (a,b) (a',b') that a < b, and a < a'. Also a!=b.
+        // so the array is like:
+        (1, 3) - d 2
+        (1, 5) - d 4
+        (2, 3) - d 1
+        (2, 4) - d 2
+        (3, 5) - d 2
+        (4, 5) - d 1
+        // hmm, that wont quite work. (1, 3) and (2, 3) touch 3 twice.
+        // so sorting the array that way isn't so good.
+        // I want the array:
+        // (1, 3)-(2, 4) (1, 5)-(2, 3)-(4, 5) (3, 5)
+        // hmm, what if sorted by a < b then distance then a < a'
+
+        (2, 3) - d 1
+        (4, 5) - d 1
+
+        (1, 3) - d 2  **
+        (2, 4) - d 2
+        (3, 5) - d 2  ** bah, mem collide.
+
+        (1, 5) - d 4
+
+        // hmmm, maybe sort so that a < a' && b < b'?
+        (1, 3) - d 2
+        (1, 5) - d 4
+        (2, 3) - d 1
+        (2, 4) - d 2
+        (3, 5) - d 2
+        (4, 5) - d 1
+        // nup, that doesn't work either.
+
         for (loop(collisions))
         {
             // need to think about this, as can have multiple collisions with multiple things
             // so that each collision resolution becomes dependent on the previous one (yuck).
+
+            // Each, do multiple loops only affecting one item at once, keep going until there are no more duplicates.
         }
+
+        // Finding and sorting out the duplicates is too hard. The physics engine has already done that so:
+
+        for (loop(colliders))
+        {
+            auto delta = {};
+            for (auto collider : GetCollisions(theWorld[loop]))
+            {
+                delta += ResolveCollision(theWorld[loop], collider);
+            }
+
+            collisionEntity.acceleration += delta / collsions.size();
+        }
+
+        // sync
     */
 }
 
