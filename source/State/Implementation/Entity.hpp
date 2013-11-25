@@ -43,6 +43,16 @@ enum class EntityType
     MaxValue = Constants
 };
 
+//enum class EntityType
+//{
+//    None,
+//    Player,
+//    Missle,
+//    Constants,
+
+//    MaxValue = Constants
+//};
+
 struct EntityNone
 {
 
