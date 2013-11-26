@@ -23,41 +23,38 @@
 
 #include "Entity.hpp"
 
-#include <boost/optional.hpp>
+#include <vector>
+#include <tuple>
+#include <functional>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct Colliding
+struct GameCode
 {
-    unsigned indexProtagonist;
-    unsigned indexAntagonist;
+    using TestSingle      = std::function<bool(const Entity&)>;
+    using TestPair        = std::function<bool(const Entity&, const Entity&)>;
+
+    using ActionThink     = std::function<Entity(Entity, const EntityConstants&)>;
+    using ActionCreate    = std::function<std::pair<Entity, Entity>(Entity)>;
+    using ActionMap       = std::function<Entity(Entity)>;
+    using ActionMapPair   = std::function<std::pair<Entity, Entity>(Entity, Entity)>;
+
+    // Tests
+    TestSingle  canThink;
+    TestSingle  canCreate;
+    TestSingle  canCollide;
+    TestSingle  canMove;
+
+    TestPair    collides;
+
+    // Actions
+    ActionThink     think;
+    ActionCreate    create;
+    ActionMapPair   resolve;
+    ActionMap       move;
 };
 
-struct Interaction
-{
-    using Filter = std::function<bool(const Entity&)>;
-    using Collision = std::function<bool(const Entity&, const Entity&)>;
-    using Reaction = std::function<Entity(Entity, const Entity&, const std::vector<const Entity*>&)>;
-
-    // Which items to test against
-    Filter filterProtagonist;
-    Filter filterAntogonist;
-
-    // Does a reaction happen?
-    Collision collide;
-
-    // What happens to the protagonist?
-    Reaction react;
-
-    // What happens to the antogonist?
-    Reaction reactReverse;
-
-    static inline Entity Copy(Entity copied, const Entity&, const std::vector<const Entity*>&) { return copied; }
-    static inline bool CollideAlways(const Entity&, const Entity&) { return true; }
-};
-
-std::vector<Colliding>  Collide(const std::vector<Entity>& theWorld);
-std::vector<Entity>     React(const std::vector<Colliding>& collisions, const std::vector<Entity>& theWorld);
+std::vector<Entity> Think(const std::vector<Entity>& oldWorld, GameCode theGame);
 
 }}} // namespace
 
