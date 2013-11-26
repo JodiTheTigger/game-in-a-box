@@ -18,22 +18,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITYMAP_HPP
-#define ENTITYMAP_HPP
+#ifndef GAMESIMPLE_HPP
+#define GAMESIMPLE_HPP
 
-#include "EntityTypes.hpp"
-#include "Types.hpp"
+#include "Entity.hpp"
 
-namespace GameInABox { namespace State { namespace Implementation {
+#include <tuple>
 
-struct EntityMap
-{
-    // For now a Map item is just a plane.
-    Position point;
-    Orientation normal;
-};
+namespace GameInABox { namespace State { namespace Implementation { namespace GameSimple {
 
-}}} // namespace
+// Tests
+bool CanThink(const Entity& target);
+bool CanCreate(const Entity& target);
+bool CanCollide(const Entity& target);
+bool CanMove(const Entity& target);
+bool Collides(const Entity& first, const Entity& second);
 
+// Actions
+Entity                      Think(Entity target, const EntityConstants&);
+std::pair<Entity, Entity>   Create(Entity target);
+std::pair<Entity, Entity>   Resolve(Entity first, Entity second);
+Entity                      Move(Entity target);
 
-#endif // ENTITYMISSLE_HPP
+}}}} // namespace
+
+#endif // GAME_HPP

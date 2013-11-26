@@ -287,6 +287,8 @@ source/State/Implementation/Matrix3x3.hpp
 source/State/Implementation/Quaternion.hpp
 source/State/Implementation/Game.hpp
 source/State/Implementation/Game.cpp
+source/State/Implementation/GameSimple.hpp
+source/State/Implementation/GameSimple.cpp
 source/State/Implementation/GameNetworkClient.hpp
 source/State/Implementation/GameNetworkClient.cpp
 source/State/Implementation/UnitsSI.hpp
