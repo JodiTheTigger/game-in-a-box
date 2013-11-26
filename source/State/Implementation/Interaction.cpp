@@ -33,13 +33,23 @@ using namespace std;
 // /////////////////////
 vector<Entity> Think(const vector<Entity>& oldWorld, GameCode theGame)
 {
-    array<vector<unsigned>, static_cast<int>(EntityType::MaxValue) + 1> filters;
     auto newWorld = vector<Entity>{};
     const auto size = oldWorld.size();
 
     newWorld.reserve(oldWorld.size());
 
-    // Step 1 - Copy the old world to the new world and Think.
+    // Step 1 - Find all the constants
+
+    auto constants = vector<unsigned>{};
+    for (unsigned i = 0; i < size; ++i)
+    {
+        if (oldWorld[i].type == EntityType::Constants)
+        {
+            constants.emplace_back(i);
+        }
+    }
+
+    // Step 2 - Copy the old world to the new world and Think.
     //          Also get a list of creators and nones.
 
     auto creators = vector<unsigned>{};
@@ -51,7 +61,7 @@ vector<Entity> Think(const vector<Entity>& oldWorld, GameCode theGame)
 
         if (theGame.canThink(newGuy))
         {
-            for (auto constantIndex : filters[static_cast<unsigned>(EntityType::Constants)])
+            for (auto constantIndex : constants)
             {
                 //-gravity to all players
                 //-move/jet/jump to all players
@@ -90,7 +100,7 @@ vector<Entity> Think(const vector<Entity>& oldWorld, GameCode theGame)
 
     // oldWorld is no longer referenced from here on.
 
-    // Step 2 - Convert None entities to something else (eg a missle).
+    // Step 3 - Convert None entities to something else (eg a missle).
     auto totalCreates = min(
             nothings.size(),
             creators.size());
@@ -100,7 +110,7 @@ vector<Entity> Think(const vector<Entity>& oldWorld, GameCode theGame)
         tie(newWorld[nothings[i]], newWorld[creators[i]]) = theGame.create(newWorld[creators[i]]);
     }
 
-    // Step 3 - Detect Collisions
+    // Step 4 - Detect Collisions
     auto collisions = vector<pair<unsigned, unsigned>>{};
 
     for (unsigned i = 0; i < size; ++i)
@@ -124,14 +134,14 @@ vector<Entity> Think(const vector<Entity>& oldWorld, GameCode theGame)
         }
     }
 
-    // Step 4 - Process Collisions
+    // Step 5 - Process Collisions
     for (const auto& collision : collisions)
     {
         tie(newWorld[collision.first], newWorld[collision.second]) =
                 theGame.resolve(newWorld[collision.first], newWorld[collision.second]);
     }
 
-    // Step 5 - Apply Acceleration to Velocity, Velocity to Position
+    // Step 6 - Apply Acceleration to Velocity, Velocity to Position
     for (auto& entity : newWorld)
     {
         if (theGame.canMove(entity))
