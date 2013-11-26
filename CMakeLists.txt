@@ -273,6 +273,7 @@ source/State/Implementation/Types.hpp
 source/State/Implementation/Entity.hpp
 source/State/Implementation/EntityPlayer.hpp
 source/State/Implementation/EntityMissle.hpp
+source/State/Implementation/EntityMap.hpp
 source/State/Implementation/EntityConstants.hpp
 source/State/Implementation/EntityTypes.hpp
 source/State/Implementation/Interaction.hpp

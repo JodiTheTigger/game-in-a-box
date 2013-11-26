@@ -18,52 +18,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITY_HPP
-#define ENTITY_HPP
+#ifndef ENTITYMAP_HPP
+#define ENTITYMAP_HPP
 
 #include "EntityTypes.hpp"
-#include "EntityPlayer.hpp"
-#include "EntityMissle.hpp"
-#include "EntityMap.hpp"
-#include "EntityConstants.hpp"
-
-#include <type_traits>
+#include "Types.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-enum class EntityType
+struct EntityMap
 {
-    None,
-    Player,
-    Missle,
-    Map,
-    Constants,
-
-    MaxValue = Constants
 };
-
-struct EntityNone
-{
-
-};
-
-struct Entity
-{
-    EntityType type;
-
-    union
-    {
-        EntityNone nothing;
-        EntityPlayer player;
-        EntityMissle missle;
-        EntityMap map;
-        EntityConstants constants;
-    };
-};
-
-// Error checking.
-static_assert(std::is_pod<Entity>::value, "Entity is not a plain old data structure (POD).");
 
 }}} // namespace
 
-#endif // ENTITY_HPP
+
+#endif // ENTITYMISSLE_HPP
