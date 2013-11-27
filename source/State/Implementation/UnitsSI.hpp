@@ -77,8 +77,21 @@ struct Quantity
 
 using Unitless = Unit<0,0,0>;
 
-using Meter = Unit<1,0,0>;
-using Meters = Meter;
+using Metre = Unit<1,0,0>;
+using Metres = Metre;
+// Grrr, Americans.
+using Meter = Metre;
+using Meters = Metre;
+
+using SquareMetre = Unit<2,0,0>;
+using SquareMetres = SquareMetre;
+using SquareMeter = SquareMetre;
+using SquareMeters = SquareMetre;
+
+using CubicMetre = Unit<3,0,0>;
+using CubicMetres = CubicMetre;
+using CubicMeter = CubicMetre;
+using CubicMeters = CubicMetre;
 
 using Kilogram = Unit<0,1,0>;
 using Kilograms = Kilogram;

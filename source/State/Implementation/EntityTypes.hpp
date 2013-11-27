@@ -49,7 +49,7 @@ struct Ammo
 };
 
 using Vector                = Units::Quantity<Units::Unitless, Vector3>;
-using Position              = Units::Quantity<Units::Meters, Vector3>;
+using Position              = Units::Quantity<Units::Metres, Vector3>;
 using Orientation           = Units::Quantity<Units::Radians, Vector3>;
 using Velocity              = Units::Quantity<Units::MetersPerSecond, Vector3>;
 using AccelerationVector    = Units::Quantity<Units::MetersPerSecondSquared, Vector3>;
@@ -63,8 +63,10 @@ using Mass                  = Units::Quantity<Units::Kilograms, float>;
 using Scalar                = Units::Quantity<Units::Unitless, float>;
 
 // Distance and Length are already used. Bah.
-using Spacing               = Units::Quantity<Units::Meters, float>;
-using Area                  = Units::Quantity<Units::Unit<2,0,0>, float>;
+// RAM: TODO: Investigate renaming Distance() and Length().
+using Spacing               = Units::Quantity<Units::Metres, float>;
+using Area                  = Units::Quantity<Units::SquareMetre, float>;
+using Volume                = Units::Quantity<Units::CubicMetres, float>;
 
 struct Yaw
 {
