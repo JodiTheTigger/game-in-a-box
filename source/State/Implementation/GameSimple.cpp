@@ -56,14 +56,85 @@ bool CanMove(const Entity& target)
 
 bool Collides(const Entity& first, const Entity& second)
 {
+    // Assert(CanCollide(first));
+    // Assert(CanCollide(second));
+
     if ((first.type == EntityType::Map) && (second.type == EntityType::Map))
     {
         // maps don't collide with maps.
         return false;
     }
 
-    // RAM: TODO:
-    return false;
+    // world - player
+    // world - missle
+    // player - player
+    // player - missle
+    // missle - missle
+    const Entity* a = &first;
+    const Entity* b = &second;
+
+    if (first.type != EntityType::Map)
+    {
+        if ((second.type == EntityType::Map) || (second.type == EntityType::Player))
+        {
+            a = &second;
+            b = &first;
+        }
+    }
+
+    // b will never be a EntityMap.
+    auto position =
+            b->type == EntityType::Player ?
+                b->player.position :
+                b->missle.position;
+
+    auto minLength =
+            b->type == EntityType::Player ?
+                b->player.collisionRadius :
+                b->missle.collisionRadius;
+
+    switch (a->type)
+    {
+        case EntityType::Map:
+        {
+            auto distance = Spacing{DotF(
+                        a->map.normal.value,
+                        position.value - a->map.point.value)};
+
+            if (distance < minLength)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        case EntityType::Player:
+        case EntityType::Missle:
+        {
+            using namespace GameInABox::State::Implementation::Units;
+
+            auto delta = a->player.position - position;
+            auto distanceSquared = Area{DistanceSquaredF(a->player.position, position)};
+
+            if (distanceSquared < (minLength * minLength))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        default:
+        {
+            // RAM: TODO: Error
+            return false;
+        }
+    }
 }
 
 // /////////////////

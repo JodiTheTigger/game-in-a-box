@@ -80,6 +80,8 @@ struct EntityPlayer
     // Server side
     Tick lastFired;
     FlagsPlayerAction allowedAction;
+
+    Spacing collisionRadius;
 };
 
 }}} // namespace

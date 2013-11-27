@@ -40,6 +40,11 @@ struct EntityMissle
     Tick                startTick;
     Position            start;
     Id                  owner;
+
+    // RAM: do I need to calculate this each tick?
+    Position            position;
+
+    Spacing             collisionRadius;
 };
 
 }}} // namespace
