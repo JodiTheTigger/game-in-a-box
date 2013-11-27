@@ -306,14 +306,14 @@ TEST_F(TestVector4, FnDot)
     }
 }
 
-TEST_F(TestVector4, FnLength)
+TEST_F(TestVector4, FnMagnitude)
 {
     auto asize = groupA.size();
 
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector4{groupA[i].values};
-        auto result = Length(a);
+        auto result = Magnitude(a);
         auto l =
                 sqrt((groupA[i].values[0] * groupA[i].values[0]) +
                      (groupA[i].values[1] * groupA[i].values[1]) +
@@ -327,19 +327,19 @@ TEST_F(TestVector4, FnLength)
     }
 }
 
-TEST_F(TestVector4, FnLengthSquared)
+TEST_F(TestVector4, FnPlaneArea)
 {
     auto asize = groupA.size();
 
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector4{groupA[i].values};
-        auto result = Length(a);
+        auto result = PlaneArea(a);
         auto l =
-                sqrt((groupA[i].values[0] * groupA[i].values[0]) +
-                     (groupA[i].values[1] * groupA[i].values[1]) +
-                     (groupA[i].values[2] * groupA[i].values[2]) +
-                     (groupA[i].values[3] * groupA[i].values[3]));
+                (groupA[i].values[0] * groupA[i].values[0]) +
+                (groupA[i].values[1] * groupA[i].values[1]) +
+                (groupA[i].values[2] * groupA[i].values[2]) +
+                (groupA[i].values[3] * groupA[i].values[3]);
 
 
 

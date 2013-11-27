@@ -148,7 +148,7 @@ inline Quaternion SLerp(const Quaternion& lhs, const Quaternion& rhs, float scal
     // Adapted from bullet3
     auto vector4lhs = Vector4{lhs.values};
     auto vector4rhs = Vector4{rhs.values};
-    auto magnitude  = std::sqrt(LengthSquaredF(vector4lhs) * LengthSquaredF(vector4rhs));
+    auto magnitude  = std::sqrt(MagnitudeF(vector4lhs) * MagnitudeF(vector4rhs));
 
     // RAM: TODO: deal with quaternions that are too close. Ie magnitude !> 0
 

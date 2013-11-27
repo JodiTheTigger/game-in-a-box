@@ -44,7 +44,7 @@ struct EntityMissle
     // RAM: do I need to calculate this each tick?
     Position            position;
 
-    Spacing             collisionRadius;
+    Length              collisionRadius;
 };
 
 }}} // namespace

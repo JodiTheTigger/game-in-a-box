@@ -62,9 +62,7 @@ using Energy                = Units::Quantity<Units::Joules, float>;
 using Mass                  = Units::Quantity<Units::Kilograms, float>;
 using Scalar                = Units::Quantity<Units::Unitless, float>;
 
-// Distance and Length are already used. Bah.
-// RAM: TODO: Investigate renaming Distance() and Length().
-using Spacing               = Units::Quantity<Units::Metres, float>;
+using Length                = Units::Quantity<Units::Metres, float>;
 using Area                  = Units::Quantity<Units::SquareMetre, float>;
 using Volume                = Units::Quantity<Units::CubicMetres, float>;
 
@@ -77,14 +75,19 @@ struct Yaw
 // Helpers
 // ///////////////////
 template<typename UNIT>
-Vector Normalise(const Units::Quantity<UNIT, Vector3>& lhs)
+inline Vector Normalise(const Units::Quantity<UNIT, Vector3>& lhs)
 {
     return Vector{Normalise(lhs.value)};
 }
 
-Speed GetSpeed(const Velocity& lhs)
+inline Speed GetSpeed(const Velocity& lhs)
 {
-    return Speed{LengthF(lhs.value)};
+    return Speed{MagnitudeF(lhs.value)};
+}
+
+inline Area PlaneArea(const Position& corner1, const Position& corner2)
+{
+    return {PlaneAreaF(corner1.value - corner2.value)};
 }
 
 // /////////////////////

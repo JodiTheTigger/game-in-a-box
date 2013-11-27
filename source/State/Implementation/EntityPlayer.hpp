@@ -81,7 +81,7 @@ struct EntityPlayer
     Tick lastFired;
     FlagsPlayerAction allowedAction;
 
-    Spacing collisionRadius;
+    Length collisionRadius;
 };
 
 }}} // namespace

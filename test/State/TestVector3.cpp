@@ -285,14 +285,14 @@ TEST_F(TestVector3, FnDot)
     }
 }
 
-TEST_F(TestVector3, FnLength)
+TEST_F(TestVector3, FnMagnitude)
 {
     auto asize = groupA.size();
 
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector3{groupA[i].values};
-        auto result = Length(a);
+        auto result = Magnitude(a);
         auto l =
                 sqrt((groupA[i].values[0] * groupA[i].values[0]) +
                      (groupA[i].values[1] * groupA[i].values[1]) +
@@ -304,20 +304,18 @@ TEST_F(TestVector3, FnLength)
     }
 }
 
-TEST_F(TestVector3, FnLengthSquared)
+TEST_F(TestVector3, FnPlaneArea)
 {
     auto asize = groupA.size();
 
     for (uint i = 0 ; i < asize; ++i)
     {
         auto a = Vector3{groupA[i].values};
-        auto result = Length(a);
+        auto result = PlaneArea(a);
         auto l =
-                sqrt((groupA[i].values[0] * groupA[i].values[0]) +
-                     (groupA[i].values[1] * groupA[i].values[1]) +
-                     (groupA[i].values[2] * groupA[i].values[2]));
-
-
+                (groupA[i].values[0] * groupA[i].values[0]) +
+                (groupA[i].values[1] * groupA[i].values[1]) +
+                (groupA[i].values[2] * groupA[i].values[2]);
 
         ASSERT_FLOAT_EQ(result.values[0], l) << " i: " << i;
         ASSERT_FLOAT_EQ(result.values[1], l);

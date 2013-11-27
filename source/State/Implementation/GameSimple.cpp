@@ -23,16 +23,6 @@
 namespace GameInABox { namespace State { namespace Implementation { namespace GameSimple {
 
 // /////////////////
-// Helpers
-// /////////////////
-
-// RAM: TODO: how to keep this using unit maths? That is, generalise this function.
-Area PlaneArea(const Position& corner1, const Position& corner2)
-{
-    return {LengthSquaredF(corner1.value - corner2.value)};
-}
-
-// /////////////////
 // Tests
 // /////////////////
 
@@ -107,7 +97,7 @@ bool Collides(const Entity& first, const Entity& second)
     {
         case EntityType::Map:
         {
-            auto distance = Spacing{DotF(
+            auto distance = Length{DotF(
                         a->map.normal.value,
                         position.value - a->map.point.value)};
 

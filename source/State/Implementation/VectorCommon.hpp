@@ -43,21 +43,21 @@ inline bool IsZeroFuzzy(const VECTOR& lhs)
 // ///////////////////
 
 template <typename VECTOR>
-inline VECTOR LengthSquared(const VECTOR& lhs)
+inline VECTOR PlaneArea(const VECTOR& lhs)
 {
     return Dot(lhs, lhs);
 }
 
 template <typename VECTOR>
-inline VECTOR Length(const VECTOR& lhs)
+inline VECTOR Magnitude(const VECTOR& lhs)
 {
-    return Sqrt(LengthSquared(lhs));
+    return Sqrt(PlaneArea(lhs));
 }
 
 template <typename VECTOR>
 inline VECTOR Normalise(VECTOR lhs)
 {
-    auto length = Length(lhs);
+    auto length = Magnitude(lhs);
 
     if (length.values[0] > 0.0f)
     {
@@ -76,21 +76,22 @@ inline VECTOR Normalise(VECTOR lhs)
 // use the value in more vector calculations.
 
 template <typename VECTOR>
-inline float LengthSquaredF(const VECTOR& lhs)
+inline float PlaneAreaF(const VECTOR& lhs)
 {
     return DotF(lhs, lhs);
 }
 
 template <typename VECTOR>
-inline float LengthF(const VECTOR& lhs)
+inline float MagnitudeF(const VECTOR& lhs)
 {
-    return sqrt(LengthSquaredF(lhs));
+    return sqrt(PlaneAreaF(lhs));
 }
 
 template <typename VECTOR>
 inline Radians AngleF(const VECTOR& lhs, const VECTOR& rhs)
 {
-    auto squaredLengths = LengthSquaredF(lhs) * LengthSquaredF(rhs);
+    // RAM: Investigate keeping the maths in vector form.
+    auto squaredLengths = PlaneAreaF(lhs) * PlaneAreaF(rhs);
 
     return {std::acos(DotF(lhs, rhs) / squaredLengths)};
 }
