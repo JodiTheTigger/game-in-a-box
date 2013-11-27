@@ -64,6 +64,8 @@ struct Entity
 
 // Error checking.
 static_assert(std::is_pod<Entity>::value, "Entity is not a plain old data structure (POD).");
+// Not supported by the GCC standard library yet.
+//static_assert(std::is_trivially_copyable<Entity>::value, "Entity is not trivially copyable.");
 
 }}} // namespace
 
