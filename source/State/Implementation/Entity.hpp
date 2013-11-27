@@ -22,9 +22,9 @@
 #define ENTITY_HPP
 
 #include "EntityTypes.hpp"
-#include "EntityTime.hpp"
 #include "EntityPlayer.hpp"
 #include "EntityMissle.hpp"
+#include "EntityMap.hpp"
 #include "EntityConstants.hpp"
 
 #include <type_traits>
@@ -34,10 +34,9 @@ namespace GameInABox { namespace State { namespace Implementation {
 enum class EntityType
 {
     None,
-    Time,
     Player,
-    PlayerAction,
     Missle,
+    Map,
     Constants,
 
     MaxValue = Constants
@@ -55,9 +54,9 @@ struct Entity
     union
     {
         EntityNone nothing;
-        EntityTime time;
         EntityPlayer player;
         EntityMissle missle;
+        EntityMap map;
         EntityConstants constants;
     };
 };

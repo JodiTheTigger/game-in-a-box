@@ -18,18 +18,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef ENTITYTIME_HPP
-#define ENTITYTIME_HPP
+#ifndef ENTITYMAP_HPP
+#define ENTITYMAP_HPP
 
 #include "EntityTypes.hpp"
+#include "Types.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation {
 
-struct EntityTime
+struct EntityMap
 {
-    Tick time;
+    // For now a Map item is just a plane.
+    Position point;
+    Orientation normal;
 };
 
 }}} // namespace
 
-#endif // ENTITYTIME_HPP
+
+#endif // ENTITYMISSLE_HPP

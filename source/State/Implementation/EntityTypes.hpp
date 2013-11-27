@@ -62,6 +62,10 @@ using Energy                = Units::Quantity<Units::Joules, float>;
 using Mass                  = Units::Quantity<Units::Kilograms, float>;
 using Scalar                = Units::Quantity<Units::Unitless, float>;
 
+// Distance and Length are already used. Bah.
+using Spacing               = Units::Quantity<Units::Meters, float>;
+using Area                  = Units::Quantity<Units::Unit<2,0,0>, float>;
+
 struct Yaw
 {
     Angle value;

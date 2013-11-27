@@ -22,122 +22,135 @@
 
 #include <array>
 #include <algorithm>
+#include <tuple>
 
 namespace GameInABox { namespace State { namespace Implementation {
 
 using namespace std;
 
-static const unsigned EntityTypeCount = static_cast<unsigned>(EntityType::MaxValue) + 1;
-
-array<EntityType, EntityTypeCount> EntityTypes
-{{
-    EntityType::None,
-    EntityType::Time,
-    EntityType::Player,
-    EntityType::PlayerAction,
-    EntityType::Missle
-}};
-
-/* RAM: this is what it used to look like.
-// I Hate cut 'n' paste code as much as anyone, but I hate macros more by the look of it.
-array<Intersection, IntersectCount> GIntersects
-{{
-    // RAM: TODO: Keep None around till I know I don't need it, then remove it.
-    //IntersectFactory<EntityType::None>::Get(),
-    Factory<Intersection, EntityType::Time>::Get(),
-    Factory<Intersection, EntityType::Player>::Get(),
-    Factory<Intersection, EntityType::PlayerAction>::Get(),
-    Factory<Intersection, EntityType::Missle>::Get()
-}};
-*/
-
-vector<Colliding> Collide(const vector<Entity>& theWorld)
+// /////////////////////
+// NOTE: Idealally the loops can be parallelised.
+// /////////////////////
+vector<Entity> Think(const vector<Entity>& oldWorld, GameCode theGame)
 {
-    // Sort entites into arrays based on type.
-    array<vector<const Entity*>, EntityTypeCount> primaries{{}};
+    auto newWorld = vector<Entity>{};
+    const auto size = oldWorld.size();
 
-    for (unsigned i = 0; i < primaries.size(); ++i)
+    newWorld.reserve(oldWorld.size());
+
+    // Step 1 - Find all the constants
+
+    auto constants = vector<unsigned>{};
+    for (unsigned i = 0; i < size; ++i)
     {
-        for (const auto& ent : theWorld)
+        if (oldWorld[i].type == EntityType::Constants)
         {
-            if (ent.type == EntityTypes[i])
+            constants.emplace_back(i);
+        }
+    }
+
+    // Step 2 - Copy the old world to the new world and Think.
+    //          Also get a list of creators and nones.
+
+    auto creators = vector<unsigned>{};
+    auto nothings = vector<unsigned>{};
+
+    for (unsigned i = 0; i < size; ++i)
+    {
+        Entity newGuy = oldWorld[i];
+
+        if (theGame.canThink(newGuy))
+        {
+            for (auto constantIndex : constants)
             {
-                primaries[i].push_back(&ent);
+                //-gravity to all players
+                //-move/jet/jump to all players
+                //-jet to all missles
+                //-jet energy (can player jet)
+                //-health (is player alive)
+                //-has game finished
+                //-missle timer (can player fire missle)
+                //-fire missles
+                //-exploder missle
+                //-transfer points from/to missle target
+                //-kill player is player health < 0
+                //-slow player speed if on ground (friction)
+                //-slow player speed if in air (drag)
+                //-cap speed if larger than max game speed
+                //-player hitting ground on a fall
+                //-changing type
+                newGuy = theGame.think(newGuy, oldWorld[constantIndex].constants);
+            }
+        }
+
+        if (theGame.canCreate(newGuy))
+        {
+            creators.emplace_back(i);
+        }
+        else
+        {
+            if (newGuy.type == EntityType::None)
+            {
+                nothings.emplace_back(i);
+            }
+        }
+
+        newWorld.emplace_back(newGuy);
+    }
+
+    // oldWorld is no longer referenced from here on.
+
+    // Step 3 - Convert None entities to something else (eg a missle).
+    auto totalCreates = min(
+            nothings.size(),
+            creators.size());
+
+    for (unsigned i = 0; i < totalCreates; ++i)
+    {
+        tie(newWorld[nothings[i]], newWorld[creators[i]]) = theGame.create(newWorld[creators[i]]);
+    }
+
+    // Step 4 - Detect Collisions
+    auto collisions = vector<pair<unsigned, unsigned>>{};
+
+    for (unsigned i = 0; i < size; ++i)
+    {
+        const auto& a = newWorld[i];
+
+        if (theGame.canCollide(a))
+        {
+            for (unsigned j = i + 1; j < size; ++j)
+            {
+                const auto& b = newWorld[j];
+
+                if (theGame.canCollide(b))
+                {
+                    if (theGame.collides(a, b))
+                    {
+                        collisions.emplace_back(i,j);
+                    }
+                }
             }
         }
     }
 
-    // enumerate over all the registered Interactions and, well, test for all the collisions.
-    array<vector<Colliding>, EntityTypeCount> results{{}};
-
-    /*
-    for (unsigned i = 0; i < GIntersects.size(); ++i)
+    // Step 5 - Process Collisions
+    for (const auto& collision : collisions)
     {
-        for (auto& primary : primaries[i])
-        {
-            results[i] = GIntersects[i].test(*primary, targets[i]);
-        }
-    }*/
-
-    // collapse/join the results.
-    vector<Colliding> result{};
-
-    for (auto& toJoin : results)
-    {
-        result.insert(end(result), begin(toJoin), end(toJoin));
+        tie(newWorld[collision.first], newWorld[collision.second]) =
+                theGame.resolve(newWorld[collision.first], newWorld[collision.second]);
     }
 
-    return result;
-}
-
-vector<Entity> React(const vector<Colliding>& /*collisions*/, const vector<Entity>& theWorld)
-{
-    // RAM: TODO: STUB!
-    return theWorld;
-}
-
-// The actual gamestate programme for parallel processing:
-struct SequenceProcess
-{
-    using Reduce = std::function<Entity(Entity, Entity)>;
-
-    // all these can be done in parallel
-    vector<Interaction> processes;
-    Reduce shrinker;
-};
-
-vector<Entity> Process(const vector<Entity>& theWorld, vector<SequenceProcess> program)
-{
-    auto result = theWorld;
-
-    for (auto task : program)
+    // Step 6 - Apply Acceleration to Velocity, Velocity to Position
+    for (auto& entity : newWorld)
     {
-        // Get filter list
-        auto filterList = vector<Interaction::Filter>{};
-
-        for(const auto& filter : task.processes)
+        if (theGame.canMove(entity))
         {
-            filterList.push_back(filter.filterProtagonist);
-            filterList.push_back(filter.filterAntogonist);
+            entity = theGame.move(entity);
         }
-
-        // Filter
-        // Gonna have to investigate doing all this stuff using pointers so I don't
-        // copy everything every which way (even with c++11 && semantics).
-        /*
-        auto filtered = vector<vector<Entity>>{};
-        for (auto f : filterList)
-        {
-            remove_copy_if
-            filtered.push_back(remove_if(begin(theWorld), end(theWorld), f));
-        }*/
-
-        // Collide
-
-        // React
     }
 
-    return result;
+    return newWorld;
 }
 
 }}} // namespace
