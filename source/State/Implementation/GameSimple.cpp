@@ -23,6 +23,16 @@
 namespace GameInABox { namespace State { namespace Implementation { namespace GameSimple {
 
 // /////////////////
+// Helpers
+// /////////////////
+
+// RAM: TODO: how to keep this using unit maths? That is, generalise this function.
+Area PlaneArea(const Position& corner1, const Position& corner2)
+{
+    return {DistanceSquaredF(corner1.value, corner2.value)};
+}
+
+// /////////////////
 // Tests
 // /////////////////
 
@@ -116,10 +126,9 @@ bool Collides(const Entity& first, const Entity& second)
         {
             using namespace GameInABox::State::Implementation::Units;
 
-            auto delta = a->player.position - position;
-            auto distanceSquared = Area{DistanceSquaredF(a->player.position, position)};
+            auto area = PlaneArea(a->player.position, position);
 
-            if (distanceSquared < (minLength * minLength))
+            if (area < (minLength * minLength))
             {
                 return true;
             }
