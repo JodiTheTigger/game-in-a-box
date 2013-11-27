@@ -29,7 +29,7 @@ namespace GameInABox { namespace State { namespace Implementation { namespace Ga
 // RAM: TODO: how to keep this using unit maths? That is, generalise this function.
 Area PlaneArea(const Position& corner1, const Position& corner2)
 {
-    return {DistanceSquaredF(corner1.value, corner2.value)};
+    return {LengthSquaredF(corner1.value - corner2.value)};
 }
 
 // /////////////////

@@ -55,18 +55,6 @@ inline VECTOR Length(const VECTOR& lhs)
 }
 
 template <typename VECTOR>
-inline VECTOR Distance(const VECTOR& lhs, const VECTOR& rhs)
-{
-    return Length(lhs - rhs);
-}
-
-template <typename VECTOR>
-inline VECTOR DistanceSquared(const VECTOR& lhs, const VECTOR& rhs)
-{
-    return LengthSquared(lhs - rhs);
-}
-
-template <typename VECTOR>
 inline VECTOR Normalise(VECTOR lhs)
 {
     auto length = Length(lhs);
@@ -97,18 +85,6 @@ template <typename VECTOR>
 inline float LengthF(const VECTOR& lhs)
 {
     return sqrt(LengthSquaredF(lhs));
-}
-
-template <typename VECTOR>
-inline float DistanceF(const VECTOR& lhs, const VECTOR& rhs)
-{
-    return LengthF(lhs - rhs);
-}
-
-template <typename VECTOR>
-inline float DistanceSquaredF(const VECTOR& lhs, const VECTOR& rhs)
-{
-    return LengthSquaredF(lhs - rhs);
 }
 
 template <typename VECTOR>
