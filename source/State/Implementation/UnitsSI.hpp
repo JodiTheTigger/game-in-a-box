@@ -152,9 +152,9 @@ inline constexpr Quantity<UNIT, T> operator-(const Quantity<UNIT, T>& lhs)
 }
 
 template<typename UNIT, typename T1, typename T2>
-inline Quantity<UNIT, T1> operator+(Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){ lhs += rhs;  return lhs; }
+inline Quantity<UNIT, T1> operator+(Quantity<UNIT, T1> lhs, const Quantity<UNIT, T2>& rhs){ lhs += rhs;  return lhs; }
 template<typename UNIT, typename T1, typename T2>
-inline Quantity<UNIT, T1> operator-(Quantity<UNIT, T1>& lhs, const Quantity<UNIT, T2>& rhs){ lhs -= rhs;  return lhs; }
+inline Quantity<UNIT, T1> operator-(Quantity<UNIT, T1> lhs, const Quantity<UNIT, T2>& rhs){ lhs -= rhs;  return lhs; }
 
 template<int M1, int M2, int K1, int K2, int S1, int S2, typename T1, typename T2>
 inline Quantity<Unit<M1+M2, K1+K2, S1+S2>, T1> operator*(const Quantity<Unit<M1, K1, S1>, T1>& lhs, const Quantity<Unit<M2, K2, S2>, T2>& rhs)
