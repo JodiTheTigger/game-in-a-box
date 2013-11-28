@@ -64,10 +64,7 @@ struct EntityPlayer
     // time is just another data point.
     Tick time;
 
-    // Copied from the network system.
-    PlayerAction input;
 
-    Position position;
     Velocity velocity;
     Velocity delta;
 
@@ -80,6 +77,14 @@ struct EntityPlayer
     // Server side
     Tick lastFired;
     FlagsPlayerAction allowedAction;
+
+    // USED IN CODE SO FAR
+    // -------------------
+    Position position;
+    AccelerationVector acceleration;
+
+    // Copied from the network system.
+    PlayerAction input;
 
     Length collisionRadius;
 };

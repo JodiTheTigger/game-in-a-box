@@ -19,8 +19,12 @@
 */
 
 #include "GameSimple.hpp"
+#include "PlayerFunctions.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation { namespace GameSimple {
+
+Entity ThinkPlayer(Entity target, const EntityConstants&);
+Entity ThinkMissle(Entity target, const EntityConstants&);
 
 // /////////////////
 // Tests
@@ -56,6 +60,7 @@ bool CanMove(const Entity& target)
 
 bool Collides(const Entity& first, const Entity& second)
 {
+    // RAM: TODO: Get an Assert class and start using it.
     // Assert(CanCollide(first));
     // Assert(CanCollide(second));
 
@@ -140,9 +145,32 @@ bool Collides(const Entity& first, const Entity& second)
 // Actions
 // /////////////////
 
-Entity Think(Entity target, const EntityConstants&)
+Entity Think(Entity target, const EntityConstants& constants)
 {
-    // RAM: TODO:
+    if (target.type == EntityType::Player)
+    {
+        return ThinkPlayer(target, constants);
+    }
+    else
+    {
+        return ThinkMissle(target, constants);
+    }
+}
+
+Entity ThinkPlayer(Entity target, const EntityConstants& constants)
+{
+    // Jump, Move, Jet
+    // RAM: Calculate jet energy usage.
+    target.player.acceleration = PlayerMovement(target.player, constants);
+
+    // RAM: TODO: The rest.
+
+    return target;
+}
+
+Entity ThinkMissle(Entity target, const EntityConstants&)
+{
+    // RAM: TODO: add thrust, remove drag
     return target;
 }
 
