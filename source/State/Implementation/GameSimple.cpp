@@ -20,6 +20,7 @@
 
 #include "GameSimple.hpp"
 #include "PlayerFunctions.hpp"
+#include "Flags.hpp"
 
 namespace GameInABox { namespace State { namespace Implementation { namespace GameSimple {
 
@@ -159,6 +160,22 @@ Entity Think(Entity target, const EntityConstants& constants)
 
 Entity ThinkPlayer(Entity target, const EntityConstants& constants)
 {
+    // Refill timebased fuel/ammo counts.
+    // RAM: TODO: unit maths!
+    target.player.energyShoot.value += constants.regenerationPerTickAmmo.value;
+    target.player.fuel += constants.regenerationPerTickJetEnergy;
+
+    // Can I Jet?
+    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Jet))
+    {
+        if (target.player.fuel > constants.jetEnergyUsedPerTick)
+        {
+            target.player.fuel -= constants.jetEnergyUsedPerTick;
+
+            FlagSet(target.player.allowedAction, FlagsPlayerAction::Jet);
+        }
+    }
+
     // Jump, Move, Jet
     // RAM: Calculate jet energy usage.
     target.player.acceleration = PlayerMovement(target.player, constants);

@@ -16,6 +16,14 @@ struct EntityConstants
     AccelerationScalar impulseJet;
 
     Scalar airControl;
+
+    // Not sure this is the correct unit to use
+    // as I cannot get the maths to make sense
+    // converting this to acceleration.
+    Energy jetEnergyUsedPerTick;
+    Energy regenerationPerTickJetEnergy;
+
+    Ammo regenerationPerTickAmmo;
 };
 
 }}} // namespace

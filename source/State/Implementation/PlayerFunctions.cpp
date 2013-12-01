@@ -97,12 +97,6 @@ AccelerationVector PlayerMovement(const EntityPlayer& player, const EntityConsta
 }
 
 
-FlagsPlayerAction PlayerPermissions(const EntityPlayer&)
-{
-    // RAM: TODO!
-    return {};
-}
-
 
 AccelerationVector ResolveCollision(const EntityPlayer&, const EntityPlayer&, const Position&)
 {
