@@ -32,6 +32,7 @@ struct EntityConstants
     // Missle
     Length explodeSizeDeltaPerTick;
     Length explodeMaxSize;
+    Speed missleSpeed;
 };
 
 }}} // namespace

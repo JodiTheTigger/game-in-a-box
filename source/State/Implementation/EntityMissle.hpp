@@ -43,7 +43,8 @@ struct EntityMissle
     EntityStateMissle   state;
     Id                  owner;
     Position            position;
-    Velocity            velocity;
+    Orientation         direction;
+    Speed               speed;
 
     Length              collisionRadius;
 };

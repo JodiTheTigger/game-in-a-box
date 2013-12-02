@@ -210,7 +210,7 @@ Entity ThinkMissle(Entity target, const EntityConstants& constants)
     {
         case EntityStateMissle::Flying:
         {
-            // don't do anything
+            target.missle.speed = constants.missleSpeed;
             return target;
         }
 
@@ -243,7 +243,56 @@ Entity ThinkMissle(Entity target, const EntityConstants& constants)
 
 std::pair<Entity, Entity> Create(Entity target)
 {
-    // RAM: TODO:
+    if (target.type == EntityType::Player)
+    {
+        if (FlagIsSet(target.player.allowedAction, FlagsPlayerAction::Fire))
+        {
+            FlagClear(target.player.allowedAction, FlagsPlayerAction::Fire);
+
+            auto asMissle = Entity
+            {
+                EntityType::Missle,
+                EntityMissle
+                {
+                    // Ignored for now.
+                    Tick{{}},
+                    Tick{{}},
+                    {0.0f},
+
+                    EntityStateMissle::Flying,
+                    target.player.id,
+                    target.player.position + target.player.input.weaponOffset,
+                    target.player.input.weaponPointing,
+                    {0.0f},
+                    {0.0f}
+                }
+            };
+
+            return
+            {
+                {
+                    EntityType::Missle,
+                    EntityMissle
+                    {
+                        // Ignored for now.
+                        Tick{{}},
+                        Tick{{}},
+                        {0.0f},
+
+                        EntityStateMissle::Flying,
+                        target.player.id,
+                        target.player.position + target.player.input.weaponOffset,
+                        target.player.input.weaponPointing,
+                        {0.0f},
+                        {0.0f}
+                    }
+                },
+                target
+            };
+        }
+    }
+
+    // default.
     return
     {
         {
