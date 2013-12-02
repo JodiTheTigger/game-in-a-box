@@ -23,7 +23,15 @@ struct EntityConstants
     Energy jetEnergyUsedPerTick;
     Energy regenerationPerTickJetEnergy;
 
+    Ammo ammoPerShot;
     Ammo regenerationPerTickAmmo;
+
+    Health regenerationPerTickHealth;
+    Health deadHealth;
+
+    // Missle
+    Length explodeSizeDeltaPerTick;
+    Length explodeMaxSize;
 };
 
 }}} // namespace

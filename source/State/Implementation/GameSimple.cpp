@@ -160,34 +160,84 @@ Entity Think(Entity target, const EntityConstants& constants)
 
 Entity ThinkPlayer(Entity target, const EntityConstants& constants)
 {
-    // Refill timebased fuel/ammo counts.
-    // RAM: TODO: unit maths!
-    target.player.energyShoot.value += constants.regenerationPerTickAmmo.value;
-    target.player.fuel += constants.regenerationPerTickJetEnergy;
-
-    // Can I Jet?
-    if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Jet))
+    if (!FlagIsSet(target.player.allowedAction, FlagsPlayerAction::Dead))
     {
-        if (target.player.fuel > constants.jetEnergyUsedPerTick)
-        {
-            target.player.fuel -= constants.jetEnergyUsedPerTick;
+        // Refill timebased fuel/ammo counts.
+        // RAM: TODO: unit maths!
+        target.player.energyShoot.value += constants.regenerationPerTickAmmo.value;
+        target.player.fuel += constants.regenerationPerTickJetEnergy;
+        target.player.health.value += constants.regenerationPerTickHealth.value;
 
-            FlagSet(target.player.allowedAction, FlagsPlayerAction::Jet);
+        // Can I Jet?
+        if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Jet))
+        {
+            if (target.player.fuel > constants.jetEnergyUsedPerTick)
+            {
+                target.player.fuel -= constants.jetEnergyUsedPerTick;
+
+                FlagSet(target.player.allowedAction, FlagsPlayerAction::Jet);
+            }
+        }
+
+        // Jump, Move, Jet
+        target.player.acceleration = PlayerMovement(target.player, constants);
+
+        // Shoot
+        if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Fire))
+        {
+            if (target.player.energyShoot.value > constants.ammoPerShot.value)
+            {
+                target.player.energyShoot.value -= constants.ammoPerShot.value;
+
+                FlagSet(target.player.allowedAction, FlagsPlayerAction::Fire);
+            }
+        }
+
+        // Die
+        if (target.player.health.value < constants.deadHealth.value)
+        {
+            FlagSet(target.player.allowedAction, FlagsPlayerAction::Dead);
         }
     }
-
-    // Jump, Move, Jet
-    // RAM: Calculate jet energy usage.
-    target.player.acceleration = PlayerMovement(target.player, constants);
-
-    // RAM: TODO: The rest.
 
     return target;
 }
 
-Entity ThinkMissle(Entity target, const EntityConstants&)
+Entity ThinkMissle(Entity target, const EntityConstants& constants)
 {
-    // RAM: TODO: add thrust, remove drag
+    // Be simple, just apply thrust, ignore gravity.
+    switch (target.missle.state)
+    {
+        case EntityStateMissle::Flying:
+        {
+            // don't do anything
+            return target;
+        }
+
+        case EntityStateMissle::Exploding:
+        {
+            target.missle.collisionRadius += constants.explodeSizeDeltaPerTick;
+
+            if (target.missle.collisionRadius >= constants.explodeMaxSize)
+            {
+                target.missle.state = EntityStateMissle::Scoring;
+            }
+
+            return target;
+        }
+
+        case EntityStateMissle::Scoring:
+        {
+            // done scoring, we're nothing now.
+            return
+            {
+                EntityType::None,
+                EntityNone{}
+            };
+        }
+    }
+
+    // RAM: TODO: Error
     return target;
 }
 

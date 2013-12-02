@@ -36,13 +36,14 @@ enum class EntityStateMissle : uint32_t
 struct EntityMissle
 {
     Tick                time;
-    EntityStateMissle   state;
     Tick                startTick;
     Position            start;
-    Id                  owner;
 
-    // RAM: do I need to calculate this each tick?
+    // USED IN CODE
+    EntityStateMissle   state;
+    Id                  owner;
     Position            position;
+    Velocity            velocity;
 
     Length              collisionRadius;
 };

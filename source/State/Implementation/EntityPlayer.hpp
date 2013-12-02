@@ -39,7 +39,8 @@ enum class FlagsPlayerAction : uint32_t
     Fire    = (1 << 5),
 
     // Server side only.
-    Ground  = (1 << 6)
+    Ground  = (1 << 6),
+    Dead    = (1 << 7)
 };
 
 struct PlayerAction
@@ -80,6 +81,7 @@ struct EntityPlayer
     AccelerationVector acceleration;
     Energy fuel;
     Ammo energyShoot;
+    Health health;
 
     // Copied from the network system.
     PlayerAction input;
