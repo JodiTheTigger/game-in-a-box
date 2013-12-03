@@ -243,51 +243,32 @@ Entity ThinkMissle(Entity target, const EntityConstants& constants)
 
 std::pair<Entity, Entity> Create(Entity target)
 {
+    // hmm, maybe not a good idea using unions after all.
+    // since only the first member is initilised using brace initilisation.
+    auto creation = Entity{EntityType::None, EntityNone{}};
+    creation.nothing = EntityNone{};
+
     if (target.type == EntityType::Player)
     {
         if (FlagIsSet(target.player.allowedAction, FlagsPlayerAction::Fire))
         {
             FlagClear(target.player.allowedAction, FlagsPlayerAction::Fire);
 
-            auto asMissle = Entity
+            // bah, can't initilise unions, as only the first member is initilised.
+            creation.type = EntityType::Missle;
+            creation.missle = EntityMissle
             {
-                EntityType::Missle,
-                EntityMissle
-                {
-                    // Ignored for now.
-                    Tick{{}},
-                    Tick{{}},
-                    {0.0f},
+                // Ignored for now.
+                Tick{{}},
+                Tick{{}},
+                {0.0f},
 
-                    EntityStateMissle::Flying,
-                    target.player.id,
-                    target.player.position + target.player.input.weaponOffset,
-                    target.player.input.weaponPointing,
-                    {0.0f},
-                    {0.0f}
-                }
-            };
-
-            return
-            {
-                {
-                    EntityType::Missle,
-                    EntityMissle
-                    {
-                        // Ignored for now.
-                        Tick{{}},
-                        Tick{{}},
-                        {0.0f},
-
-                        EntityStateMissle::Flying,
-                        target.player.id,
-                        target.player.position + target.player.input.weaponOffset,
-                        target.player.input.weaponPointing,
-                        {0.0f},
-                        {0.0f}
-                    }
-                },
-                target
+                EntityStateMissle::Flying,
+                target.player.id,
+                target.player.position + target.player.input.weaponOffset,
+                target.player.input.weaponPointing,
+                {0.0f},
+                {0.0f}
             };
         }
     }
@@ -295,10 +276,7 @@ std::pair<Entity, Entity> Create(Entity target)
     // default.
     return
     {
-        {
-            EntityType::None,
-            EntityNone{}
-        },
+        creation,
         target
     };
 }
