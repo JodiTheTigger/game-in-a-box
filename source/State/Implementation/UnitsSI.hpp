@@ -180,6 +180,27 @@ inline Quantity<Unit<M1-M2, K1-K2, S1-S2>, T1> operator/(const Quantity<Unit<M1,
     return {lhs.value / rhs.value};
 }
 
+// ///////////////////
+// Vector Maths
+// ///////////////////
+template<typename UNIT, typename T>
+inline constexpr Quantity<UNIT, T> Magnitude(const Quantity<UNIT, T>& lhs)
+{
+    return Quantity<UNIT, T>{Magnitude(lhs.value)};
+}
+
+template<typename UNIT, typename T>
+inline constexpr Quantity<UNIT, float> MagnitudeF(const Quantity<UNIT, T>& lhs)
+{
+    return Quantity<UNIT, float>{MagnitudeF(lhs.value)};
+}
+
+template<typename UNIT, typename T>
+inline constexpr Quantity<Unitless, T> Normalise(const Quantity<UNIT, T>& lhs)
+{
+    return Quantity<Unitless, T>{Normalise(lhs.value)};
+}
+
 }}}} // namespace
 
 
