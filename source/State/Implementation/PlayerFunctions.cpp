@@ -105,4 +105,59 @@ AccelerationVector ResolveCollision(const EntityPlayer&, const EntityPlayer&, co
     return {0.0f};
 }
 
+
+std::pair<Velocity, Velocity> ResolveCollisionAtCollisionPointSphere(const Velocity& v1, const Mass& m1, const Velocity& v2, const Mass& m2)
+{
+    return
+    {
+        ((v1 * (m1 - m2)) + (v2 * Scalar{2} * m2)) / (m1 + m2),
+        ((v2 * (m2 - m1)) + (v1 * Scalar{2} * m1)) / (m1 + m2)
+    };
+}
+
+// RAM: Wont compile till I have Unit versions of Magnitude and Dot
+/*
+
+// std::pair<std::tuple<Position, Velocity>, std::tuple<Position, Velocity>>
+void ResolveCollisionSphere(
+    const Position& p1,
+    const Velocity& v1,
+    const Mass& m1,
+    const Position& p2,
+    const Velocity& v2,
+    const Mass& m2)
+{
+    // Mix of the following articles:
+    // http://nicoschertler.wordpress.com/2013/10/07/elastic-collision-of-circles-and-spheres/
+    // http://stackoverflow.com/questions/345838/ball-to-ball-collision-detection-and-handling
+
+    // first step is to rewind time to the point of collision.
+    // RAM: TODO
+
+    auto np1 = p1;
+    auto np2 = p2;
+
+    // No longer using unit maths.
+    // RAM: TODO: Is there any way to keep this in unit maths?
+    auto collisionNormalGross = p1 - p2;
+    auto collisionNormal = collisionNormalGross / Magnitude(collisionNormalGross);
+
+    // Decompose v1 in parallel and orthogonal part
+    auto v1Dot = Dot(collisionNormal, v1);
+    auto v1Collide = collisionNormal * v1Dot;
+    auto v1Remainder = v1 - v1Collide;
+
+    // Decompose v2 in parallel and orthogonal part
+    auto v2Dot = Dot(collisionNormal, v2);
+    auto v2Collide = collisionNormal * v2Dot;
+    auto v2Remainder = v2 - v2Collide;
+
+    // Calculate new velocities
+    auto v1New = v1Remainder + (((v1Collide * (m1 - m2)) + (v2Collide * Scalar{2} * m2)) / (m1 + m2));
+    auto v2New = v2Remainder + (((v2Collide * (m2 - m1)) + (v1Collide * Scalar{2} * m1)) / (m1 + m2));
+
+    // Now fast forward the collision again.
+    // RAM: TODO:
+}
+*/
 }}} // namespace
