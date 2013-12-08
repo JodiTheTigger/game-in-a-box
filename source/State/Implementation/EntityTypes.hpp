@@ -48,6 +48,11 @@ struct Ammo
     std::uint_fast32_t value;
 };
 
+struct Score
+{
+    std::uint_fast32_t value;
+};
+
 using Vector                = Units::Quantity<Units::Unitless, Vector3>;
 using Position              = Units::Quantity<Units::Metres, Vector3>;
 using Orientation           = Units::Quantity<Units::Radians, Vector3>;

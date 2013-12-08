@@ -88,6 +88,21 @@ bool Collides(const Entity& first, const Entity& second)
         }
     }
 
+    // Scoring
+    if (b->type == EntityType::Missle)
+    {
+        if (b->missle.state == EntityStateMissle::Scoring)
+        {
+            if (a->type == EntityType::Player)
+            {
+                if (b->missle.owner.value == a->player.id.value)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
     // b will never be a EntityMap.
     auto position =
             b->type == EntityType::Player ?
@@ -287,6 +302,18 @@ std::pair<Entity, Entity> Create(Entity target)
 
 std::pair<Entity, Entity> Resolve(Entity first, Entity second)
 {
+    // Scoring
+    if (second.type == EntityType::Missle)
+    {
+        if (second.missle.state == EntityStateMissle::Scoring)
+        {
+            if (first.type == EntityType::Player)
+            {
+                ++first.player.lastMissleHitCount.value;
+            }
+        }
+    }
+
     // RAM: TODO:
     return {first, second};
 }

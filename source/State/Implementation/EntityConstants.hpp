@@ -35,6 +35,9 @@ struct EntityConstants
     Length explodeSizeDeltaPerTick;
     Length explodeMaxSize;
     Speed missleSpeed;
+    Health damagePerTick;
+
+    //
 };
 
 }}} // namespace

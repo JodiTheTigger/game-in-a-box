@@ -59,9 +59,6 @@ struct PlayerAction
 
 struct EntityPlayer
 {
-    // RAM: TODO: Needed?
-    Id id;
-
     // time is just another data point.
     Tick time;
 
@@ -85,6 +82,11 @@ struct EntityPlayer
 
     Length collisionRadius;
     Tick nextFire;
+    Id id;
+    Score lastMissleHitCount;
+
+    // not actually kill count, more hit
+
 };
 
 }}} // namespace
