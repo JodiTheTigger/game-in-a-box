@@ -185,11 +185,15 @@ Entity ThinkPlayer(Entity target, const EntityConstants& constants)
         // Shoot
         if (FlagIsSet(target.player.input.action, FlagsPlayerAction::Fire))
         {
-            if (target.player.energyShoot.value > constants.ammoPerShot.value)
+            if (target.player.nextFire < constants.tick)
             {
-                target.player.energyShoot.value -= constants.ammoPerShot.value;
+                if (target.player.energyShoot.value > constants.ammoPerShot.value)
+                {
+                    target.player.energyShoot.value -= constants.ammoPerShot.value;
+                    target.player.nextFire = constants.tick + constants.firePeriod;
 
-                FlagSet(target.player.allowedAction, FlagsPlayerAction::Fire);
+                    FlagSet(target.player.allowedAction, FlagsPlayerAction::Fire);
+                }
             }
         }
 

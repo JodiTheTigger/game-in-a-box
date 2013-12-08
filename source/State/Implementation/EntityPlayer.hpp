@@ -71,9 +71,6 @@ struct EntityPlayer
     // jetting
     Orientation jetting;
 
-    // Server side
-    Tick lastFired;
-
     // USED IN CODE SO FAR
     // -------------------
     Position position;
@@ -87,6 +84,7 @@ struct EntityPlayer
     PlayerAction input;
 
     Length collisionRadius;
+    Tick nextFire;
 };
 
 }}} // namespace

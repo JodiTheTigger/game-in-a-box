@@ -7,7 +7,8 @@ namespace GameInABox { namespace State { namespace Implementation {
 
 struct EntityConstants
 {
-    Period tick;
+    Tick tick;
+    Period period;
 
     AccelerationVector gravity;
 
@@ -25,6 +26,7 @@ struct EntityConstants
 
     Ammo ammoPerShot;
     Ammo regenerationPerTickAmmo;
+    Tick firePeriod;
 
     Health regenerationPerTickHealth;
     Health deadHealth;
