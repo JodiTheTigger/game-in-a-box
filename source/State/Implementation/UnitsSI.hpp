@@ -195,6 +195,18 @@ inline constexpr Quantity<UNIT, float> MagnitudeF(const Quantity<UNIT, T>& lhs)
     return Quantity<UNIT, float>{MagnitudeF(lhs.value)};
 }
 
+template<int M, int K, int S, typename T>
+inline constexpr Quantity<Unit<M*2, K*2, S*2>, T> PlaneArea(const Quantity<Unit<M, K, S>, T>& lhs)
+{
+    return Quantity<Unit<M*2, K*2, S*2>, T>{PlaneArea(lhs.value)};
+}
+
+template<int M, int K, int S, typename T>
+inline constexpr Quantity<Unit<M*2, K*2, S*2>, float> PlaneAreaF(const Quantity<Unit<M, K, S>, T>& lhs)
+{
+    return Quantity<Unit<M*2, K*2, S*2>, float>{PlaneAreaF(lhs.value)};
+}
+
 template<typename UNIT, typename T>
 inline constexpr Quantity<Unitless, T> Normalise(const Quantity<UNIT, T>& lhs)
 {
