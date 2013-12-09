@@ -186,32 +186,45 @@ inline Quantity<Unit<M1-M2, K1-K2, S1-S2>, T1> operator/(const Quantity<Unit<M1,
 template<typename UNIT, typename T>
 inline constexpr Quantity<UNIT, T> Magnitude(const Quantity<UNIT, T>& lhs)
 {
-    return Quantity<UNIT, T>{Magnitude(lhs.value)};
+    return {Magnitude(lhs.value)};
 }
 
 template<typename UNIT, typename T>
 inline constexpr Quantity<UNIT, float> MagnitudeF(const Quantity<UNIT, T>& lhs)
 {
-    return Quantity<UNIT, float>{MagnitudeF(lhs.value)};
+    return {MagnitudeF(lhs.value)};
 }
 
 template<int M, int K, int S, typename T>
 inline constexpr Quantity<Unit<M*2, K*2, S*2>, T> PlaneArea(const Quantity<Unit<M, K, S>, T>& lhs)
 {
-    return Quantity<Unit<M*2, K*2, S*2>, T>{PlaneArea(lhs.value)};
+    return {PlaneArea(lhs.value)};
 }
 
 template<int M, int K, int S, typename T>
 inline constexpr Quantity<Unit<M*2, K*2, S*2>, float> PlaneAreaF(const Quantity<Unit<M, K, S>, T>& lhs)
 {
-    return Quantity<Unit<M*2, K*2, S*2>, float>{PlaneAreaF(lhs.value)};
+    return {PlaneAreaF(lhs.value)};
 }
 
 template<typename UNIT, typename T>
 inline constexpr Quantity<Unitless, T> Normalise(const Quantity<UNIT, T>& lhs)
 {
-    return Quantity<Unitless, T>{Normalise(lhs.value)};
+    return {Normalise(lhs.value)};
 }
+
+template<int M1, int M2, int K1, int K2, int S1, int S2, typename T1, typename T2>
+inline Quantity<Unit<M1+M2, K1+K2, S1+S2>, T1> Dot(const Quantity<Unit<M1, K1, S1>, T1>& lhs, const Quantity<Unit<M2, K2, S2>, T2>& rhs)
+{
+    return {Dot(lhs.value, rhs.value)};
+}
+
+template<int M1, int M2, int K1, int K2, int S1, int S2, typename T1, typename T2>
+inline Quantity<Unit<M1+M2, K1+K2, S1+S2>, float> DotF(const Quantity<Unit<M1, K1, S1>, T1>& lhs, const Quantity<Unit<M2, K2, S2>, T2>& rhs)
+{
+    return {DotF(lhs.value, rhs.value)};
+}
+
 
 }}}} // namespace
 
