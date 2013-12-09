@@ -115,28 +115,21 @@ std::pair<Velocity, Velocity> ResolveCollisionAtCollisionPointSphere(const Veloc
     };
 }
 
-/* RAM: Won't build till I've done the time rewind and result return parts.
-
-// std::pair<std::tuple<Position, Velocity>, std::tuple<Position, Velocity>>
-void ResolveCollisionSphere(
-    const Position& p1,
-    const Velocity& v1,
-    const Mass& m1,
-    const Position& p2,
-    const Velocity& v2,
-    const Mass& m2)
+std::pair<Velocity, Velocity> ResolveCollisionTouchingSpheres(
+     Position p1,
+     Velocity v1,
+     Mass m1,
+     Position p2,
+     Velocity v2,
+     Mass m2)
 {
     // Mix of the following articles:
     // http://nicoschertler.wordpress.com/2013/10/07/elastic-collision-of-circles-and-spheres/
     // http://stackoverflow.com/questions/345838/ball-to-ball-collision-detection-and-handling
 
-    // first step is to rewind time to the point of collision.
-    // RAM: TODO
-
-    auto np1 = p1;
-    auto np2 = p2;
-
-    auto collisionNormal = Normalise(np1 - np2);
+    // Assumed this is called at the point of collision. Stuff goes wrong if the spheres are in eachother
+    // or not even touching.
+    auto collisionNormal = Normalise(p1 - p2);
 
     // Decompose v1 in parallel and orthogonal part
     auto v1Dot = Dot(collisionNormal, v1);
@@ -152,10 +145,7 @@ void ResolveCollisionSphere(
     auto v1New = v1Remainder + (((v1Collide * (m1 - m2)) + (v2Collide * Scalar{2} * m2)) / (m1 + m2));
     auto v2New = v2Remainder + (((v2Collide * (m2 - m1)) + (v1Collide * Scalar{2} * m1)) / (m1 + m2));
 
-    // Now fast forward the collision again.
-    // RAM: TODO:
+    return {v1New, v2New};
 }
-
-*/
 
 }}} // namespace
