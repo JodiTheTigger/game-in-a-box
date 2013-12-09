@@ -115,8 +115,7 @@ std::pair<Velocity, Velocity> ResolveCollisionAtCollisionPointSphere(const Veloc
     };
 }
 
-// RAM: Wont compile till I have Unit versions of Magnitude and Dot
-/*
+/* RAM: Won't build till I've done the time rewind and result return parts.
 
 // std::pair<std::tuple<Position, Velocity>, std::tuple<Position, Velocity>>
 void ResolveCollisionSphere(
@@ -137,10 +136,7 @@ void ResolveCollisionSphere(
     auto np1 = p1;
     auto np2 = p2;
 
-    // No longer using unit maths.
-    // RAM: TODO: Is there any way to keep this in unit maths?
-    auto collisionNormalGross = p1 - p2;
-    auto collisionNormal = collisionNormalGross / Magnitude(collisionNormalGross);
+    auto collisionNormal = Normalise(np1 - np2);
 
     // Decompose v1 in parallel and orthogonal part
     auto v1Dot = Dot(collisionNormal, v1);
@@ -159,5 +155,7 @@ void ResolveCollisionSphere(
     // Now fast forward the collision again.
     // RAM: TODO:
 }
+
 */
+
 }}} // namespace
