@@ -18,14 +18,14 @@ The parable from the book "Art & Fear" by David Bayles explains the problem.
 
 ## Lessons
 
-You don't spend 1300 hours coding over 1 year and learn nothing. I realised that I wasn't actually writing a game in 1 year. I actually spent it learning the plumbing of C++, C++11, C++1y, the standard library, boost, assembler, compilers, multi platform support, continous integration, static analysis and my love hatred of unit tests.
+You don't spend 1300 hours coding over 1 year and learn nothing. I realised that I wasn't actually writing a game in 1 year. I actually spent it learning the plumbing of C++, C++11, C++1y, the standard library, boost, assembler, compilers, multi platform support, continuous integration, static analysis and my love hatred of unit tests.
 
 ### What broke the camel's back
 
 I found myself implementing physics calculations so that game state calculation could become a massive parallel process and realised that:
-a) I was no longer having fun, it was a chore
-b) There are already physics engines that I can just use instead
-c) It's been a year and I don't even have something I can run that looks remotly like a game
+- I was no longer having fun, it was a chore
+- There are already physics engines that I can just use instead
+- It's been a year and I don't even have something I can run that looks remotly like a game
 sure, the physics engine was using POD phyics data units with template based unit checking (but not boost::units as that's not POD). But it wasn't a game!
 
 ### Current status
